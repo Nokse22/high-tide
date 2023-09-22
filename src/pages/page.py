@@ -20,6 +20,8 @@ import requests
 import random
 import os
 
+from ..widgets.generic_track_widget import GenericTrackWidget
+
 class Page(Adw.NavigationPage):
     __gtype_name__ = 'Page'
 
@@ -68,23 +70,8 @@ class Page(Adw.NavigationPage):
         return builder.get_object('_main')
 
     def get_track_listing(self, track):
-        builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/detailed_track_listing.ui')
-
-        builder.get_object('_track_title_label').set_label(track.name)
-        builder.get_object('_track_artist_box').append(self.get_artist_label(track.artist))
-        builder.get_object('_track_album_label').set_label(track.album.name)
-
-        builder.get_object('_track_title_label_2').set_label(track.name)
-        builder.get_object('_track_artist_box_2').append(self.get_artist_label(track.artist))
-
-        image = builder.get_object('_image')
-        # image_link = f"https://resources.tidal.com/images/{track.album.cover.replace('-', '/')}/80x80.jpg"
-        th = threading.Thread(target=self.add_image, args=(image, track.album))
-        th.deamon = True
-        th.start()
-        builder.get_object('_track_duration_label').set_label(utils.pretty_duration(track.duration))
-
-        return builder.get_object('_main')
+        track_listing = GenericTrackWidget(track, self.window, False)
+        return track_listing
 
     def get_mix_card(self, item):
         builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/card_template.ui')
@@ -108,10 +95,8 @@ class Page(Adw.NavigationPage):
         self.window.navigation_view.push(page)
 
     def get_album_track_listing(self, track):
-        box = Gtk.Box(spacing=6)
-        box.append(Gtk.Label(label=track.name, xalign=0, ellipsize=3, hexpand=True))
-        box.append(Gtk.Label(label=utils.pretty_duration(track.duration), xalign=0, ellipsize=3, halign=Gtk.Align.END, hexpand=True))
-        return box
+        track_listing = GenericTrackWidget(track, self.window, True)
+        return track_listing
 
     def on_play_button_clicked(self, btn):
         self.window.player_object.current_mix_album = self.item
@@ -174,7 +159,7 @@ class Page(Adw.NavigationPage):
         avatar_widget.set_custom_image(image)
 
     def on_row_selected(self, list_box, row):
-        index = int(row.get_child().get_name())
+        index = int(row.get_name())
 
         self.window.player_object.current_mix_album = self.item
         self.window.player_object.current_mix_album_list = self.item.items()

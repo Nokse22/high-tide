@@ -28,5 +28,8 @@
 	  <key name="last-playing-list-id" type="i">
       <default>-1</default>
     </key>
+	  <key name="last-volume" type="i">
+      <default>10</default>
+    </key>
 	</schema>
 </schemalist>

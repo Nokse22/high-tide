@@ -109,6 +109,15 @@ class playerObject(GObject.GObject):
         # self.mix_tracks_box.select_row(self.mix_tracks_box.get_row_at_index(self.current_song_index))
         self.play_track(track)
 
+    def add_to_queue(self):
+        pass
+
+    def play_next(self, track):
+        pass
+
+    def change_volume(self, value):
+        self.playbin.set_property("volume", value)
+
     def shuffle(self, state):
         """Enable or disable shuffle mode."""
         print(f"shuffle toggled to {state}")

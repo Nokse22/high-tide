@@ -116,8 +116,11 @@
                 <property name="tightening-threshold">700</property>
                 <child>
                   <object class="GtkListBox" id="_list_box">
-                    <property name="vexpand">True</property>
-                    <property name="css-classes">navigation-sidebar</property>
+                    <property name="valign">start</property>
+                    <property name="margin-top">12</property>
+                    <property name="margin-start">12</property>
+                    <property name="margin-end">12</property>
+                    <property name="css-classes">boxed-list</property>
                   </object>
                 </child>
               </object>

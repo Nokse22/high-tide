@@ -3,8 +3,8 @@
 <interface>
   <!-- interface-name detailed_track_listing.ui -->
   <requires lib="gtk" version="4.10"/>
-  <object class="GtkListBoxRow" id="_main">
-    <property name="selectable">False</property>
+  <template class="GenericTrackWidget" parent="GtkListBoxRow">
+  <!-- <property name="selectable">False</property> -->
     <child>
   <object class="AdwBreakpointBin">
     <property name="width-request">100</property>
@@ -21,7 +21,7 @@
       <property name="margin-start">6</property>
       <property name="margin-end">6</property>
       <child>
-        <object class="GtkImage" id="_image">
+        <object class="GtkImage" id="image">
           <property name="height-request">44</property>
           <property name="icon-name">emblem-music-symbolic</property>
           <property name="width-request">44</property>
@@ -39,19 +39,31 @@
           <property name="margin-end">12</property>
           <property name="hexpand">true</property>
           <child>
-            <object class="GtkLabel" id="_track_album_label">
-              <property name="ellipsize">end</property>
-              <property name="label">Album</property>
-              <property name="xalign">0.0</property>
-              <layout>
+             <object class="GtkButton" id="track_album_button">
+              <signal name="clicked" handler="on_album_button_clicked"/>
+               <layout>
                 <property name="column">4</property>
                 <property name="column-span">2</property>
                 <property name="row">0</property>
               </layout>
+              <style>
+                <class name="link-text"/>
+                <class name="artist-button"/>
+              </style>
+              <child>
+                <object class="GtkLabel" id="track_album_label">
+                  <property name="xalign">0</property>
+                  <property name="ellipsize">3</property>
+                  <style>
+                    <class name="link-text"/>
+                    <class name="artist-button"/>
+                  </style>
+                </object>
+              </child>
             </object>
           </child>
           <child>
-            <object class="GtkLabel" id="_track_title_label">
+            <object class="GtkLabel" id="track_title_label">
               <property name="css-classes">title-4</property>
               <property name="ellipsize">end</property>
               <property name="label">Title</property>
@@ -65,12 +77,27 @@
             </object>
           </child>
           <child>
-            <object class="GtkBox" id="_track_artist_box">
+            <object class="GtkButton">
+              <signal name="clicked" handler="on_artist_button_clicked"/>
               <layout>
                 <property name="column">2</property>
                 <property name="column-span">2</property>
                 <property name="row">0</property>
               </layout>
+              <style>
+                <class name="link-text"/>
+                <class name="artist-button"/>
+              </style>
+              <child>
+                <object class="GtkLabel" id="artist_label">
+                  <property name="xalign">0</property>
+                  <property name="ellipsize">3</property>
+                  <style>
+                    <class name="link-text"/>
+                    <class name="artist-button"/>
+                  </style>
+                </object>
+              </child>
             </object>
           </child>
         </object>
@@ -81,7 +108,8 @@
           <property name="visible">False</property>
           <property name="hexpand">true</property>
           <child>
-            <object class="GtkLabel" id="_track_title_label_2">
+            <object class="GtkLabel">
+              <property name="label" bind-source="artist_label" bind-property="label"></property>
               <property name="css-classes">title-4</property>
               <property name="ellipsize">end</property>
               <property name="label">Title</property>
@@ -90,8 +118,23 @@
             </object>
           </child>
           <child>
-            <object class="GtkBox" id="_track_artist_box_2">
-              <property name="vexpand">True</property>
+            <object class="GtkButton">
+              <signal name="clicked" handler="on_artist_button_clicked"/>
+              <style>
+                <class name="link-text"/>
+                <class name="artist-button"/>
+              </style>
+              <child>
+                <object class="GtkLabel">
+                  <property name="label" bind-source="artist_label" bind-property="label"></property>
+                  <property name="xalign">0</property>
+                  <property name="ellipsize">3</property>
+                  <style>
+                    <class name="link-text"/>
+                    <class name="artist-button"/>
+                  </style>
+                </object>
+              </child>
             </object>
           </child>
         </object>
@@ -109,68 +152,33 @@
           <property name="menu-model">track_menu</property>
           <property name="valign">center</property>
           <property name="css-classes">flat</property>
-          <property name="visible">false</property>
+          <!-- <property name="visible">false</property> -->
         </object>
       </child>
-      <child>
-      <object class="GtkMenuButton">
-        <property name="icon-name">view-more-symbolic</property>
-        <property name="css-classes">flat</property>
-        <!-- <property name="visible">false</property> -->
-        <property name="popover">
-          <object class="GtkPopover">
-            <child>
-              <object class="GtkListBox">
-                <property name="css-classes">navigation-sidebar</property>
-                <property name="selection-mode">none</property>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Go to track radio</property>
-                    <property name="xalign">0.0</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Play next</property>
-                    <property name="xalign">0.0</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label">Add to my collection</property>
-                    <property name="xalign">0.0</property>
-                  </object>
-                </child>
-
-              </object>
-            </child>
-          </object>
-        </property>
-        <property name="valign">center</property>
-      </object>
-    </child>
     </object>
   </property>
   </object>
     </child>
-  </object>
+    </template>
   <menu id="track_menu">
     <item>
-      <attribute name="action">app.radio</attribute>
+      <attribute name="action">trackwidget.radio</attribute>
       <attribute name="label">Go to track radio</attribute>
     </item>
     <item>
-      <attribute name="action">track-radio</attribute>
+      <attribute name="action">trackwidget.play-next</attribute>
       <attribute name="label">Play next</attribute>
     </item>
     <item>
-      <attribute name="action">track-radio</attribute>
+      <attribute name="action">trackwidget.add-to-queue</attribute>
       <attribute name="label">Add to queue</attribute>
     </item>
     <item>
-      <attribute name="action">track-radio</attribute>
+      <attribute name="action">trackwidget.add-to-my-collection</attribute>
       <attribute name="label">Add to my collection</attribute>
     </item>
+    <submenu id="playlists_submenu">
+      <attribute name="label">Add to Playlist</attribute>
+    </submenu>
   </menu>
 </interface>
-

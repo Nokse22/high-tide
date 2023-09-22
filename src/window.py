@@ -73,6 +73,7 @@ class TidalWindow(Adw.ApplicationWindow):
     lyrics_split_view = Gtk.Template.Child()
     lyrics_box = Gtk.Template.Child()
     sidebar_playlists = Gtk.Template.Child()
+    volume_button = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -82,8 +83,10 @@ class TidalWindow(Adw.ApplicationWindow):
         self.settings.bind("window-width", self, "default-width", Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind("window-height", self, "default-height", Gio.SettingsBindFlags.DEFAULT)
 
-
         self.player_object = playerObject()
+
+        self.volume_button.get_adjustment().set_value(self.settings.get_int("last-volume")/10)
+
         self.shuffle_button.connect("toggled", self.on_shuffle_button_toggled)
 
         self.player_object.bind_property("shuffle_mode", self.shuffle_button, "active", GObject.BindingFlags.DEFAULT)
@@ -331,6 +334,11 @@ class TidalWindow(Adw.ApplicationWindow):
         self.settings.set_int("quality", pos)
         print("audio quality changed")
 
+    @Gtk.Template.Callback("on_volume_changed")
+    def on_volume_changed_func(self, widget, value):
+        print(f"volume changed to {value}")
+        self.player_object.change_volume(value)
+        self.settings.set_int("last-volume", int(value*10))
 
     @Gtk.Template.Callback("on_new_playlist_button_clicked")
     def on_new_playlist_button_clicked_func(self, btn):
