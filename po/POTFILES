@@ -1,0 +1,6 @@
+data/io.github.nokse22.high-tide.desktop.in
+data/io.github.nokse22.high-tide.appdata.xml.in
+data/io.github.nokse22.high-tide.gschema.xml
+src/main.py
+src/window.py
+src/window.ui

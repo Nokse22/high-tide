@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=tidal
+Exec=tidal
+Icon=io.github.nokse22.high-tide
+Terminal=false
+Type=Application
+Categories=GTK;
+StartupNotify=true

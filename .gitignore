@@ -1,0 +1,7 @@
+_build/
+.flatpak/
+node_modules/
+
+# local flatpak build
+/repo
+/.flatpak-builder/

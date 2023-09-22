@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.12.1 -->
+<interface>
+  <!-- interface-name login.ui -->
+  <requires lib="gtk" version="4.10"/>
+  <requires lib="libadwaita" version="1.3"/>
+  <object class="GtkBox" id="_main">
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="AdwHeaderBar">
+        <property name="css-classes">flat</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox" id="_content">
+        <property name="vexpand">True</property>
+        <child>
+          <object class="GtkSpinner" id="_spinner">
+            <property name="spinning">true</property>
+            <property name="hexpand">true</property>
+            <property name="vexpand">true</property>
+            <property name="halign">center</property>
+            <property name="valign">center</property>
+            <property name="width-request">42</property>
+            <property name="height-request">42</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

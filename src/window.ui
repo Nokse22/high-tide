@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="Adw" version="1.0"/>
+  <template class="TidalWindow" parent="AdwApplicationWindow">
+    <property name="default-width">800</property>
+    <property name="default-height">600</property>
+    <property name="width-request">300</property>
+    <property name="height-request">400</property>
+    <property name="title">High Tide</property>
+    <child>
+      <object class="AdwBreakpoint">
+        <condition>max-width: 700px</condition>
+        <setter object="split_view" property="collapsed">true</setter>
+        <setter object="sidebar_show_button" property="visible">true</setter>
+      </object>
+    </child>
+    <child>
+      <object class="AdwBreakpoint">
+        <condition>max-width: 800px</condition>
+        <setter object="split_view" property="collapsed">true</setter>
+        <!-- <setter object="playbar_box" property="orientation">vertical</setter> -->
+        <!-- <setter object="playbar_box" property="homogeneous">true</setter> -->
+        <setter object="playbar_controls_box" property="halign">center</setter>
+        <setter object="sidebar_show_button" property="visible">true</setter>
+        <setter object="big_progress_bar_box" property="visible">false</setter>
+        <setter object="small_progress_bar" property="visible">true</setter>
+        <setter object="_more_functions_box" property="visible">false</setter>
+        <setter object="_song_box" property="width-request">-1</setter>
+        <setter object="skip_backward_button" property="visible">false</setter>
+        <setter object="shuffle_button" property="visible">false</setter>
+        <setter object="repeat_button" property="visible">false</setter>
+        <setter object="play_button" property="css-classes">flat</setter>
+        <setter object="playbar_controls_box" property="halign">end</setter>
+        <setter object="playbar_controls_box" property="margin-end">12</setter>
+        <setter object="playing_track_image" property="pixel-size">50</setter>
+        <setter object="playing_track_image" property="margin-start">6</setter>
+      </object>
+    </child>
+    <!-- <child> -->
+    <!--   <object class="AdwBreakpoint"> -->
+    <!--     <condition>max-width: 700px</condition> -->
+    <!--     <setter object="lyrics_split_view" property="collapsed">true</setter> -->
+    <!--   </object> -->
+    <!-- </child> -->
+    <property name="content">
+    <object class="GtkBox">
+      <property name="orientation">vertical</property>
+      <property name="vexpand">true</property>
+      <child>
+        <object class="AdwOverlaySplitView" id="split_view">
+          <property name="vexpand">true</property>
+          <property name="sidebar">
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="AdwHeaderBar">
+                <property name="css-classes">flat</property>
+                <child type="end">
+                  <object class="GtkMenuButton">
+                    <property name="icon-name">open-menu-symbolic</property>
+                    <property name="menu-model">primary_menu</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSearchEntry" id="search_entry">
+                <property name="placeholder-text">Search...</property>
+                <property name="search-delay">300</property>
+                <property name="margin-end">6</property>
+                <property name="margin-start">6</property>
+                <property name="margin-bottom">6</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="vexpand">true</property>
+                  <child>
+                    <object class="GtkBox">
+                      <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkListBox" id="sidebar_list">
+                          <signal name="row-activated" handler="on_sidebar_row_selected_clicked"/>
+                          <property name="css-classes">navigation-sidebar</property>
+                          <property name="selection-mode">none</property>
+                          <child>
+                            <object class="GtkLabel">
+                              <property name="name">HOME</property>
+                              <property name="label" translatable="true">Home</property>
+                              <property name="xalign">0</property>
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkLabel">
+                              <property name="name">EXPLORE</property>
+                              <property name="label" translatable="true">Explore</property>
+                              <property name="xalign">0</property>
+                            </object>
+                          </child>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <property name="label" translatable="true">MY COLLECTION</property>
+                          <property name="xalign">0</property>
+                          <property name="css-classes">dim-label</property>
+                          <property name="margin-bottom">3</property>
+                          <property name="margin-top">18</property>
+                          <property name="margin-start">14</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkListBox" id="sidebar_collection">
+                          <signal name="row-activated" handler="on_sidebar_row_selected_clicked"/>
+                          <property name="css-classes">navigation-sidebar</property>
+                          <property name="selection-mode">none</property>
+                          <!-- <child> -->
+                          <!--   <object class="GtkLabel"> -->
+                          <!--     <property name="name">F-MIX</property> -->
+                          <!--     <property name="label" translatable="true">Mixes and Radios</property> -->
+                          <!--     <property name="xalign">0</property> -->
+                          <!--   </object> -->
+                          <!-- </child> -->
+                          <child>
+                            <object class="GtkLabel">
+                              <property name="name">F-PLAYLIST</property>
+                              <property name="label" translatable="true">Playlist</property>
+                              <property name="xalign">0</property>
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkLabel">
+                              <property name="name">F-ALBUM</property>
+                              <property name="label" translatable="true">Albums</property>
+                              <property name="xalign">0</property>
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkLabel">
+                              <property name="name">F-TRACK</property>
+                              <property name="label" translatable="true">Tracks</property>
+                              <property name="xalign">0</property>
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkLabel">
+                              <property name="name">F-ARTIST</property>
+                              <property name="label" translatable="true">Artists</property>
+                              <property name="xalign">0</property>
+                            </object>
+                          </child>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkBox">
+                          <property name="margin-bottom">3</property>
+                          <property name="margin-top">18</property>
+                          <property name="margin-start">14</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="true">MY PLAYLISTS</property>
+                                <property name="xalign">0</property>
+                                <property name="css-classes">dim-label</property>
+
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton">
+                                <property name="icon-name">list-add-symbolic</property>
+                                <property name="halign">end</property>
+                                <property name="css-classes">flat</property>
+                                <property name="hexpand">true</property>
+                                <property name="valign">center</property>
+                                <property name="margin-end">12</property>
+                                <signal name="clicked" handler="on_new_playlist_button_clicked"/>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      <child>
+                        <object class="GtkListBox" id="sidebar_playlists">
+                          <signal name="row-activated" handler="on_playlists_sidebar_row_activated"/>
+                          <property name="css-classes">navigation-sidebar</property>
+                          <property name="selection-mode">none</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          </property>
+          <property name="content">
+
+            <object class="AdwBreakpointBin">
+              <property name="width-request">280</property>
+              <property name="height-request">200</property>
+              <child>
+                <object class="AdwBreakpoint">
+                  <condition>max-width: 600px</condition>
+                  <!-- <setter object="lyrics_split_view" property="collapsed">true</setter> -->
+                </object>
+              </child>
+              <property name="child">
+                <object class="AdwOverlaySplitView" id="lyrics_split_view">
+                  <property name="height-request">200</property>
+                  <property name="collapsed">false</property>
+                  <property name="sidebar-position">end</property>
+                  <!-- <property name="collapsed" bind-source="_lyrics_toggle_button" bind-property="active">True</property> -->
+                  <property name="show-sidebar">false</property>
+
+                  <property name="sidebar-width-fraction">0.3</property>
+                  <property name="max-sidebar-width">400</property>
+                  <property name="min-sidebar-width">300</property>
+
+                  <property name="content">
+
+                    <object class="AdwNavigationView" id="navigation_view">
+                      <property name="vexpand">true</property>
+                    </object>
+
+                  </property>
+
+                  <property name="sidebar">
+
+                    <object class="GtkBox">
+                      <property name="orientation">vertical</property>
+                      <child>
+                        <object class="AdwHeaderBar">
+                          <property name="css-classes">flat</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkBox">
+                          <property name="vexpand">True</property>
+                          <child>
+                            <object class="GtkScrolledWindow" id="lyrics_box">
+                              <property name="hexpand">true</property>
+                              <property name="vexpand">true</property>
+                              <style>
+                                <class name="undershoot-top"/>
+                              </style>
+                            </object>
+                          </child>
+                        </object>
+                      </child>
+                    </object>
+
+                  </property>
+                </object>
+              </property>
+            </object>
+          </property>
+        </object>
+      </child>
+      <child>
+        <object class="GtkBox">
+          <property name="hexpand">true</property>
+          <property name="orientation">vertical</property>
+          <child>
+            <object class="GtkSeparator" id="playbar_separator"></object>
+          </child>
+          <child>
+            <object class="GtkProgressBar" id="small_progress_bar">
+              <property name="fraction">0.0</property>
+              <property name="visible">false</property>
+              <style>
+                  <class name="osd"/>
+                  <class name="horizonatal"/>
+              </style>
+            </object>
+          </child>
+          <child>
+            <object class="GtkBox" id="playbar_box">
+              <property name="orientation">horizontal</property>
+              <property name="height-request">60</property>
+              <property name="hexpand">true</property>
+              <property name="homogeneous">false</property>
+              <child>
+                <object class="GtkBox">
+                  <property name="orientation">horizontal</property>
+                    <child>
+                      <object class="GtkBox" id="_song_box">
+                        <property name="orientation">horizontal</property>
+                        <property name="width-request">270</property>
+                          <child>
+                            <object class="GtkButton" id="sidebar_show_button">
+                              <property name="icon-name">sidebar-show-symbolic</property>
+                              <property name="visible">false</property>
+                              <property name="valign">fill</property>
+                              <property name="margin-start">6</property>
+                              <property name="margin-top">6</property>
+                              <property name="margin-bottom">6</property>
+                              <property name="css-classes">flat</property>
+                              <signal name="clicked" handler="show_sidebar"/>
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkImage" id="playing_track_image">
+                              <property name="icon-name">emblem-music-symbolic</property>
+                              <property name="pixel-size">60</property>
+                              <property name="margin-start">10</property>
+                              <property name="margin-end">12</property>
+                              <property name="valign">center</property>
+                              <property name="overflow">hidden</property>
+                              <property name="css-classes">small-image</property>
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkBox">
+                              <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkLabel" id="song_title_label">
+                                    <property name="label" translatable="true">Song Title</property>
+                                    <property name="xalign">0</property>
+                                    <property name="margin_top">6</property>
+                                    <property name="css-classes">title-4</property>
+                                    <property name="ellipsize">3</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="artist_button">
+                                    <style>
+                                      <class name="link-text"/>
+                                      <class name="artist-button"/>
+                                    </style>
+                                    <child>
+                                      <object class="GtkLabel" id="artist_label">
+                                        <property name="label" translatable="true">Artist</property>
+                                        <property name="xalign">0</property>
+                                        <property name="ellipsize">3</property>
+                                        <style>
+                                          <class name="link-text"/>
+                                          <class name="artist-button"/>
+                                        </style>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+              <child>
+                <object class="GtkBox">
+                  <property name="orientation">vertical</property>
+                  <property name="hexpand">true</property>
+
+
+              <child>
+              <object class="GtkBox" id="playbar_controls_box">
+                <property name="halign">center</property>
+                <property name="hexpand">true</property>
+                <!-- <property name="margin-start">12</property> -->
+                <child>
+                  <object class="GtkToggleButton" id="shuffle_button">
+                    <property name="css-classes">circular
+flat</property>
+                    <property name="icon-name">media-playlist-shuffle-symbolic</property>
+                    <property name="valign">center</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-top">6</property>
+                    <property name="opacity">0.6</property>
+                    <!-- <signal name="toggled" handler="on_shuffle_toggled"/> -->
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="skip_backward_button">
+                    <property name="css-classes">circular
+flat</property>
+                    <property name="icon-name">media-skip-backward-symbolic</property>
+                    <property name="valign">center</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-top">6</property>
+                    <signal name="clicked" handler="on_skip_backward_button_clicked"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="play_button">
+                    <property name="css-classes">pill
+play-btn</property>
+                    <property name="icon-name">media-playback-pause-symbolic</property>
+                    <property name="valign">center</property>
+                    <signal name="clicked" handler="on_play_button_clicked"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="skip_forward_button">
+                    <property name="css-classes">circular
+flat</property>
+                    <property name="icon-name">media-skip-forward-symbolic</property>
+                    <property name="valign">center</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-top">6</property>
+                    <signal name="clicked" handler="on_skip_forward_button_clicked"/>
+                  </object>
+                </child>
+              <child>
+                  <object class="GtkToggleButton" id="repeat_button">
+                    <property name="css-classes">circular
+flat</property>
+                    <property name="icon-name">media-playlist-repeat-symbolic</property>
+                    <property name="valign">center</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-top">6</property>
+                    <property name="opacity">0.6</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+                  <child>
+                <object class="GtkBox" id="big_progress_bar_box">
+                  <property name="hexpand">true</property>
+                  <property name="width-request">200</property>
+                  <property name="margin-start">6</property>
+                  <property name="margin-end">12</property>
+                  <child>
+                    <object class="GtkLabel" id="time_played_label">
+                      <property name="label" translatable="true">00:00</property>
+                      <property name="width-request">40</property>
+                    </object>
+                  </child>
+                  <child>
+                    <object class="GtkScale" id="progress_bar">
+                      <property name="sensitive">true</property>
+                      <property name="hexpand">true</property>
+                      <signal name="change-value" handler="on_slider_seek"/>
+                      <property name="adjustment">
+                        <object class="GtkAdjustment">
+                          <property name="upper">3.54</property>
+                          <property name="value">0.0</property>
+                        </object>
+                      </property>
+                    </object>
+                  </child>
+                  <child>
+                    <object class="GtkLabel" id="dutation_label">
+                      <property name="label" translatable="true">00:00</property>
+                      <property name="width-request">40</property>
+                    </object>
+                  </child>
+                </object>
+              </child>
+
+              </object>
+            </child>
+              <child>
+                <object class="GtkBox" id="_more_functions_box">
+                  <property name="width-request">270</property>
+                  <property name="hexpand-set">true</property>
+                  <property name="halign">end</property>
+                  <!-- <property name="width-request">200</property> -->
+                  <property name="margin-end">6</property>
+                  <property name="margin-start">12</property>
+                  <child>
+                  <object class="GtkButton">
+                    <property name="css-classes">flat</property>
+                    <property name="icon-name">dialog-information-symbolic</property>
+                    <property name="valign">center</property>
+                    <property name="halign">end</property>
+                    <property name="hexpand">true</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-top">6</property>
+                    <signal name="clicked" handler="on_track_radio_button_clicked"/>
+                  </object>
+                </child>
+                  <child>
+                  <object class="GtkButton">
+                    <property name="css-classes">flat</property>
+                    <property name="icon-name">emote-love-symbolic</property>
+                    <property name="valign">center</property>
+                    <property name="halign">end</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-top">6</property>
+                    <!-- <signal name="clicked" handler="on_skip_forward_button_clicked"/> -->
+                  </object>
+                </child>
+                  <child>
+                  <object class="GtkButton" id="_lyrics_toggle_button">
+                    <property name="css-classes">flat</property>
+                    <property name="icon-name">accessories-text-editor-symbolic</property>
+                    <property name="valign">center</property>
+                    <property name="halign">end</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-top">6</property>
+                    <signal name="clicked" handler="on_lyrics_button_clicked"/>
+                  </object>
+                </child>
+
+                  </object>
+                </child>
+
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </property>
+  </template>
+  <menu id="primary_menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Login</attribute>
+        <attribute name="action">app.log-in</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Preferences</attribute>
+        <attribute name="action">app.preferences</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
+        <attribute name="action">win.show-help-overlay</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_About Tidal</attribute>
+        <attribute name="action">app.about</attribute>
+      </item>
+    </section>
+  </menu>
+</interface>
+
