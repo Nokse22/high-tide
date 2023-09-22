@@ -31,8 +31,7 @@ class Page(Adw.NavigationPage):
         self.window = _window
         self.set_title(_name)
 
-        self.builder = Gtk.Builder.new_from_file('/home/lorenzo/Projects/high-tide/data/ui/pages_ui/page_template.ui')
-
+        self.builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/pages_ui/page_template.ui')
         self.item = _item
 
         self.content = self.builder.get_object("_content")
@@ -56,7 +55,7 @@ class Page(Adw.NavigationPage):
         return artist_button
 
     def get_album_card(self, item):
-        builder = Gtk.Builder.new_from_file('/home/lorenzo/Projects/high-tide/data/ui/card_template.ui')
+        builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/card_template.ui')
 
         builder.get_object('_title_label').set_text(item.name)
         builder.get_object('_detail_label').set_visible(False)
@@ -69,7 +68,7 @@ class Page(Adw.NavigationPage):
         return builder.get_object('_main')
 
     def get_track_listing(self, track):
-        builder = Gtk.Builder.new_from_file('/home/lorenzo/Projects/high-tide/data/ui/detailed_track_listing.ui')
+        builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/detailed_track_listing.ui')
 
         builder.get_object('_track_title_label').set_label(track.name)
         builder.get_object('_track_artist_box').append(self.get_artist_label(track.artist))
@@ -88,7 +87,7 @@ class Page(Adw.NavigationPage):
         return builder.get_object('_main')
 
     def get_mix_card(self, item):
-        builder = Gtk.Builder.new_from_file('/home/lorenzo/Projects/high-tide/data/ui/card_template.ui')
+        builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/card_template.ui')
 
         builder.get_object('_title_label').set_text(item.title)
         builder.get_object('_detail_label').set_text(item.sub_title)
@@ -111,9 +110,7 @@ class Page(Adw.NavigationPage):
     def get_album_track_listing(self, track):
         box = Gtk.Box(spacing=6)
         box.append(Gtk.Label(label=track.name, xalign=0, ellipsize=3, hexpand=True))
-        minutes = track.duration // 60
-        seconds = track.duration % 60
-        box.append(Gtk.Label(label=f"{minutes}:{seconds}", xalign=0, ellipsize=3, halign=Gtk.Align.END, hexpand=True))
+        box.append(Gtk.Label(label=utils.pretty_duration(track.duration), xalign=0, ellipsize=3, halign=Gtk.Align.END, hexpand=True))
         return box
 
     def on_play_button_clicked(self, btn):
@@ -173,7 +170,7 @@ class Page(Adw.NavigationPage):
 
     def _add_image_to_avatar(self, avatar_widget, file_path):
         file = Gio.File.new_for_path(file_path)
-        image = Gdk.Texture.new_from_file(file)
+        image = Gdk.Texture.new_from_resource(file)
         avatar_widget.set_custom_image(image)
 
     def on_row_selected(self, list_box, row):
@@ -230,7 +227,7 @@ class Page(Adw.NavigationPage):
         carousel.scroll_to(next_page, True)
 
     def get_playlist_card(self, playlist):
-        builder = Gtk.Builder.new_from_file('/home/lorenzo/Projects/high-tide/data/ui/card_template.ui')
+        builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/card_template.ui')
 
         builder.get_object('_title_label').set_text(playlist.name)
         creator = playlist.creator
@@ -274,7 +271,7 @@ class Page(Adw.NavigationPage):
         self.window.navigation_view.push(page)
 
     def get_artist_card(self, item): #ported
-        builder = Gtk.Builder.new_from_file('/home/lorenzo/Projects/high-tide/data/ui/card_template.ui')
+        builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/card_template.ui')
 
         builder.get_object('_title_label').set_text(item.name)
         builder.get_object('_detail_label').set_text("Artist")
@@ -292,7 +289,7 @@ class Page(Adw.NavigationPage):
     def get_page_item_card(self, page_item):
         # image_url = page_item.image()
 
-        builder = Gtk.Builder.new_from_file('/home/lorenzo/Projects/high-tide/data/ui/card_template.ui')
+        builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/card_template.ui')
 
         builder.get_object('_title_label').set_text(page_item.short_header)
         builder.get_object('_detail_label').set_text(page_item.short_sub_header[0:50])
@@ -307,7 +304,7 @@ class Page(Adw.NavigationPage):
     def get_page_item_card(self, page_item):
         # image_url = page_item.image()
 
-        builder = Gtk.Builder.new_from_file('/home/lorenzo/Projects/high-tide/data/ui/card_template.ui')
+        builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/card_template.ui')
 
         builder.get_object('_title_label').set_text(page_item.short_header)
         builder.get_object('_detail_label').set_text(page_item.short_sub_header[0:50])

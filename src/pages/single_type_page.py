@@ -25,7 +25,7 @@ class singleTypePage(Page):
     __gtype_name__ = 'singleTypePage'
 
     def _load_page(self):
-        builder = Gtk.Builder.new_from_file("/home/lorenzo/Projects/high-tide/data/ui/pages_ui/home_page_template.ui")
+        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/home_page_template.ui")
 
         page_content = builder.get_object("_main")
         content = builder.get_object("_content")

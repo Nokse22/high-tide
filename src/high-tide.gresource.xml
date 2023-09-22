@@ -4,14 +4,14 @@
     <file preprocess="xml-stripblanks">window.ui</file>
     <file preprocess="xml-stripblanks">login.ui</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
-    <file preprocess="xml-stripblanks">../data/ui/detailed_track_listing.ui</file>
-    <file preprocess="xml-stripblanks">../data/ui/card_template.ui</file>
-    <file preprocess="xml-stripblanks">../data/ui/pages_ui/page_template.ui</file>
-    <file preprocess="xml-stripblanks">../data/ui/pages_ui/tracks_list_template.ui</file>
-    <file preprocess="xml-stripblanks">../data/ui/pages_ui/artist_page_template.ui</file>
-    <file preprocess="xml-stripblanks">../data/ui/pages_ui/home_page_template.ui</file>
     <file preprocess="xml-stripblanks">preferences.ui</file>
     <file preprocess="xml-stripblanks">new_playlist.ui</file>
+    <file preprocess="xml-stripblanks">ui/detailed_track_listing.ui</file>
+    <file preprocess="xml-stripblanks">ui/card_template.ui</file>
+    <file preprocess="xml-stripblanks">ui/pages_ui/page_template.ui</file>
+    <file preprocess="xml-stripblanks">ui/pages_ui/tracks_list_template.ui</file>
+    <file preprocess="xml-stripblanks">ui/pages_ui/artist_page_template.ui</file>
+    <file preprocess="xml-stripblanks">ui/pages_ui/home_page_template.ui</file>
   </gresource>
 </gresources>
 

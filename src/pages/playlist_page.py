@@ -25,7 +25,7 @@ class playlistPage(Page):
     __gtype_name__ = 'playlistPage'
 
     def _load_page(self):
-        builder = Gtk.Builder.new_from_file("/home/lorenzo/Projects/high-tide/data/ui/pages_ui/tracks_list_template.ui")
+        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui")
 
         page_content = builder.get_object("_main")
         tracks_list_box = builder.get_object("_list_box")

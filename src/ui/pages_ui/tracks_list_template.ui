@@ -47,7 +47,7 @@
                     <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkLabel" id="_title_label">
-                        <property name="css-classes">title-4</property>
+                        <property name="css-classes">title-2</property>
                         <property name="ellipsize">end</property>
                         <property name="vexpand">True</property>
                         <property name="xalign">0.0</property>
