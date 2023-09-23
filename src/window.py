@@ -107,11 +107,7 @@ class TidalWindow(Adw.ApplicationWindow):
         self.player_object.current_song_index = 0
         self.previous_time = 0
         self.favourite_playlists = []
-        # self.favourite_
 
-        # self.login()
-
-        # if self.session.check_login():
         self.load_home_page()
 
     def add_favourite_playlists(self, playlists):
@@ -207,6 +203,8 @@ class TidalWindow(Adw.ApplicationWindow):
         except Exception as e:
             print(f"An error occurred logging in: {e}")
             self.on_failed_connection()
+
+
 
     def login(self, reload=False):
         try:

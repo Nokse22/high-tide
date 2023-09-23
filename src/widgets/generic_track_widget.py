@@ -8,6 +8,8 @@ import threading
 
 from ..lib import utils
 
+from tidalapi.user import Favorites
+
 @Gtk.Template(resource_path='/io/github/nokse22/high-tide/ui/widgets/generic_track_widget.ui')
 class GenericTrackWidget(Gtk.ListBoxRow):
     __gtype_name__ = 'GenericTrackWidget'
@@ -88,26 +90,22 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         self.win.navigation_view.push(page)
 
     def _play_next(self, *args):
-        self.win.player_object.play_next(self.track)
+        self.win.player_object.add_next(self.track)
 
     def _add_to_queue(self, *args):
         self.win.player_object.add_to_queue(self.track)
 
     def _add_to_my_collection(self, *args):
-        pass
+        th = threading.Thread(target=self.th_add_to_my_collection, args=())
+        th.deamon = True
+        th.start()
 
-    # def add_to_playlist(self, target):
-    #     print(target)
+    def th_add_to_my_collection(self):
+        self.win.session.user.favorites.add_track(self.track)
 
     def _add_to_playlist(self, action, parameter, playlist_index):
-        # Retrieve the playlist ID from the parameter
         playlist_id = parameter.get_string()
-
-        # Use playlist_index to perform actions specific to the selected playlist
         selected_playlist = self.win.favourite_playlists[playlist_index]
-
-        # Add the track to the selected playlist using playlist_id
-        # Add your code here
 
         print(f"Added to playlist: {selected_playlist.name}, ID: {playlist_id}")
 
