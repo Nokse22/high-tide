@@ -30,6 +30,8 @@ from .window import TidalWindow
 from tidalapi.media import Quality
 
 import threading
+import os
+import shutil
 
 class TidalApplication(Adw.Application):
     """The main application singleton class."""
@@ -189,6 +191,15 @@ class TidalApplication(Adw.Application):
             list_id = list_.id
             self.win.settings.set_int("last-playing-song-id", track_id)
             self.win.settings.set_string("last-playing-list-id", list_id)
+
+        folder_path = "tmp_img"
+
+        if os.path.exists(folder_path):
+            # Delete the folder and its contents
+            shutil.rmtree(folder_path)
+
+        # Create the folder again
+        os.makedirs(folder_path)
 
 def main(version):
     """The application's entry point."""
