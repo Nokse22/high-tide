@@ -51,12 +51,6 @@ class Page(Adw.NavigationPage):
     def _load_page(self):
         return
 
-    # def get_artist_label(self, artist):
-    #     artist_button = Gtk.Button(css_classes=["artist-button", "link-text"])
-    #     artist_button.set_child(Gtk.Inscription(hexpand=True, text=artist.name, css_classes=["artist-button", "link-text"]))
-    #     artist_button.connect("clicked", self.on_artist_button_clicked, artist)
-    #     return artist_button
-
     def get_album_card(self, item):
         card = CardWidget(item, self.window)
         return card
@@ -90,7 +84,6 @@ class Page(Adw.NavigationPage):
         self.window.player_object.current_song_index = 0
 
     def on_shuffle_button_clicked(self, btn):
-        # self.window.player_object.shuffle(True)
         self.window.player_object.current_mix_album = self.item
         self.window.player_object.current_mix_album_list = self.item.items()
         self.window.player_object.play_shuffle()
@@ -149,12 +142,13 @@ class Page(Adw.NavigationPage):
         self.window.player_object.current_mix_album_list = self.item.items()
         track = self.window.player_object.current_mix_album_list[index]
         self.window.player_object.play_track(track)
+        self.window.player_object.play()
         self.window.player_object.current_song_index = index
 
     def get_carousel(self, title):
         cards_box = Gtk.Box()
         box = Gtk.Box(orientation=1, margin_bottom=12, margin_start=12, margin_end=12, overflow=Gtk.Overflow.HIDDEN)
-        title_box = Gtk.Box(margin_top=12)
+        title_box = Gtk.Box(margin_top=12, margin_bottom=6)
         title_box.append(Gtk.Label(label=title, xalign=0, css_classes=["title-3"], ellipsize=3))
         prev_button = Gtk.Button(icon_name="go-next-symbolic", margin_start=6, halign=Gtk.Align.END, css_classes=["circular"])
         next_button = Gtk.Button(icon_name="go-previous-symbolic", hexpand=True, halign=Gtk.Align.END, css_classes=["circular"])
@@ -225,7 +219,7 @@ class Page(Adw.NavigationPage):
         page.load()
         self.window.navigation_view.push(page)
 
-    def get_artist_card(self, item): #ported
+    def get_artist_card(self, item):
         card = CardWidget(item, self.window)
         return card
 

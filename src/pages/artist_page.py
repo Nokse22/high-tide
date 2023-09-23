@@ -17,6 +17,7 @@ from ..lib import utils
 import threading
 import requests
 import random
+import copy
 
 from .page import Page
 
@@ -66,7 +67,8 @@ class artistPage(Page):
         carousel, cards_box = self.get_carousel("Similar Artists")
         carousel_box.append(carousel)
 
-        artists = self.item.get_similar()
+        this_artist = self.window.session.artist(self.item.id)
+        artists = this_artist.get_similar()
 
         for artist in artists:
             artist_card = self.get_artist_card(artist)

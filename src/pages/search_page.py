@@ -32,7 +32,7 @@ class searchPage(Page):
 
         query = self.window.search_entry.get_text()
 
-        results = self.window.session.search(query, [Artist, Album, Playlist, Track], 3)
+        results = self.window.session.search(query, [Artist, Album, Playlist, Track], 10)
 
         print(query, results)
 

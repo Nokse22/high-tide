@@ -50,12 +50,24 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         # action.connect("activate", self.add_to_playlist)
         # action_group.add_action(action)
 
+        # for index, playlist in enumerate(self.win.favourite_playlists):
+        #     if index > 10:
+        #         break
+        #     item = Gio.MenuItem.new()
+        #     item.set_label(playlist.name)
+        #     item.set_action_and_target_value("trackwidget.add-to-playlist", GLib.Variant.new_string(playlist.id))
+        #     self.playlists_submenu.insert_item(index, item)
+
         for index, playlist in enumerate(self.win.favourite_playlists):
             if index > 10:
                 break
             item = Gio.MenuItem.new()
             item.set_label(playlist.name)
-            item.set_action_and_target_value("trackwidget.add-to-playlist", GLib.Variant.new_string(playlist.id))
+            action_name = f"add-to-playlist-{index}"  # Unique action name for each playlist
+            action = Gio.SimpleAction.new(action_name, None)
+            action.connect("activate", self._add_to_playlist, index)
+            action_group.add_action(action)
+            item.set_action_and_target_value(action_name, GLib.Variant.new_string(playlist.id))
             self.playlists_submenu.insert_item(index, item)
 
         for name, callback in action_entries:
@@ -84,8 +96,21 @@ class GenericTrackWidget(Gtk.ListBoxRow):
     def _add_to_my_collection(self, *args):
         pass
 
-    def add_to_playlist(self, target):
-        print(target)
+    # def add_to_playlist(self, target):
+    #     print(target)
+
+    def _add_to_playlist(self, action, parameter, playlist_index):
+        # Retrieve the playlist ID from the parameter
+        playlist_id = parameter.get_string()
+
+        # Use playlist_index to perform actions specific to the selected playlist
+        selected_playlist = self.win.favourite_playlists[playlist_index]
+
+        # Add the track to the selected playlist using playlist_id
+        # Add your code here
+
+        print(f"Added to playlist: {selected_playlist.name}, ID: {playlist_id}")
+
 
     @Gtk.Template.Callback("on_artist_button_clicked")
     def _on_artist_button_clicked(self, *args):
