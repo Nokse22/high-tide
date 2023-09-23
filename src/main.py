@@ -195,10 +195,8 @@ class TidalApplication(Adw.Application):
         folder_path = "tmp_img"
 
         if os.path.exists(folder_path):
-            # Delete the folder and its contents
             shutil.rmtree(folder_path)
 
-        # Create the folder again
         os.makedirs(folder_path)
 
 def main(version):
