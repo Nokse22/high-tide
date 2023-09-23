@@ -13,6 +13,7 @@
     <file preprocess="xml-stripblanks">ui/pages_ui/artist_page_template.ui</file>
     <file preprocess="xml-stripblanks">ui/pages_ui/home_page_template.ui</file>
     <file preprocess="xml-stripblanks">ui/widgets/generic_track_widget.ui</file>
+    <file preprocess="xml-stripblanks">ui/widgets/card_widget.ui</file>
   </gresource>
 </gresources>
 

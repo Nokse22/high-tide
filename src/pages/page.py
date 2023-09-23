@@ -21,6 +21,7 @@ import random
 import os
 
 from ..widgets.generic_track_widget import GenericTrackWidget
+from ..widgets.card_widget import CardWidget
 
 class Page(Adw.NavigationPage):
     __gtype_name__ = 'Page'
@@ -50,40 +51,23 @@ class Page(Adw.NavigationPage):
     def _load_page(self):
         return
 
-    def get_artist_label(self, artist):
-        artist_button = Gtk.Button(css_classes=["artist-button", "link-text"])
-        artist_button.set_child(Gtk.Inscription(hexpand=True, text=artist.name, css_classes=["artist-button", "link-text"]))
-        artist_button.connect("clicked", self.on_artist_button_clicked, artist)
-        return artist_button
+    # def get_artist_label(self, artist):
+    #     artist_button = Gtk.Button(css_classes=["artist-button", "link-text"])
+    #     artist_button.set_child(Gtk.Inscription(hexpand=True, text=artist.name, css_classes=["artist-button", "link-text"]))
+    #     artist_button.connect("clicked", self.on_artist_button_clicked, artist)
+    #     return artist_button
 
     def get_album_card(self, item):
-        builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/card_template.ui')
-
-        builder.get_object('_title_label').set_text(item.name)
-        builder.get_object('_detail_label').set_visible(False)
-        builder.get_object('_details_box').append(self.get_artist_label(item.artist))
-        image = builder.get_object('_image')
-        th = threading.Thread(target=self.add_image, args=(image, item))
-        th.deamon = True
-        th.start()
-        builder.get_object('_button').connect("clicked", self.on_album_button_clicked, item)
-        return builder.get_object('_main')
+        card = CardWidget(item, self.window)
+        return card
 
     def get_track_listing(self, track):
         track_listing = GenericTrackWidget(track, self.window, False)
         return track_listing
 
     def get_mix_card(self, item):
-        builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/card_template.ui')
-
-        builder.get_object('_title_label').set_text(item.title)
-        builder.get_object('_detail_label').set_text(item.sub_title)
-        image = builder.get_object('_image')
-        th = threading.Thread(target=self.add_image, args=(image, item))
-        th.deamon = True
-        th.start()
-        builder.get_object('_button').connect("clicked", self.on_mix_button_clicked, item)
-        return builder.get_object('_main')
+        card = CardWidget(item, self.window)
+        return card
 
     def on_mix_button_clicked(self, btn, mix):
         self.window.sidebar_list.select_row(None)
@@ -155,7 +139,7 @@ class Page(Adw.NavigationPage):
 
     def _add_image_to_avatar(self, avatar_widget, file_path):
         file = Gio.File.new_for_path(file_path)
-        image = Gdk.Texture.new_from_resource(file)
+        image = Gdk.Texture.new_from_file(file)
         avatar_widget.set_custom_image(image)
 
     def on_row_selected(self, list_box, row):
@@ -169,9 +153,9 @@ class Page(Adw.NavigationPage):
 
     def get_carousel(self, title):
         cards_box = Gtk.Box()
-        box = Gtk.Box(orientation=1, margin_bottom=12, margin_start=12, margin_end=12)
+        box = Gtk.Box(orientation=1, margin_bottom=12, margin_start=12, margin_end=12, overflow=Gtk.Overflow.HIDDEN)
         title_box = Gtk.Box(margin_top=12)
-        title_box.append(Gtk.Label(label=title, xalign=0, css_classes=["title-3"]))
+        title_box.append(Gtk.Label(label=title, xalign=0, css_classes=["title-3"], ellipsize=3))
         prev_button = Gtk.Button(icon_name="go-next-symbolic", margin_start=6, halign=Gtk.Align.END, css_classes=["circular"])
         next_button = Gtk.Button(icon_name="go-previous-symbolic", hexpand=True, halign=Gtk.Align.END, css_classes=["circular"])
         title_box.append(next_button)
@@ -212,22 +196,8 @@ class Page(Adw.NavigationPage):
         carousel.scroll_to(next_page, True)
 
     def get_playlist_card(self, playlist):
-        builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/card_template.ui')
-
-        builder.get_object('_title_label').set_text(playlist.name)
-        creator = playlist.creator
-        if creator:
-            creator = creator.name
-        else:
-            creator = "TIDAL"
-        builder.get_object('_detail_label').set_text(f"by {creator}")
-        # builder.get_object('_details_box').append(self.get_artist_label(item.artist))
-        image = builder.get_object('_image')
-        th = threading.Thread(target=self.add_image, args=(image, playlist))
-        th.deamon = True
-        th.start()
-        builder.get_object('_button').connect("clicked", self.on_playlist_button_clicked, playlist)
-        return builder.get_object('_main')
+        card = CardWidget(playlist, self.window)
+        return card
 
     def on_playlist_button_clicked(self, btn, playlist):
         self.window.sidebar_list.select_row(None)
@@ -256,62 +226,20 @@ class Page(Adw.NavigationPage):
         self.window.navigation_view.push(page)
 
     def get_artist_card(self, item): #ported
-        builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/card_template.ui')
-
-        builder.get_object('_title_label').set_text(item.name)
-        builder.get_object('_detail_label').set_text("Artist")
-        # builder.get_object('_details_box').append(self.get_artist_label(item.artist))
-        image = builder.get_object('_image')
-        image.add_css_class("artist-picture")
-
-        th = threading.Thread(target=self.add_image, args=(image, item))
-        th.deamon = True
-        th.start()
-
-        builder.get_object('_button').connect("clicked", self.on_artist_button_clicked, item)
-        return builder.get_object('_main')
+        card = CardWidget(item, self.window)
+        return card
 
     def get_page_item_card(self, page_item):
-        # image_url = page_item.image()
-
-        builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/card_template.ui')
-
-        builder.get_object('_title_label').set_text(page_item.short_header)
-        builder.get_object('_detail_label').set_text(page_item.short_sub_header[0:50])
-        # builder.get_object('_details_box').append(self.get_artist_label(item.artist))
-        image = builder.get_object('_image')
-        # th = threading.Thread(target=self.add_image, args=(image, image_url))
-        # th.deamon = True
-        # th.start()
-        # builder.get_object('_button').connect("clicked", self.on_playlist_button_clicked, page_item)
-        return builder.get_object('_main')
-
-    def get_page_item_card(self, page_item):
-        # image_url = page_item.image()
-
-        builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/card_template.ui')
-
-        builder.get_object('_title_label').set_text(page_item.short_header)
-        builder.get_object('_detail_label').set_text(page_item.short_sub_header[0:50])
-        # builder.get_object('_details_box').append(self.get_artist_label(item.artist))
-        image = builder.get_object('_image')
-        # th = threading.Thread(target=self.add_image, args=(image, image_url))
-        # th.deamon = True
-        # th.start()
-        # builder.get_object('_button').connect("clicked", self.on_playlist_button_clicked, page_item)
-        return builder.get_object('_main')
+        card = CardWidget(page_item, self.window)
+        return card
 
     def get_page_link_card(self, page_link):
-
         button = Gtk.Button(label=page_link.title, margin_start=12, margin_end=12,
                 hexpand=True, width_request=200, vexpand=True)
-
         button.connect("clicked", self.on_page_link_clicked, page_link)
-
         return button
 
     def on_page_link_clicked(self, btn, page_link):
-
         from .generic_page import genericPage
 
         page = genericPage(self.window, page_link, page_link.title)

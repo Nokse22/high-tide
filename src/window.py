@@ -123,7 +123,7 @@ class TidalWindow(Adw.ApplicationWindow):
 
     def _set_last_playing_song(self):
         track_id = self.settings.get_int("last-playing-song-id")
-        list_id = self.settings.get_int("last-playing-list-id")
+        list_id = self.settings.get_string("last-playing-list-id")
 
         if track_id == '':
             return
@@ -217,18 +217,30 @@ class TidalWindow(Adw.ApplicationWindow):
                     self.settings.get_string("expiry-time"))
         except Exception as e:
             print(f"failed saved login: {e}")
+            print(f"at: {self.settings.get_string('access-token')}")
             return False
         else:
             if not result:
                 self.login()
                 print(result)
 
+    def logout(self):
+        self.settings.set_string("token-type", "")
+        self.settings.set_string("access-token", "")
+        self.settings.set_string("refresh-token", "")
+        self.settings.set_string("expiry-time", "")
+
+        self.navigation_view.pop_to_tag("home")
+        self.navigation_view.pop()
+
+        page = homePage(self, None, "Home")
+        page.load()
+        self.navigation_view.push(page)
+
     def explore_page(self):
         explore = session.explore()
 
     def load_home_page(self):
-        # self.save_token()
-
         page = homePage(self, None, "Home")
         page.load()
         self.navigation_view.push(page)

@@ -87,7 +87,7 @@
                   <property name="css-classes">boxed-list</property>
                   <property name="valign">start</property>
                   <property name="margin-top">12</property>
-                  <signal name="row-selected" handler="on_mix_row_selected_clicked"/>
+                  <signal name="row-activated" handler="on_mix_row_selected_clicked"/>
                 </object>
               </child>
             </object>

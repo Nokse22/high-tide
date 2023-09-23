@@ -33,7 +33,7 @@ class trackRadioPage(Page):
 
         page_content = builder.get_object("_main")
         tracks_list_box = builder.get_object("_list_box")
-        tracks_list_box.connect("row-selected", self.on_row_selected)
+        tracks_list_box.connect("row-activated", self.on_row_selected)
 
         builder.get_object("_title_label").set_label(f"Radio of {self.item.name}")
         builder.get_object("_first_subtitle_label").set_label(f"by {self.item.artist.name}")
@@ -57,7 +57,7 @@ class trackRadioPage(Page):
         self.content.append(page_content)
 
     def on_row_selected(self, list_box, row):
-        index = int(row.get_child().get_name())
+        index = int(row.get_name())
 
         self.window.player_object.current_mix_album_list = self.radio_tracks
         track = self.window.player_object.current_mix_album_list[index]

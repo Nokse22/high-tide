@@ -27,12 +27,13 @@ class LoginWindow(Adw.Window):
         self.link_button.set_label(link)
         self.link_button.set_uri(link)
 
-        GLib.timeout_add(400, self.check_login)
+        GLib.timeout_add(600, self.check_login)
 
     def check_login(self):
         if self.session.check_login():
             self.destroy()
             self.win.load_home_page()
+            self.win.save_token()
             return False
         return True
 

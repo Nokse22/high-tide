@@ -28,7 +28,7 @@ class albumPage(Page):
 
         page_content = builder.get_object("_main")
         tracks_list_box = builder.get_object("_list_box")
-        tracks_list_box.connect("row-selected", self.on_row_selected)
+        tracks_list_box.connect("row-activated", self.on_row_selected)
 
         builder.get_object("_title_label").set_label(self.item.name)
         builder.get_object("_first_subtitle_label").set_label(self.item.artist.name)
@@ -36,6 +36,11 @@ class albumPage(Page):
 
         builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
         builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
+
+        image = builder.get_object("_image")
+        th = threading.Thread(target=self.add_image, args=(image, self.item))
+        th.deamon = True
+        th.start()
 
         for index, track in enumerate(self.item.items()):
             listing = self.get_album_track_listing(track)

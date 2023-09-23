@@ -41,6 +41,7 @@ class TidalApplication(Adw.Application):
         self.create_action('about', self.on_about_action)
         self.create_action('preferences', self.on_preferences_action)
         self.create_action('log-in', self.on_login_action)
+        self.create_action('log-out', self.on_logout_action)
         self.create_action('download', self.on_download, ['<primary>d'])
 
         css = '''
@@ -126,6 +127,9 @@ class TidalApplication(Adw.Application):
     def on_login_action(self, *args):
         self.win.new_login()
 
+    def on_logout_action(self, *args):
+        self.win.logout()
+
     def do_activate(self):
         """Called when the application is activated.
 
@@ -184,7 +188,7 @@ class TidalApplication(Adw.Application):
             track_id = track.id
             list_id = list_.id
             self.win.settings.set_int("last-playing-song-id", track_id)
-            self.win.settings.set_int("last-playing-list-id", list_id)
+            self.win.settings.set_string("last-playing-list-id", list_id)
 
 def main(version):
     """The application's entry point."""

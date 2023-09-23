@@ -31,8 +31,6 @@ class genericPage(Page):
 
         generic_content = self.item.get()
 
-        # print(generic_content.categories)
-
         for index, category in enumerate(generic_content.categories):
             items = []
 
@@ -42,9 +40,6 @@ class genericPage(Page):
                 generic_page_content.append(carousel)
             else:
                 continue
-            # print("\n\t\t" + category.title)
-
-            print(category.items)
 
             for item in category.items:
                 if isinstance(item, PageItem): # Featured

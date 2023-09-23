@@ -46,6 +46,8 @@ Open the hamburger menu on the left and click Login.'''
             self.content.remove(self.spinner)
             self.content.append(status_page)
 
+            return
+
         th = threading.Thread(target=self.window._set_last_playing_song, args=())
         th.deamon = True
         th.start()

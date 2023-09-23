@@ -45,11 +45,11 @@ class singleTypePage(Page):
         self.content.append(page_content)
 
     def add_tracks(self, content):
-        tracks_list_box = Gtk.ListBox(css_classes=["navigation-sidebar"])
+        tracks_list_box = Gtk.ListBox(css_classes=["boxed-list"], margin_bottom=12, margin_start=12, margin_end=12, margin_top=12)
         content.append(tracks_list_box)
 
         favourite_tracks = Favorites(self.window.session, self.window.session.user.id).tracks(50)
-        tracks_list_box.connect("row-selected", self.on_tracks_row_selected, favourite_tracks)
+        tracks_list_box.connect("row-activated", self.on_tracks_row_selected, favourite_tracks)
 
         for index, track in enumerate(favourite_tracks):
             listing = self.get_track_listing(track)
@@ -97,7 +97,7 @@ class singleTypePage(Page):
             flow_box.append(card)
 
     def on_tracks_row_selected(self, list_box, row, favourite_tracks):
-        index = int(row.get_child().get_name())
+        index = int(row.get_name())
 
         self.window.player_object.current_mix_album_list = favourite_tracks
         track = favourite_tracks[index]

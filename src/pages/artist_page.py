@@ -37,7 +37,7 @@ class artistPage(Page):
         page_content = builder.get_object("_main")
         top_tracks_list_box = builder.get_object("_top_tracks_list_box")
         carousel_box = builder.get_object("_carousel_box")
-        top_tracks_list_box.connect("row-selected", self.on_row_selected)
+        top_tracks_list_box.connect("row-activated", self.on_row_selected)
 
         builder.get_object("_name_label").set_label(self.item.name)
         builder.get_object("_bio_label").set_label(self.item.get_bio())
@@ -72,13 +72,15 @@ class artistPage(Page):
             artist_card = self.get_artist_card(artist)
             cards_box.append(artist_card)
 
-        bio = self.item.get_bio()
-
-        expander = Gtk.Expander(label="Bio", css_classes=["title-3"], margin_bottom=50)
-        label = Gtk.Label(label=bio, wrap=True, css_classes=[])
-        expander.set_child(label)
-        carousel_box.append(expander)
-
+        try:
+            bio = self.item.get_bio()
+        except:
+            pass
+        else:
+            expander = Gtk.Expander(label="Bio", css_classes=["title-3"], margin_bottom=50)
+            label = Gtk.Label(label=bio, wrap=True, css_classes=[])
+            expander.set_child(label)
+            carousel_box.append(expander)
 
         artist_picture = builder.get_object("_avatar")
 
@@ -90,13 +92,12 @@ class artistPage(Page):
             th = threading.Thread(target=self.add_image_to_avatar, args=(artist_picture, image))
             th.deamon = True
             th.start()
-            pass
 
         self.content.remove(self.spinner)
         self.content.append(page_content)
 
     def on_row_selected(self, list_box, row):
-        index = int(row.get_child().get_name())
+        index = int(row.get_name())
 
         self.window.player_object.current_mix_album_list = self.top_tracks
         track = self.window.player_object.current_mix_album_list[index]

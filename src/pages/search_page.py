@@ -32,7 +32,9 @@ class searchPage(Page):
 
         query = self.window.search_entry.get_text()
 
-        results = self.window.session.search(query, [Artist, Album, Playlist, Track], 6)
+        results = self.window.session.search(query, [Artist, Album, Playlist, Track], 3)
+
+        print(query, results)
 
         top_hit = results["top_hit"]
         # results_box.append(Gtk.Label(label=top_hit.name))
@@ -58,3 +60,4 @@ class searchPage(Page):
 
         self.content.remove(self.spinner)
         self.content.append(page_content)
+

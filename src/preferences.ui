@@ -20,7 +20,7 @@ Hi-res
 Hi-res Lossless</property>
                   </object>
                 </property>
-                <property name="subtitle">Set the quality of the audio according to your account</property>
+                <property name="subtitle">The last quality is enabled only for HiFi+ subscribers</property>
                 <property name="title">Quality</property>
               </object>
             </child>

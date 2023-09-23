@@ -4,10 +4,6 @@
   <!-- interface-name card_template.ui -->
   <requires lib="gtk" version="4.6"/>
   <object class="GtkBox" id="_main">
-    <property name="margin-bottom">6</property>
-    <property name="margin-end">3</property>
-    <property name="margin-start">3</property>
-    <property name="margin-top">6</property>
     <property name="css-classes">card-bg</property>
     <property name="hexpand">true</property>
     <property name="halign">center</property>

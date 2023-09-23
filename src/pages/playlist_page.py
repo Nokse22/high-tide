@@ -29,7 +29,7 @@ class playlistPage(Page):
 
         page_content = builder.get_object("_main")
         tracks_list_box = builder.get_object("_list_box")
-        tracks_list_box.connect("row-selected", self.on_row_selected)
+        tracks_list_box.connect("row-activated", self.on_row_selected)
 
         builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
         builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)

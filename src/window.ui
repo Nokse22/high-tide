@@ -525,6 +525,10 @@ flat</property>
         <attribute name="label" translatable="yes">Login</attribute>
         <attribute name="action">app.log-in</attribute>
       </item>
+      <item>
+        <attribute name="label" translatable="yes">Logout</attribute>
+        <attribute name="action">app.log-out</attribute>
+      </item>
     </section>
     <section>
       <item>

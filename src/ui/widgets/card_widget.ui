@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.14.0 -->
+<interface>
+  <!-- interface-name card_template.ui -->
+  <requires lib="gtk" version="4.6"/>
+  <template class="CardWidget" parent="GtkBox">
+    <property name="css-classes">card-bg</property>
+    <property name="hexpand">true</property>
+    <property name="halign">center</property>
+    <child>
+      <object class="GtkBox">
+        <property name="margin-bottom">6</property>
+        <property name="margin-end">6</property>
+        <property name="margin-start">6</property>
+        <property name="margin-top">6</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">3</property>
+        <child>
+          <object class="GtkButton" id="button">
+            <property name="css-classes">card-button</property>
+            <property name="overflow">hidden</property>
+            <signal name="clicked" handler="on_image_button_clicked"/>
+            <child>
+              <object class="GtkImage" id="image">
+                <property name="halign">center</property>
+                <property name="icon-name">emblem-music-symbolic</property>
+                <property name="pixel-size">180</property>
+                <property name="valign">center</property>
+                <property name="css-classes">card-image</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkInscription" id="title_label">
+            <property name="css-classes">title-4</property>
+            <property name="hexpand">true</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="details_box">
+            <child>
+              <object class="GtkInscription" id="detail_label">
+                <property name="css-classes">dim-label</property>
+                <property name="hexpand">true</property>
+              </object>
+            </child>
+            <child>
+             <object class="GtkButton" id="track_artist_button">
+              <signal name="clicked" handler="on_artist_button_clicked"/>
+              <style>
+                <class name="link-text"/>
+                <class name="artist-button"/>
+              </style>
+              <child>
+                <object class="GtkInscription" id="track_artist_label">
+                  <property name="hexpand">true</property>
+                  <style>
+                    <class name="link-text"/>
+                    <class name="artist-button"/>
+                  </style>
+                </object>
+              </child>
+            </object>
+          </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

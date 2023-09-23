@@ -12,6 +12,7 @@ import random
 import threading
 
 class playerObject(GObject.GObject):
+    """This class handles all the player logic, queue..."""
 
     shuffle_mode = GObject.Property(type=bool, default=False)
     current_song_index = GObject.Property(type=int, default=-1)
@@ -112,7 +113,7 @@ class playerObject(GObject.GObject):
     def add_to_queue(self):
         pass
 
-    def play_next(self, track):
+    def add_next(self, track):
         pass
 
     def change_volume(self, value):

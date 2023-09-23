@@ -28,7 +28,7 @@ class mixPage(Page):
 
         page_content = builder.get_object("_main")
         tracks_list_box = builder.get_object("_list_box")
-        tracks_list_box.connect("row-selected", self.on_row_selected)
+        tracks_list_box.connect("row-activated", self.on_row_selected)
 
         builder.get_object("_title_label").set_label(self.item.title)
         builder.get_object("_first_subtitle_label").set_label(self.item.sub_title)
