@@ -35,8 +35,7 @@ class playerObject(GObject.GObject):
         self.is_playing = False
         self.playing_track = None
         self.song_album = None
-        self.new_tracks = []
-        self.playied_songs = []
+        self.played_songs = []
 
         Gst.init()
 
@@ -95,16 +94,16 @@ class playerObject(GObject.GObject):
 
     def play_next(self):
         """Play the next song in the queue."""
-        self.current_song_index += 1
-        if self.shuffle_mode:
-            track = self.shuffled_queue[self.current_song_index]
+        self.played_songs.append(self.playing_track)
+        if len(self.queue) != 0:
+            track = self.queue[0]
+            self.queue.pop(0)
         else:
-            if len(self.new_tracks) != 0:
-                track = self.new_tracks[0]
-                self.new_tracks.pop(0)
-                self.current_song_index -= 1
+            if self.shuffle_mode:
+                track = self.shuffled_queue[self.current_song_index]
             else:
                 track = self.current_mix_album_list[self.current_song_index]
+                self.current_song_index += 1
         self.play_track(track)
 
     def play_previous(self):
@@ -121,7 +120,7 @@ class playerObject(GObject.GObject):
         self.queue.append(track)
 
     def add_next(self, track):
-        self.new_tracks.append(track)
+        self.queue.insert(0, track)
 
     def change_volume(self, value):
         self.playbin.set_property("volume", value)
