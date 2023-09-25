@@ -1,3 +1,22 @@
+# player_object.py
+#
+# Copyright 2023 Nokse
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import random
 
 from tidalapi.mix import Mix
@@ -29,7 +48,7 @@ class playerObject(GObject.GObject):
         GObject.GObject.__init__(self)
         self.queue = []  # List to store queued songs
         self.current_mix_album = None  # Information about the currently playing mix/album
-        self.current_mix_album_list = []
+        self.tracks_from_list_to_play = []
         self.shuffled_queue = []  # Shuffled version of the queue
         self.shuffle_mode = False
         self.is_playing = False
@@ -40,6 +59,8 @@ class playerObject(GObject.GObject):
         Gst.init()
 
         self.playbin = Gst.ElementFactory.make("playbin", "playbin")
+
+        GLib.timeout_add(3000, self.print_queue_and_list)
 
     def play(self):
         self.is_playing = True
@@ -52,11 +73,12 @@ class playerObject(GObject.GObject):
 
     def play_shuffle(self):
         self.shuffle_mode = True
-        self.shuffled_queue = self.current_mix_album_list.copy()
+        self.shuffled_queue = self.tracks_from_list_to_play.copy()
 
         random.shuffle(self.shuffled_queue)
 
         self.play_track(self.shuffled_queue[0])
+        self.play()
 
     def pause(self):
         self.is_playing = False
@@ -86,15 +108,12 @@ class playerObject(GObject.GObject):
 
         GLib.timeout_add(1000, self.update_slider_call)
 
-    def add_song(self, song):
-        """Add a song to the queue."""
-
-    def remove_song(self, song):
-        """Remove a song from the queue."""
-
     def play_next(self):
-        """Play the next song in the queue."""
-        self.played_songs.append(self.playing_track)
+        """Play the next song in the queue or from the currently playing album/mix/playlist."""
+
+        if self.playing_track in self.tracks_from_list_to_play:
+            self.played_songs.append(self.playing_track)
+
         if len(self.queue) != 0:
             track = self.queue[0]
             self.queue.pop(0)
@@ -102,7 +121,11 @@ class playerObject(GObject.GObject):
             if self.shuffle_mode:
                 track = self.shuffled_queue[self.current_song_index]
             else:
-                track = self.current_mix_album_list[self.current_song_index]
+                self.tracks_from_list_to_play.remove(self.playing_track)
+                if self.tracks_from_list_to_play == []:
+                    self.tracks_from_list_to_play = self.played_songs
+                    self.played_songs = []
+                track = self.tracks_from_list_to_play[self.current_song_index]
                 self.current_song_index += 1
         self.play_track(track)
 
@@ -112,9 +135,22 @@ class playerObject(GObject.GObject):
             self.current_song_index = random.randint(0, len(self.current_mix_album.items()))
         else:
             self.current_song_index += 1
-        track = self.current_mix_album_list[self.current_song_index]
+        track = self.tracks_from_list_to_play[self.current_song_index]
         # self.mix_tracks_box.select_row(self.mix_tracks_box.get_row_at_index(self.current_song_index))
         self.play_track(track)
+
+    def print_queue_and_list(self):
+        print("----------played songs----------")
+        for track in self.played_songs:
+            print(track.name)
+        print("-------------queue--------------")
+        for track in self.queue:
+            print(track.name)
+        print("---------songs to play----------")
+        for track in self.tracks_from_list_to_play:
+            print(track.name)
+
+        return True
 
     def add_to_queue(self, track):
         self.queue.append(track)
