@@ -56,16 +56,14 @@ class explorePage(Page):
             items = []
 
             if isinstance(category.items[0], PageLink):
-                carousel = Adw.Carousel()
+                carousel, flow_box_box = self.get_link_carousel(category.title if category.title else "More")
 
                 flow_box = Gtk.FlowBox(homogeneous=True, height_request=100)
-                carousel.append(flow_box)
+                flow_box_box.append(flow_box)
                 explore_content.append(carousel)
             else:
                 carousel, cards_box = self.get_carousel(category.title)
                 explore_content.append(carousel)
-
-            print(category.items)
 
             buttons_for_page = 0
 
@@ -76,7 +74,7 @@ class explorePage(Page):
                 elif isinstance(item, PageLink): # Generes and moods
                     if buttons_for_page == 4:
                         flow_box = Gtk.FlowBox(homogeneous=True, height_request=100)
-                        carousel.append(flow_box)
+                        flow_box_box.append(flow_box)
                         buttons_for_page = 0
                     button = self.get_page_link_card(item)
                     flow_box.append(button)

@@ -82,4 +82,3 @@ class SecretStore():
             json_data,
             None
         )
-

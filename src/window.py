@@ -77,6 +77,7 @@ class TidalWindow(Adw.ApplicationWindow):
     lyrics_box = Gtk.Template.Child()
     sidebar_playlists = Gtk.Template.Child()
     volume_button = Gtk.Template.Child()
+    in_my_collection_button = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -121,7 +122,15 @@ class TidalWindow(Adw.ApplicationWindow):
 
         self.load_home_page()
 
-    def add_favourite_playlists(self, playlists):
+    def add_favourite_playlists(self):
+        # playlists = Favorites(self.session, self.session.user.id).playlists()
+        playlists = self.session.user.favorites.playlists()
+
+        child = self.sidebar_playlists.get_first_child()
+        while child != None:
+            self.sidebar_playlists.remove(child)
+            child = self.sidebar_playlists.get_first_child()
+
         for index, playlist in enumerate(playlists):
             label = Gtk.Label(xalign=0, label=playlist.name, name=index)
             self.sidebar_playlists.append(label)
@@ -146,6 +155,7 @@ class TidalWindow(Adw.ApplicationWindow):
         track = self.player_object.playing_track
         self.song_title_label.set_label(track.name)
         self.artist_label.set_label(track.artist.name)
+        self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
 
         self.settings.set_int("last-playing-song-id", track.id)
 
@@ -220,9 +230,9 @@ class TidalWindow(Adw.ApplicationWindow):
         self.navigation_view.pop_to_tag("home")
         self.navigation_view.pop()
 
-        page = homePage(self, None, "Home")
-        page.load()
-        self.navigation_view.push(page)
+        self.home_page = homePage(self, None, "Home")
+        self.home_page.load()
+        self.navigation_view.push(self.home_page)
 
     def explore_page(self):
         explore = session.explore()
@@ -332,6 +342,18 @@ class TidalWindow(Adw.ApplicationWindow):
 
         self.settings.set_int("quality", pos)
         print("audio quality changed")
+
+    @Gtk.Template.Callback("on_add_track_to_my_collection_button_clicked")
+    def on_add_track_to_my_collection_button_clicked(self, btn):
+        th = threading.Thread(target=self.add_track_to_my_collection, args=(self.player_object.playing_track.id))
+        th.deamon = True
+        th.start()
+
+    def add_track_to_my_collection(self, track_id):
+        result = self.session.user.favorites.add_track(track_id)
+        if result:
+            btn.set_icon_name("heart-filled-symbolic")
+            print("successfully added to my collection")
 
     @Gtk.Template.Callback("on_volume_changed")
     def on_volume_changed_func(self, widget, value):

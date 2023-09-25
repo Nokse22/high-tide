@@ -111,9 +111,9 @@ class CardWidget(Gtk.Box):
         self.detail_label.set_text(self.item.short_sub_header)
         self.track_artist_label.set_visible(False)
 
-        # th = threading.Thread(target=utils.add_image, args=(self.image, self.item))
-        # th.deamon = True
-        # th.start()
+        th = threading.Thread(target=utils.add_image, args=(self.image, self.item))
+        th.deamon = True
+        th.start()
 
     @Gtk.Template.Callback("on_artist_button_clicked")
     def _on_artist_button_clicked(self, *args):

@@ -35,6 +35,7 @@ class NewPlaylistWindow(Adw.Window):
     def __init__(self, _win, _session):
         super().__init__()
 
+        self.window = _win
         self.session = _session
         self.playlist_name_entry.connect("notify::text", self.on_title_text_inserted_func)
 
@@ -43,6 +44,7 @@ class NewPlaylistWindow(Adw.Window):
         playlist_title = self.playlist_name_entry.get_text()
         playlist_description = self.playlist_description_entry.get_text()
         self.session.user.create_playlist(playlist_title, playlist_description)
+        self.window.add_favourite_playlists()
 
         self.destroy()
 

@@ -121,14 +121,13 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         th.start()
 
     def th_add_to_my_collection(self):
-        self.win.session.user.favorites.add_track(self.track)
+        self.win.session.user.favorites.add_track(self.track.id)
 
     def _add_to_playlist(self, action, parameter, playlist_index):
         playlist_id = parameter.get_string()
         selected_playlist = self.win.favourite_playlists[playlist_index]
 
         print(f"Added to playlist: {selected_playlist.name}, ID: {playlist_id}")
-
 
     @Gtk.Template.Callback("on_artist_button_clicked")
     def _on_artist_button_clicked(self, *args):

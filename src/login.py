@@ -49,9 +49,9 @@ class LoginWindow(Adw.Window):
 
     def check_login(self):
         if self.session.check_login():
-            self.destroy()
             self.win.load_home_page()
             self.win.secret_store.save()
+            self.destroy()
             return False
         return True
 

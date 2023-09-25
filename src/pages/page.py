@@ -185,7 +185,27 @@ class Page(Adw.NavigationPage):
 
         return box, cards_box
 
-    def carousel_go_prev(self, btn, carousel):
+    def get_link_carousel(self, title):
+        cards_box = Gtk.Box()
+        box = Gtk.Box(orientation=1, margin_bottom=12, margin_start=12, margin_end=12, overflow=Gtk.Overflow.HIDDEN)
+        title_box = Gtk.Box(margin_top=12, margin_bottom=6)
+        title_box.append(Gtk.Label(label=title, xalign=0, css_classes=["title-3"], ellipsize=3))
+        prev_button = Gtk.Button(icon_name="go-next-symbolic", margin_start=6, halign=Gtk.Align.END, css_classes=["circular"])
+        next_button = Gtk.Button(icon_name="go-previous-symbolic", hexpand=True, halign=Gtk.Align.END, css_classes=["circular"])
+        title_box.append(next_button)
+        title_box.append(prev_button)
+
+        box.append(title_box)
+        cards_box = Adw.Carousel(halign=Gtk.Align.FILL, allow_scroll_wheel=False, allow_long_swipes=True)
+        cards_box.set_overflow(Gtk.Overflow.VISIBLE)
+        box.append(cards_box)
+
+        prev_button.connect("clicked", self.carousel_go_prev, cards_box, 1)
+        next_button.connect("clicked", self.carousel_go_next, cards_box, 1)
+
+        return box, cards_box
+
+    def carousel_go_prev(self, btn, carousel, jump=2):
         pos = carousel.get_position()
         if pos + 2 >= carousel.get_n_pages():
             if pos + 1 == carousel.get_n_pages():
@@ -193,11 +213,11 @@ class Page(Adw.NavigationPage):
             else:
                 next_page = carousel.get_nth_page(pos + 1)
         else:
-            next_page = carousel.get_nth_page(pos + 2)
+            next_page = carousel.get_nth_page(pos + jump)
         if next_page != None:
             carousel.scroll_to(next_page, True)
 
-    def carousel_go_next(self, btn, carousel):
+    def carousel_go_next(self, btn, carousel, jump=2):
         pos = carousel.get_position()
         if pos - 2 < 0:
             if pos - 1 < 0:
@@ -205,7 +225,7 @@ class Page(Adw.NavigationPage):
             else:
                 next_page = carousel.get_nth_page(0)
         else:
-            next_page = carousel.get_nth_page(pos - 2)
+            next_page = carousel.get_nth_page(pos - jump)
 
         carousel.scroll_to(next_page, True)
 

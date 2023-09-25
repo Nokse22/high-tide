@@ -48,7 +48,6 @@ class homePage(Page):
 
         builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/home_page_template.ui")
 
-
         page_content = builder.get_object("_main")
         home_content = builder.get_object("_content")
 
@@ -71,9 +70,7 @@ Open the hamburger menu on the left and click Login.'''
         th.deamon = True
         th.start()
 
-        playlists = Favorites(self.window.session, self.window.session.user.id).playlists()
-
-        self.window.add_favourite_playlists(playlists)
+        self.window.add_favourite_playlists()
 
         home = self.window.session.home()
 
