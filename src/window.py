@@ -21,6 +21,7 @@ from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import GObject
+# from gi.repository import Secret
 
 from gi.repository import Gst, GLib
 
@@ -49,6 +50,8 @@ from .pages import homePage, singleTypePage, explorePage, artistPage, searchPage
 import threading
 import requests
 import random
+
+from .lib import SecretStore
 
 @Gtk.Template(resource_path='/io/github/nokse22/high-tide/window.ui')
 class TidalWindow(Adw.ApplicationWindow):
@@ -108,6 +111,14 @@ class TidalWindow(Adw.ApplicationWindow):
         self.previous_time = 0
         self.favourite_playlists = []
 
+        self.secret_store = SecretStore(self.session)
+
+        # TO REMOVE UNSECURED TOKENS set in early development
+        self.settings.set_string("token-type", "")
+        self.settings.set_string("access-token", "")
+        self.settings.set_string("refresh-token", "")
+        self.settings.set_string("expiry-time", "")
+
         self.load_home_page()
 
     def add_favourite_playlists(self, playlists):
@@ -165,17 +176,6 @@ class TidalWindow(Adw.ApplicationWindow):
         page.load()
         self.navigation_view.push(page)
 
-    def save_token(self):
-        token_type = self.session.token_type
-        access_token = self.session.access_token
-        refresh_token = self.session.refresh_token # Not needed if you don't care about refreshing
-        expiry_time = self.session.expiry_time
-
-        self.settings.set_string("token-type", token_type)
-        self.settings.set_string("access-token", access_token)
-        self.settings.set_string("refresh-token", refresh_token)
-        self.settings.set_string("expiry-time", str(expiry_time))
-
     def update_controls(self, is_playing, *arg):
         if not is_playing:
             self.play_button.set_icon_name("media-playback-pause-symbolic")
@@ -204,29 +204,18 @@ class TidalWindow(Adw.ApplicationWindow):
             print(f"An error occurred logging in: {e}")
             self.on_failed_connection()
 
-
-
     def login(self, reload=False):
         try:
             result = self.session.load_oauth_session(
-                    self.settings.get_string("token-type"),
-                    self.settings.get_string("access-token"),
-                    self.settings.get_string("refresh-token"),
-                    self.settings.get_string("expiry-time"))
+                self.secret_store.token_dictionary["token-type"],
+                self.secret_store.token_dictionary["access-token"],
+                self.secret_store.token_dictionary["refresh-token"],
+                self.secret_store.token_dictionary["expiry-time"])
         except Exception as e:
-            print(f"failed saved login: {e}")
-            print(f"at: {self.settings.get_string('access-token')}")
-            return False
-        else:
-            if not result:
-                self.login()
-                print(result)
+            print(f"error! {e}")
 
     def logout(self):
-        self.settings.set_string("token-type", "")
-        self.settings.set_string("access-token", "")
-        self.settings.set_string("refresh-token", "")
-        self.settings.set_string("expiry-time", "")
+        self.secret_store.clear()
 
         self.navigation_view.pop_to_tag("home")
         self.navigation_view.pop()
