@@ -473,9 +473,9 @@ flat</property>
                   </object>
                 </child>
                   <child>
-                  <object class="GtkButton">
+                  <object class="GtkButton" id="track_radio_button">
                     <property name="css-classes">flat</property>
-                    <property name="icon-name">dialog-information-symbolic</property>
+                    <property name="icon-name">navigate-symbolic</property>
                     <property name="valign">center</property>
                     <property name="halign">end</property>
                     <property name="margin-bottom">6</property>
@@ -493,7 +493,7 @@ flat</property>
                     <property name="margin-bottom">6</property>
                     <property name="margin-start">6</property>
                     <property name="margin-top">6</property>
-                    <signal name="clicked" handler="on_add_track_to_my_collection_button_clicked"/>
+                    <signal name="clicked" handler="on_in_my_collection_button_clicked"/>
                   </object>
                 </child>
                   <child>
