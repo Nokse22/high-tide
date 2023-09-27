@@ -65,6 +65,9 @@ class artistPage(Page):
         builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
         builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
 
+        builder.get_object("_follow_button").connect("clicked", self.on_follow_artist_button_clicked)
+        builder.get_object("_radio_button").connect("clicked", self.on_artist_radio_button_clicked)
+
         image = builder.get_object("_image")
 
         self.top_tracks = self.item.get_top_tracks(10)
@@ -137,3 +140,17 @@ class artistPage(Page):
         self.window.player_object.current_mix_album = self.item
         self.window.player_object.current_mix_album_list = self.top_tracks
         self.window.player_object.play_shuffle()
+
+    def on_shuffle_button_clicked(self, btn):
+        self.window.player_object.current_mix_album = None
+        self.window.player_object.tracks_from_list_to_play = self.radio_tracks
+        self.window.player_object.play_shuffle()
+
+    def on_follow_artist_button_clicked(self, btn):
+        pass
+
+    def on_artist_radio_button_clicked(self, btn):
+        from .track_radio_page import trackRadioPage
+        page = trackRadioPage(self.window, self.item, f"Radio of {self.item.name}")
+        page.load()
+        self.window.navigation_view.push(page)
