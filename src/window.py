@@ -45,7 +45,8 @@ import sys
 from .login import LoginWindow
 from .new_playlist import NewPlaylistWindow
 
-from .pages import homePage, singleTypePage, explorePage, artistPage, searchPage, trackRadioPage, playlistPage
+from .pages import homePage, singleTypePage, explorePage, artistPage, notLoggedInPage
+from .pages import searchPage, trackRadioPage, playlistPage, startUpPage
 
 import threading
 import requests
@@ -91,7 +92,7 @@ class TidalWindow(Adw.ApplicationWindow):
 
         self.volume_button.get_adjustment().set_value(self.settings.get_int("last-volume")/10)
 
-        self.shuffle_button.connect("toggled", self.on_shuffle_button_toggled)
+        # self.shuffle_button.connect("toggled", self.on_shuffle_button_toggled)
 
         self.player_object.bind_property("shuffle_mode", self.shuffle_button, "active", GObject.BindingFlags.DEFAULT)
         self.player_object.connect("update-slider", self.update_slider)
@@ -111,6 +112,7 @@ class TidalWindow(Adw.ApplicationWindow):
         self.player_object.current_song_index = 0
         self.previous_time = 0
         self.favourite_playlists = []
+        self.favourite_tracks = []
 
         self.secret_store = SecretStore(self.session)
 
@@ -120,10 +122,37 @@ class TidalWindow(Adw.ApplicationWindow):
         self.settings.set_string("refresh-token", "")
         self.settings.set_string("expiry-time", "")
 
-        self.load_home_page()
+        page = startUpPage(self, None, "Loading")
+        page.load()
+        self.navigation_view.push(page)
+
+        th = threading.Thread(target=self.login, args=())
+        th.deamon = True
+        th.start()
+
+    def on_logged_in(self):
+        print("on logged in")
+        self.favourite_tracks = self.session.user.favorites.tracks()
+
+        page = homePage(self)
+        page.load()
+        self.navigation_view.replace([page])
+
+        th = threading.Thread(target=self._set_last_playing_song, args=())
+        th.deamon = True
+        th.start()
+
+        self.add_favourite_playlists()
+
+    def on_login_failed(self):
+        print("login failed")
+
+        page = notLoggedInPage(self)
+        page.load()
+        self.navigation_view.replace([page])
+
 
     def add_favourite_playlists(self):
-        # playlists = Favorites(self.session, self.session.user.id).playlists()
         playlists = self.session.user.favorites.playlists()
 
         child = self.sidebar_playlists.get_first_child()
@@ -146,8 +175,6 @@ class TidalWindow(Adw.ApplicationWindow):
 
         track = self.session.track(track_id)
         self.player_object.play_track(track)
-
-        print(track.name)
 
     def on_song_changed(self, *args):
         print("song changed")
@@ -194,27 +221,13 @@ class TidalWindow(Adw.ApplicationWindow):
             self.play_button.set_icon_name("media-playback-start-symbolic")
             print("play")
 
-    def on_failed_connection(self):
-        print("fail!! :(")
-
-    def on_shuffle_button_toggled(self, btn):
-        print(btn.get_active())
-
-    def on_shuffle_state_changed(self, *args):
-        # self.shuffle_button.set_active(self.player_object.shuffle)
-        print("shuffle changed")
-
     def new_login(self):
-        try:
-            win = LoginWindow(self, self.session)
-            win.set_transient_for(self)
-            win.set_modal(self)
-            win.present()
-        except Exception as e:
-            print(f"An error occurred logging in: {e}")
-            self.on_failed_connection()
+        login_window = LoginWindow(self, self.session)
+        login_window.set_transient_for(self)
+        login_window.set_modal(self)
+        login_window.present()
 
-    def login(self, reload=False):
+    def login(self):
         try:
             result = self.session.load_oauth_session(
                 self.secret_store.token_dictionary["token-type"],
@@ -223,6 +236,9 @@ class TidalWindow(Adw.ApplicationWindow):
                 self.secret_store.token_dictionary["expiry-time"])
         except Exception as e:
             print(f"error! {e}")
+            self.on_login_failed()
+        else:
+            self.on_logged_in()
 
     def logout(self):
         self.secret_store.clear()
@@ -236,11 +252,6 @@ class TidalWindow(Adw.ApplicationWindow):
 
     def explore_page(self):
         explore = session.explore()
-
-    def load_home_page(self):
-        page = homePage(self, None, "Home")
-        page.load()
-        self.navigation_view.push(page)
 
     def add_image(self, image_widget, image_url):
         try:
@@ -343,17 +354,26 @@ class TidalWindow(Adw.ApplicationWindow):
         self.settings.set_int("quality", pos)
         print("audio quality changed")
 
-    @Gtk.Template.Callback("on_add_track_to_my_collection_button_clicked")
-    def on_add_track_to_my_collection_button_clicked(self, btn):
-        th = threading.Thread(target=self.add_track_to_my_collection, args=(self.player_object.playing_track.id))
+    @Gtk.Template.Callback("on_in_my_collection_button_clicked")
+    def on_in_my_collection_button_clicked(self, btn):
+        if self.in_my_collection_button.get_icon_name() == "heart-outline-thick-symbolic":
+            th = threading.Thread(target=self.add_track_to_my_collection, args=(self.player_object.playing_track.id,))
+            self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
+        else:
+            th = threading.Thread(target=self.remove_track_from_my_collection, args=(self.player_object.playing_track.id,))
+            self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
         th.deamon = True
         th.start()
 
     def add_track_to_my_collection(self, track_id):
         result = self.session.user.favorites.add_track(track_id)
         if result:
-            btn.set_icon_name("heart-filled-symbolic")
             print("successfully added to my collection")
+
+    def remove_track_from_my_collection(self, track_id):
+        result = self.session.user.favorites.remove_track(track_id)
+        if result:
+            print("successfully removed from my collection")
 
     @Gtk.Template.Callback("on_volume_changed")
     def on_volume_changed_func(self, widget, value):

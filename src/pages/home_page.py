@@ -48,29 +48,9 @@ class homePage(Page):
 
         builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/home_page_template.ui")
 
+        self.set_title("Home")
         page_content = builder.get_object("_main")
         home_content = builder.get_object("_content")
-
-        self.window.login()
-
-        if not self.window.session.check_login():
-            descr = '''To be able to use this app you need to login with your TIDAL account.
-Open the hamburger menu on the left and click Login.'''
-
-            status_page = Adw.StatusPage(title="Login first", description=descr, icon_name="face-wink-symbolic")
-            status_page.set_vexpand(True)
-            status_page.set_hexpand(True)
-
-            self.content.remove(self.spinner)
-            self.content.append(status_page)
-
-            return
-
-        th = threading.Thread(target=self.window._set_last_playing_song, args=())
-        th.deamon = True
-        th.start()
-
-        self.window.add_favourite_playlists()
 
         home = self.window.session.home()
 
