@@ -79,16 +79,19 @@
                         <child>
                           <object class="GtkButton" id="_follow_button">
                             <property name="icon-name">list-add-symbolic</property>
+                            <property name="css-classes">flat</property>
                           </object>
                         </child>
                         <child>
                           <object class="GtkButton" id="_radio_button">
-                            <property name="icon-name">applications-multimedia-symbolic</property>
+                            <property name="icon-name">navigate-symbolic</property>
+                            <property name="css-classes">flat</property>
                           </object>
                         </child>
                         <child>
                           <object class="GtkButton" id="_shuffle_button">
                             <property name="icon-name">media-playlist-shuffle-symbolic</property>
+                            <property name="css-classes">flat</property>
                           </object>
                         </child>
                         <child>
