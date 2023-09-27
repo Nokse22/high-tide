@@ -55,17 +55,25 @@ class trackRadioPage(Page):
         tracks_list_box.connect("row-activated", self.on_row_selected)
 
         builder.get_object("_title_label").set_label(f"Radio of {self.item.name}")
-        builder.get_object("_first_subtitle_label").set_label(f"by {self.item.artist.name}")
+
+        if isinstance(self.item, Track):
+            builder.get_object("_first_subtitle_label").set_label(f"by {self.item.artist.name}")
 
         builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
         builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
 
         image = builder.get_object("_image")
-        th = threading.Thread(target=self.add_image, args=(image, self.item.album))
+        if isinstance(self.item, Track):
+            th = threading.Thread(target=self.add_image, args=(image, self.item.album))
+        else:
+            th = threading.Thread(target=self.add_image, args=(image, self.item))
         th.deamon = True
         th.start()
 
-        self.radio_tracks = self.item.get_track_radio()
+        if isinstance(self.item, Track):
+            self.radio_tracks = self.item.get_track_radio()
+        else:
+            self.radio_tracks = self.item.get_radio()
 
         for index, track in enumerate(self.radio_tracks):
             listing = self.get_track_listing(track)
