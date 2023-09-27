@@ -5,3 +5,5 @@ from .artist_page import artistPage
 from .search_page import searchPage
 from .track_radio_page import trackRadioPage
 from .playlist_page import playlistPage
+from .start_up_page import startUpPage
+from .not_logged_in_page import notLoggedInPage
