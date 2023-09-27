@@ -45,13 +45,12 @@ from ..widgets.card_widget import CardWidget
 class Page(Adw.NavigationPage):
     __gtype_name__ = 'Page'
 
-    def __init__(self, _window, _item, _name):
+    def __init__(self, _window, _item=None, _name=None):
         super().__init__()
 
-        # self.builder = None
-
         self.window = _window
-        self.set_title(_name)
+        if _name:
+            self.set_title(_name)
 
         self.builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/pages_ui/page_template.ui')
         self.item = _item
