@@ -42,8 +42,8 @@
              <object class="GtkButton" id="track_album_button">
               <signal name="clicked" handler="on_album_button_clicked"/>
                <layout>
-                <property name="column">4</property>
-                <property name="column-span">2</property>
+                <property name="column">5</property>
+                <property name="column-span">1</property>
                 <property name="row">0</property>
               </layout>
               <style>
@@ -94,7 +94,7 @@
               <signal name="clicked" handler="on_artist_button_clicked"/>
               <layout>
                 <property name="column">3</property>
-                <property name="column-span">2</property>
+                <property name="column-span">1</property>
                 <property name="row">0</property>
               </layout>
               <style>
