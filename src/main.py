@@ -130,6 +130,13 @@ class TidalApplication(Adw.Application):
             css_provider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
+        folder_path = "tmp_img"
+
+        if os.path.exists(folder_path):
+            shutil.rmtree(folder_path)
+
+        os.makedirs(folder_path)
+
     def on_download(self, *args):
         th = threading.Thread(target=self.win.download_song)
         th.deamon = True
