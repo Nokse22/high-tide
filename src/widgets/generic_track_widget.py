@@ -42,6 +42,7 @@ class GenericTrackWidget(Gtk.ListBoxRow):
     playlists_submenu = Gtk.Template.Child()
     track_album_button = Gtk.Template.Child()
     _grid = Gtk.Template.Child()
+    explicit_label = Gtk.Template.Child()
 
     def __init__(self, _track, _win, is_album):
         super().__init__()
@@ -57,6 +58,8 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         self.track_album_label.set_label(self.track.album.name)
         self.track_title_label.set_label(self.track.name)
         self.artist_label.set_label(self.track.artist.name)
+
+        self.explicit_label.set_visible(self.track.explicit)
 
         self.track_duration_label.set_label(utils.pretty_duration(self.track.duration))
 
