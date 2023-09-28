@@ -109,8 +109,9 @@
             "buildsystem" : "meson",
             "sources" : [
                 {
-                    "type" : "dir",
-                    "url" : "."
+                    "type" : "git",
+                    "url" : "https://github.com/Nokse22/high-tide.git",
+		    "branch" : "master"
                 }
             ]
         }
