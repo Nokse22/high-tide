@@ -1,0 +1,32 @@
+on:
+  push:
+    branches: [ "master" ]
+    paths-ignore:
+      - '**/README.md'
+  pull_request:
+    branches: [ "master" ]
+    types: [ "review_requested", "ready_for_review" ]
+  workflow_dispatch:
+name: Flatpak
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  flatpak:
+    name: "GNOME on Flatpak"
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.user.login != 'weblate' }}
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:gnome-44
+      options: --privileged
+    strategy:
+      matrix:
+        arch: [x86_64]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v4
+        with:
+          bundle: io.github.nokse22.high-tide.flatpak
+          manifest-path: io.github.nokse22.high-tide.json
+          cache-key: flatpak-builder-${{ github.sha }}
