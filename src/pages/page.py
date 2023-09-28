@@ -143,7 +143,7 @@ class Page(Adw.NavigationPage):
 
         if response.status_code == 200:
             image_data = response.content
-            file_path = f"{random.randint(0, 100)}.jpg"
+            file_path = f"tmp_img/{random.randint(0, 100)}.jpg"
             with open(file_path, "wb") as file:
                 file.write(image_data)
 
