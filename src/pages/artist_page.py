@@ -137,13 +137,13 @@ class artistPage(Page):
         self.window.player_object.current_song_index = 0
 
     def on_shuffle_button_clicked(self, btn):
-        self.window.player_object.current_mix_album = self.item
+        self.window.player_object.current_mix_album = None
         self.window.player_object.current_mix_album_list = self.top_tracks
         self.window.player_object.play_shuffle()
 
     def on_shuffle_button_clicked(self, btn):
         self.window.player_object.current_mix_album = None
-        self.window.player_object.tracks_from_list_to_play = self.radio_tracks
+        self.window.player_object.tracks_from_list_to_play = self.top_tracks
         self.window.player_object.play_shuffle()
 
     def on_follow_artist_button_clicked(self, btn):

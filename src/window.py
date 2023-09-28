@@ -352,7 +352,6 @@ class TidalWindow(Adw.ApplicationWindow):
                 self.session.audio_quality = Quality.hi_res_lossless
 
         self.settings.set_int("quality", pos)
-        print("audio quality changed")
 
     @Gtk.Template.Callback("on_in_my_collection_button_clicked")
     def on_in_my_collection_button_clicked(self, btn):
