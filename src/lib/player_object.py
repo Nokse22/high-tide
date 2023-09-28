@@ -125,8 +125,8 @@ class playerObject(GObject.GObject):
                 if self.tracks_from_list_to_play == []:
                     self.tracks_from_list_to_play = self.played_songs
                     self.played_songs = []
-                track = self.tracks_from_list_to_play[self.current_song_index]
                 self.current_song_index += 1
+                track = self.tracks_from_list_to_play[self.current_song_index]
         self.play_track(track)
 
     def play_previous(self):
@@ -135,8 +135,9 @@ class playerObject(GObject.GObject):
             self.current_song_index = random.randint(0, len(self.current_mix_album.items()))
         else:
             self.current_song_index += 1
-        track = self.tracks_from_list_to_play[self.current_song_index]
-        # self.mix_tracks_box.select_row(self.mix_tracks_box.get_row_at_index(self.current_song_index))
+        track = self.played_songs[len(self.played_songs) - 1]
+        # self.played_songs.remove(self.playing_track)
+        self.tracks_from_list_to_play.append(self.playing_track)
         self.play_track(track)
 
     def print_queue_and_list(self):
