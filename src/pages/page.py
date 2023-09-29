@@ -154,16 +154,6 @@ class Page(Adw.NavigationPage):
         image = Gdk.Texture.new_from_file(file)
         avatar_widget.set_custom_image(image)
 
-    def on_row_selected(self, list_box, row):
-        index = int(row.get_name())
-
-        self.window.player_object.current_mix_album = self.item
-        self.window.player_object.tracks_from_list_to_play = self.item.items()
-        track = self.window.player_object.tracks_from_list_to_play[index]
-        self.window.player_object.play_track(track)
-        self.window.player_object.play()
-        self.window.player_object.current_song_index = index
-
     def get_carousel(self, title):
         cards_box = Gtk.Box()
         box = Gtk.Box(orientation=1, margin_bottom=12, margin_start=12, margin_end=12, overflow=Gtk.Overflow.HIDDEN)
@@ -320,7 +310,6 @@ class Page(Adw.NavigationPage):
         if result:
             print("item successfully removed from my collection")
             btn.set_icon_name("heart-outline-thick-symbolic")
-
 
     def on_add_to_my_collection_button_clicked(self, btn):
         if btn.get_icon_name() == "heart-outline-thick-symbolic":
