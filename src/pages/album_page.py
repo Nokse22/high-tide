@@ -55,6 +55,7 @@ class albumPage(Page):
 
         builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
         builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
+        builder.get_object("_add_to_my_collection_button").connect("clicked", self.on_add_to_my_collection_button_clicked)
 
         image = builder.get_object("_image")
         th = threading.Thread(target=self.add_image, args=(image, self.item))

@@ -1,12 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Created with Cambalache 0.14.0 -->
 <interface>
-  <!-- interface-name mix_page.ui -->
+  <!-- interface-name tracks_list_template.ui -->
   <requires lib="gtk" version="4.6"/>
   <requires lib="libadwaita" version="1.0"/>
       <object class="GtkBox" id="_main">
-        <!-- <property name="margin-end">12</property> -->
-        <!-- <property name="margin-start">12</property> -->
         <property name="orientation">vertical</property>
         <property name="vexpand">True</property>
         <child>
@@ -83,8 +81,15 @@
                     <property name="spacing">6</property>
                     <property name="valign">center</property>
                     <child>
+                      <object class="GtkButton" id="_add_to_my_collection_button">
+                        <property name="icon-name">heart-outline-thick-symbolic</property>
+                        <property name="css-classes">flat</property>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkButton" id="_shuffle_button">
                         <property name="icon-name">media-playlist-shuffle-symbolic</property>
+                        <property name="css-classes">flat</property>
                       </object>
                     </child>
                     <child>

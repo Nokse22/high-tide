@@ -61,6 +61,7 @@ class trackRadioPage(Page):
 
         builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
         builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
+        builder.get_object("_add_to_my_collection_button").connect("clicked", self.on_add_to_my_collection_button_clicked)
 
         image = builder.get_object("_image")
         if isinstance(self.item, Track):
@@ -91,3 +92,6 @@ class trackRadioPage(Page):
         self.window.player_object.current_mix_album = track.album
         self.window.player_object.play_track(track)
         self.window.player_object.current_song_index = index
+
+    def on_add_to_my_collection_button_clicked(self):
+        pass
