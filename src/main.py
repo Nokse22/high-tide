@@ -120,8 +120,9 @@ class TidalApplication(Adw.Application):
 	        padding-right:3px;
 	        background-color:@popover_shade_color;
 	        border-radius:4px;
+	        font-size:11pt;
+	        font-weight:bold;
         }
-
         '''
         css_provider = Gtk.CssProvider()
         css_provider.load_from_data(css, -1)
