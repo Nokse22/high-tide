@@ -15,10 +15,19 @@
   </div>
 
 ## Installation
-### High Tide is NOT YET available on
+<details><summary>Stores (Still not avalaible)</summary>
+### High Tide is available on
 
 <a href='https://flathub.org/apps/io.github.nokse22.high-tide'><img height='80' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.png'/></a>
 <h>&emsp;</h> <a href="https://snapcraft.io/high-tide"><img height='80' alt="Get it from the Snap Store" src="https://snapcraft.io/static/images/badges/en/snap-store-black.svg"/></a>
+</details>
+
+### From latest build
+
+Go to the [Actions page](https://github.com/Nokse22/high-tide/actions), click on the latest working build and download the Artifact.
+Extract the .flatpak file from the downloaded .zip file and install it clicking on it or with:
+
+`flatpak install io.github.nokse22.high-tide.flatpak`
 
 ### From source
 
