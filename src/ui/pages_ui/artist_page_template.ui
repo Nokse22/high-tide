@@ -78,7 +78,7 @@
                         <property name="valign">center</property>
                         <child>
                           <object class="GtkButton" id="_follow_button">
-                            <property name="icon-name">list-add-symbolic</property>
+                            <property name="icon-name">heart-outline-thick-symbolic</property>
                             <property name="css-classes">flat</property>
                           </object>
                         </child>
