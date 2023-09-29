@@ -82,7 +82,7 @@
                 <object class="GtkLabel" id="explicit_label">
                   <property name="label">E</property>
                   <property name="css-classes">explicit-label</property>
-                  <property name="visible">False</property>
+                  <property name="visible">false</property>
                   <property name="valign">center</property>
                   <property name="margin-start">6</property>
                 </object>
@@ -134,7 +134,7 @@
               </child>
               <child>
                 <object class="GtkLabel">
-                  <property name="visible" bind-source="explicit_label" bind-property="visible"></property>
+                  <property name="visible" bind-source="explicit_label" bind-property="visible">false</property>
                   <property name="label">E</property>
                   <property name="css-classes">explicit-label</property>
                   <property name="valign">center</property>
