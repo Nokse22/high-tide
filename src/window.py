@@ -79,6 +79,7 @@ class TidalWindow(Adw.ApplicationWindow):
     sidebar_playlists = Gtk.Template.Child()
     volume_button = Gtk.Template.Child()
     in_my_collection_button = Gtk.Template.Child()
+    explicit_label = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -183,6 +184,7 @@ class TidalWindow(Adw.ApplicationWindow):
         self.song_title_label.set_label(track.name)
         self.artist_label.set_label(track.artist.name)
         self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
+        self.explicit_label.set_visible(track.explicit)
 
         self.settings.set_int("last-playing-song-id", track.id)
 

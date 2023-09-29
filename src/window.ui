@@ -173,6 +173,7 @@
                                 <property name="hexpand">true</property>
                                 <property name="valign">center</property>
                                 <property name="margin-end">12</property>
+                                <property name="visible">false</property>
                                 <signal name="clicked" handler="on_new_playlist_button_clicked"/>
                               </object>
                             </child>
@@ -310,15 +311,28 @@
                           <child>
                             <object class="GtkBox">
                               <property name="orientation">vertical</property>
-                                <child>
-                                  <object class="GtkLabel" id="song_title_label">
-                                    <property name="label" translatable="true">Song Title</property>
-                                    <property name="xalign">0</property>
-                                    <property name="margin_top">6</property>
-                                    <property name="css-classes">title-4</property>
-                                    <property name="ellipsize">3</property>
-                                  </object>
-                                </child>
+                              <child>
+                                <object class="GtkBox">
+                                  <child>
+                                    <object class="GtkLabel" id="song_title_label">
+                                      <property name="label" translatable="true">Song Title</property>
+                                      <property name="xalign">0</property>
+                                      <property name="margin_top">6</property>
+                                      <property name="css-classes">title-4</property>
+                                      <property name="ellipsize">3</property>
+                                    </object>
+                                  </child>
+                                  <child>
+                                    <object class="GtkLabel" id="explicit_label">
+                                      <property name="label">E</property>
+                                      <property name="css-classes">explicit-label</property>
+                                      <property name="visible">false</property>
+                                      <property name="valign">end</property>
+                                      <property name="margin-start">6</property>
+                                    </object>
+                                  </child>
+                                </object>
+                              </child>
                                 <child>
                                   <object class="GtkButton" id="artist_button">
                                     <style>
