@@ -60,7 +60,7 @@ class artistPage(Page):
         top_tracks_list_box.connect("row-activated", self.on_row_selected)
 
         builder.get_object("_name_label").set_label(self.item.name)
-        # builder.get_object("_bio_label").set_label(self.item.get_bio())
+        # builder.get_object("_bio_label").set_label(self.item.roles)
 
         builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
         builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
@@ -148,11 +148,6 @@ class artistPage(Page):
     def on_shuffle_button_clicked(self, btn):
         self.window.player_object.current_mix_album = None
         self.window.player_object.current_mix_album_list = self.top_tracks
-        self.window.player_object.play_shuffle()
-
-    def on_shuffle_button_clicked(self, btn):
-        self.window.player_object.current_mix_album = None
-        self.window.player_object.tracks_from_list_to_play = self.top_tracks
         self.window.player_object.play_shuffle()
 
     def on_artist_radio_button_clicked(self, btn):
