@@ -60,41 +60,50 @@ class artistPage(Page):
         top_tracks_list_box.connect("row-activated", self.on_row_selected)
 
         builder.get_object("_name_label").set_label(self.item.name)
-        builder.get_object("_bio_label").set_label(self.item.get_bio())
+        # builder.get_object("_bio_label").set_label(self.item.get_bio())
 
         builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
         builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
 
-        builder.get_object("_follow_button").connect("clicked", self.on_follow_artist_button_clicked)
+        builder.get_object("_follow_button").connect("clicked", self.on_add_to_my_collection_button_clicked)
         builder.get_object("_radio_button").connect("clicked", self.on_artist_radio_button_clicked)
 
         image = builder.get_object("_image")
 
-        self.top_tracks = self.item.get_top_tracks(10)
-
-        for index, track in enumerate(self.top_tracks):
-            listing = self.get_track_listing(track)
-            listing.set_name(str(index))
-            top_tracks_list_box.append(listing)
+        try:
+            self.top_tracks = self.item.get_top_tracks(10)
+        except:
+            pass
+        else:
+            for index, track in enumerate(self.top_tracks):
+                listing = self.get_track_listing(track)
+                listing.set_name(str(index))
+                top_tracks_list_box.append(listing)
 
         carousel, cards_box = self.get_carousel("Albums")
         carousel_box.append(carousel)
 
-        albums = self.item.get_albums()
-
-        for album in albums:
-            album_card = self.get_album_card(album)
-            cards_box.append(album_card)
+        try:
+            albums = self.item.get_albums()
+        except:
+            pass
+        else:
+            for album in albums:
+                album_card = self.get_album_card(album)
+                cards_box.append(album_card)
 
         carousel, cards_box = self.get_carousel("Similar Artists")
         carousel_box.append(carousel)
 
         this_artist = self.window.session.artist(self.item.id)
-        artists = this_artist.get_similar()
-
-        for artist in artists:
-            artist_card = self.get_artist_card(artist)
-            cards_box.append(artist_card)
+        try:
+            artists = this_artist.get_similar()
+        except:
+            pass
+        else:
+            for artist in artists:
+                artist_card = self.get_artist_card(artist)
+                cards_box.append(artist_card)
 
         try:
             bio = self.item.get_bio()
@@ -145,9 +154,6 @@ class artistPage(Page):
         self.window.player_object.current_mix_album = None
         self.window.player_object.tracks_from_list_to_play = self.top_tracks
         self.window.player_object.play_shuffle()
-
-    def on_follow_artist_button_clicked(self, btn):
-        pass
 
     def on_artist_radio_button_clicked(self, btn):
         from .track_radio_page import trackRadioPage
