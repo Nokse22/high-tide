@@ -14,6 +14,18 @@
   <img src="data/resources/screenshot 2.png" height="400"/>
   </div>
 
+## Contribution
+### Icon needed
+High Tide is looking for somebody to make or suggest a design for an icon. It needs to follow [GNOME HIG](https://developer.gnome.org/hig/guidelines/app-icons.html)
+
+### Coding
+There are some TODOs and FIXMEs in the code, you can start there. I'm trying to comment the code, but if needed you can contact me on Matrix (@nokse22:matrix.org) or on Github.
+
+The application is made with GNOME Builder so it should just work if you clone the project and open it with Builder.
+
+If you have contributed you can open a pull request.
+
+
 ## Installation
 <details><summary>Stores (Still not avalaible)</summary>
 ### High Tide is available on
