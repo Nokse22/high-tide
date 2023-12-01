@@ -46,6 +46,8 @@ class TidalApplication(Adw.Application):
         self.create_action('log-out', self.on_logout_action)
         self.create_action('download', self.on_download, ['<primary>d'])
 
+        # TODO Add MPRIS thing
+
         css = '''
         .card-image{
             border-radius:10px;

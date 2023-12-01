@@ -178,6 +178,10 @@ class TidalWindow(Adw.ApplicationWindow):
         track = self.session.track(track_id)
         self.player_object.play_track(track)
 
+        # TODO Set last playing playlist/mix/album as current playing thing
+
+        # self.player_object. = self.session.track(track_id)
+
     def on_song_changed(self, *args):
         print("song changed")
         album = self.player_object.song_album
