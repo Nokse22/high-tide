@@ -204,7 +204,7 @@ class TidalApplication(Adw.Application):
 
     def do_shutdown(self):
         track = self.win.player_object.playing_track
-        list_ = self.win.player_object.current_mix_album
+        list_ = self.win.player_object.current_mix_album_playlist
         if track and list_:
             track_id = track.id
             list_id = list_.id
