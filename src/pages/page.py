@@ -107,17 +107,10 @@ class Page(Adw.NavigationPage):
         self.window.navigation_view.push(page)
 
     def on_play_button_clicked(self, btn):
-        self.window.player_object.current_mix_album = self.item
-        self.window.player_object.tracks_from_list_to_play = self.item.items()
-        track = self.window.player_object.tracks_from_list_to_play[0]
-        self.window.player_object.play_track(track)
-        self.play()
-        self.window.player_object.current_song_index = 0
+        self.window.player_object.play_this(self.item)
 
     def on_shuffle_button_clicked(self, btn):
-        self.window.player_object.current_mix_album = self.item
-        self.window.player_object.tracks_from_list_to_play = self.item.items()
-        self.window.player_object.play_shuffle()
+        self.window.player_object.shuffle_this(self.item)
 
     def on_artist_button_clicked(self, btn, artist):
         print(artist)

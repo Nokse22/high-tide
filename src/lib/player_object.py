@@ -23,6 +23,9 @@ from tidalapi.mix import Mix
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.media import Track
+from tidalapi.playlist import Playlist
+
+from tidalapi.user import Favorites
 
 from gi.repository import GObject
 from gi.repository import Gst, GLib
@@ -47,7 +50,7 @@ class playerObject(GObject.GObject):
     def __init__(self):
         GObject.GObject.__init__(self)
         self.queue = []  # List to store queued songs
-        self.current_mix_album = None  # Information about the currently playing mix/album
+        self.current_mix_album_playlist = None  # Information about the currently playing mix/album
         self.tracks_from_list_to_play = []
         self.shuffled_queue = []  # Shuffled version of the queue
         self.shuffle_mode = False
@@ -61,6 +64,68 @@ class playerObject(GObject.GObject):
         self.playbin = Gst.ElementFactory.make("playbin", "playbin")
 
         GLib.timeout_add(3000, self.print_queue_and_list)
+
+    def play_this(self, thing):
+        if isinstance(thing, Track):
+            self.play_track(thing)
+            return
+        elif isinstance(thing, Mix):
+            tracks = thing.items()
+        elif isinstance(thing, Album):
+            tracks = thing.tracks()
+        elif isinstance(thing, Artist):
+            return
+        elif isinstance(thing, Playlist):
+            tracks = thing.tracks()
+
+        self.current_mix_album_playlist = thing
+        self.tracks_from_list_to_play = tracks
+        track = self.tracks_from_list_to_play[0]
+        self.play_track(track)
+        self.play()
+        self.current_song_index = 0
+
+    def play_this_at(self, thing, index):
+        if isinstance(thing, Track):
+            self.play_track(thing)
+            return
+        elif isinstance(thing, Mix):
+            tracks = thing.items()
+        elif isinstance(thing, Album):
+            tracks = thing.tracks()
+        elif isinstance(thing, Artist):
+            return
+        elif isinstance(thing, Playlist):
+            tracks = thing.tracks()
+
+        self.current_mix_album_playlist = thing
+        self.tracks_from_list_to_play = tracks[index:] + tracks[:index]
+        self.current_song_index = 0
+        track = self.tracks_from_list_to_play[self.current_song_index]
+        self.play_track(track)
+        self.play()
+
+    def shuffle_this(self, thing):
+        self.shuffle_mode = True
+
+        if isinstance(thing, Track):
+            self.play_track(thing)
+            return
+        elif isinstance(thing, Mix):
+            tracks = thing.items()
+        elif isinstance(thing, Album):
+            tracks = thing.tracks()
+        elif isinstance(thing, Artist):
+            return
+        elif isinstance(thing, Playlist):
+            tracks = thing.tracks()
+
+        self.current_mix_album_playlist = thing
+        self.tracks_from_list_to_play = tracks
+        self.current_song_index = random.randint(0, len(self.current_mix_album_playlist.items()))
+        track = self.tracks_from_list_to_play[self.current_song_index]
+        self.play_track(track)
+        self.play()
 
     def play(self):
         self.is_playing = True
@@ -111,7 +176,7 @@ class playerObject(GObject.GObject):
     def play_next(self):
         """Play the next song in the queue or from the currently playing album/mix/playlist."""
 
-        # FIXME not working very well, sometimes it cant find the next track to play
+        # FIXME not working very well, sometimes it cant find the next track to play when it is shuffling (now it just play a random track, but it should play the next track from the sheffled_queue)
 
         if self.playing_track in self.tracks_from_list_to_play:
             self.played_songs.append(self.playing_track)
@@ -121,7 +186,8 @@ class playerObject(GObject.GObject):
             self.queue.pop(0)
         else:
             if self.shuffle_mode:
-                # track = self.shuffled_queue[0]
+                self.current_song_index = random.randint(0, len(self.current_mix_album_playlist.items()))
+                track = self.tracks_from_list_to_play[self.current_song_index]
                 pass
             else:
                 self.tracks_from_list_to_play.remove(self.playing_track)
@@ -134,7 +200,7 @@ class playerObject(GObject.GObject):
     def play_previous(self):
         """Play the previous song in the queue."""
         # if self.shuffle_mode:
-        #     self.current_song_index = random.randint(0, len(self.current_mix_album.items()))
+        #     self.current_song_index = random.randint(0, len(self.current_mix_album_playlist.items()))
         # else:
         self.current_song_index += 1
         track = self.played_songs[len(self.played_songs) - 1]
@@ -176,7 +242,7 @@ class playerObject(GObject.GObject):
 
     def get_current_song(self):
         """Get information about the currently playing song."""
-        return self.current_mix_album.items()[self.current_song_index]
+        return self.current_mix_album_playlist.items()[self.current_song_index]
 
     def clear_queue(self):
         """Clear the queue."""
@@ -184,9 +250,9 @@ class playerObject(GObject.GObject):
         self.shuffled_queue = []
         self.current_song_index = -1
 
-    def set_current_mix_album(self, mix_album):
+    def set_current_mix_album_playlist(self, mix_album):
         """Set information about the currently playing mix/album."""
-        self.current_mix_album = mix_album
+        self.current_mix_album_playlist = mix_album
 
     def update_slider_call(self):
         self.emit("update-slider")
