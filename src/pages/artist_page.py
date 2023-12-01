@@ -43,6 +43,11 @@ from .page import Page
 class artistPage(Page):
     __gtype_name__ = 'artistPage'
 
+    """It is used to display an artist page"""
+
+    # FIXME The bio is not displayed properly, it all bold and the links are not working
+    # TODO Add missing features: influences, appears on, credits and so on
+
     def __init__(self, _window, _item, _name):
         super().__init__(_window, _item, _name)
 

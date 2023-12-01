@@ -42,6 +42,8 @@ from .page import Page
 class albumPage(Page):
     __gtype_name__ = 'albumPage'
 
+    """It is used to display an album"""
+
     def _load_page(self):
         builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui")
 

@@ -45,6 +45,8 @@ from ..widgets.card_widget import CardWidget
 class Page(Adw.NavigationPage):
     __gtype_name__ = 'Page'
 
+    """It's the base class for all types of pages, it contains all the shared functions"""
+
     def __init__(self, _window, _item=None, _name=None):
         super().__init__()
 

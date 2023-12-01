@@ -43,6 +43,11 @@ from .page import Page
 class playlistPage(Page):
     __gtype_name__ = 'playlistPage'
 
+    """It is used to display a playlist with author, number of tracks and duration"""
+
+    # FIXME Fix the favourite hearth
+    # FIXME After playing shuffle the next track is not found
+
     def _load_page(self):
         builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui")
 

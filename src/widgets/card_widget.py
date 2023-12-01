@@ -40,6 +40,8 @@ from tidalapi.user import Favorites
 class CardWidget(Gtk.Box):
     __gtype_name__ = 'CardWidget'
 
+    """It is card that adapts to the content it needs to display, it is used when listing artists, albums, mixes and so on"""
+
     image = Gtk.Template.Child()
     button = Gtk.Template.Child()
     title_label = Gtk.Template.Child()

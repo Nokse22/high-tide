@@ -43,6 +43,10 @@ from .page import Page
 class searchPage(Page):
     __gtype_name__ = 'searchPage'
 
+    """It is used to display the search results"""
+
+    # TODO Add a card for the top result, it needs to change based on the top result type
+
     def _load_page(self):
         builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/home_page_template.ui")
 

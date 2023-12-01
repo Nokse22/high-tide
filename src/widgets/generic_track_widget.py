@@ -34,6 +34,8 @@ from tidalapi.user import Favorites
 class GenericTrackWidget(Gtk.ListBoxRow):
     __gtype_name__ = 'GenericTrackWidget'
 
+    """It is used to display a single track"""
+
     image = Gtk.Template.Child()
     track_album_label = Gtk.Template.Child()
     track_title_label = Gtk.Template.Child()

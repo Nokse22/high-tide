@@ -42,6 +42,8 @@ from .page import Page
 class genericPage(Page):
     __gtype_name__ = 'genericPage'
 
+    """It is not used much, possibly not needed anymore"""
+
     def _load_page(self):
         builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/home_page_template.ui")
 

@@ -42,6 +42,8 @@ from .page import Page
 class explorePage(Page):
     __gtype_name__ = 'explorePage'
 
+    """It is used to display the explore page"""
+
     def _load_page(self):
         builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/home_page_template.ui")
 

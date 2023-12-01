@@ -43,6 +43,10 @@ from .page import Page
 class singleTypePage(Page):
     __gtype_name__ = 'singleTypePage'
 
+    """Used to display favorites albums/artists/mixes/playlists and tracks"""
+
+    # TODO load only a fixed number of items at first then if the page is scrolled down load some more
+
     def _load_page(self):
         builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/home_page_template.ui")
 

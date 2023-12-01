@@ -42,6 +42,12 @@ from .page import Page
 class trackRadioPage(Page):
     __gtype_name__ = 'trackRadioPage'
 
+    """It is used to display a radio from a track"""
+
+    # FIXME Fix the favourite hearth
+    # FIXME Fix the shuffle
+    # FIXME After playing I can't play the next track
+
     def __init__(self, _window, _item, _name):
         super().__init__(_window, _item, _name)
 

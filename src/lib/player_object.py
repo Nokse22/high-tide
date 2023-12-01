@@ -111,6 +111,8 @@ class playerObject(GObject.GObject):
     def play_next(self):
         """Play the next song in the queue or from the currently playing album/mix/playlist."""
 
+        # FIXME not working very well, sometimes it cant find the next track to play
+
         if self.playing_track in self.tracks_from_list_to_play:
             self.played_songs.append(self.playing_track)
 
