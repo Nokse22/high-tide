@@ -71,6 +71,7 @@
                 <property name="margin-end">6</property>
                 <property name="margin-start">6</property>
                 <property name="margin-bottom">6</property>
+                <property name="sensitive">false</property>
               </object>
             </child>
             <child>
@@ -84,6 +85,7 @@
                           <signal name="row-activated" handler="on_sidebar_row_selected_clicked"/>
                           <property name="css-classes">navigation-sidebar</property>
                           <property name="selection-mode">none</property>
+                          <property name="sensitive" bind-source="search_entry" bind-property="sensitive">false</property>
                           <child>
                             <object class="GtkLabel">
                               <property name="name">HOME</property>
@@ -115,6 +117,7 @@
                           <signal name="row-activated" handler="on_sidebar_row_selected_clicked"/>
                           <property name="css-classes">navigation-sidebar</property>
                           <property name="selection-mode">none</property>
+                          <property name="sensitive" bind-source="search_entry" bind-property="sensitive">false</property>
                           <!-- <child> -->
                           <!--   <object class="GtkLabel"> -->
                           <!--     <property name="name">F-MIX</property> -->
@@ -184,6 +187,7 @@
                           <signal name="row-activated" handler="on_playlists_sidebar_row_activated"/>
                           <property name="css-classes">navigation-sidebar</property>
                           <property name="selection-mode">none</property>
+                          <property name="sensitive" bind-source="search_entry" bind-property="sensitive">false</property>
                         </object>
                       </child>
                   </object>
@@ -278,6 +282,7 @@
               <property name="height-request">60</property>
               <property name="hexpand">true</property>
               <property name="homogeneous">false</property>
+              <property name="sensitive" bind-source="search_entry" bind-property="sensitive">false</property>
               <child>
                 <object class="GtkBox">
                   <property name="orientation">horizontal</property>

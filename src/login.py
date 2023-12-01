@@ -39,9 +39,11 @@ class LoginWindow(Adw.Window):
 
         login, future = self.session.login_oauth()
 
-        link = f"https://{login.verification_uri_complete}"
+        uri = login.verification_uri_complete
 
-        self.code_label.set_label("ABCDEF")
+        link = f"https://{uri}"
+
+        self.code_label.set_label(uri[-5:])
         self.link_button.set_label(link)
         self.link_button.set_uri(link)
 
@@ -49,8 +51,8 @@ class LoginWindow(Adw.Window):
 
     def check_login(self):
         if self.session.check_login():
-            self.win.load_home_page()
             self.win.secret_store.save()
+            self.win.on_logged_in()
             self.destroy()
             return False
         return True

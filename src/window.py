@@ -135,6 +135,8 @@ class TidalWindow(Adw.ApplicationWindow):
         print("on logged in")
         self.favourite_tracks = self.session.user.favorites.tracks()
 
+        self.search_entry.set_sensitive(True)
+
         page = homePage(self)
         page.load()
         self.navigation_view.replace([page])
@@ -151,7 +153,6 @@ class TidalWindow(Adw.ApplicationWindow):
         page = notLoggedInPage(self)
         page.load()
         self.navigation_view.replace([page])
-
 
     def add_favourite_playlists(self):
         playlists = self.session.user.favorites.playlists()
@@ -238,19 +239,18 @@ class TidalWindow(Adw.ApplicationWindow):
                 self.secret_store.token_dictionary["expiry-time"])
         except Exception as e:
             print(f"error! {e}")
-            self.on_login_failed()
+            GLib.idle_add(self.on_login_failed)
         else:
             self.on_logged_in()
 
     def logout(self):
         self.secret_store.clear()
 
-        self.navigation_view.pop_to_tag("home")
-        self.navigation_view.pop()
+        self.search_entry.set_sensitive(False)
 
-        self.home_page = homePage(self, None, "Home")
-        self.home_page.load()
-        self.navigation_view.push(self.home_page)
+        page = notLoggedInPage(self)
+        page.load()
+        self.navigation_view.replace([page])
 
     def explore_page(self):
         explore = session.explore()
