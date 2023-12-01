@@ -31,7 +31,7 @@ import random
 import threading
 
 class playerObject(GObject.GObject):
-    """This class handles all the player logic, queue..."""
+    """This class handles all the player logic, queue, shuffle..."""
 
     shuffle_mode = GObject.Property(type=bool, default=False)
     current_song_index = GObject.Property(type=int, default=-1)

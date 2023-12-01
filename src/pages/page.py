@@ -64,11 +64,17 @@ class Page(Adw.NavigationPage):
         self.set_child(self.object)
 
     def load(self):
+
+        """Called when the page is created, it just starts a thread running the actual function to load the page UI"""
+
         th = threading.Thread(target=self._load_page)
         th.deamon = True
         th.start()
 
     def _load_page(self):
+
+        """Overwritten by each different page"""
+
         return
 
     def get_album_card(self, item):
@@ -83,6 +89,14 @@ class Page(Adw.NavigationPage):
         card = CardWidget(item, self.window)
         return card
 
+    def get_album_track_listing(self, track):
+        track_listing = GenericTrackWidget(track, self.window, True)
+        return track_listing
+
+    def get_playlist_card(self, playlist):
+        card = CardWidget(playlist, self.window)
+        return card
+
     def on_mix_button_clicked(self, btn, mix):
         self.window.sidebar_list.select_row(None)
 
@@ -91,10 +105,6 @@ class Page(Adw.NavigationPage):
         page = mixPage(self.window, mix, mix.title)
         page.load()
         self.window.navigation_view.push(page)
-
-    def get_album_track_listing(self, track):
-        track_listing = GenericTrackWidget(track, self.window, True)
-        return track_listing
 
     def on_play_button_clicked(self, btn):
         self.window.player_object.current_mix_album = self.item
@@ -120,6 +130,9 @@ class Page(Adw.NavigationPage):
         self.window.navigation_view.push(page)
 
     def add_image(self, image_widget, item):
+
+        """Retrieves and adds an image"""
+
         try:
             image_url = item.image()
             response = requests.get(image_url)
@@ -132,12 +145,15 @@ class Page(Adw.NavigationPage):
             with open(file_path, "wb") as file:
                 file.write(image_data)
 
-            GLib.idle_add(self._add_image, image_widget, file_path)
+            def _add_image(image_widget, file_path):
+                image_widget.set_from_file(file_path)
 
-    def _add_image(self, image_widget, file_path):
-        image_widget.set_from_file(file_path)
+            GLib.idle_add(_add_image, image_widget, file_path)
 
     def add_image_to_avatar(self, avatar_widget, image_url):
+
+        """Same ad the previous function, but with Adwaita's avatar widgets"""
+
         try:
             response = requests.get(image_url)
         except:
@@ -149,14 +165,18 @@ class Page(Adw.NavigationPage):
             with open(file_path, "wb") as file:
                 file.write(image_data)
 
-            GLib.idle_add(self._add_image_to_avatar, avatar_widget, file_path)
+            def _add_image_to_avatar(avatar_widget, file_path):
+                file = Gio.File.new_for_path(file_path)
+                image = Gdk.Texture.new_from_file(file)
+                avatar_widget.set_custom_image(image)
 
-    def _add_image_to_avatar(self, avatar_widget, file_path):
-        file = Gio.File.new_for_path(file_path)
-        image = Gdk.Texture.new_from_file(file)
-        avatar_widget.set_custom_image(image)
+            GLib.idle_add(_add_image_to_avatar, avatar_widget, file_path)
 
     def get_carousel(self, title):
+
+        """Creates a carousel used to display multiple elements side by side
+        with navigation arrows"""
+
         cards_box = Gtk.Box()
         box = Gtk.Box(orientation=1, margin_bottom=12, margin_start=12, margin_end=12, overflow=Gtk.Overflow.HIDDEN)
         title_box = Gtk.Box(margin_top=12, margin_bottom=6)
@@ -177,6 +197,10 @@ class Page(Adw.NavigationPage):
         return box, cards_box
 
     def get_link_carousel(self, title):
+
+        """Similar to the last function but used to display links to other pages
+        like in the explore page to display genres..."""
+
         cards_box = Gtk.Box()
         box = Gtk.Box(orientation=1, margin_bottom=12, margin_start=12, margin_end=12, overflow=Gtk.Overflow.HIDDEN)
         title_box = Gtk.Box(margin_top=12, margin_bottom=6)
@@ -219,10 +243,6 @@ class Page(Adw.NavigationPage):
             next_page = carousel.get_nth_page(pos - jump)
 
         carousel.scroll_to(next_page, True)
-
-    def get_playlist_card(self, playlist):
-        card = CardWidget(playlist, self.window)
-        return card
 
     def on_playlist_button_clicked(self, btn, playlist):
         self.window.sidebar_list.select_row(None)
