@@ -44,9 +44,7 @@ class trackRadioPage(Page):
 
     """It is used to display a radio from a track"""
 
-    # FIXME Fix the favourite hearth
-    # FIXME Fix the shuffle
-    # FIXME After playing I can't play the next track
+    # FIXME Fix the favourite hearth (Probably impossible because tidalapi doesn't store a radio as a mix, but maybe possible with some ID)
 
     def __init__(self, _window, _item, _name):
         super().__init__(_window, _item, _name)
@@ -93,7 +91,13 @@ class trackRadioPage(Page):
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        self.window.player_object.play_this(self.item, index)
+        self.window.player_object.play_this(self.radio_tracks, index)
+
+    def on_play_button_clicked(self, btn): # overwritten to pass a list and not the Track (that is the self.item for the radio page)
+        self.window.player_object.play_this(self.radio_tracks)
+
+     def on_shuffle_button_clicked(self, btn): # overwritten to pass a list and not the Track (that is the self.item for the radio page)
+        self.window.player_object.shuffle_this(self.radio_tracks)
 
     def on_add_to_my_collection_button_clicked(self):
         pass
