@@ -133,7 +133,8 @@ class TidalWindow(Adw.ApplicationWindow):
 
     def on_logged_in(self):
         print("on logged in")
-        self.favourite_tracks = self.session.user.favorites.tracks()
+        # self.favourite_tracks = self.session.user.favorites.tracks()
+        # FIXME if it doesn't login fast enough it doesn't let the user login
 
         self.search_entry.set_sensitive(True)
 
