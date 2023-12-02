@@ -98,6 +98,8 @@ class playerObject(GObject.GObject):
             tracks = thing.tracks()
         elif isinstance(thing, Playlist):
             tracks = thing.tracks()
+        else: # For radios
+            tracks = thing
 
         return tracks
 
@@ -155,6 +157,11 @@ class playerObject(GObject.GObject):
             self.play_track(track)
             return
 
+        # If the tracks_to_play list is empty it refills it with the played songs and empties the played_songs
+        if self.tracks_to_play == []:
+            self.tracks_to_play = self.played_songs
+            self.played_songs = []
+
         # If it's shuffling it plays the first song in the shuffled_tracks_to_play. If it's not on shuffle it will play the first song from tracks_to_play
         if self.shuffle_mode:
             track = self.shuffled_tracks_to_play[0]
@@ -167,11 +174,6 @@ class playerObject(GObject.GObject):
             self.play_track(track)
             self.tracks_to_play.pop(0)
             return
-
-        # If the tracks_to_play list is empty it refills it with the played songs and empties the played_songs
-        if self.tracks_to_play == []:
-            self.tracks_to_play = self.played_songs
-            self.played_songs = []
 
     def play_previous(self):
         """Play the previous song in the queue."""
