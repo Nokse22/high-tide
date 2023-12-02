@@ -72,4 +72,4 @@ class mixPage(Page):
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        self.window.player_object.play_this_at(self.item, index)
+        self.window.player_object.play_this(self.item, index)

@@ -75,9 +75,4 @@ class albumPage(Page):
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        self.window.player_object.current_mix_album = self.item
-        self.window.player_object.tracks_from_list_to_play = self.item.items()
-        track = self.window.player_object.tracks_from_list_to_play[index]
-        self.window.player_object.play_track(track)
-        self.window.player_object.play()
-        self.window.player_object.current_song_index = index
+        self.window.player_object.play_this(self.item, index)

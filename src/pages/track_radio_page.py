@@ -93,11 +93,7 @@ class trackRadioPage(Page):
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        self.window.player_object.current_mix_album_list = self.radio_tracks
-        track = self.window.player_object.current_mix_album_list[index]
-        self.window.player_object.current_mix_album = track.album
-        self.window.player_object.play_track(track)
-        self.window.player_object.current_song_index = index
+        self.window.player_object.play_this(self.item, index)
 
     def on_add_to_my_collection_button_clicked(self):
         pass
