@@ -205,6 +205,11 @@ class TidalWindow(Adw.ApplicationWindow):
         else:
             self.play_button.set_icon_name("media-playback-start-symbolic")
 
+        if self.lyrics_split_view.get_show_sidebar():
+            th = threading.Thread(target=self.add_lyrics_to_page, args=())
+            th.deamon = True
+            th.start()
+
         self.control_bar_artist = track.artist
         self.update_slider()
 
@@ -315,7 +320,6 @@ class TidalWindow(Adw.ApplicationWindow):
                 print("ended")
                 self.player_object.play_next()
         return True
-
 
     @Gtk.Template.Callback("on_lyrics_button_clicked")
     def on_lyrics_button_clicked_func(self, widget):
