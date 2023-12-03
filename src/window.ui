@@ -208,9 +208,9 @@
                 </object>
               </child>
               <property name="child">
-                <object class="AdwOverlaySplitView" id="lyrics_split_view">
+                <object class="AdwOverlaySplitView" id="right_sidebar_split_view">
                   <property name="height-request">200</property>
-                  <property name="collapsed">false</property>
+                  <property name="collapsed">true</property>
                   <property name="sidebar-position">end</property>
                   <!-- <property name="collapsed" bind-source="_lyrics_toggle_button" bind-property="active">True</property> -->
                   <property name="show-sidebar">false</property>
@@ -239,13 +239,51 @@
                       <child>
                         <object class="GtkBox">
                           <property name="vexpand">True</property>
+                          <property name="orientation">vertical</property>
                           <child>
-                            <object class="GtkScrolledWindow" id="lyrics_box">
-                              <property name="hexpand">true</property>
-                              <property name="vexpand">true</property>
-                              <style>
-                                <class name="undershoot-top"/>
-                              </style>
+                            <object class="GtkStack" id="right_sidebar_stack">
+                              <!-- <property name="interpolate-size"></property> -->
+                              <property name="transition-duration">200</property>
+                              <property name="transition-type">6</property>
+                              <child>
+                                <object class="GtkStackPage">
+                                  <property name="title" translatable="true">Lyrics</property>
+                                  <property name="child">
+                                    <object class="GtkScrolledWindow" id="lyrics_box">
+                                      <property name="hexpand">true</property>
+                                      <property name="vexpand">true</property>
+                                      <style>
+                                        <class name="undershoot-top"/>
+                                      </style>
+                                    </object>
+                                  </property>
+                                </object>
+                              </child>
+                              <child>
+                                <object class="GtkStackPage">
+                                  <property name="title" translatable="true">Queue</property>
+                                  <property name="child">
+                                    <object class="GtkScrolledWindow" id="queue_list">
+                                      <property name="hexpand">true</property>
+                                      <property name="vexpand">true</property>
+                                      <style>
+                                        <class name="undershoot-top"/>
+                                      </style>
+                                    </object>
+                                  </property>
+                                </object>
+                              </child>
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkStackSwitcher" id="stack_switcher">
+                              <property name="visible">True</property>
+                              <property name="can_focus">False</property>
+                              <property name="stack">right_sidebar_stack</property>
+                              <property name="margin-end">6</property>
+                              <property name="margin-start">6</property>
+                              <property name="margin-bottom">6</property>
+                              <property name="margin-top">6</property>
                             </object>
                           </child>
                         </object>

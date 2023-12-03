@@ -44,6 +44,7 @@ class playerObject(GObject.GObject):
         'songs-list-changed': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         'update-slider': (GObject.SignalFlags.RUN_FIRST, None, ()),
         'song-changed': (GObject.SignalFlags.RUN_FIRST, None, ()),
+        'song-added-to-queue': (GObject.SignalFlags.RUN_FIRST, None, ()),
         'play-changed': (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
     }
 
@@ -68,7 +69,7 @@ class playerObject(GObject.GObject):
 
         self.playbin = Gst.ElementFactory.make("playbin", "playbin")
 
-        GLib.timeout_add(4000, self.print_queue_and_list)
+        # GLib.timeout_add(4000, self.print_queue_and_list)
         GLib.timeout_add(1000, self.check_for_end_of_stream)
 
     def play_this(self, thing, index = 0): # Used to play albums, playlists, mixes
@@ -183,6 +184,7 @@ class playerObject(GObject.GObject):
         self.play_track(track)
 
     def check_for_end_of_stream(self):
+        # FIXME Gstreamer position/duration don't update instantly after changing song (it still returns the previous values)
         success1, duration = self.query_duration(Gst.Format.TIME)
         success2, position = self.query_position(Gst.Format.TIME)
 
@@ -197,7 +199,7 @@ class playerObject(GObject.GObject):
         return True
 
     def print_queue_and_list(self):
-        # return
+        return
         print("----------played songs----------")
         for track in self.played_songs:
             print(track.name)
@@ -213,6 +215,7 @@ class playerObject(GObject.GObject):
 
     def add_to_queue(self, track):
         self.queue.append(track)
+        self.emit("song-added-to-queue")
 
     def add_next(self, track):
         self.queue.insert(0, track)
