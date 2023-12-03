@@ -62,7 +62,7 @@ class TidalWindow(Adw.ApplicationWindow):
     split_view = Gtk.Template.Child()
     progress_bar = Gtk.Template.Child()
     sidebar_list = Gtk.Template.Child()
-    dutation_label = Gtk.Template.Child()
+    duration_label = Gtk.Template.Child()
     time_played_label = Gtk.Template.Child()
     shuffle_button = Gtk.Template.Child()
     navigation_view = Gtk.Template.Child()
@@ -304,7 +304,7 @@ class TidalWindow(Adw.ApplicationWindow):
                 end_value = self.duration / Gst.SECOND
                 self.progress_bar.set_range(0, end_value)
 
-                self.dutation_label.set_label(utils.pretty_duration(end_value))
+                self.duration_label.set_label(utils.pretty_duration(end_value))
 
             success, position = self.player_object.query_position(Gst.Format.TIME)
             if not success:
@@ -316,9 +316,6 @@ class TidalWindow(Adw.ApplicationWindow):
                 self.previous_time = position
 
                 self.time_played_label.set_label(utils.pretty_duration(position))
-            if position >= end_value - 0.2:
-                print("ended")
-                self.player_object.play_next()
         return True
 
     @Gtk.Template.Callback("on_lyrics_button_clicked")

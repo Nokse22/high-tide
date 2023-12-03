@@ -461,7 +461,7 @@ flat</property>
                     </object>
                   </child>
                   <child>
-                    <object class="GtkLabel" id="dutation_label">
+                    <object class="GtkLabel" id="duration_label">
                       <property name="label" translatable="true">00:00</property>
                       <property name="width-request">40</property>
                     </object>

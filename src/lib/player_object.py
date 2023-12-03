@@ -68,7 +68,8 @@ class playerObject(GObject.GObject):
 
         self.playbin = Gst.ElementFactory.make("playbin", "playbin")
 
-        GLib.timeout_add(3000, self.print_queue_and_list)
+        GLib.timeout_add(4000, self.print_queue_and_list)
+        GLib.timeout_add(1000, self.check_for_end_of_stream)
 
     def play_this(self, thing, index = 0): # Used to play albums, playlists, mixes
         self.current_mix_album_playlist = thing
@@ -138,8 +139,6 @@ class playerObject(GObject.GObject):
         self.song_album = track.album
         self.emit("song-changed")
 
-        GLib.timeout_add(1000, self.update_slider_call)
-
     def play_next(self):
         """Play the next song in the queue or from the currently playing album/mix/playlist."""
 
@@ -182,6 +181,20 @@ class playerObject(GObject.GObject):
         self.played_songs.pop(last_index)
         self.tracks_to_play.insert(0, self.playing_track)
         self.play_track(track)
+
+    def check_for_end_of_stream(self):
+        success1, duration = self.query_duration(Gst.Format.TIME)
+        success2, position = self.query_position(Gst.Format.TIME)
+
+        # print(f"{position} and {duration}")
+
+        if success1 and success2:
+            if position >= duration - 1:
+                print("song ended")
+                self.play_next()
+                # return False
+
+        return True
 
     def print_queue_and_list(self):
         # return
