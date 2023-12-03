@@ -36,7 +36,8 @@ import requests
 
 def pretty_duration(secs):
     if not secs:
-        return
+        return "00:00"
+
     hours = secs // 3600
     minutes = (secs % 3600) // 60
     seconds = secs % 60
@@ -45,6 +46,8 @@ def pretty_duration(secs):
         return f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
     else:
         return f"{int(minutes):02}:{int(seconds):02}"
+
+    return "00:00"
 
 def add_image(image_widget, item):
     try:
