@@ -93,10 +93,12 @@ class trackRadioPage(Page):
 
         self.window.player_object.play_this(self.radio_tracks, index)
 
-    def on_play_button_clicked(self, btn): # overwritten to pass a list and not the Track (that is the self.item for the radio page)
+    def on_play_button_clicked(self, btn):
+        # overwritten to pass a list and not the Track or Artist (that is the self.item for the radio page)
         self.window.player_object.play_this(self.radio_tracks)
 
-     def on_shuffle_button_clicked(self, btn): # overwritten to pass a list and not the Track (that is the self.item for the radio page)
+    def on_shuffle_button_clicked(self, btn):
+        # overwritten to pass a list and not the Track or Artist (that is the self.item for the radio page)
         self.window.player_object.shuffle_this(self.radio_tracks)
 
     def on_add_to_my_collection_button_clicked(self):
