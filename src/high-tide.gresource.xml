@@ -14,6 +14,7 @@
     <file preprocess="xml-stripblanks">ui/pages_ui/home_page_template.ui</file>
     <file preprocess="xml-stripblanks">ui/widgets/generic_track_widget.ui</file>
     <file preprocess="xml-stripblanks">ui/widgets/card_widget.ui</file>
+    <file preprocess="xml-stripblanks">ui/search_filter.ui</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/chat-bubble-text-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/heart-filled-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/heart-outline-thick-symbolic.svg</file>

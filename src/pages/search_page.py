@@ -53,6 +53,11 @@ class searchPage(Page):
         page_content = builder.get_object("_main")
         results_box = builder.get_object("_content")
 
+        filter_builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/search_filter.ui")
+        filters_scrolled_window = filter_builder.get_object("filters_scrolled_window")
+
+        page_content.prepend(filters_scrolled_window)
+
         query = self.window.search_entry.get_text()
 
         results = self.window.session.search(query, [Artist, Album, Playlist, Track], 10)
@@ -64,7 +69,6 @@ class searchPage(Page):
 
         carousel, cards_box = self.get_carousel("Artists")
         artists = results["artists"]
-
         if len(artists) > 0:
             results_box.append(carousel)
             for artist in artists:
@@ -78,6 +82,14 @@ class searchPage(Page):
             for album in albums:
                 album_card = self.get_album_card(album)
                 cards_box.append(album_card)
+
+        carousel, cards_box = self.get_carousel("Playlists")
+        playlists = results["playlists"]
+        if len(playlists) > 0:
+            results_box.append(carousel)
+            for playlist in playlists:
+                playlist_card = self.get_playlist_card(playlist)
+                cards_box.append(playlist_card)
 
         scrolled_window = Gtk.ScrolledWindow(vexpand=True, hscrollbar_policy=Gtk.PolicyType.NEVER)
 
