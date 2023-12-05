@@ -219,6 +219,9 @@ class TidalWindow(Adw.ApplicationWindow):
         self.update_queue()
 
     def update_queue(self, *args):
+        """Creates and populates the right sidebar queue view, if there is nothing in played_songs, queue or songs_to_play lists in player_object
+        it doesn't add that section"""
+
         box = Gtk.Box(orientation=1)
         played_songs_list_box = Gtk.ListBox(css_classes=["boxed-list"], margin_top=6,
                 margin_bottom=6, margin_start=6, margin_end=6)
@@ -273,12 +276,15 @@ class TidalWindow(Adw.ApplicationWindow):
             print("play")
 
     def new_login(self):
+        """Opens a LoginWindow"""
+
         login_window = LoginWindow(self, self.session)
         login_window.set_transient_for(self)
         login_window.set_modal(self)
         login_window.present()
 
     def login(self):
+        """Logs the user in, if it doesn't work it calls on_login_failed()"""
         try:
             result = self.session.load_oauth_session(
                 self.secret_store.token_dictionary["token-type"],
@@ -331,6 +337,8 @@ class TidalWindow(Adw.ApplicationWindow):
             print("play")
 
     def update_slider(self, *args):
+        """Called on a timer, it updates the progress bar and
+            adds the song duration and position."""
         if not self.player_object.is_playing:
             return False # cancel timeout
         else:
@@ -372,6 +380,8 @@ class TidalWindow(Adw.ApplicationWindow):
         self.lyrics_box.set_child(label)
 
     def download_song(self):
+        """Added to check the streamed song quality, triggered with ctrl+d"""
+
         song = self.player_object.playing_track
         song_url = song.get_url()
         try:
@@ -461,6 +471,8 @@ class TidalWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_playlists_sidebar_row_activated")
     def on_playlists_sidebar_row_activated_func(self, list_box, row):
+        """Handles the click on an user playlist on the sidebar"""
+
         if row == None:
             return
         index = row.get_child().get_name()

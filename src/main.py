@@ -202,6 +202,7 @@ class TidalApplication(Adw.Application):
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
 
+    # FIXME The do_shutdown function creates an error: (high-tide:2): GLib-GIO-CRITICAL **: 23:33:58.928: GApplication subclass 'high_tide+main+TidalApplication' failed to chain up on ::shutdown (from end of override function)
     def do_shutdown(self):
         track = self.win.player_object.playing_track
         list_ = self.win.player_object.current_mix_album_playlist
@@ -213,6 +214,7 @@ class TidalApplication(Adw.Application):
 
         folder_path = "tmp_img"
 
+        # FIXME Directory not empty: 'tmp_img'
         if os.path.exists(folder_path):
             shutil.rmtree(folder_path)
 

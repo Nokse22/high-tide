@@ -33,7 +33,6 @@ from tidalapi.playlist import Playlist
 
 from ..lib import utils
 
-
 import threading
 import requests
 import random
@@ -46,6 +45,8 @@ class searchPage(Page):
     """It is used to display the search results"""
 
     # TODO Add a card for the top result, it needs to change based on the top result type
+    # TODO Implement filters
+    # TODO Custom search page with filters (no builder with search_filters.ui)
 
     def _load_page(self):
         builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/home_page_template.ui")
@@ -66,6 +67,8 @@ class searchPage(Page):
 
         top_hit = results["top_hit"]
         # results_box.append(Gtk.Label(label=top_hit.name))
+
+        # Adds a carousel with artists, albums and playlists if in the search results
 
         carousel, cards_box = self.get_carousel("Artists")
         artists = results["artists"]
