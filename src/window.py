@@ -230,27 +230,32 @@ class TidalWindow(Adw.ApplicationWindow):
         songs_to_play_list_box = Gtk.ListBox(css_classes=["boxed-list"], margin_top=6,
                 margin_bottom=6, margin_start=6, margin_end=6)
 
-        for index, track in enumerate(self.player_object.played_songs):
-            listing = GenericTrackWidget(track, self, False)
-            listing.set_name(str(index))
-            played_songs_list_box.append(listing)
+        if len(self.player_object.played_songs) > 0:
+            for index, track in enumerate(self.player_object.played_songs):
+                listing = GenericTrackWidget(track, self, False)
+                listing.set_name(str(index))
+                played_songs_list_box.append(listing)
 
-        for index, track in enumerate(self.player_object.queue):
-            listing = GenericTrackWidget(track, self, False)
-            listing.set_name(str(index))
-            queue_list_box.append(listing)
+            box.append(Gtk.Label(label="Played songs", css_classes=["dim-label"], xalign=0, margin_start=12))
+            box.append(played_songs_list_box)
 
-        for index, track in enumerate(self.player_object.tracks_to_play):
-            listing = GenericTrackWidget(track, self, False)
-            listing.set_name(str(index))
-            songs_to_play_list_box.append(listing)
+        if len(self.player_object.queue) > 0:
+            for index, track in enumerate(self.player_object.queue):
+                listing = GenericTrackWidget(track, self, False)
+                listing.set_name(str(index))
+                queue_list_box.append(listing)
 
-        box.append(Gtk.Label(label="Played songs"))
-        box.append(played_songs_list_box)
-        box.append(Gtk.Label(label="Queue"))
-        box.append(queue_list_box)
-        box.append(Gtk.Label(label="Songs to play"))
-        box.append(songs_to_play_list_box)
+            box.append(Gtk.Label(label="Queue", css_classes=["dim-label"], xalign=0, margin_start=12))
+            box.append(queue_list_box)
+
+        if len(self.player_object.tracks_to_play) > 0:
+            for index, track in enumerate(self.player_object.tracks_to_play):
+                listing = GenericTrackWidget(track, self, False)
+                listing.set_name(str(index))
+                songs_to_play_list_box.append(listing)
+
+            box.append(Gtk.Label(label="Songs to play", css_classes=["dim-label"], xalign=0, margin_start=12))
+            box.append(songs_to_play_list_box)
 
         self.queue_list.set_child(box)
 
@@ -320,10 +325,10 @@ class TidalWindow(Adw.ApplicationWindow):
             with open(file_path, "wb") as file:
                 file.write(image_data)
 
-            GLib.idle_add(self._add_image, image_widget, file_path)
+            def _add_image(image_widget, file_path):
+                image_widget.set_from_file(file_path)
 
-    def _add_image(self, image_widget, file_path):
-        image_widget.set_from_file(file_path)
+            GLib.idle_add(_add_image, image_widget, file_path)
 
     @Gtk.Template.Callback("on_play_button_clicked")
     def on_play_button_clicked(self, btn):
@@ -366,7 +371,6 @@ class TidalWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_lyrics_button_clicked")
     def on_lyrics_button_clicked_func(self, widget):
-        # self.right_sidebar_split_view.set_collapsed(False)
         self.right_sidebar_split_view.set_show_sidebar(not self.right_sidebar_split_view.get_show_sidebar())
 
         th = threading.Thread(target=self.add_lyrics_to_page, args=())
@@ -497,7 +501,7 @@ class TidalWindow(Adw.ApplicationWindow):
             page = singleTypePage(self, "track", "Favourite Tracks")
             page.load()
             self.navigation_view.push(page)
-        elif row.get_child().get_name() == "F-MIX":
+        elif row.get_child().get_name() == "F-MIX": # Not supported by tidalapi
             page = singleTypePage(self, "mix", "Favourite Mixes")
             page.load()
             self.navigation_view.push(page)
@@ -515,5 +519,5 @@ class TidalWindow(Adw.ApplicationWindow):
             self.navigation_view.push(page)
 
     @Gtk.Template.Callback("show_sidebar")
-    def func(self, btn):
+    def show_sidebar_func(self, btn):
         self.split_view.set_show_sidebar(True)
