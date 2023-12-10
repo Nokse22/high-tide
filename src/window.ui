@@ -597,6 +597,7 @@ flat</property>
         <attribute name="action">win.show-help-overlay</attribute>
       </item>
       <item>
+        <!-- Translators: do not translate the application name -->
         <attribute name="label" translatable="yes">_About High Tide</attribute>
         <attribute name="action">app.about</attribute>
       </item>
