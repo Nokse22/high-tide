@@ -77,7 +77,7 @@ class TidalWindow(Adw.ApplicationWindow):
     artist_label = Gtk.Template.Child()
     sidebar_collection = Gtk.Template.Child()
     right_sidebar_split_view = Gtk.Template.Child()
-    lyrics_box = Gtk.Template.Child()
+    lyrics_label = Gtk.Template.Child()
     sidebar_playlists = Gtk.Template.Child()
     volume_button = Gtk.Template.Child()
     in_my_collection_button = Gtk.Template.Child()
@@ -210,10 +210,10 @@ class TidalWindow(Adw.ApplicationWindow):
         else:
             self.play_button.set_icon_name("media-playback-start-symbolic")
 
-        if self.right_sidebar_split_view.get_show_sidebar():
-            th = threading.Thread(target=self.add_lyrics_to_page, args=())
-            th.deamon = True
-            th.start()
+        # if self.right_sidebar_split_view.get_show_sidebar() or :
+        th = threading.Thread(target=self.add_lyrics_to_page, args=())
+        th.deamon = True
+        th.start()
 
         self.control_bar_artist = track.artist
         self.update_slider()
@@ -380,9 +380,7 @@ class TidalWindow(Adw.ApplicationWindow):
 
     def add_lyrics_to_page(self):
         lyrics = self.player_object.playing_track.lyrics()
-        label = Gtk.Label(label=lyrics.text, wrap=True, justify=2, opacity=0.6,
-                margin_start=12, margin_end=12, css_classes=["lyrics"])
-        self.lyrics_box.set_child(label)
+        self.lyrics_label.set_label(lyrics.text)
 
     def download_song(self):
         """Added to check the streamed song quality, triggered with ctrl+d"""

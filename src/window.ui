@@ -79,8 +79,10 @@
                       <child>
                         <object class="GtkScrolledWindow">
                           <property name="vexpand">true</property>
-                          <property name="css-classes">undershoot-bottom
-undershoot-top</property>
+                          <style>
+                            <class name="undershoot-top"/>
+                            <class name="undershoot-bottom"/>
+                          </style>
                             <child>
                               <object class="GtkBox">
                                 <property name="orientation">vertical</property>
@@ -253,12 +255,23 @@ undershoot-top</property>
                                           <object class="GtkStackPage">
                                             <property name="title" translatable="true">Lyrics</property>
                                             <property name="child">
-                                              <object class="GtkScrolledWindow" id="lyrics_box">
+                                              <object class="GtkScrolledWindow">
                                                 <property name="hexpand">true</property>
                                                 <property name="vexpand">true</property>
                                                 <style>
                                                   <class name="undershoot-top"/>
+                                                  <class name="undershoot-bottom"/>
                                                 </style>
+                                                <child>
+                                                <object class="GtkLabel" id="lyrics_label">
+                                                  <property name="wrap">True</property>
+                                                  <property name="justify">2</property>
+                                                  <property name="opacity">0.6</property>
+                                                  <property name="margin-start">12</property>
+                                                  <property name="margin-end">12</property>
+                                                  <property name="css-classes">lyrics</property>
+                                                </object>
+                                              </child>
                                               </object>
                                             </property>
                                           </object>
@@ -272,6 +285,7 @@ undershoot-top</property>
                                                 <property name="vexpand">true</property>
                                                 <style>
                                                   <class name="undershoot-top"/>
+                                                  <class name="undershoot-bottom"/>
                                                 </style>
                                               </object>
                                             </property>
@@ -625,8 +639,6 @@ flat</property>
             </child>
             <child>
               <object class="GtkBox">
-                <property name="margin-end">12</property>
-                <property name="margin-start">12</property>
                 <property name="orientation">vertical</property>
                 <property name="spacing">12</property>
                 <child>
@@ -638,14 +650,18 @@ flat</property>
 
                           <object class="GtkScrolledWindow">
                             <property name="hscrollbar-policy">never</property>
+                            <style>
+                                <class name="undershoot-top"/>
+                                <class name="undershoot-bottom"/>
+                              </style>
                             <child>
-
                               <object class="AdwClamp">
+                                <property name="margin-end">12</property>
+                                <property name="margin-start">12</property>
                                 <property name="maximum-size">600</property>
                                 <property name="tightening-threshold">400</property>
                                 <property name="unit">px</property>
                                 <child>
-
                               <object class="GtkBox">
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">12</property>
@@ -673,7 +689,8 @@ flat</property>
                                     <property name="halign">center</property>
                                     <property name="height-request">330</property>
                                     <property name="pixel-size">200</property>
-                                    <property name="valign">start</property>
+                                    <property name="valign">center</property>
+                                    <property name="vexpand">true</property>
                                     <property name="width-request">330</property>
                                     <property name="overflow">hidden</property>
                                     <property name="file" bind-source="playing_track_image" bind-property="file"/>
@@ -687,6 +704,8 @@ flat</property>
                                       <object class="GtkBox">
                                         <property name="hexpand">True</property>
                                         <property name="orientation">vertical</property>
+                                        <property name="valign">center</property>
+                                        <property name="vexpand">True</property>
                                         <child>
                                           <object class="GtkLabel">
                                             <property name="css-classes">title-2</property>
@@ -724,6 +743,8 @@ flat</property>
                                 </child>
                                 <child>
                                   <object class="GtkScale">
+                                    <property name="valign">center</property>
+                                    <property name="vexpand">True</property>
                                     <property name="adjustment">
                                       <object class="GtkAdjustment">
                                         <property name="upper" bind-source="progress_bar_adjustment" bind-property="upper"/>
@@ -802,12 +823,22 @@ circular</property>
                     <child>
                       <object class="AdwViewStackPage">
                         <property name="child">
-                          <object class="GtkBox">
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkTextView">
+                          <object class="GtkScrolledWindow">
+                              <property name="hexpand">true</property>
+                              <property name="vexpand">true</property>
+                              <style>
+                                <class name="undershoot-top"/>
+                                <class name="undershoot-bottom"/>
+                              </style>
+                              <child>
+                              <object class="GtkLabel">
+                                <property name="wrap">True</property>
+                                <property name="justify">2</property>
+                                <property name="opacity">0.6</property>
+                                <property name="margin-start">12</property>
+                                <property name="margin-end">12</property>
                                 <property name="css-classes">lyrics</property>
-                                <property name="vexpand">True</property>
+                                <property name="label" bind-source="lyrics_label" bind-property="label"/>
                               </object>
                             </child>
                           </object>
