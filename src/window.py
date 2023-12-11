@@ -83,6 +83,7 @@ class TidalWindow(Adw.ApplicationWindow):
     in_my_collection_button = Gtk.Template.Child()
     explicit_label = Gtk.Template.Child()
     queue_list = Gtk.Template.Child()
+    main_view_stack = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -521,3 +522,10 @@ class TidalWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("show_sidebar")
     def show_sidebar_func(self, btn):
         self.split_view.set_show_sidebar(True)
+
+    @Gtk.Template.Callback("on_mobile_view_button_clicked")
+    def on_mobile_view_button_clicked(self, *args):
+        if self.main_view_stack.get_visible_child_name() == "normal_view":
+            self.main_view_stack.set_visible_child_name("mobile_view")
+        else:
+            self.main_view_stack.set_visible_child_name("normal_view")
