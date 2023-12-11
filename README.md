@@ -15,8 +15,8 @@
   </div>
 
 ## Contribution
-### Icon needed
-High Tide is looking for somebody to make or suggest a design for an icon. It needs to follow [GNOME HIG](https://developer.gnome.org/hig/guidelines/app-icons.html)
+### Icon
+It can be improved
 
 ### Coding
 There are some TODOs and FIXMEs in the code, you can start there. I'm trying to comment the code, but if needed you can contact me on Matrix (@nokse22:matrix.org) or on Github.
