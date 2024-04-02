@@ -138,7 +138,7 @@ class TidalWindow(Adw.ApplicationWindow):
 
     def on_logged_in(self):
         print("on logged in")
-        # self.favourite_tracks = self.session.user.favorites.tracks()
+        self.favourite_tracks = self.session.user.favorites.tracks()
         # FIXME if it doesn't login fast enough it doesn't let the user login
 
         self.search_entry.set_sensitive(True)
@@ -194,16 +194,20 @@ class TidalWindow(Adw.ApplicationWindow):
         track = self.player_object.playing_track
         self.song_title_label.set_label(track.name)
         self.artist_label.set_label(track.artist.name)
-        self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
         self.explicit_label.set_visible(track.explicit)
+
+        for favourite_track in self.favourite_tracks:
+            if favourite_track.isrc == track.isrc:
+                self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
+                break
+        else:
+            self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
 
         self.settings.set_int("last-playing-song-id", track.id)
 
-        album_image_link = album.image()
-        if album_image_link:
-            th = threading.Thread(target=self.add_image, args=(self.playing_track_image, album_image_link))
-            th.deamon = True
-            th.start()
+        th = threading.Thread(target=utils.add_image, args=(self.playing_track_image, album))
+        th.deamon = True
+        th.start()
 
         if self.player_object.is_playing:
             self.play_button.set_icon_name("media-playback-pause-symbolic")
@@ -222,6 +226,8 @@ class TidalWindow(Adw.ApplicationWindow):
     def update_queue(self, *args):
         """Creates and populates the right sidebar queue view, if there is nothing in played_songs, queue or songs_to_play lists in player_object
         it doesn't add that section"""
+
+        return
 
         box = Gtk.Box(orientation=1)
         played_songs_list_box = Gtk.ListBox(css_classes=["boxed-list"], margin_top=6,
@@ -258,6 +264,9 @@ class TidalWindow(Adw.ApplicationWindow):
             box.append(Gtk.Label(label="Songs to play", css_classes=["dim-label"], xalign=0, margin_start=12))
             box.append(songs_to_play_list_box)
 
+        # print(self.queue_list.get_child().get_child())
+        # self.queue_list.remove(self.queue_list.get_child())
+        # print("REMOVED")
         self.queue_list.set_child(box)
 
     def on_toolbar_artist_button_clicked(self, btn):
@@ -314,22 +323,6 @@ class TidalWindow(Adw.ApplicationWindow):
 
     def explore_page(self):
         explore = session.explore()
-
-    def add_image(self, image_widget, image_url):
-        try:
-            response = requests.get(image_url)
-        except:
-            return
-        if response.status_code == 200:
-            image_data = response.content
-            file_path = f"tmp_img/{random.randint(0, 100)}.jpg"
-            with open(file_path, "wb") as file:
-                file.write(image_data)
-
-            def _add_image(image_widget, file_path):
-                image_widget.set_from_file(file_path)
-
-            GLib.idle_add(_add_image, image_widget, file_path)
 
     @Gtk.Template.Callback("on_play_button_clicked")
     def on_play_button_clicked(self, btn):
