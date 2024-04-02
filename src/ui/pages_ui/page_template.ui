@@ -4,14 +4,13 @@
   <!-- interface-name login.ui -->
   <requires lib="gtk" version="4.10"/>
   <requires lib="libadwaita" version="1.3"/>
-  <object class="GtkBox" id="_main">
-    <property name="orientation">vertical</property>
-    <child>
+  <object class="AdwToolbarView" id="_main">
+    <!-- <property name="orientation">vertical</property> -->
+    <child type="top">
       <object class="AdwHeaderBar">
-        <property name="css-classes">flat</property>
       </object>
     </child>
-    <child>
+    <property name="content">
       <object class="GtkBox" id="_content">
         <property name="vexpand">True</property>
         <child>
@@ -26,6 +25,6 @@
           </object>
         </child>
       </object>
-    </child>
+    </property>
   </object>
 </interface>

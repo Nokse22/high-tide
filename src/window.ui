@@ -39,7 +39,7 @@
     </child>
     <property name="content">
       <object class="GtkStack" id="main_view_stack">
-          <property name="visible-child-name">normal_view</property>
+          <!-- <property name="visible-child-name">normal_view</property> -->
           <property name="transition-type">slide-up-down</property>
           <child>
             <object class="GtkStackPage">
@@ -643,7 +643,7 @@ flat</property>
                 <property name="spacing">12</property>
                 <child>
                   <object class="AdwViewStack" id="mobile_stack">
-                    <property name="visible-child-name">song_page</property>
+                    <!-- <property name="visible-child-name">song_page</property> -->
                     <child>
                       <object class="AdwViewStackPage">
                         <property name="child">
@@ -658,6 +658,8 @@ flat</property>
                               <object class="AdwClamp">
                                 <property name="margin-end">12</property>
                                 <property name="margin-start">12</property>
+                                <property name="margin-top">12</property>
+                                <property name="margin-bottom">12</property>
                                 <property name="maximum-size">600</property>
                                 <property name="tightening-threshold">400</property>
                                 <property name="unit">px</property>
@@ -807,13 +809,10 @@ circular</property>
                                   </object>
                                 </child>
                               </object>
-
                                 </child>
                               </object>
-
                             </child>
                           </object>
-
                         </property>
                         <property name="icon-name">emblem-music-symbolic</property>
                         <property name="name">song_page</property>

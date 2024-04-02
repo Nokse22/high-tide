@@ -24,7 +24,7 @@
               <object class="GtkImage" id="image">
                 <property name="halign">center</property>
                 <property name="icon-name">emblem-music-symbolic</property>
-                <property name="pixel-size">180</property>
+                <property name="pixel-size">155</property>
                 <property name="valign">center</property>
                 <property name="css-classes">card-image</property>
               </object>
