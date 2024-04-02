@@ -164,14 +164,14 @@ class TidalApplication(Adw.Application):
 
     def on_about_action(self, widget, _):
         """Callback for the app.about action."""
-        about = Adw.AboutWindow(transient_for=self.props.active_window,
+        about = Adw.AboutDialog(
                                 application_name='High Tide',
                                 application_icon='io.github.nokse22.high-tide',
                                 developer_name='Nokse',
                                 version='0.1.0',
                                 developers=['Nokse'],
                                 copyright='© 2023 Nokse')
-        about.present()
+        about.present(self.props.active_window)
 
     def on_preferences_action(self, widget, _):
         """Callback for the app.preferences action."""
@@ -182,7 +182,7 @@ class TidalApplication(Adw.Application):
         builder.get_object("_quality_row").connect("notify::selected", self.on_quality_changed)
         builder.get_object("_quality_row").set_selected(self.win.settings.get_int("quality"))
 
-        builder.get_object("_preference_window").present()
+        builder.get_object("_preference_window").present(self.props.active_window)
 
     def on_quality_changed(self, widget, *args):
         self.win.select_quality(widget.get_selected())
