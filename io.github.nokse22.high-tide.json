@@ -1,7 +1,7 @@
 {
     "app-id" : "io.github.nokse22.high-tide",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "45",
+    "runtime-version" : "46",
     "sdk" : "org.gnome.Sdk",
     "command" : "high-tide",
     "finish-args" : [
@@ -10,7 +10,7 @@
         "--socket=fallback-x11",
         "--device=dri",
         "--socket=wayland",
-        "--socket=pulseaudio",
+	"--socket=pulseaudio",
         "--talk-name=org.freedesktop.secrets"
     ],
     "cleanup" : [
