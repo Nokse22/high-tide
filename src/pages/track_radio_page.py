@@ -69,9 +69,9 @@ class trackRadioPage(Page):
 
         image = builder.get_object("_image")
         if isinstance(self.item, Track):
-            th = threading.Thread(target=self.add_image, args=(image, self.item.album))
+            th = threading.Thread(target=utils.add_image, args=(image, self.item.album))
         else:
-            th = threading.Thread(target=self.add_image, args=(image, self.item))
+            th = threading.Thread(target=utils.add_image, args=(image, self.item))
         th.deamon = True
         th.start()
 

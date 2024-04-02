@@ -68,7 +68,7 @@ class playlistPage(Page):
         builder.get_object("_second_subtitle_label").set_label(f"{self.item.num_tracks} tracks ({utils.pretty_duration(self.item.duration)})")
 
         image = builder.get_object("_image")
-        th = threading.Thread(target=self.add_image, args=(image, self.item))
+        th = threading.Thread(target=utils.add_image, args=(image, self.item))
         th.deamon = True
         th.start()
 

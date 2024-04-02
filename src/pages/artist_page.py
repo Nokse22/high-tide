@@ -122,14 +122,9 @@ class artistPage(Page):
 
         artist_picture = builder.get_object("_avatar")
 
-        try:
-            image = self.item.image()
-        except:
-            artist_picture.set_icon_name("emblem-music-symbolic")
-        else:
-            th = threading.Thread(target=self.add_image_to_avatar, args=(artist_picture, image))
-            th.deamon = True
-            th.start()
+        th = threading.Thread(target=utils.add_image_to_avatar, args=(artist_picture, self.item))
+        th.deamon = True
+        th.start()
 
         self.content.remove(self.spinner)
         self.content.append(page_content)

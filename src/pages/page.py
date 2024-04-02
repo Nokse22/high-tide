@@ -122,49 +122,6 @@ class Page(Adw.NavigationPage):
         page.load()
         self.window.navigation_view.push(page)
 
-    def add_image(self, image_widget, item):
-
-        """Retrieves and adds an image"""
-
-        try:
-            image_url = item.image()
-            response = requests.get(image_url)
-        except Exception as e:
-            print(str(e))
-            return
-        if response.status_code == 200:
-            image_data = response.content
-            file_path = f"tmp_img/{item.id}.jpg"
-            with open(file_path, "wb") as file:
-                file.write(image_data)
-
-            def _add_image(image_widget, file_path):
-                image_widget.set_from_file(file_path)
-
-            GLib.idle_add(_add_image, image_widget, file_path)
-
-    def add_image_to_avatar(self, avatar_widget, image_url):
-
-        """Same ad the previous function, but with Adwaita's avatar widgets"""
-
-        try:
-            response = requests.get(image_url)
-        except:
-            return
-
-        if response.status_code == 200:
-            image_data = response.content
-            file_path = f"tmp_img/{random.randint(0, 100)}.jpg"
-            with open(file_path, "wb") as file:
-                file.write(image_data)
-
-            def _add_image_to_avatar(avatar_widget, file_path):
-                file = Gio.File.new_for_path(file_path)
-                image = Gdk.Texture.new_from_file(file)
-                avatar_widget.set_custom_image(image)
-
-            GLib.idle_add(_add_image_to_avatar, avatar_widget, file_path)
-
     def get_carousel(self, title):
 
         """Creates a carousel used to display multiple elements side by side
