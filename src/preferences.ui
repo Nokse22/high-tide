@@ -4,7 +4,7 @@
   <!-- interface-name preferences.ui -->
   <requires lib="gtk" version="4.10"/>
   <requires lib="libadwaita" version="1.3"/>
-  <object class="AdwPreferencesWindow" id="_preference_window">
+  <object class="AdwPreferencesDialog" id="_preference_window">
     <child>
       <object class="AdwPreferencesPage">
         <child>
