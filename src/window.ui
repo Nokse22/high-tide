@@ -95,14 +95,14 @@
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="name">HOME</property>
-                                        <property name="label" translatable="true">Home</property>
+                                        <property name="label" translatable="yes">Home</property>
                                         <property name="xalign">0</property>
                                       </object>
                                     </child>
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="name">EXPLORE</property>
-                                        <property name="label" translatable="true">Explore</property>
+                                        <property name="label" translatable="yes">Explore</property>
                                         <property name="xalign">0</property>
                                       </object>
                                     </child>
@@ -110,7 +110,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
-                                    <property name="label" translatable="true">MY COLLECTION</property>
+                                    <property name="label" translatable="yes">MY COLLECTION</property>
                                     <property name="xalign">0</property>
                                     <property name="css-classes">dim-label</property>
                                     <property name="margin-bottom">3</property>
@@ -127,35 +127,35 @@
                                     <!-- <child> -->
                                     <!--   <object class="GtkLabel"> -->
                                     <!--     <property name="name">F-MIX</property> -->
-                                    <!--     <property name="label" translatable="true">Mixes and Radios</property> -->
+                                    <!--     <property name="label" translatable="yes">Mixes and Radios</property> -->
                                     <!--     <property name="xalign">0</property> -->
                                     <!--   </object> -->
                                     <!-- </child> -->
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="name">F-PLAYLIST</property>
-                                        <property name="label" translatable="true">Playlist</property>
+                                        <property name="label" translatable="yes">Playlist</property>
                                         <property name="xalign">0</property>
                                       </object>
                                     </child>
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="name">F-ALBUM</property>
-                                        <property name="label" translatable="true">Albums</property>
+                                        <property name="label" translatable="yes">Albums</property>
                                         <property name="xalign">0</property>
                                       </object>
                                     </child>
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="name">F-TRACK</property>
-                                        <property name="label" translatable="true">Tracks</property>
+                                        <property name="label" translatable="yes">Tracks</property>
                                         <property name="xalign">0</property>
                                       </object>
                                     </child>
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="name">F-ARTIST</property>
-                                        <property name="label" translatable="true">Artists</property>
+                                        <property name="label" translatable="yes">Artists</property>
                                         <property name="xalign">0</property>
                                       </object>
                                     </child>
@@ -168,7 +168,7 @@
                                     <property name="margin-start">14</property>
                                       <child>
                                         <object class="GtkLabel">
-                                          <property name="label" translatable="true">MY PLAYLISTS</property>
+                                          <property name="label" translatable="yes">MY PLAYLISTS</property>
                                           <property name="xalign">0</property>
                                           <property name="css-classes">dim-label</property>
 
@@ -253,7 +253,7 @@
                                         <property name="transition-type">6</property>
                                         <child>
                                           <object class="GtkStackPage">
-                                            <property name="title" translatable="true">Lyrics</property>
+                                            <property name="title" translatable="yes">Lyrics</property>
                                             <property name="child">
                                               <object class="GtkScrolledWindow">
                                                 <property name="hexpand">true</property>
@@ -278,7 +278,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkStackPage">
-                                            <property name="title" translatable="true">Queue</property>
+                                            <property name="title" translatable="yes">Queue</property>
                                             <property name="child">
                                               <object class="GtkScrolledWindow" id="queue_list">
                                                 <property name="hexpand">true</property>
@@ -401,7 +401,7 @@
                                 <object class="GtkBox">
                                   <child>
                                     <object class="GtkLabel" id="song_title_label">
-                                      <property name="label" translatable="true">Song Title</property>
+                                      <property name="label" translatable="yes">Song Title</property>
                                       <property name="xalign">0</property>
                                       <property name="margin_top">6</property>
                                       <property name="css-classes">title-4</property>
@@ -427,7 +427,7 @@
                                     </style>
                                     <child>
                                       <object class="GtkLabel" id="artist_label">
-                                        <property name="label" translatable="true">Artist</property>
+                                        <property name="label" translatable="yes">Artist</property>
                                         <property name="xalign">0</property>
                                         <property name="ellipsize">3</property>
                                         <style>
@@ -523,7 +523,7 @@ flat</property>
                               <property name="margin-end">12</property>
                               <child>
                                 <object class="GtkLabel" id="time_played_label">
-                                  <property name="label" translatable="true">00:00</property>
+                                  <property name="label" translatable="yes">00:00</property>
                                   <property name="width-request">40</property>
                                 </object>
                               </child>
@@ -542,7 +542,7 @@ flat</property>
                               </child>
                               <child>
                                 <object class="GtkLabel" id="duration_label">
-                                  <property name="label" translatable="true">00:00</property>
+                                  <property name="label" translatable="yes">00:00</property>
                                   <property name="width-request">40</property>
                                 </object>
                               </child>
