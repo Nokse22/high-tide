@@ -25,7 +25,7 @@ gi.require_version('Adw', '1')
 gi.require_version('Gst', '1.0')
 
 from gi.repository import Gtk, Gio, Adw, Gdk
-from .window import TidalWindow
+from .window import HighTideWindow
 
 from tidalapi.media import Quality
 
@@ -159,7 +159,7 @@ class TidalApplication(Adw.Application):
         """
         self.win = self.props.active_window
         if not self.win:
-            self.win = TidalWindow(application=self)
+            self.win = HighTideWindow(application=self)
         self.win.present()
 
     def on_about_action(self, widget, _):

@@ -25,6 +25,12 @@ from gi.repository import GObject
 
 from gi.repository import Gst, GLib
 
+from .mpris import Adapter
+from mpris_server.adapters import MprisAdapter
+from mpris_server.events import EventAdapter
+from mpris_server.server import Server
+from mpris_server import Metadata
+
 import base64
 import json
 
@@ -57,8 +63,8 @@ from .lib import SecretStore
 from .widgets.generic_track_widget import GenericTrackWidget
 
 @Gtk.Template(resource_path='/io/github/nokse22/high-tide/window.ui')
-class TidalWindow(Adw.ApplicationWindow):
-    __gtype_name__ = 'TidalWindow'
+class HighTideWindow(Adw.ApplicationWindow):
+    __gtype_name__ = 'HighTideWindow'
 
     # homepage_box = Gtk.Template.Child()
     split_view = Gtk.Template.Child()
@@ -113,6 +119,11 @@ class TidalWindow(Adw.ApplicationWindow):
         self.user = self.session.user
 
         self.select_quality(self.settings.get_int("quality"))
+
+        mpris = Server('high-tide', adapter=Adapter())
+        # player.mpris_adapter = EventAdapter(root=mpris.root, player=mpris.player)
+        # player.mpris_server = mpris
+        mpris.publish()
 
         self.current_mix = None
         self.player_object.current_song_index = 0

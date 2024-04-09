@@ -100,6 +100,8 @@ class playerObject(GObject.GObject):
             tracks = thing.tracks()
         elif isinstance(thing, Playlist):
             tracks = thing.tracks()
+        elif isinstance(thing, Artist):
+            tracks = thing.top_tracks()
         else: # For radios
             tracks = thing
 
