@@ -1,4 +1,4 @@
-<img height="128" src="data/icons/hicolor/scalable/apps/io.github.nokse22.high-tide.svg" align="left"/>
+<img height="128" src="data/icons/hicolor/scalable/apps/io.github.nokse22.HighTide.svg" align="left"/>
 
 # High Tide
   [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
