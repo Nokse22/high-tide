@@ -65,6 +65,9 @@ class playerObject(GObject.GObject):
         self.playing_track = None
         self.song_album = None
 
+        self.can_next = False
+        self.can_prev = False
+
         Gst.init()
 
         self.playbin = Gst.ElementFactory.make("playbin", "playbin")

@@ -57,7 +57,7 @@ class artistPage(Page):
 
         print(f"artist: {self.item.name}, id: {self.item.id}, {self.item.picture}")
 
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/artist_page_template.ui")
+        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/artist_page_template.ui")
 
         page_content = builder.get_object("_main")
         top_tracks_list_box = builder.get_object("_top_tracks_list_box")

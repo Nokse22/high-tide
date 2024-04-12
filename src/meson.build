@@ -2,8 +2,8 @@ pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.proje
 moduledir = join_paths(pkgdatadir, 'high_tide')
 gnome = import('gnome')
 
-gnome.compile_resources('high-tide',
-  'high-tide.gresource.xml',
+gnome.compile_resources('HighTide',
+  'HighTide.gresource.xml',
   gresource_bundle: true,
   install: true,
   install_dir: pkgdatadir,
@@ -18,8 +18,8 @@ conf.set('localedir', join_paths(get_option('prefix'), get_option('localedir')))
 conf.set('pkgdatadir', pkgdatadir)
 
 configure_file(
-  input: 'high-tide.in',
-  output: 'high-tide',
+  input: 'HighTide.in',
+  output: 'HighTide',
   configuration: conf,
   install: true,
   install_dir: get_option('bindir'),

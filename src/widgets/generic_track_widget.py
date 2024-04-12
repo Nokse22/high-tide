@@ -30,7 +30,7 @@ from ..lib import utils
 
 from tidalapi.user import Favorites
 
-@Gtk.Template(resource_path='/io/github/nokse22/high-tide/ui/widgets/generic_track_widget.ui')
+@Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/generic_track_widget.ui')
 class GenericTrackWidget(Gtk.ListBoxRow):
     __gtype_name__ = 'GenericTrackWidget'
 

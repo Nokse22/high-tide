@@ -49,12 +49,12 @@ class searchPage(Page):
     # TODO Custom search page with filters (no builder with search_filters.ui)
 
     def _load_page(self):
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/home_page_template.ui")
+        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/home_page_template.ui")
 
         page_content = builder.get_object("_main")
         results_box = builder.get_object("_content")
 
-        filter_builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/search_filter.ui")
+        filter_builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/search_filter.ui")
         filters_scrolled_window = filter_builder.get_object("filters_scrolled_window")
 
         page_content.prepend(filters_scrolled_window)

@@ -315,9 +315,10 @@
                 </object>
       </child>
       <child>
-        <object class="GtkBox">
+        <object class="GtkBox" id="playbar_main_box">
           <property name="hexpand">true</property>
           <property name="orientation">vertical</property>
+          <property name="visible">false</property>
           <child>
             <object class="GtkSeparator" id="playbar_separator"></object>
           </child>

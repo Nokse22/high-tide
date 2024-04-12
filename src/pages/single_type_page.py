@@ -48,7 +48,7 @@ class singleTypePage(Page):
     # TODO load only a fixed number of items at first then if the page is scrolled down load some more
 
     def _load_page(self):
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/home_page_template.ui")
+        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/home_page_template.ui")
 
         page_content = builder.get_object("_main")
         content = builder.get_object("_content")

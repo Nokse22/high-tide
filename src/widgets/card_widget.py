@@ -36,7 +36,7 @@ from tidalapi.media import Track
 from tidalapi.playlist import Playlist
 from tidalapi.user import Favorites
 
-@Gtk.Template(resource_path='/io/github/nokse22/high-tide/ui/widgets/card_widget.ui')
+@Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/card_widget.ui')
 class CardWidget(Gtk.Box):
     __gtype_name__ = 'CardWidget'
 

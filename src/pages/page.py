@@ -54,7 +54,7 @@ class Page(Adw.NavigationPage):
         if _name:
             self.set_title(_name)
 
-        self.builder = Gtk.Builder.new_from_resource('/io/github/nokse22/high-tide/ui/pages_ui/page_template.ui')
+        self.builder = Gtk.Builder.new_from_resource('/io/github/nokse22/HighTide/ui/pages_ui/page_template.ui')
         self.item = _item
 
         self.content = self.builder.get_object("_content")

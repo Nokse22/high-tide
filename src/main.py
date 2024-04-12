@@ -37,7 +37,7 @@ class TidalApplication(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
-        super().__init__(application_id='io.github.nokse22.high-tide',
+        super().__init__(application_id='io.github.nokse22.HighTide',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
         self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
         self.create_action('about', self.on_about_action)
@@ -166,7 +166,7 @@ class TidalApplication(Adw.Application):
         """Callback for the app.about action."""
         about = Adw.AboutDialog(
                                 application_name='High Tide',
-                                application_icon='io.github.nokse22.high-tide',
+                                application_icon='io.github.nokse22.HighTide',
                                 developer_name='Nokse',
                                 version='0.1.0',
                                 developers=['Nokse'],
@@ -177,7 +177,7 @@ class TidalApplication(Adw.Application):
         """Callback for the app.preferences action."""
         print('app.preferences action activated')
 
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/preferences.ui")
+        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/preferences.ui")
 
         builder.get_object("_quality_row").connect("notify::selected", self.on_quality_changed)
         builder.get_object("_quality_row").set_selected(self.win.settings.get_int("quality"))
@@ -202,7 +202,7 @@ class TidalApplication(Adw.Application):
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
 
-    # FIXME The do_shutdown function creates an error: (high-tide:2): GLib-GIO-CRITICAL **: 23:33:58.928: GApplication subclass 'high_tide+main+TidalApplication' failed to chain up on ::shutdown (from end of override function)
+    # FIXME The do_shutdown function creates an error: (HighTide:2): GLib-GIO-CRITICAL **: 23:33:58.928: GApplication subclass 'high_tide+main+TidalApplication' failed to chain up on ::shutdown (from end of override function)
     def do_shutdown(self):
         track = self.win.player_object.playing_track
         list_ = self.win.player_object.current_mix_album_playlist

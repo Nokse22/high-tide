@@ -58,7 +58,7 @@ from .lib import SecretStore
 
 from .widgets.generic_track_widget import GenericTrackWidget
 
-@Gtk.Template(resource_path='/io/github/nokse22/high-tide/window.ui')
+@Gtk.Template(resource_path='/io/github/nokse22/HighTide/window.ui')
 class HighTideWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'HighTideWindow'
 
@@ -86,11 +86,12 @@ class HighTideWindow(Adw.ApplicationWindow):
     explicit_label = Gtk.Template.Child()
     queue_list = Gtk.Template.Child()
     main_view_stack = Gtk.Template.Child()
+    playbar_main_box = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.settings = Gio.Settings.new('io.github.nokse22.high-tide')
+        self.settings = Gio.Settings.new('io.github.nokse22.HighTide')
 
         self.settings.bind("window-width", self, "default-width", Gio.SettingsBindFlags.DEFAULT)
         self.settings.bind("window-height", self, "default-height", Gio.SettingsBindFlags.DEFAULT)
@@ -182,8 +183,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         track_id = self.settings.get_int("last-playing-song-id")
         list_id = self.settings.get_string("last-playing-list-id")
 
-        if track_id == '':
+        if track_id == -1:
             return
+
+        self.playbar_main_box.set_visible(True)
 
         track = self.session.track(track_id)
         self.player_object.play_track(track)
@@ -287,6 +290,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.navigation_view.push(page)
 
     def update_controls(self, is_playing, *arg):
+        self.playbar_main_box.set_visible(True)
         if not is_playing:
             self.play_button.set_icon_name("media-playback-pause-symbolic")
             print("pause")

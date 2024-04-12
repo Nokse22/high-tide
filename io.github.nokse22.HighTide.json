@@ -1,9 +1,9 @@
 {
-    "app-id" : "io.github.nokse22.high-tide",
+    "app-id" : "io.github.nokse22.HighTide",
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "46",
     "sdk" : "org.gnome.Sdk",
-    "command" : "high-tide",
+    "command" : "HighTide",
     "finish-args" : [
         "--share=network",
         "--share=ipc",
@@ -12,7 +12,7 @@
         "--socket=wayland",
 	"--socket=pulseaudio",
         "--talk-name=org.freedesktop.secrets",
-        "--own-name=org.mpris.MediaPlayer2.high-tide"
+        "--own-name=org.mpris.MediaPlayer2.HighTide"
     ],
     "cleanup" : [
         "/include",
@@ -144,13 +144,13 @@
             ]
         },
         {
-            "name" : "high-tide",
+            "name" : "HighTide",
             "builddir" : true,
             "buildsystem" : "meson",
             "sources" : [
                 {
                     "type" : "git",
-                    "url" : "https://github.com/Nokse22/high-tide.git",
+                    "url" : "https://github.com/Nokse22/HighTide.git",
                     "branch" : "master"
                 }
             ]

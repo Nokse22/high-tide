@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/io/github/nokse22/high-tide">
+  <gresource prefix="/io/github/nokse22/HighTide">
     <file preprocess="xml-stripblanks">window.ui</file>
     <file preprocess="xml-stripblanks">login.ui</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>

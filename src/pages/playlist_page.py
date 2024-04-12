@@ -49,7 +49,7 @@ class playlistPage(Page):
     # FIXME After playing shuffle the next track is not found
 
     def _load_page(self):
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui")
+        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/tracks_list_template.ui")
 
         page_content = builder.get_object("_main")
         tracks_list_box = builder.get_object("_list_box")

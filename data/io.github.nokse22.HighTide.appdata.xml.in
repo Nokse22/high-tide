@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-	<id>io.github.nokse22.high-tide.desktop</id>
+	<id>io.github.nokse22.HighTide.desktop</id>
 	<metadata_license>CC0-1.0</metadata_license>
 	<project_license>GPL-3.0-or-later</project_license>
 	<name>High Tide</name>
@@ -12,7 +12,7 @@
 	<content_rating type="oars-1.0">
   </content_rating>
 
-  <launchable type="desktop-id">io.github.nokse22.high-tide.desktop</launchable>
+  <launchable type="desktop-id">io.github.nokse22.HighTide.desktop</launchable>
 
   <url type="homepage">https://github.com/Nokse22/high-tide</url>
   <url type="bugtracker">https://github.com/Nokse22/high-tide/issues</url>
@@ -26,11 +26,11 @@
 
 	<screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%201.png</image>
+      <image>https://raw.githubusercontent.com/Nokse22/HighTide/master/data/resources/screenshot%201.png</image>
     </screenshot>
 
 	  <screenshot>
-	    <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%202.png</image>
+	    <image>https://raw.githubusercontent.com/Nokse22/HighTide/master/data/resources/screenshot%202.png</image>
 	  </screenshot>
   </screenshots>
 

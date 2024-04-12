@@ -46,7 +46,7 @@ class homePage(Page):
     def _load_page(self):
         self.set_tag("home")
 
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/home_page_template.ui")
+        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/home_page_template.ui")
 
         self.set_title("Home")
         page_content = builder.get_object("_main")

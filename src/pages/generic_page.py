@@ -45,7 +45,7 @@ class genericPage(Page):
     """It is not used much, possibly not needed anymore"""
 
     def _load_page(self):
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/high-tide/ui/pages_ui/home_page_template.ui")
+        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/home_page_template.ui")
 
         page_content = builder.get_object("_main")
         generic_page_content = builder.get_object("_content")
