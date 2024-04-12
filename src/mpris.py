@@ -144,13 +144,13 @@ class MPRIS(Server):
         self.__metadata["mpris:trackid"] = GLib.Variant(
             "o", f"/Track/{track_id}"
         )
-        self.__metadata["xesam:title"] = GLib.Variant(
-            "s", "Prova"
-        )
-        self.__metadata["xesam:album"] = GLib.Variant(
-            "s", _("Album")
-        )
-        self.__metadata["xesam:artist"] = GLib.Variant("as", [_("Artist")])
+
+        track = self.player.playing_track
+
+        if track:
+            self.__metadata["xesam:title"] = GLib.Variant("s", track.name)
+            self.__metadata["xesam:album"] = GLib.Variant("s", track.album)
+            self.__metadata["xesam:artist"] = GLib.Variant("as", [track.artist])
 
         self.__bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
         Gio.bus_own_name_on_connection(
@@ -158,8 +158,8 @@ class MPRIS(Server):
         )
         Server.__init__(self, self.__bus, self.__MPRIS_PATH)
 
-        # MainPlayer.get().connect("preset-changed", self._on_preset_changed)
-        # MainPlayer.get().connect("notify::playing", self._on_playing_changed)
+        self.player.connect("song-changed", self._on_preset_changed)
+        self.player.connect("play-changed", self._on_playing_changed)
         # MainPlayer.get().connect("notify::volume", self._on_volume_changed)
 
     def Raise(self):
@@ -263,19 +263,23 @@ class MPRIS(Server):
             return "Paused"
 
     def _on_preset_changed(self, *args):
-        self.__metadata["xesam:title"] = GLib.Variant("s", "Prova?")
+        self.__metadata["xesam:title"] = GLib.Variant("s", self.player.playing_track.name)
+        self.__metadata["xesam:album"] = GLib.Variant("s", self.player.playing_track.album.name)
+        self.__metadata["xesam:artist"] = GLib.Variant("as", [self.player.playing_track.artist.name])
+        self.__metadata["xesam:artUrl"] = GLib.Variant("s", f"tmp_img/{self.player.playing_track.album.id}.jpg")
+
         changed_properties = {
             "Metadata": GLib.Variant("a{sv}", self.__metadata),
-            "CanGoNext": GLib.Variant("b", True),
-            "CanGoPrevious": GLib.Variant("b", True),
+            "CanGoNext": GLib.Variant("b", self.player.can_next),
+            "CanGoPrevious": GLib.Variant("b", self.player.can_prev),
         }
         self.PropertiesChanged(self.__MPRIS_PLAYER_IFACE, changed_properties, [])
 
-    def _on_volume_changed(self, player, volume):
+    def _on_volume_changed(self, _player, volume):
         self.PropertiesChanged(
             self.__MPRIS_PLAYER_IFACE,
             {
-                "Volume": GLib.Variant("d", MainPlayer.get().volume),
+                "Volume": GLib.Variant("d", self.player.volume),
             },
             [],
         )

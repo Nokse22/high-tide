@@ -136,6 +136,7 @@
                             <object class="GtkLabel" id="_title_label2">
                               <property name="css-classes">title-1</property>
                               <property name="valign">start</property>
+                              <property name="ellipsize">end</property>
                               <property name="label" bind-source="_title_label" bind-property="label"/>
                             </object>
                           </child>
@@ -143,6 +144,7 @@
                             <object class="GtkLabel" id="_first_subtitle_label2">
                               <property name="css-classes">dim-label</property>
                               <property name="valign">start</property>
+                              <property name="ellipsize">end</property>
                               <property name="wrap">true</property>
                               <property name="justify">center</property>
                               <property name="label" bind-source="_first_subtitle_label" bind-property="label"/>

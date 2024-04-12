@@ -149,6 +149,17 @@ class playerObject(GObject.GObject):
 
         self.playing_track = track
         self.song_album = track.album
+
+        if len(self.tracks_to_play) > 0:
+            self.can_next = True
+        else:
+            self.can_next = False
+
+        if len(self.played_songs) > 0:
+            self.can_prev = True
+        else:
+            self.can_prev = False
+
         self.emit("song-changed")
 
     def play_next(self):

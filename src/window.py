@@ -117,8 +117,6 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.select_quality(self.settings.get_int("quality"))
 
-        MPRIS(self.player_object, self)
-
         self.current_mix = None
         self.player_object.current_song_index = 0
         self.previous_time = 0
@@ -140,6 +138,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         th = threading.Thread(target=self.login, args=())
         th.deamon = True
         th.start()
+
+        MPRIS(self.player_object, self)
 
     def on_logged_in(self):
         print("on logged in")
