@@ -11,7 +11,8 @@
         "--device=dri",
         "--socket=wayland",
 	"--socket=pulseaudio",
-        "--talk-name=org.freedesktop.secrets"
+        "--talk-name=org.freedesktop.secrets",
+        "--own-name=org.mpris.MediaPlayer2.high-tide"
     ],
     "cleanup" : [
         "/include",

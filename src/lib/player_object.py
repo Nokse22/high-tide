@@ -123,6 +123,12 @@ class playerObject(GObject.GObject):
         self.emit("play-changed", self.is_playing)
         self.playbin.set_state(Gst.State.PAUSED)
 
+    def play_pause(self):
+        if self.is_playing:
+            self.pause()
+        else:
+            self.play()
+
     def play_track(self, track):
         th = threading.Thread(target=self._play_track, args=(track,))
         th.deamon = True

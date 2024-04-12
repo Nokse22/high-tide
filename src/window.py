@@ -25,11 +25,7 @@ from gi.repository import GObject
 
 from gi.repository import Gst, GLib
 
-from .mpris import Adapter
-from mpris_server.adapters import MprisAdapter
-from mpris_server.events import EventAdapter
-from mpris_server.server import Server
-from mpris_server import Metadata
+from .mpris import MPRIS
 
 import base64
 import json
@@ -120,10 +116,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.select_quality(self.settings.get_int("quality"))
 
-        mpris = Server('high-tide', adapter=Adapter())
-        # player.mpris_adapter = EventAdapter(root=mpris.root, player=mpris.player)
-        # player.mpris_server = mpris
-        mpris.publish()
+        MPRIS(self.player_object, self)
 
         self.current_mix = None
         self.player_object.current_song_index = 0
