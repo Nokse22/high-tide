@@ -47,9 +47,11 @@ class TidalApplication(Adw.Application):
         self.create_action('log-out', self.on_logout_action)
         self.create_action('download', self.on_download, ['<primary>d'])
 
-        # TODO Add MPRIS thing
-
         css = '''
+        .small-pill{
+	        border-radius:60px;
+        }
+
         .card-image{
             border-radius:10px;
             transition: opacity 0.1s ease-in-out;
