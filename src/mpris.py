@@ -13,7 +13,7 @@ from gettext import gettext as _
 from gi.repository import Gio, GLib, Gdk
 
 from random import randint
-
+from .lib import variables
 
 class Server:
     def __init__(self, con, path):
@@ -266,7 +266,10 @@ class MPRIS(Server):
         self.__metadata["xesam:title"] = GLib.Variant("s", self.player.playing_track.name)
         self.__metadata["xesam:album"] = GLib.Variant("s", self.player.playing_track.album.name)
         self.__metadata["xesam:artist"] = GLib.Variant("as", [self.player.playing_track.artist.name])
-        self.__metadata["xesam:artUrl"] = GLib.Variant("s", f"tmp_img/{self.player.playing_track.album.id}.jpg")
+
+        url = f"file://{variables.IMG_DIR}/{self.player.playing_track.album.id}.jpg"
+
+        self.__metadata["mpris:artUrl"] = GLib.Variant("s", url)
 
         changed_properties = {
             "Metadata": GLib.Variant("a{sv}", self.__metadata),
