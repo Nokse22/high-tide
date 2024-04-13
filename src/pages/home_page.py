@@ -39,6 +39,7 @@ import requests
 import random
 
 from .page import Page
+from ..widgets.carousel_widget import CarouselWidget
 
 class homePage(Page):
     __gtype_name__ = 'homePage'
@@ -61,7 +62,7 @@ class homePage(Page):
             if isinstance(category.items[0], PageItem) or isinstance(category.items[0], PageLink):
                 continue
 
-            carousel, cards_box = self.get_carousel(category.title)
+            carousel = CarouselWidget(category.title)
 
             if not isinstance(category.items[0], Track):
                 home_content.append(carousel)
@@ -76,16 +77,16 @@ class homePage(Page):
                     # cards_box.append(button)
                 elif isinstance(item, Mix): # Mixes and for you
                     button = self.get_mix_card(item)
-                    cards_box.append(button)
+                    carousel.append_card(button)
                 elif isinstance(item, Album):
                     album_card = self.get_album_card(item)
-                    cards_box.append(album_card)
+                    carousel.append_card(album_card)
                 elif isinstance(item, Artist):
                     button = self.get_artist_card(item)
-                    cards_box.append(button)
+                    carousel.append_card(button)
                 elif isinstance(item, Playlist):
                     button = self.get_playlist_card(item)
-                    cards_box.append(button)
+                    carousel.append_card(button)
 
         self.content.remove(self.spinner)
         self.content.append(page_content)
