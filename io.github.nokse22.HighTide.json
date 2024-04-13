@@ -100,49 +100,69 @@
             ]
         },
         {
-            "name" : "python3-tidalapi",
-            "buildsystem" : "simple",
-            "build-commands" : [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"tidalapi\" --no-build-isolation"
-            ],
-            "sources" : [
-                {
-                    "type" : "file",
-                    "url" : "https://files.pythonhosted.org/packages/4c/dd/2234eab22353ffc7d94e8d13177aaa050113286e93e7b40eae01fbf7c3d9/certifi-2023.7.22-py3-none-any.whl",
-                    "sha256" : "92d6037539857d8206b8f6ae472e8b77db8058fec5937a1ef3f54304089edbb9"
-                },
-                {
-                    "type" : "file",
-                    "url" : "https://files.pythonhosted.org/packages/2a/53/cf0a48de1bdcf6ff6e1c9a023f5f523dfe303e4024f216feac64b6eb7f67/charset-normalizer-3.2.0.tar.gz",
-                    "sha256" : "3bb3d25a8e6c0aedd251753a79ae98a093c7e7b471faa3aa9a93a81431987ace"
-                },
-                {
-                    "type" : "file",
-                    "url" : "https://files.pythonhosted.org/packages/fc/34/3030de6f1370931b9dbb4dad48f6ab1015ab1d32447850b9fc94e60097be/idna-3.4-py3-none-any.whl",
-                    "sha256" : "90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2"
-                },
-                {
-                    "type" : "file",
-                    "url" : "https://files.pythonhosted.org/packages/36/7a/87837f39d0296e723bb9b62bbb257d0355c7f6128853c78955f57342a56d/python_dateutil-2.8.2-py2.py3-none-any.whl",
-                    "sha256" : "961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"
-                },
-                {
-                    "type" : "file",
-                    "url" : "https://files.pythonhosted.org/packages/70/8e/0e2d847013cb52cd35b38c009bb167a1a26b2ce6cd6965bf26b47bc0bf44/requests-2.31.0-py3-none-any.whl",
-                    "sha256" : "58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f"
-                },
-                {
-                    "type" : "file",
-                    "url" : "https://files.pythonhosted.org/packages/1a/6a/92c4376c477a5277ed741504212a2e4354c96337a88e4abefcbdc8ba6601/tidalapi-0.7.3-py3-none-any.whl",
-                    "sha256" : "04fa50c969a30a6e951a19a1f7f8234d142970a57abd3fb062180f508c5133bd"
-                },
-                {
-                    "type" : "file",
-                    "url" : "https://files.pythonhosted.org/packages/9b/81/62fd61001fa4b9d0df6e31d47ff49cfa9de4af03adecf339c7bc30656b37/urllib3-2.0.4-py3-none-any.whl",
-                    "sha256" : "de7df1803967d2c2a98e4b11bb7d6bd9210474c46e8a0401514e3a42a75ebde4"
-                }
-            ]
-        },
+	    "name": "python3-tidalapi",
+	    "buildsystem": "simple",
+	    "build-commands": [
+		"pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"tidalapi\" --no-build-isolation"
+	    ],
+	    "sources": [
+		{
+		    "type": "file",
+		    "url": "https://files.pythonhosted.org/packages/ba/06/a07f096c664aeb9f01624f858c3add0a4e913d6c96257acb4fce61e7de14/certifi-2024.2.2-py3-none-any.whl",
+		    "sha256": "dc383c07b76109f368f6106eee2b593b04a011ea4d55f652c6ca24a754d1cdd1"
+		},
+		{
+		    "type": "file",
+		    "url": "https://files.pythonhosted.org/packages/63/09/c1bc53dab74b1816a00d8d030de5bf98f724c52c1635e07681d312f20be8/charset-normalizer-3.3.2.tar.gz",
+		    "sha256": "f30c3cb33b24454a82faecaf01b19c18562b1e89558fb6c56de4d9118a032fd5"
+		},
+		{
+		    "type": "file",
+		    "url": "https://files.pythonhosted.org/packages/e5/3e/741d8c82801c347547f8a2a06aa57dbb1992be9e948df2ea0eda2c8b79e8/idna-3.7-py3-none-any.whl",
+		    "sha256": "82fee1fc78add43492d3a1898bfa6d8a904cc97d8427f683ed8e798d07761aa0"
+		},
+		{
+		    "type": "file",
+		    "url": "https://files.pythonhosted.org/packages/b6/85/7882d311924cbcfc70b1890780763e36ff0b140c7e51c110fc59a532f087/isodate-0.6.1-py2.py3-none-any.whl",
+		    "sha256": "0751eece944162659049d35f4f549ed815792b38793f07cf73381c1c87cbed96"
+		},
+		{
+		    "type": "file",
+		    "url": "https://files.pythonhosted.org/packages/ab/1a/5be778993af7c2079e7a24dc208424af6fe1b6392dfaac268a8cf42ba842/mpegdash-0.4.0-py3-none-any.whl",
+		    "sha256": "d07f6e1f2a67ddce1be501e3ad7abc29a2d6a7b1830b4da974b49c2ebe99cf2a"
+		},
+		{
+		    "type": "file",
+		    "url": "https://files.pythonhosted.org/packages/ec/57/56b9bcc3c9c6a792fcbaf139543cee77261f3651ca9da0c93f5c1221264b/python_dateutil-2.9.0.post0-py2.py3-none-any.whl",
+		    "sha256": "a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"
+		},
+		{
+		    "type": "file",
+		    "url": "https://files.pythonhosted.org/packages/ab/38/ff60c8fc9e002d50d48822cc5095deb8ebbc5f91a6b8fdd9731c87a147c9/ratelimit-2.2.1.tar.gz",
+		    "sha256": "af8a9b64b821529aca09ebaf6d8d279100d766f19e90b5059ac6a718ca6dee42"
+		},
+		{
+		    "type": "file",
+		    "url": "https://files.pythonhosted.org/packages/70/8e/0e2d847013cb52cd35b38c009bb167a1a26b2ce6cd6965bf26b47bc0bf44/requests-2.31.0-py3-none-any.whl",
+		    "sha256": "58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f"
+		},
+		{
+		    "type": "file",
+		    "url": "https://files.pythonhosted.org/packages/1c/23/6c33dd205036a42d9181827ec30ffda913400294f5f96b4e447f687df0d1/tidalapi-0.7.5-py3-none-any.whl",
+		    "sha256": "99623dc1325d16f740e88b4bc7e5041a9ac9ff212935acc1d4ae4c9af9f37ea1"
+		},
+		{
+		    "type": "file",
+		    "url": "https://files.pythonhosted.org/packages/01/f3/936e209267d6ef7510322191003885de524fc48d1b43269810cd589ceaf5/typing_extensions-4.11.0-py3-none-any.whl",
+		    "sha256": "c1f94d72897edaf4ce775bb7558d5b79d8126906a14ea5ed1635921406c0387a"
+		},
+		{
+		    "type": "file",
+		    "url": "https://files.pythonhosted.org/packages/a2/73/a68704750a7679d0b6d3ad7aa8d4da8e14e151ae82e6fee774e6e0d05ec8/urllib3-2.2.1-py3-none-any.whl",
+		    "sha256": "450b20ec296a467077128bff42b73080516e71b56ff59a60a02bef2232c4fa9d"
+		}
+	    ]
+	},
         {
             "name" : "HighTide",
             "builddir" : true,
