@@ -122,30 +122,6 @@ class Page(Adw.NavigationPage):
         page.load()
         self.window.navigation_view.push(page)
 
-    def get_carousel(self, title):
-
-        """Creates a carousel used to display multiple elements side by side
-        with navigation arrows"""
-
-        cards_box = Gtk.Box()
-        box = Gtk.Box(orientation=1, margin_bottom=12, margin_start=12, margin_end=12, overflow=Gtk.Overflow.HIDDEN)
-        title_box = Gtk.Box(margin_top=12, margin_bottom=6)
-        title_box.append(Gtk.Label(label=title, xalign=0, css_classes=["title-3"], ellipsize=3))
-        prev_button = Gtk.Button(icon_name="go-next-symbolic", margin_start=6, halign=Gtk.Align.END, css_classes=["circular"])
-        next_button = Gtk.Button(icon_name="go-previous-symbolic", hexpand=True, halign=Gtk.Align.END, css_classes=["circular"])
-        title_box.append(next_button)
-        title_box.append(prev_button)
-
-        box.append(title_box)
-        cards_box = Adw.Carousel(halign=Gtk.Align.START, allow_scroll_wheel=False, allow_long_swipes=True)
-        cards_box.set_overflow(Gtk.Overflow.VISIBLE)
-        box.append(cards_box)
-
-        prev_button.connect("clicked", self.carousel_go_prev, cards_box)
-        next_button.connect("clicked", self.carousel_go_next, cards_box)
-
-        return box, cards_box
-
     def get_link_carousel(self, title):
 
         """Similar to the last function but used to display links to other pages
