@@ -1,171 +1,233 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Created with Cambalache 0.14.0 -->
 <interface>
-  <!-- interface-name mix_page.ui -->
+  <!-- interface-name tracks_list_template.ui -->
   <requires lib="gtk" version="4.6"/>
   <requires lib="libadwaita" version="1.0"/>
-      <object class="GtkBox" id="_main">
-        <!-- <property name="margin-end">12</property> -->
-        <!-- <property name="margin-start">12</property> -->
-        <property name="orientation">vertical</property>
-        <property name="vexpand">True</property>
-        <child>
-          <object class="AdwClamp">
-            <property name="maximum-size">1000</property>
-            <property name="tightening-threshold">700</property>
-            <property name="valign">start</property>
-            <property name="vexpand-set">true</property>
-            <child>
-              <object class="AdwBreakpointBin">
-                <property name="width-request">10</property>
-                <property name="height-request">10</property>
-                <child>
-                  <object class="AdwBreakpoint">
-                    <condition>max-width: 400px</condition>
-                    <setter object="_avatar" property="size">50</setter>
-                    <setter object="expander" property="visible">false</setter>
-                    <setter object="title_box" property="orientation">vertical</setter>
-                  </object>
-                </child>
-                <property name="child">
-                  <object class="GtkBox">
-                    <property name="valign">start</property>
-                    <child>
-                      <object class="AdwAvatar" id="_avatar">
-                        <property name="margin-bottom">12</property>
-                        <property name="margin-end">12</property>
-                        <property name="margin-start">12</property>
-                        <property name="margin-top">12</property>
-                        <property name="size">140</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkBox" id="title_box">
-                        <property name="hexpand">True</property>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="hexpand">True</property>
-                        <property name="margin-top">12</property>
-                        <property name="orientation">vertical</property>
+    <object class="AdwBreakpointBin" id="_main">
+      <property name="width-request">10</property>
+      <property name="height-request">300</property>
+      <child>
+        <object class="AdwBreakpoint">
+          <condition>max-width: 400px</condition>
+          <!-- <setter object="_image" property="pixel-size">60</setter> -->
+          <setter object="_vertical_layout_box" property="visible">true</setter>
+          <setter object="_horizontal_layout_box" property="visible">false</setter>
+        </object>
+      </child>
+      <property name="child">
+        <object class="GtkScrolledWindow">
+          <property name="vexpand">True</property>
+          <property name="hexpand">True</property>
+          <child>
+            <object class="GtkBox">
+              <property name="orientation">vertical</property>
+              <child>
+                <object class="AdwClamp">
+                  <property name="maximum-size">1000</property>
+                  <property name="tightening-threshold">700</property>
+                  <property name="valign">start</property>
+                  <property name="vexpand-set">true</property>
+                  <child>
+                    <object class="GtkBox">
+                      <property name="orientation">vertical</property>
+
+                      <child>
+                        <object class="GtkBox" id="_horizontal_layout_box">
+                        <property name="valign">start</property>
                         <child>
-                          <object class="GtkLabel" id="_name_label">
-                            <property name="css-classes">title-1</property>
-                            <property name="ellipsize">end</property>
-                            <property name="label">Name Surname</property>
-                            <property name="vexpand">True</property>
-                            <property name="xalign">0.0</property>
+                          <object class="AdwAvatar" id="_avatar">
+                            <property name="icon-name">music-artist-symbolic</property>
+                            <property name="overflow">hidden</property>
+                            <property name="margin-bottom">12</property>
+                            <property name="margin-end">12</property>
+                            <property name="margin-start">12</property>
+                            <property name="margin-top">12</property>
+                            <property name="size">120</property>
                           </object>
                         </child>
                         <child>
-                          <object class="GtkExpander" id="expander">
-                            <property name="label">Bio</property>
+                          <object class="GtkBox">
+                            <property name="hexpand">True</property>
+                            <property name="margin-top">12</property>
+                            <property name="orientation">vertical</property>
                             <child>
-                              <object class="GtkLabel" id="_bio_label">
+                              <object class="GtkLabel" id="_name_label">
+                                <property name="css-classes">title-1</property>
                                 <property name="ellipsize">end</property>
                                 <property name="vexpand">True</property>
                                 <property name="xalign">0.0</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="_first_subtitle_label">
+                                <property name="css-classes">dim-label</property>
+                                <property name="ellipsize">end</property>
+                                <property name="vexpand">True</property>
+                                <property name="xalign">0.0</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="_artist_button">
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="halign">end</property>
+                            <property name="margin-end">12</property>
+                            <property name="spacing">6</property>
+                            <property name="valign">center</property>
+                            <child>
+                              <object class="GtkButton" id="_add_to_my_collection_button">
+                                <property name="icon-name">heart-outline-thick-symbolic</property>
+                                <property name="css-classes">flat</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="_shuffle_button">
+                                <property name="icon-name">media-playlist-shuffle-symbolic</property>
+                                <property name="css-classes">flat</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="_play_button">
+                                <property name="css-classes">suggested-action</property>
+                                <property name="icon-name">media-playback-start-symbolic</property>
                               </object>
                             </child>
                           </object>
                         </child>
                       </object>
                     </child>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="halign">end</property>
-                        <property name="margin-end">12</property>
-                        <property name="spacing">6</property>
-                        <property name="valign">center</property>
-                        <child>
-                          <object class="GtkButton" id="_follow_button">
-                            <property name="icon-name">heart-outline-thick-symbolic</property>
-                            <property name="css-classes">flat</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="_radio_button">
-                            <property name="icon-name">navigate-symbolic</property>
-                            <property name="css-classes">flat</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="_shuffle_button">
-                            <property name="icon-name">media-playlist-shuffle-symbolic</property>
-                            <property name="css-classes">flat</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="_play_button">
-                            <property name="css-classes">suggested-action</property>
-                            <property name="icon-name">media-playback-start-symbolic</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                        </object>
-                    </child>
-                  </object>
-                </property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkSeparator">
-            <property name="valign">start</property>
-          </object>
-        </child>
-        <child>
-        <object class="GtkScrolledWindow">
-          <property name="vexpand">True</property>
-          <property name="vexpand-set">True</property>
 
-            <child>
-              <object class="AdwClamp">
-                <property name="vexpand">True</property>
-                <property name="maximum-size">1000</property>
-                <property name="tightening-threshold">700</property>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="orientation">vertical</property>
-                        <property name="margin-top">12</property>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="css-classes">title-2</property>
-                            <property name="margin-start">12</property>
-                            <property name="label">Top Tracks</property>
-                            <property name="xalign">0.0</property>
-                          </object>
-                        </child>
-                        <child>
-
-                          <object class="GtkListBox" id="_top_tracks_list_box">
-                            <property name="valign">start</property>
-                            <property name="margin-top">12</property>
-                            <property name="margin-start">12</property>
-                            <property name="margin-end">12</property>
-                            <property name="css-classes">boxed-list</property>
-                          </object>
-
-                      </child>
                       <child>
-                        <object class="GtkBox" id="_carousel_box">
+                        <object class="GtkBox" id="_vertical_layout_box">
+                          <property name="height-request">200</property>
                           <property name="orientation">vertical</property>
-                          <property name="overflow">hidden</property>
+                          <property name="spacing">12</property>
+                          <property name="visible">false</property>
+                          <property name="margin-top">12</property>
+                          <property name="margin-bottom">12</property>
+                          <property name="margin-start">12</property>
+                          <property name="margin-end">12</property>
+                          <child>
+                            <object class="AdwAvatar">
+                              <property name="css-classes">small-image</property>
+                              <property name="halign">center</property>
+                              <property name="icon-name">music-artist-symbolic</property>
+                              <property name="size">160</property>
+                              <property name="overflow">hidden</property>
+                              <property name="custom-image" bind-source="_avatar" bind-property="custom-image"/>
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkLabel" id="_name_label2">
+                              <property name="css-classes">title-1</property>
+                              <property name="valign">start</property>
+                              <property name="ellipsize">end</property>
+                              <property name="label" bind-source="_name_label" bind-property="label"/>
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkLabel" id="_first_subtitle_label2">
+                              <property name="css-classes">dim-label</property>
+                              <property name="valign">start</property>
+                              <property name="ellipsize">end</property>
+                              <property name="wrap">true</property>
+                              <property name="justify">center</property>
+                              <property name="label" bind-source="_first_subtitle_label" bind-property="label"/>
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkBox">
+                              <property name="halign">center</property>
+                              <property name="spacing">12</property>
+                              <property name="valign">center</property>
+                              <child>
+                                <object class="GtkButton">
+                                  <property name="css-classes">pill
+suggested-action</property>
+                                  <property name="icon-name">media-playback-start-symbolic</property>
+                                </object>
+                              </child>
+                              <child>
+                                <object class="GtkButton">
+                                  <property name="css-classes">pill</property>
+                                  <property name="icon-name">media-playlist-shuffle-symbolic</property>
+                                </object>
+                              </child>
+                              <child>
+                                <object class="GtkButton">
+                                  <property name="css-classes">circular
+flat</property>
+                                  <property name="icon-name">list-add-symbolic</property>
+                                  <property name="valign">center</property>
+                                </object>
+                              </child>
+                            </object>
+                          </child>
                         </object>
                       </child>
-                    </object>
-                  </child>
+
 
                 </object>
               </child>
             </object>
-          </child>
-        </object>
-      </child>
-  </object>
+            </child>
+            <child>
+              <object class="GtkSeparator">
+                <property name="valign">start</property>
+              </object>
+            </child>
+            <child>
+              <!-- <object class="GtkScrolledWindow"> -->
+              <!--   <property name="vexpand">True</property> -->
+              <!--   <child> -->
+                  <object class="AdwClamp">
+                    <property name="vexpand">True</property>
+                    <property name="maximum-size">1000</property>
+                    <property name="tightening-threshold">700</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                          <child>
+                            <object class="GtkBox">
+                              <property name="orientation">vertical</property>
+                              <property name="margin-top">12</property>
+                              <child>
+                                <object class="GtkLabel">
+                                  <property name="css-classes">title-2</property>
+                                  <property name="margin-start">12</property>
+                                  <property name="label">Top Tracks</property>
+                                  <property name="xalign">0.0</property>
+                                </object>
+                              </child>
+                              <child>
+                              <object class="GtkListBox" id="_top_tracks_list_box">
+                                <property name="valign">start</property>
+                                <property name="margin-top">12</property>
+                                <property name="margin-start">12</property>
+                                <property name="margin-end">12</property>
+                                <property name="css-classes">boxed-list</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox" id="_carousel_box">
+                            <property name="orientation">vertical</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </property>
+      </object>
 </interface>
-

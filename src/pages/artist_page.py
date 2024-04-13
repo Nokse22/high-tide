@@ -32,6 +32,7 @@ from tidalapi.media import Track
 from tidalapi.playlist import Playlist
 
 from ..lib import utils
+from ..widgets.carousel_widget import CarouselWidget
 
 import threading
 import requests
@@ -48,14 +49,15 @@ class artistPage(Page):
     # FIXME The bio is not displayed properly, it all bold and the links are not working
     # TODO Add missing features: influences, appears on, credits and so on
 
-    def __init__(self, _window, _item, _name):
-        super().__init__(_window, _item, _name)
+    def __init__(self, _window, _artist, _name):
+        super().__init__(_window, _artist, _name)
 
         self.top_tracks = []
+        self.artist = _artist
 
     def _load_page(self):
 
-        print(f"artist: {self.item.name}, id: {self.item.id}, {self.item.picture}")
+        print(f"artist: {self.artist.name}, id: {self.artist.id}, {self.artist.picture}")
 
         builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/artist_page_template.ui")
 
@@ -64,19 +66,29 @@ class artistPage(Page):
         carousel_box = builder.get_object("_carousel_box")
         top_tracks_list_box.connect("row-activated", self.on_row_selected)
 
-        builder.get_object("_name_label").set_label(self.item.name)
-        # builder.get_object("_bio_label").set_label(self.item.roles)
+        builder.get_object("_name_label").set_label(self.artist.name)
 
         builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
         builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
 
-        builder.get_object("_follow_button").connect("clicked", self.on_add_to_my_collection_button_clicked)
-        builder.get_object("_radio_button").connect("clicked", self.on_artist_radio_button_clicked)
+        # builder.get_object("_follow_button").connect("clicked", self.on_add_to_my_collection_button_clicked)
+        # builder.get_object("_radio_button").connect("clicked", self.on_artist_radio_button_clicked)
 
-        image = builder.get_object("_image")
+        artist_picture = builder.get_object("_avatar")
+
+        th = threading.Thread(target=utils.add_image_to_avatar, args=(artist_picture, self.artist))
+        th.deamon = True
+        th.start()
+
+        roles_str = ""
+        for role in self.artist.roles:
+            print(role)
+            roles_str += " " + role.main.value
+
+        builder.get_object("_first_subtitle_label").set_label(roles_str)
 
         try:
-            self.top_tracks = self.item.get_top_tracks(10)
+            self.top_tracks = self.artist.get_top_tracks(10)
         except:
             pass
         else:
@@ -85,33 +97,56 @@ class artistPage(Page):
                 listing.set_name(str(index))
                 top_tracks_list_box.append(listing)
 
-        carousel, cards_box = self.get_carousel("Albums")
-        carousel_box.append(carousel)
-
+        carousel = CarouselWidget("Albums")
         try:
-            albums = self.item.get_albums()
+            albums = self.artist.get_albums(limit=10)
         except:
             pass
         else:
-            for album in albums:
-                album_card = self.get_album_card(album)
-                cards_box.append(album_card)
+            if len(albums) != 0:
+                carousel_box.append(carousel)
+                for album in albums:
+                    album_card = self.get_album_card(album)
+                    carousel.append_card(album_card)
 
-        carousel, cards_box = self.get_carousel("Similar Artists")
-        carousel_box.append(carousel)
-
-        this_artist = self.window.session.artist(self.item.id)
+        carousel = CarouselWidget("EP & Singles")
         try:
-            artists = this_artist.get_similar()
+            albums = self.artist.get_albums_ep_singles(limit=10)
         except:
             pass
         else:
-            for artist in artists:
-                artist_card = self.get_artist_card(artist)
-                cards_box.append(artist_card)
+            if len(albums) != 0:
+                carousel_box.append(carousel)
+                for album in albums:
+                    album_card = self.get_album_card(album)
+                    carousel.append_card(album_card)
+
+        carousel = CarouselWidget("Appears On")
+        try:
+            albums = self.artist.get_albums_other(limit=10)
+        except:
+            pass
+        else:
+            if len(albums) != 0:
+                carousel_box.append(carousel)
+                for album in albums:
+                    album_card = self.get_album_card(album)
+                    carousel.append_card(album_card)
+
+        carousel = CarouselWidget("Similar Artists")
+        try:
+            artists = self.artist.get_similar(limit=10)
+        except:
+            pass
+        else:
+            if len(artists) != 0:
+                carousel_box.append(carousel)
+                for artist in artists:
+                    artist_card = self.get_artist_card(artist)
+                    carousel.append_card(artist_card)
 
         try:
-            bio = self.item.get_bio()
+            bio = self.artist.get_bio()
         except:
             pass
         else:
@@ -119,12 +154,6 @@ class artistPage(Page):
             label = Gtk.Label(label=bio, wrap=True, css_classes=[])
             expander.set_child(label)
             carousel_box.append(expander)
-
-        artist_picture = builder.get_object("_avatar")
-
-        th = threading.Thread(target=utils.add_image_to_avatar, args=(artist_picture, self.item))
-        th.deamon = True
-        th.start()
 
         self.content.remove(self.spinner)
         self.content.append(page_content)
@@ -139,7 +168,7 @@ class artistPage(Page):
         self.window.player_object.current_song_index = index
 
     def on_play_button_clicked(self, btn):
-        self.window.player_object.current_mix_album = self.item
+        self.window.player_object.current_mix_album = self.artist
         self.window.player_object.current_mix_album_list = self.top_tracks
         track = self.window.player_object.current_mix_album_list[0]
         self.window.player_object.play_track(track)
@@ -152,6 +181,6 @@ class artistPage(Page):
 
     def on_artist_radio_button_clicked(self, btn):
         from .track_radio_page import trackRadioPage
-        page = trackRadioPage(self.window, self.item, f"Radio of {self.item.name}")
+        page = trackRadioPage(self.window, self.artist, f"Radio of {self.artist.name}")
         page.load()
         self.window.navigation_view.push(page)
