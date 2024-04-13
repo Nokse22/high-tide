@@ -34,6 +34,7 @@ from tidalapi.user import Favorites
 
 import requests
 from pathlib import Path
+from . import variables
 
 def pretty_duration(secs):
     if not secs:
@@ -54,7 +55,7 @@ def add_image(image_widget, item):
 
     """Retrieves and adds an image"""
 
-    file_path = Path(f"tmp_img/{item.id}.jpg")
+    file_path = Path(f"{variables.IMG_DIR}/{item.id}.jpg")
 
     if file_path.is_file():
         GLib.idle_add(_add_image, image_widget, str(file_path))
