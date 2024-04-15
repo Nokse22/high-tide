@@ -11,7 +11,6 @@
     <file preprocess="xml-stripblanks">ui/pages_ui/page_template.ui</file>
     <file preprocess="xml-stripblanks">ui/pages_ui/tracks_list_template.ui</file>
     <file preprocess="xml-stripblanks">ui/pages_ui/artist_page_template.ui</file>
-    <file preprocess="xml-stripblanks">ui/pages_ui/home_page_template.ui</file>
     <file preprocess="xml-stripblanks">ui/widgets/generic_track_widget.ui</file>
     <file preprocess="xml-stripblanks">ui/widgets/card_widget.ui</file>
     <file preprocess="xml-stripblanks">ui/widgets/carousel_widget.ui</file>
