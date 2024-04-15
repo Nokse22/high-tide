@@ -11,17 +11,51 @@
       </object>
     </child>
     <property name="content">
-      <object class="GtkBox" id="_content">
-        <property name="vexpand">True</property>
+      <object class="GtkStack" id="_content_stack">
+        <property name="visible-child-name">loading</property>
         <child>
-          <object class="GtkSpinner" id="_spinner">
-            <property name="spinning">true</property>
-            <property name="hexpand">true</property>
-            <property name="vexpand">true</property>
-            <property name="halign">center</property>
-            <property name="valign">center</property>
-            <property name="width-request">42</property>
-            <property name="height-request">42</property>
+          <object class="GtkStackPage">
+            <property name="child">
+              <object class="GtkSpinner" id="_spinner">
+                <property name="spinning">true</property>
+                <property name="hexpand">true</property>
+                <property name="vexpand">true</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="width-request">42</property>
+                <property name="height-request">42</property>
+              </object>
+            </property>
+            <property name="name">loading</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkStackPage">
+            <property name="child">
+
+              <object class="GtkScrolledWindow">
+                <property name="vexpand">True</property>
+                <property name="vexpand-set">True</property>
+                <property name="css-classes">undershoot-top</property>
+                <child>
+                  <object class="AdwClamp">
+                    <property name="maximum-size">1000</property>
+                    <property name="tightening-threshold">700</property>
+                    <property name="valign">fill</property>
+                    <property name="vexpand">true</property>
+                    <child>
+                      <object class="GtkBox" id="_content">
+                        <property name="orientation">vertical</property>
+                        <property name="overflow">hidden</property>
+                        <property name="vexpand">true</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+
+            </property>
+            <property name="name">content</property>
           </object>
         </child>
       </object>

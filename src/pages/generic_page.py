@@ -45,11 +45,6 @@ class genericPage(Page):
     """It is not used much, possibly not needed anymore"""
 
     def _load_page(self):
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/home_page_template.ui")
-
-        page_content = builder.get_object("_main")
-        generic_page_content = builder.get_object("_content")
-
         generic_content = self.item.get()
 
         for index, category in enumerate(generic_content.categories):
@@ -83,5 +78,4 @@ class genericPage(Page):
                     button = self.get_playlist_card(item)
                     cards_box.append(button)
 
-        self.content.remove(self.spinner)
-        self.content.append(page_content)
+        self._page_loaded()

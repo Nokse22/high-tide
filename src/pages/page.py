@@ -54,12 +54,14 @@ class Page(Adw.NavigationPage):
         if _name:
             self.set_title(_name)
 
+        self.page_content = Gtk.Box(vexpand=True, hexpand=True, orientation=1)
+
         self.builder = Gtk.Builder.new_from_resource('/io/github/nokse22/HighTide/ui/pages_ui/page_template.ui')
         self.item = _item
 
         self.content = self.builder.get_object("_content")
+        self.content_stack = self.builder.get_object("_content_stack")
         self.object = self.builder.get_object("_main")
-        self.spinner = self.builder.get_object("_spinner")
 
         self.set_child(self.object)
 
@@ -76,6 +78,13 @@ class Page(Adw.NavigationPage):
         """Overwritten by each different page"""
 
         return
+
+    def _page_loaded(self):
+        def _add_content_to_page():
+            self.content_stack.set_visible_child_name("content")
+            self.content.append(self.page_content)
+
+        GLib.idle_add(_add_content_to_page)
 
     def get_album_card(self, item):
         card = CardWidget(item, self.window)

@@ -97,9 +97,10 @@ class artistPage(Page):
                 listing.set_name(str(index))
                 top_tracks_list_box.append(listing)
 
-        carousel = CarouselWidget("Albums")
+        carousel = CarouselWidget("Albums", self.window)
         try:
             albums = self.artist.get_albums(limit=10)
+            carousel.set_more_action("album", self.artist.get_albums)
         except:
             pass
         else:
@@ -109,9 +110,10 @@ class artistPage(Page):
                     album_card = self.get_album_card(album)
                     carousel.append_card(album_card)
 
-        carousel = CarouselWidget("EP & Singles")
+        carousel = CarouselWidget("EP & Singles", self.window)
         try:
             albums = self.artist.get_albums_ep_singles(limit=10)
+            carousel.set_more_action("album", self.artist.get_albums_ep_singles)
         except:
             pass
         else:
@@ -121,9 +123,10 @@ class artistPage(Page):
                     album_card = self.get_album_card(album)
                     carousel.append_card(album_card)
 
-        carousel = CarouselWidget("Appears On")
+        carousel = CarouselWidget("Appears On", self.window)
         try:
             albums = self.artist.get_albums_other(limit=10)
+            carousel.set_more_action("album", self.artist.get_albums_other)
         except:
             pass
         else:
@@ -133,9 +136,10 @@ class artistPage(Page):
                     album_card = self.get_album_card(album)
                     carousel.append_card(album_card)
 
-        carousel = CarouselWidget("Similar Artists")
+        carousel = CarouselWidget("Similar Artists", self.window)
         try:
             artists = self.artist.get_similar(limit=10)
+            carousel.set_more_action("artist", self.artist.get_similar)
         except:
             pass
         else:
@@ -155,8 +159,8 @@ class artistPage(Page):
             expander.set_child(label)
             carousel_box.append(expander)
 
-        self.content.remove(self.spinner)
-        self.content.append(page_content)
+        self.page_content.append(page_content)
+        self._page_loaded()
 
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())

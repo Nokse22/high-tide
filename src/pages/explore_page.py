@@ -45,11 +45,6 @@ class explorePage(Page):
     """It is used to display the explore page"""
 
     def _load_page(self):
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/home_page_template.ui")
-
-        page_content = builder.get_object("_main")
-        explore_content = builder.get_object("_content")
-
         explore = self.window.session.explore()
 
         # print(explore.categories)
@@ -62,10 +57,10 @@ class explorePage(Page):
 
                 flow_box = Gtk.FlowBox(homogeneous=True, height_request=100)
                 flow_box_box.append(flow_box)
-                explore_content.append(carousel)
+                self.page_content.append(carousel)
             else:
                 carousel, cards_box = self.get_carousel(category.title)
-                explore_content.append(carousel)
+                self.page_content.append(carousel)
 
             buttons_for_page = 0
 
@@ -94,5 +89,4 @@ class explorePage(Page):
                     button = self.get_playlist_card(item)
                     cards_box.append(button)
 
-        self.content.remove(self.spinner)
-        self.content.append(page_content)
+        self._page_loaded()

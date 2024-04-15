@@ -44,11 +44,7 @@ class notLoggedInPage(Page):
     __gtype_name__ = 'notLoggedInPage'
 
     def _load_page(self):
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/home_page_template.ui")
-
         self.set_title("Not Logged In")
-        page_content = builder.get_object("_main")
-        content = builder.get_object("_content")
 
         descr = '''To be able to use this app you need to login with your TIDAL account.
 Open the hamburger menu on the left and click Login.'''
@@ -57,5 +53,4 @@ Open the hamburger menu on the left and click Login.'''
         status_page.set_vexpand(True)
         status_page.set_hexpand(True)
 
-        self.content.remove(self.spinner)
-        self.content.append(status_page)
+        self._page_loaded()

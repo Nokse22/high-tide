@@ -47,11 +47,7 @@ class homePage(Page):
     def _load_page(self):
         self.set_tag("home")
 
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/home_page_template.ui")
-
         self.set_title("Home")
-        page_content = builder.get_object("_main")
-        home_content = builder.get_object("_content")
 
         home = self.window.session.home()
 
@@ -65,7 +61,7 @@ class homePage(Page):
             carousel = CarouselWidget(category.title)
 
             if not isinstance(category.items[0], Track):
-                home_content.append(carousel)
+                self.page_content.append(carousel)
             else:
                 continue
 
@@ -88,5 +84,4 @@ class homePage(Page):
                     button = self.get_playlist_card(item)
                     carousel.append_card(button)
 
-        self.content.remove(self.spinner)
-        self.content.append(page_content)
+        self._page_loaded()

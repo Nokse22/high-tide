@@ -48,28 +48,22 @@ class singleTypePage(Page):
     # TODO load only a fixed number of items at first then if the page is scrolled down load some more
 
     def _load_page(self):
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/home_page_template.ui")
-
-        page_content = builder.get_object("_main")
-        content = builder.get_object("_content")
-
         if self.item == "track":
-            self.add_tracks(content)
+            self.add_tracks()
         elif self.item == "mix":
-            self.add_mixes(content)
+            self.add_mixes()
         elif self.item == "album":
-            self.add_albums(content)
+            self.add_albums()
         elif self.item == "artist":
-            self.add_artists(content)
+            self.add_artists()
         elif self.item == "playlist":
-            self.add_playlists(content)
+            self.add_playlists()
 
-        self.content.remove(self.spinner)
-        self.content.append(page_content)
+        self._page_loaded()
 
-    def add_tracks(self, content):
+    def add_tracks(self):
         tracks_list_box = Gtk.ListBox(css_classes=["boxed-list"], margin_bottom=12, margin_start=12, margin_end=12, margin_top=12)
-        content.append(tracks_list_box)
+        self.page_content.append(tracks_list_box)
 
         favourite_tracks = Favorites(self.window.session, self.window.session.user.id).tracks(50)
         tracks_list_box.connect("row-activated", self.on_tracks_row_selected, favourite_tracks)
@@ -79,9 +73,9 @@ class singleTypePage(Page):
             listing.set_name(str(index))
             tracks_list_box.append(listing)
 
-    def add_mixes(self, content):
+    def add_mixes(self):
         flow_box = Gtk.FlowBox(selection_mode=0)
-        content.append(flow_box)
+        self.page_content.append(flow_box)
 
         favourites = Favorites(self.window.session, self.window.session.user.id).mix()
 
@@ -89,9 +83,9 @@ class singleTypePage(Page):
             card = self.get_mix_card(mix)
             flow_box.append(card)
 
-    def add_artists(self, content):
+    def add_artists(self):
         flow_box = Gtk.FlowBox(selection_mode=0)
-        content.append(flow_box)
+        self.page_content.append(flow_box)
 
         favourites = Favorites(self.window.session, self.window.session.user.id).artists()
 
@@ -99,9 +93,9 @@ class singleTypePage(Page):
             card = self.get_artist_card(artist)
             flow_box.append(card)
 
-    def add_playlists(self, content):
+    def add_playlists(self):
         flow_box = Gtk.FlowBox(selection_mode=0)
-        content.append(flow_box)
+        self.page_content.append(flow_box)
 
         favourites = Favorites(self.window.session, self.window.session.user.id).playlists()
 
@@ -109,9 +103,9 @@ class singleTypePage(Page):
             card = self.get_playlist_card(playlist)
             flow_box.append(card)
 
-    def add_albums(self, content):
+    def add_albums(self):
         flow_box = Gtk.FlowBox(selection_mode=0)
-        content.append(flow_box)
+        self.page_content.append(flow_box)
 
         favourites = Favorites(self.window.session, self.window.session.user.id).albums()
 
