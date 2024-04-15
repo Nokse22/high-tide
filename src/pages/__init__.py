@@ -1,5 +1,6 @@
 from .home_page import homePage
 from .single_type_page import singleTypePage
+from .from_function_page import fromFunctionPage
 from .explore_page import explorePage
 from .artist_page import artistPage
 from .search_page import searchPage
