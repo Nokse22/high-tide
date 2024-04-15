@@ -36,22 +36,25 @@ class CarouselWidget(Gtk.Box):
     carousel = Gtk.Template.Child()
     more_button = Gtk.Template.Child()
 
-    def __init__(self, title=""):
+    def __init__(self, title="", _window=None):
         super().__init__()
 
         self.n_pages = 0
 
+        self.window = _window if not None else None
+
         self.title_label.set_label(title)
 
-        self.more_item = None
+        self.more_function = None
+        self.more_type = None
 
         # self.card_width = 0
         # self.connect("notify::width", self._width_changed)
 
-    def set_more_action(self, item, function):
+    def set_more_action(self, _type, _function):
         self.more_button.set_visible(True)
-        self.more_item = item
-        self.more_function = function
+        self.more_function = _function
+        self.more_type = _type
 
     def append_card(self, card):
         self.carousel.append(card)
@@ -60,24 +63,16 @@ class CarouselWidget(Gtk.Box):
         if self.n_pages != 2:
             self.next_button.set_sensitive(True)
 
-        # if self.card_width == 0:
-        #     self.card_width = card.get_width()
-
-    # def _width_changed(self):
-    #     width = self.carousel.get_width()
-    #     if width >= 2 * self.card_width:
-    #         print("wide")
-    #     print("width")
-
     @Gtk.Template.Callback("on_more_clicked")
     def on_more_clicked(self, *args):
-        from ..pages import singleTypePage
+        if not self.window:
+            return
 
-        self.more_item
+        from ..pages import fromFunctionPage
 
-        page = singleTypePage(self, self.more_item, "Favourite Tracks")
+        page = fromFunctionPage(self, self.more_function, self.more_type)
         page.load()
-        self.navigation_view.push(page)
+        self.window.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_next_clicked")
     def carousel_go_next(self, btn):
