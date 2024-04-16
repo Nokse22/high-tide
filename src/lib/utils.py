@@ -96,7 +96,7 @@ def add_image_to_avatar(avatar_widget, item):
         response = requests.get(image_url)
     except Exception as e:
         print(str(e))
-        artist_picture.set_icon_name("emblem-music-symbolic")
+        avatar_widget.set_icon_name("emblem-music-symbolic")
         return
     if response.status_code == 200:
         image_data = response.content
