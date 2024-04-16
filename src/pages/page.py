@@ -39,8 +39,8 @@ import requests
 import random
 import os
 
-from ..widgets.generic_track_widget import GenericTrackWidget
-from ..widgets.card_widget import CardWidget
+from ..widgets import GenericTrackWidget
+from ..widgets import CardWidget
 
 class Page(Adw.NavigationPage):
     __gtype_name__ = 'Page'
@@ -62,6 +62,7 @@ class Page(Adw.NavigationPage):
         self.content = self.builder.get_object("_content")
         self.content_stack = self.builder.get_object("_content_stack")
         self.object = self.builder.get_object("_main")
+        self.scrolled_window = self.builder.get_object("_scrolled_window")
 
         self.set_child(self.object)
 
