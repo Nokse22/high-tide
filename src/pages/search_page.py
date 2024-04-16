@@ -33,6 +33,7 @@ from tidalapi.playlist import Playlist
 
 from ..lib import utils
 from ..widgets.carousel_widget import CarouselWidget
+from ..widgets.top_hit_widget import TopHitWidget
 
 import threading
 import requests
@@ -62,11 +63,14 @@ class searchPage(Page):
         # print(query, results)
 
         top_hit = results["top_hit"]
+        top_hit_widget = TopHitWidget(top_hit, self.window)
+        self.page_content.append(top_hit_widget)
         # self.page_content.append(Gtk.Label(label=top_hit.name))
+        print(top_hit)
 
         # Adds a carousel with artists, albums and playlists if in the search results
 
-        carousel = self.get_carousel("Artists")
+        carousel = CarouselWidget("Artists")
         artists = results["artists"]
         if len(artists) > 0:
             self.page_content.append(carousel)
@@ -74,7 +78,7 @@ class searchPage(Page):
                 artist_card = self.get_artist_card(artist)
                 carousel.append_card(artist_card)
 
-        carousel = self.get_carousel("Albums")
+        carousel = CarouselWidget("Albums")
         albums = results["albums"]
         if len(albums) > 0:
             self.page_content.append(carousel)
@@ -82,7 +86,7 @@ class searchPage(Page):
                 album_card = self.get_album_card(album)
                 carousel.append_card(album_card)
 
-        carousel = self.get_carousel("Playlists")
+        carousel = CarouselWidget("Playlists")
         playlists = results["playlists"]
         if len(playlists) > 0:
             self.page_content.append(carousel)
