@@ -53,7 +53,27 @@ class fromFunctionPage(Page):
         self.type = _type
         self.function = _function
 
+        self.parent = None
+
+        self.items_limit = 10
+        self.items_n = 0
+
+        self.scrolled_window.connect("edge-overshot", self.on_edge_overshot)
+
+    def on_edge_overshot(self, scrolled_window, pos):
+        if pos == Gtk.PositionType.BOTTOM:
+            th = threading.Thread(target=self.load_items)
+            th.deamon = True
+            th.start()
+            print("reached bottom")
+
     def _load_page(self):
+        self.load_items()
+
+        self._page_loaded()
+
+    def load_items(self):
+        print(f"loading {self.items_n} more {self.type}")
         if self.type == "track":
             self.add_tracks()
         elif self.type == "mix":
@@ -65,59 +85,77 @@ class fromFunctionPage(Page):
         elif self.type == "playlist":
             self.add_playlists()
 
-        self._page_loaded()
-
     def add_tracks(self):
-        tracks_list_box = Gtk.ListBox(css_classes=["boxed-list"], margin_bottom=12, margin_start=12, margin_end=12, margin_top=12)
-        self.page_content.append(tracks_list_box)
+        if self.parent == None:
+            self.parent = Gtk.ListBox(css_classes=["boxed-list"], margin_bottom=12, margin_start=12, margin_end=12, margin_top=12)
+            self.page_content.append(self.parent)
 
-        tracks = self.function(limit=50)
-        tracks_list_box.connect("row-activated", self.on_tracks_row_selected, favourite_tracks)
+        tracks = self.function(limit=self.items_limit, offset=(self.items_n))
+        self.items_n += self.items_limit
+        # self.parent.connect("row-activated", self.on_tracks_row_selected, favourite_tracks)
 
-        for index, track in enumerate(favourite_tracks):
+        for index, track in enumerate(tracks):
             listing = self.get_track_listing(track)
             listing.set_name(str(index))
-            tracks_list_box.append(listing)
+            self.parent.append(listing)
+
+            print("adding track")
 
     def add_mixes(self):
-        flow_box = Gtk.FlowBox(selection_mode=0)
-        self.page_content.append(flow_box)
+        if self.parent == None:
+            self.parent = Gtk.FlowBox(selection_mode=0)
+            self.page_content.append(self.parent)
 
-        mixes = self.function(limit=50)
+        mixes = self.function(limit=self.items_limit, offset=(self.items_n))
+        self.items_n += self.items_limit
 
         for index, mix in enumerate(mixes):
             card = self.get_mix_card(mix)
-            flow_box.append(card)
+            self.parent.append(card)
+
+            print("adding mix")
 
     def add_artists(self):
-        flow_box = Gtk.FlowBox(selection_mode=0)
-        self.page_content.append(flow_box)
+        if self.parent == None:
+            self.parent = Gtk.FlowBox(selection_mode=0)
+            self.page_content.append(self.parent)
 
-        artists = self.function(limit=50)
+        artists = self.function(limit=self.items_limit, offset=(self.items_n))
+        self.items_n += self.items_limit
 
         for index, artist in enumerate(artists):
             card = self.get_artist_card(artist)
-            flow_box.append(card)
+            self.parent.append(card)
+
+            print("adding artist")
 
     def add_playlists(self):
-        flow_box = Gtk.FlowBox(selection_mode=0)
-        self.page_content.append(flow_box)
+        if self.parent == None:
+            self.parent = Gtk.FlowBox(selection_mode=0)
+            self.page_content.append(self.parent)
 
-        playlists = self.function(limit=50)
+        playlists = self.function(limit=self.items_limit, offset=(self.items_n))
+        self.items_n += self.items_limit
 
         for index, playlist in enumerate(playlists):
             card = self.get_playlist_card(playlist)
-            flow_box.append(card)
+            self.parent.append(card)
+
+            print("adding playlist")
 
     def add_albums(self):
-        flow_box = Gtk.FlowBox(selection_mode=0)
-        self.page_content.append(flow_box)
+        if self.parent == None:
+            self.parent = Gtk.FlowBox(selection_mode=0)
+            self.page_content.append(self.parent)
 
-        albums = self.function(limit=50)
+        albums = self.function(limit=self.items_limit, offset=(self.items_n))
+        self.items_n += self.items_limit
 
         for index, album in enumerate(albums):
             card = self.get_album_card(album)
-            flow_box.append(card)
+            self.parent.append(card)
+
+            print("adding album")
 
     def on_tracks_row_selected(self, list_box, row, favourite_tracks):
         index = int(row.get_name())
