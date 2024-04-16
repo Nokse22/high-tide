@@ -32,7 +32,8 @@ from tidalapi.media import Track
 from tidalapi.playlist import Playlist
 
 from ..lib import utils
-from ..widgets.carousel_widget import CarouselWidget
+from ..widgets import CarouselWidget
+from ..widgets import TracksListWidget
 
 import threading
 import requests
@@ -63,8 +64,8 @@ class artistPage(Page):
 
         page_content = builder.get_object("_main")
         top_tracks_list_box = builder.get_object("_top_tracks_list_box")
-        carousel_box = builder.get_object("_carousel_box")
-        top_tracks_list_box.connect("row-activated", self.on_row_selected)
+        content_box = builder.get_object("_content_box")
+        # top_tracks_list_box.connect("row-activated", self.on_row_selected)
 
         builder.get_object("_name_label").set_label(self.artist.name)
 
@@ -87,15 +88,18 @@ class artistPage(Page):
 
         builder.get_object("_first_subtitle_label").set_label(roles_str)
 
-        try:
-            self.top_tracks = self.artist.get_top_tracks(10)
-        except:
-            pass
-        else:
-            for index, track in enumerate(self.top_tracks):
-                listing = self.get_track_listing(track)
-                listing.set_name(str(index))
-                top_tracks_list_box.append(listing)
+        tracks_list_widget = TracksListWidget("Top Tracks", self.window, self.artist.get_top_tracks)
+        content_box.append(tracks_list_widget)
+
+        # try:
+        #     self.top_tracks = self.artist.get_top_tracks(10)
+        # except:
+        #     pass
+        # else:
+        #     for index, track in enumerate(self.top_tracks):
+        #         listing = self.get_track_listing(track)
+        #         listing.set_name(str(index))
+        #         top_tracks_list_box.append(listing)
 
         carousel = CarouselWidget("Albums", self.window)
         try:
@@ -105,7 +109,7 @@ class artistPage(Page):
             pass
         else:
             if len(albums) != 0:
-                carousel_box.append(carousel)
+                content_box.append(carousel)
                 for album in albums:
                     album_card = self.get_album_card(album)
                     carousel.append_card(album_card)
@@ -118,7 +122,7 @@ class artistPage(Page):
             pass
         else:
             if len(albums) != 0:
-                carousel_box.append(carousel)
+                content_box.append(carousel)
                 for album in albums:
                     album_card = self.get_album_card(album)
                     carousel.append_card(album_card)
@@ -131,7 +135,7 @@ class artistPage(Page):
             pass
         else:
             if len(albums) != 0:
-                carousel_box.append(carousel)
+                content_box.append(carousel)
                 for album in albums:
                     album_card = self.get_album_card(album)
                     carousel.append_card(album_card)
@@ -140,11 +144,12 @@ class artistPage(Page):
         try:
             artists = self.artist.get_similar(limit=10)
             carousel.set_more_action("artist", self.artist.get_similar)
+            print(artists)
         except:
             pass
         else:
             if len(artists) != 0:
-                carousel_box.append(carousel)
+                content_box.append(carousel)
                 for artist in artists:
                     artist_card = self.get_artist_card(artist)
                     carousel.append_card(artist_card)
@@ -157,7 +162,7 @@ class artistPage(Page):
             expander = Gtk.Expander(label="Bio", css_classes=["title-3"], margin_bottom=50)
             label = Gtk.Label(label=bio, wrap=True, css_classes=[])
             expander.set_child(label)
-            carousel_box.append(expander)
+            content_box.append(expander)
 
         self.page_content.append(page_content)
         self._page_loaded()
