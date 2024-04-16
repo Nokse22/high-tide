@@ -45,8 +45,3 @@ class startUpPage(Page):
 
     def _load_page(self):
         self.set_tag("loading-page")
-
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/home_page_template.ui")
-
-        page_content = builder.get_object("_main")
-        content = builder.get_object("_content")
