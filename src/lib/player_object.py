@@ -172,6 +172,8 @@ class playerObject(GObject.GObject):
 
         print(f"Shuffle mode is {self.shuffle_mode}")
 
+        print(f"The queue is {len(self.queue)} long and the tracks to play are {len(self.tracks_to_play)}")
+
         # If the queue is not empty it plays the first song in the queue
         if len(self.queue) != 0:
             track = self.queue[0]
