@@ -48,6 +48,15 @@ class TidalApplication(Adw.Application):
         self.create_action('download', self.on_download, ['<primary>d'])
 
         css = '''
+        .hover-show{
+            opacity:0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .hover-show:hover{
+            opacity:100;
+        }
+
         .small-pill{
 	        border-radius:60px;
         }
