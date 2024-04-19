@@ -8,12 +8,11 @@
     <property name="margin-bottom">12</property>
     <property name="margin-end">12</property>
     <property name="margin-start">12</property>
+    <property name="margin-top">12</property>
     <property name="orientation">vertical</property>
     <property name="overflow">hidden</property>
     <child>
       <object class="GtkBox">
-        <property name="margin-bottom">6</property>
-        <property name="margin-top">12</property>
         <child>
           <object class="GtkLabel" id="title_label">
             <property name="css-classes">title-3</property>
@@ -29,7 +28,7 @@
             <property name="css-classes">small-pill</property>
             <property name="halign">end</property>
             <property name="hexpand">True</property>
-            <property name="margin-end">12</property>
+            <property name="margin-end">6</property>
             <property name="valign">center</property>
             <property name="visible">false</property>
             <signal name="clicked" handler="on_more_clicked"/>
@@ -40,9 +39,10 @@
     <child>
       <object class="GtkListBox" id="tracks_list_box">
         <property name="valign">start</property>
-        <property name="margin-top">12</property>
-        <property name="margin-start">12</property>
-        <property name="margin-end">12</property>
+        <property name="margin-top">6</property>
+        <property name="margin-start">6</property>
+        <property name="margin-end">6</property>
+        <property name="margin-bottom">6</property>
         <property name="css-classes">boxed-list</property>
       </object>
     </child>
