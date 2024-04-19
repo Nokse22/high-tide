@@ -77,6 +77,7 @@ class playlistPage(Page):
             listing.set_name(str(index))
             tracks_list_box.append(listing)
 
+        self.page_content.append(page_content)
         self._page_loaded()
 
     def on_row_selected(self, list_box, row):

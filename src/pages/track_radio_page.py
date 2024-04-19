@@ -85,8 +85,8 @@ class trackRadioPage(Page):
             listing.set_name(str(index))
             tracks_list_box.append(listing)
 
-        self.content.remove(self.spinner)
-        self.content.append(page_content)
+        self.page_content.append(page_content)
+        self._page_loaded()
 
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
