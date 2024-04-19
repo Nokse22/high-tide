@@ -53,6 +53,8 @@ class fromFunctionPage(Page):
 
         self.parent = None
 
+        self.tracks = []
+
         self.items_limit = 50
         self.items_n = 0
 
@@ -86,18 +88,17 @@ class fromFunctionPage(Page):
     def add_tracks(self):
         if self.parent == None:
             self.parent = Gtk.ListBox(css_classes=["boxed-list"], margin_bottom=12, margin_start=12, margin_end=12, margin_top=12)
-            self.page_content.append(self.parent)
+            GLib.idle_add(self.page_content.append,self.parent)
 
-        tracks = self.function(limit=self.items_limit, offset=(self.items_n))
+        new_tracks = self.function(limit=self.items_limit, offset=(self.items_n))
+        self.tracks.extend(new_tracks)
         self.items_n += self.items_limit
-        # self.parent.connect("row-activated", self.on_tracks_row_selected, favourite_tracks)
+        self.parent.connect("row-activated", self.on_tracks_row_selected)
 
-        for index, track in enumerate(tracks):
+        for index, track in enumerate(new_tracks):
             listing = self.get_track_listing(track)
             listing.set_name(str(index))
             self.parent.append(listing)
-
-            print("adding track")
 
     def add_mixes(self):
         if self.parent == None:
@@ -109,7 +110,7 @@ class fromFunctionPage(Page):
 
         for index, mix in enumerate(mixes):
             card = self.get_mix_card(mix)
-            self.parent.append(card)
+            GLib.idle_add(self.parent.append, card)
 
             print("adding mix")
 
@@ -123,7 +124,7 @@ class fromFunctionPage(Page):
 
         for index, artist in enumerate(artists):
             card = self.get_artist_card(artist)
-            self.parent.append(card)
+            GLib.idle_add(self.parent.append, card)
 
             print("adding artist")
 
@@ -137,7 +138,7 @@ class fromFunctionPage(Page):
 
         for index, playlist in enumerate(playlists):
             card = self.get_playlist_card(playlist)
-            self.parent.append(card)
+            GLib.idle_add(self.parent.append, card)
 
             print("adding playlist")
 
@@ -151,16 +152,11 @@ class fromFunctionPage(Page):
 
         for index, album in enumerate(albums):
             card = self.get_album_card(album)
-            self.parent.append(card)
+            GLib.idle_add(self.parent.append, card)
 
             print("adding album")
 
-    def on_tracks_row_selected(self, list_box, row, favourite_tracks):
+    def on_tracks_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        self.window.player_object.current_mix_album_list = favourite_tracks
-        track = favourite_tracks[index]
-        print(track)
-        self.window.player_object.song_album = track.album
-        self.window.player_object.play_track(track)
-        self.window.player_object.current_song_index = index
+        self.window.player_object.play_this(self.tracks, index)
