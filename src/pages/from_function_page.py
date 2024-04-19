@@ -45,8 +45,6 @@ class fromFunctionPage(Page):
 
     """Used to display lists of albums/artists/mixes/playlists and tracks from a request function"""
 
-    # TODO load only a fixed number of items at first then if the page is scrolled down load some more
-
     def __init__(self, _window, _function, _type):
         super().__init__(_window, _function, _type)
 
@@ -55,7 +53,7 @@ class fromFunctionPage(Page):
 
         self.parent = None
 
-        self.items_limit = 10
+        self.items_limit = 50
         self.items_n = 0
 
         self.scrolled_window.connect("edge-overshot", self.on_edge_overshot)
