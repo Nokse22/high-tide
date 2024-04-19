@@ -21,12 +21,31 @@
             <property name="overflow">hidden</property>
             <signal name="clicked" handler="on_image_button_clicked"/>
             <child>
-              <object class="GtkImage" id="image">
-                <property name="halign">center</property>
-                <property name="icon-name">emblem-music-symbolic</property>
-                <property name="pixel-size">155</property>
-                <property name="valign">center</property>
-                <property name="css-classes">card-image</property>
+              <object class="GtkOverlay">
+                <child>
+                  <object class="GtkImage" id="image">
+                    <property name="halign">center</property>
+                    <property name="icon-name">emblem-music-symbolic</property>
+                    <property name="pixel-size">155</property>
+                    <property name="valign">center</property>
+                    <property name="css-classes">card-image</property>
+                  </object>
+                </child>
+                <child type="overlay">
+                  <object class="GtkButton" id="play_button">
+                    <property name="valign">center</property>
+                    <property name="halign">center</property>
+                    <property name="margin-start">80</property>
+                    <property name="margin-top">80</property>
+                    <!-- <signal name="clicked" handler="on_artist_button_clicked"/> -->
+                    <property name="icon-name">media-playback-start-symbolic</property>
+                    <style>
+                      <class name="hover-show"/>
+                      <class name="osd"/>
+                      <class name="pill"/>
+                    </style>
+                  </object>
+                </child>
               </object>
             </child>
           </object>
