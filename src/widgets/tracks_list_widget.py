@@ -47,6 +47,8 @@ class TracksListWidget(Gtk.Box):
         self.more_button.set_visible(True)
         self.get_function = _function
 
+        self.tracks_list_box.connect("row-activated", self.on_tracks_row_selected)
+
         self.tracks = self.get_function(10)
         for index, track in enumerate(self.tracks):
             listing = GenericTrackWidget(track, self.window, False)
@@ -63,3 +65,10 @@ class TracksListWidget(Gtk.Box):
         page = fromFunctionPage(self.window, self.get_function, "track")
         page.load()
         self.window.navigation_view.push(page)
+
+    def on_tracks_row_selected(self, list_box, row):
+        index = int(row.get_name())
+
+        tracks = self.get_function(100)
+
+        self.window.player_object.play_this(tracks, index)
