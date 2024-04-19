@@ -10,6 +10,8 @@
           <object class="AdwBreakpointBin" id="_bin">
             <property name="width-request">10</property>
             <property name="height-request">150</property>
+            <property name="valign">start</property>
+            <property name="vexpand-set">true</property>
             <child>
               <object class="AdwBreakpoint">
                 <condition>max-width: 400px</condition>
@@ -42,10 +44,11 @@
                     <object class="GtkBox">
                       <property name="hexpand">True</property>
                       <property name="margin-top">12</property>
+                      <property name="margin-bottom">12</property>
                       <property name="orientation">vertical</property>
                       <child>
                         <object class="GtkLabel" id="_title_label">
-                          <property name="css-classes">title-2</property>
+                          <property name="css-classes">title-1</property>
                           <property name="ellipsize">end</property>
                           <property name="vexpand">True</property>
                           <property name="xalign">0.0</property>
@@ -57,6 +60,7 @@
                           <property name="ellipsize">end</property>
                           <property name="vexpand">True</property>
                           <property name="xalign">0.0</property>
+                          <property name="lines">2</property>
                         </object>
                       </child>
                       <child>
@@ -140,6 +144,7 @@
                       <property name="css-classes">dim-label</property>
                       <property name="valign">start</property>
                       <property name="ellipsize">end</property>
+                      <property name="lines">2</property>
                       <property name="wrap">true</property>
                       <property name="justify">center</property>
                       <property name="label" bind-source="_first_subtitle_label" bind-property="label"/>

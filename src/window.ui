@@ -33,6 +33,7 @@
         <setter object="play_button" property="css-classes">flat</setter>
         <setter object="playbar_controls_box" property="halign">end</setter>
         <setter object="playbar_controls_box" property="margin-end">12</setter>
+        <setter object="playbar_controls_box" property="margin-top">6</setter>
         <setter object="playing_track_image" property="pixel-size">50</setter>
         <setter object="image_overlay" property="margin-start">6</setter>
       </object>
@@ -524,7 +525,7 @@ flat</property>
                               <property name="margin-end">12</property>
                               <child>
                                 <object class="GtkLabel" id="time_played_label">
-                                  <property name="label" translatable="yes">00:00</property>
+                                  <property name="label">00:00</property>
                                   <property name="width-request">40</property>
                                 </object>
                               </child>
@@ -535,7 +536,7 @@ flat</property>
                                   <signal name="change-value" handler="on_slider_seek"/>
                                   <property name="adjustment">
                                     <object class="GtkAdjustment" id="progress_bar_adjustment">
-                                      <property name="upper">3.54</property>
+                                      <property name="upper">1.0</property>
                                       <property name="value">0.0</property>
                                     </object>
                                   </property>
@@ -543,7 +544,7 @@ flat</property>
                               </child>
                               <child>
                                 <object class="GtkLabel" id="duration_label">
-                                  <property name="label" translatable="yes">00:00</property>
+                                  <property name="label">00:00</property>
                                   <property name="width-request">40</property>
                                 </object>
                               </child>
@@ -675,7 +676,7 @@ flat</property>
                                     <child>
                                       <object class="GtkLabel">
                                         <property name="hexpand">True</property>
-                                        <property name="label">Playing from: Album</property>
+                                        <property name="label" translatable="yes">Playing from: Album</property>
                                         <property name="xalign">0.0</property>
                                       </object>
                                     </child>
@@ -744,21 +745,47 @@ flat</property>
                                     </child>
                                   </object>
                                 </child>
+
                                 <child>
-                                  <object class="GtkScale">
+                                  <object class="GtkBox">
                                     <property name="valign">center</property>
                                     <property name="vexpand">True</property>
-                                    <property name="adjustment">
-                                      <object class="GtkAdjustment">
-                                        <property name="upper" bind-source="progress_bar_adjustment" bind-property="upper"/>
-                                        <property name="value" bind-source="progress_bar_adjustment" bind-property="value"/>
-                                        <property name="lower" bind-source="progress_bar_adjustment" bind-property="lower"/>
+                                    <property name="hexpand">True</property>
+
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="label" bind-source="time_played_label" bind-property="label">00:00</property>
+                                        <property name="width-request">40</property>
                                       </object>
-                                    </property>
-                                    <property name="fill-level">0.8</property>
-                                    <property name="valign">start</property>
+                                    </child>
+
+                                    <child>
+                                      <object class="GtkScale">
+                                        <property name="vexpand">True</property>
+                                        <property name="hexpand">True</property>
+                                        <property name="adjustment">
+                                          <object class="GtkAdjustment">
+                                            <property name="upper" bind-source="progress_bar_adjustment" bind-property="upper" bind-flags="bidirectional | sync-create">1.0</property>
+                                            <property name="value" bind-source="progress_bar_adjustment" bind-property="value" bind-flags="bidirectional | sync-create">0.0</property>
+                                            <property name="lower" bind-source="progress_bar_adjustment" bind-property="lower" bind-flags="bidirectional | sync-create">0.0</property>
+                                          </object>
+                                        </property>
+                                        <property name="fill-level">0.8</property>
+                                        <property name="valign">start</property>
+                                      </object>
+                                    </child>
+
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="label" bind-source="duration_label" bind-property="label">00:00</property>
+                                        <property name="width-request">40</property>
+                                      </object>
+                                    </child>
+
                                   </object>
                                 </child>
+
+
                                 <child>
                                   <object class="GtkBox">
                                     <property name="halign">center</property>
@@ -910,19 +937,19 @@ circular</property>
       <item>
         <attribute name="action">track.radio</attribute>
         <attribute name="icon">address-book-new-symbolic</attribute>
-        <attribute name="label">Go to Radio</attribute>
+        <attribute name="label" translatable="yes">Go to Radio</attribute>
       </item>
       <item>
         <attribute name="action">track.album</attribute>
-        <attribute name="label">Go to Album</attribute>
+        <attribute name="label" translatable="yes">Go to Album</attribute>
       </item>
       <item>
         <attribute name="action">track.artist</attribute>
-        <attribute name="label">Go to Artist</attribute>
+        <attribute name="label" translatable="yes">Go to Artist</attribute>
       </item>
       <item>
         <attribute name="action">track.add-collection</attribute>
-        <attribute name="label">Add to my collection</attribute>
+        <attribute name="label" translatable="yes">Add to my collection</attribute>
       </item>
     </section>
   </menu>
