@@ -39,7 +39,8 @@ import requests
 import random
 
 from .page import Page
-from ..widgets.carousel_widget import CarouselWidget
+from ..widgets import CarouselWidget
+from ..widgets import TracksListWidget
 
 class homePage(Page):
     __gtype_name__ = 'homePage'
@@ -58,30 +59,31 @@ class homePage(Page):
             if isinstance(category.items[0], PageItem) or isinstance(category.items[0], PageLink):
                 continue
 
-            carousel = CarouselWidget(category.title)
-
-            if not isinstance(category.items[0], Track):
-                self.page_content.append(carousel)
+            if isinstance(category.items[0], Track):
+                tracks_list_widget = TracksListWidget(category.title, self.window)
+                tracks_list_widget.set_tracks_list(category.items)
+                self.page_content.append(tracks_list_widget)
             else:
-                continue
+                carousel = CarouselWidget(category.title)
+                self.page_content.append(carousel)
 
-            for item in category.items:
-                if isinstance(item, PageItem): # Featured
-                    items.append("\t" + item.short_header)
-                    items.append("\t" + item.short_sub_header[0:50])
-                    button = self.get_page_item_card(item)
-                    # cards_box.append(button)
-                elif isinstance(item, Mix): # Mixes and for you
-                    button = self.get_mix_card(item)
-                    carousel.append_card(button)
-                elif isinstance(item, Album):
-                    album_card = self.get_album_card(item)
-                    carousel.append_card(album_card)
-                elif isinstance(item, Artist):
-                    button = self.get_artist_card(item)
-                    carousel.append_card(button)
-                elif isinstance(item, Playlist):
-                    button = self.get_playlist_card(item)
-                    carousel.append_card(button)
+                for item in category.items:
+                    if isinstance(item, PageItem): # Featured
+                        items.append("\t" + item.short_header)
+                        items.append("\t" + item.short_sub_header[0:50])
+                        button = self.get_page_item_card(item)
+                        # cards_box.append(button)
+                    elif isinstance(item, Mix): # Mixes and for you
+                        button = self.get_mix_card(item)
+                        carousel.append_card(button)
+                    elif isinstance(item, Album):
+                        album_card = self.get_album_card(item)
+                        carousel.append_card(album_card)
+                    elif isinstance(item, Artist):
+                        button = self.get_artist_card(item)
+                        carousel.append_card(button)
+                    elif isinstance(item, Playlist):
+                        button = self.get_playlist_card(item)
+                        carousel.append_card(button)
 
         self._page_loaded()
