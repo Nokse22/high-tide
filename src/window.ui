@@ -36,6 +36,7 @@
         <setter object="playbar_controls_box" property="margin-top">6</setter>
         <setter object="playing_track_image" property="pixel-size">50</setter>
         <setter object="image_overlay" property="margin-start">6</setter>
+        <setter object="_center_control_box" property="width-request">-1</setter>
       </object>
     </child>
     <property name="content">
@@ -348,6 +349,7 @@
                       <object class="GtkBox" id="_song_box">
                         <property name="orientation">horizontal</property>
                         <property name="width-request">270</property>
+                        <property name="hexpand">true</property>
                           <child>
                             <object class="GtkButton" id="sidebar_show_button">
                               <property name="icon-name">sidebar-show-symbolic</property>
@@ -447,9 +449,10 @@
                       </object>
                     </child>
                       <child>
-                        <object class="GtkBox">
+                        <object class="GtkBox" id="_center_control_box">
                           <property name="orientation">vertical</property>
                           <property name="hexpand">true</property>
+                          <property name="width-request">320</property>
 
 
               <child>
@@ -555,8 +558,7 @@ flat</property>
                         </child>
                           <child>
                             <object class="GtkBox" id="_more_functions_box">
-                              <property name="width-request">270</property>
-                              <property name="hexpand-set">true</property>
+                              <property name="hexpand">true</property>
                               <property name="halign">end</property>
                               <!-- <property name="width-request">200</property> -->
                               <property name="margin-end">6</property>
