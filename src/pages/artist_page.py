@@ -88,7 +88,8 @@ class artistPage(Page):
 
         builder.get_object("_first_subtitle_label").set_label(roles_str)
 
-        tracks_list_widget = TracksListWidget("Top Tracks", self.window, self.artist.get_top_tracks)
+        tracks_list_widget = TracksListWidget("Top Tracks", self.window)
+        tracks_list_widget.set_function(self.artist.get_top_tracks)
         content_box.append(tracks_list_widget)
 
         # try:
