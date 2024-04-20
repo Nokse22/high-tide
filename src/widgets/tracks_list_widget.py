@@ -35,7 +35,7 @@ class TracksListWidget(Gtk.Box):
     more_button = Gtk.Template.Child()
     title_label = Gtk.Template.Child()
 
-    def __init__(self, _title, _window, _function):
+    def __init__(self, _title, _window):
         super().__init__()
 
         self.n_pages = 0
@@ -44,12 +44,25 @@ class TracksListWidget(Gtk.Box):
 
         self.title_label.set_label(_title)
 
-        self.more_button.set_visible(True)
-        self.get_function = _function
+        self.get_function = None
 
         self.tracks_list_box.connect("row-activated", self.on_tracks_row_selected)
 
+        self.tracks = []
+
+    def set_function(self, func):
+        self.get_function = func
         self.tracks = self.get_function(10)
+        self.more_button.set_visible(True)
+
+        self._add_tracks()
+
+    def set_tracks_list(self, tracks_list):
+        self.tracks = tracks_list
+
+        self._add_tracks()
+
+    def _add_tracks(self):
         for index, track in enumerate(self.tracks):
             listing = GenericTrackWidget(track, self.window, False)
             listing.set_name(str(index))
@@ -69,6 +82,4 @@ class TracksListWidget(Gtk.Box):
     def on_tracks_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        tracks = self.get_function(100)
-
-        self.window.player_object.play_this(tracks, index)
+        self.window.player_object.play_this(self.tracks, index)
