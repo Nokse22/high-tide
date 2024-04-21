@@ -53,8 +53,6 @@ class homePage(Page):
         home = self.window.session.home()
 
         for index, category in enumerate(home.categories):
-            if index > 8:
-                break
             items = []
             if isinstance(category.items[0], PageItem) or isinstance(category.items[0], PageLink):
                 continue
@@ -64,26 +62,16 @@ class homePage(Page):
                 tracks_list_widget.set_tracks_list(category.items)
                 self.page_content.append(tracks_list_widget)
             else:
-                carousel = CarouselWidget(category.title)
+                carousel = CarouselWidget(category.title, self.window)
                 self.page_content.append(carousel)
 
-                for item in category.items:
-                    if isinstance(item, PageItem): # Featured
-                        items.append("\t" + item.short_header)
-                        items.append("\t" + item.short_sub_header[0:50])
-                        button = self.get_page_item_card(item)
-                        # cards_box.append(button)
-                    elif isinstance(item, Mix): # Mixes and for you
-                        button = self.get_mix_card(item)
-                        carousel.append_card(button)
-                    elif isinstance(item, Album):
-                        album_card = self.get_album_card(item)
-                        carousel.append_card(album_card)
-                    elif isinstance(item, Artist):
-                        button = self.get_artist_card(item)
-                        carousel.append_card(button)
-                    elif isinstance(item, Playlist):
-                        button = self.get_playlist_card(item)
-                        carousel.append_card(button)
+                if isinstance(category.items[0], Mix):
+                    carousel.set_items(category.items, "mix")
+                elif isinstance(category.items[0], Album):
+                    carousel.set_items(category.items, "album")
+                elif isinstance(category.items[0], Artist):
+                    carousel.set_items(category.items, "artist")
+                elif isinstance(category.items[0], Playlist):
+                    carousel.set_items(category.items, "playlist")
 
         self._page_loaded()
