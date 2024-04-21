@@ -65,6 +65,19 @@ class CardWidget(Gtk.Box):
             self.make_artist_card()
         elif isinstance(_item, PageItem):
             self.make_page_item_card()
+        elif isinstance(_item, Track):
+            self.make_track_card()
+
+    def make_track_card(self):
+        self.title_label.set_text(self.item.name)
+        self.detail_label.set_text(self.item.artist.name)
+        self.track_artist_label.set_visible(False)
+
+        self.item = self.item.album
+
+        th = threading.Thread(target=utils.add_image, args=(self.image, self.item))
+        th.deamon = True
+        th.start()
 
     def make_mix_card(self):
         self.title_label.set_text(self.item.title)
