@@ -23,6 +23,7 @@ from gi.repository import GLib
 from gi.repository import Gio
 
 from ..lib import utils
+from ..widgets import CardWidget
 
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/carousel_widget.ui')
 class CarouselWidget(Gtk.Box):
@@ -46,15 +47,17 @@ class CarouselWidget(Gtk.Box):
         self.title_label.set_label(title)
 
         self.more_function = None
-        self.more_type = None
+        self.type = None
+
+        self.items = []
 
         # self.card_width = 0
         # self.connect("notify::width", self._width_changed)
 
-    def set_more_action(self, _type, _function):
+    def set_more_function(self, _type, _function):
         self.more_button.set_visible(True)
         self.more_function = _function
-        self.more_type = _type
+        self.type = _type
 
     def append_card(self, card):
         self.carousel.append(card)
@@ -63,6 +66,19 @@ class CarouselWidget(Gtk.Box):
         if self.n_pages != 2:
             self.next_button.set_sensitive(True)
 
+    def set_items(self, items_list, items_type):
+        self.items = items_list
+        self.type = items_type
+
+        if not self.window:
+            return
+
+        for index, item in enumerate(self.items):
+            if index > 8:
+                self.more_button.set_visible(True)
+                break
+            self.append_card(CardWidget(item, self.window))
+
     @Gtk.Template.Callback("on_more_clicked")
     def on_more_clicked(self, *args):
         if not self.window:
@@ -70,7 +86,15 @@ class CarouselWidget(Gtk.Box):
 
         from ..pages import fromFunctionPage
 
-        page = fromFunctionPage(self, self.more_function, self.more_type)
+        if self.more_function == None:
+            page = fromFunctionPage(self, self.type)
+            page.set_items(self.items)
+        else:
+            page = fromFunctionPage(self, self.type)
+            page.set_function(self.more_function)
+
+        print(f"clicked more, items len:{len(self.items)}")
+
         page.load()
         self.window.navigation_view.push(page)
 
