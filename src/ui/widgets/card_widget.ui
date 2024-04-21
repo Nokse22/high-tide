@@ -37,6 +37,7 @@
                     <property name="halign">center</property>
                     <property name="margin-start">80</property>
                     <property name="margin-top">80</property>
+                    <property name="visible">false</property>
                     <!-- <signal name="clicked" handler="on_artist_button_clicked"/> -->
                     <property name="icon-name">media-playback-start-symbolic</property>
                     <style>

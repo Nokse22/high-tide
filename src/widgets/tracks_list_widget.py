@@ -75,7 +75,8 @@ class TracksListWidget(Gtk.Box):
 
         from ..pages import fromFunctionPage
 
-        page = fromFunctionPage(self.window, self.get_function, "track")
+        page = fromFunctionPage(self.window, "track")
+        page.set_function(self.get_function)
         page.load()
         self.window.navigation_view.push(page)
 
