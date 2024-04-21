@@ -39,33 +39,42 @@ import requests
 import random
 
 from .page import Page
+from ..widgets import CardWidget
 
 class fromFunctionPage(Page):
     __gtype_name__ = 'fromFunctionPage'
 
     """Used to display lists of albums/artists/mixes/playlists and tracks from a request function"""
 
-    def __init__(self, _window, _function, _type):
-        super().__init__(_window, _function, _type)
+    def __init__(self, _window, _type):
+        super().__init__(_window)
 
+        self.function = None
         self.type = _type
-        self.function = _function
+
+        self.set_title("More")
 
         self.parent = None
 
-        self.tracks = []
+        self.items = []
 
         self.items_limit = 50
         self.items_n = 0
 
+    def set_function(self, function):
+        self.function = function
+
         self.scrolled_window.connect("edge-overshot", self.on_edge_overshot)
+
+    def set_items(self, items):
+        self.items = items
+        print(len(items))
 
     def on_edge_overshot(self, scrolled_window, pos):
         if pos == Gtk.PositionType.BOTTOM:
             th = threading.Thread(target=self.load_items)
             th.deamon = True
             th.start()
-            print("reached bottom")
 
     def _load_page(self):
         self.load_items()
@@ -73,90 +82,50 @@ class fromFunctionPage(Page):
         self._page_loaded()
 
     def load_items(self):
-        print(f"loading {self.items_n} more {self.type}")
+        print(f"loading {self.items_n} of type {self.type}")
+
         if self.type == "track":
             self.add_tracks()
-        elif self.type == "mix":
-            self.add_mixes()
-        elif self.type == "album":
-            self.add_albums()
-        elif self.type == "artist":
-            self.add_artists()
-        elif self.type == "playlist":
-            self.add_playlists()
+        else:
+            self.add_cards()
 
     def add_tracks(self):
         if self.parent == None:
             self.parent = Gtk.ListBox(css_classes=["boxed-list"], margin_bottom=12, margin_start=12, margin_end=12, margin_top=12)
             GLib.idle_add(self.page_content.append,self.parent)
 
-        new_tracks = self.function(limit=self.items_limit, offset=(self.items_n))
-        self.tracks.extend(new_tracks)
+        new_items = []
+        if self.function:
+            new_items = self.function(limit=self.items_limit, offset=(self.items_n))
+            self.items.extend(new_items)
+        else:
+            new_items = self.items
         self.items_n += self.items_limit
         self.parent.connect("row-activated", self.on_tracks_row_selected)
 
-        for index, track in enumerate(new_tracks):
+        for index, track in enumerate(new_items):
             listing = self.get_track_listing(track)
             listing.set_name(str(index))
             self.parent.append(listing)
 
-    def add_mixes(self):
+    def add_cards(self):
         if self.parent == None:
             self.parent = Gtk.FlowBox(selection_mode=0)
             self.page_content.append(self.parent)
 
-        mixes = self.function(limit=self.items_limit, offset=(self.items_n))
+        new_items = []
+        if self.function:
+            new_items = self.function(limit=self.items_limit, offset=(self.items_n))
+            self.items.extend(new_items)
+        else:
+            new_items = self.items
         self.items_n += self.items_limit
 
-        for index, mix in enumerate(mixes):
-            card = self.get_mix_card(mix)
+        for index, item in enumerate(new_items):
+            card = CardWidget(item, self.window)
             GLib.idle_add(self.parent.append, card)
-
-            print("adding mix")
-
-    def add_artists(self):
-        if self.parent == None:
-            self.parent = Gtk.FlowBox(selection_mode=0)
-            self.page_content.append(self.parent)
-
-        artists = self.function(limit=self.items_limit, offset=(self.items_n))
-        self.items_n += self.items_limit
-
-        for index, artist in enumerate(artists):
-            card = self.get_artist_card(artist)
-            GLib.idle_add(self.parent.append, card)
-
-            print("adding artist")
-
-    def add_playlists(self):
-        if self.parent == None:
-            self.parent = Gtk.FlowBox(selection_mode=0)
-            self.page_content.append(self.parent)
-
-        playlists = self.function(limit=self.items_limit, offset=(self.items_n))
-        self.items_n += self.items_limit
-
-        for index, playlist in enumerate(playlists):
-            card = self.get_playlist_card(playlist)
-            GLib.idle_add(self.parent.append, card)
-
-            print("adding playlist")
-
-    def add_albums(self):
-        if self.parent == None:
-            self.parent = Gtk.FlowBox(selection_mode=0)
-            self.page_content.append(self.parent)
-
-        albums = self.function(limit=self.items_limit, offset=(self.items_n))
-        self.items_n += self.items_limit
-
-        for index, album in enumerate(albums):
-            card = self.get_album_card(album)
-            GLib.idle_add(self.parent.append, card)
-
-            print("adding album")
 
     def on_tracks_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        self.window.player_object.play_this(self.tracks, index)
+        self.window.player_object.play_this(self.items, index)
