@@ -65,7 +65,6 @@ class artistPage(Page):
         page_content = builder.get_object("_main")
         top_tracks_list_box = builder.get_object("_top_tracks_list_box")
         content_box = builder.get_object("_content_box")
-        # top_tracks_list_box.connect("row-activated", self.on_row_selected)
 
         builder.get_object("_name_label").set_label(self.artist.name)
 
@@ -92,20 +91,10 @@ class artistPage(Page):
         tracks_list_widget.set_function(self.artist.get_top_tracks)
         content_box.append(tracks_list_widget)
 
-        # try:
-        #     self.top_tracks = self.artist.get_top_tracks(10)
-        # except:
-        #     pass
-        # else:
-        #     for index, track in enumerate(self.top_tracks):
-        #         listing = self.get_track_listing(track)
-        #         listing.set_name(str(index))
-        #         top_tracks_list_box.append(listing)
-
         carousel = CarouselWidget("Albums", self.window)
         try:
             albums = self.artist.get_albums(limit=10)
-            carousel.set_more_action("album", self.artist.get_albums)
+            carousel.set_more_function("album", self.artist.get_albums)
         except:
             pass
         else:
@@ -118,7 +107,7 @@ class artistPage(Page):
         carousel = CarouselWidget("EP & Singles", self.window)
         try:
             albums = self.artist.get_albums_ep_singles(limit=10)
-            carousel.set_more_action("album", self.artist.get_albums_ep_singles)
+            carousel.set_more_function("album", self.artist.get_albums_ep_singles)
         except:
             pass
         else:
@@ -131,7 +120,7 @@ class artistPage(Page):
         carousel = CarouselWidget("Appears On", self.window)
         try:
             albums = self.artist.get_albums_other(limit=10)
-            carousel.set_more_action("album", self.artist.get_albums_other)
+            carousel.set_more_function("album", self.artist.get_albums_other)
         except:
             pass
         else:
@@ -144,8 +133,7 @@ class artistPage(Page):
         carousel = CarouselWidget("Similar Artists", self.window)
         try:
             artists = self.artist.get_similar(limit=10)
-            carousel.set_more_action("artist", self.artist.get_similar)
-            print(artists)
+            carousel.set_more_function("artist", self.artist.get_similar)
         except:
             pass
         else:
