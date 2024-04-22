@@ -452,7 +452,7 @@
                         <object class="GtkBox" id="_center_control_box">
                           <property name="orientation">vertical</property>
                           <property name="hexpand">true</property>
-                          <property name="width-request">320</property>
+                          <property name="width-request">360</property>
 
 
               <child>

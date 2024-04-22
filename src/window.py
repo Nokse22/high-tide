@@ -58,7 +58,7 @@ from .lib import SecretStore
 
 from .widgets.generic_track_widget import GenericTrackWidget
 
-@Gtk.Template(resource_path='/io/github/nokse22/HighTide/window.ui')
+@Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/window.ui')
 class HighTideWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'HighTideWindow'
 

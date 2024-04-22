@@ -1,0 +1,89 @@
+.hover-show{
+    opacity:0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.hover-show:hover{
+    opacity:100;
+}
+
+.small-pill{
+  border-radius:60px;
+}
+
+.card-image{
+    border-radius:10px;
+    transition: opacity 0.1s ease-in-out;
+}
+
+.card-image:hover{
+    opacity: 0.8;
+}
+
+.small-image{
+    border-radius:4px;
+}
+
+.card-bg{
+    transition: opacity 0.1s ease-in-out;
+    border-radius:14px;
+}
+
+.card-bg:hover{
+    transition: background-color 0.1s ease-in-out;
+    background-color:@card_shade_color;
+  border-radius:14px;
+}
+
+.link-text{
+    color: #888;
+    text-decoration: underline;
+    transition: color 0.3s ease-in-out;
+    background-color: transparent;
+    font-weight: normal;
+}
+
+.link-text:hover{
+    color: #444;
+}
+
+.card-label{
+    padding:6px;
+}
+
+.card-button{
+    padding:0px;
+    border-radius:10px;
+    background-color:black;
+}
+
+.artist-button{
+    padding:0px;
+}
+
+.play-btn{
+    padding-left:18px;
+    padding-right:18px;
+    padding-top:8px;
+    padding-bottom:8px;
+}
+
+.artist-picture{
+    border-radius:100px;
+}
+
+.lyrics{
+    font-weight:bold;
+    font-size:16pt;
+    color:@theme_text_color;
+}
+
+.explicit-label{
+  padding:0px;
+  padding-left:3px;
+  padding-right:3px;
+  background-color:@popover_shade_color;
+  border-radius:4px;
+  font-size:11pt;
+  font-weight:bold;
+}

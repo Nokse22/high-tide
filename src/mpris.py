@@ -1,4 +1,6 @@
 # Forked from:
+# https://github.com/rafaelmardojai/blanket/blob/master/blanket/mpris.py
+# Forked from:
 # https://gitlab.gnome.org/World/lollypop/-/blob/master/lollypop/mpris.py
 #
 # Copyright (c) 2014-2020 Cedric Bellegarde <cedric.bellegarde@adishatz.org>
@@ -7,6 +9,7 @@
 # Copyright (c) 2013 Arnel A. Borja <kyoushuu@yahoo.com>
 # Copyright (c) 2013 Vadim Rutkovsky <vrutkovs@redhat.com>
 # Copyright (c) 2020 Rafael Mardojai CM
+# Copyright (c) 2023 Nokse22
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gettext import gettext as _

@@ -47,104 +47,6 @@ class TidalApplication(Adw.Application):
         self.create_action('log-out', self.on_logout_action)
         self.create_action('download', self.on_download, ['<primary>d'])
 
-        css = '''
-        .hover-show{
-            opacity:0;
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        .hover-show:hover{
-            opacity:100;
-        }
-
-        .small-pill{
-	        border-radius:60px;
-        }
-
-        .card-image{
-            border-radius:10px;
-            transition: opacity 0.1s ease-in-out;
-        }
-
-        .card-image:hover{
-            opacity: 0.8;
-        }
-
-        .small-image{
-            border-radius:4px;
-        }
-
-        .card-bg{
-            transition: opacity 0.1s ease-in-out;
-	        border-radius:14px;
-        }
-
-        .card-bg:hover{
-            transition: background-color 0.1s ease-in-out;
-            background-color:@card_shade_color;
-	        border-radius:14px;
-        }
-
-        .link-text{
-            color: #888;
-            text-decoration: underline;
-            transition: color 0.3s ease-in-out;
-            background-color: transparent;
-            font-weight: normal;
-        }
-
-        .link-text:hover{
-            color: #444;
-        }
-
-        .card-label{
-            padding:6px;
-        }
-
-        .card-button{
-            padding:0px;
-            border-radius:10px;
-            background-color:black;
-        }
-
-        .artist-button{
-            padding:0px;
-        }
-
-        .play-btn{
-            padding-left:18px;
-            padding-right:18px;
-            padding-top:8px;
-            padding-bottom:8px;
-        }
-
-        .artist-picture{
-            border-radius:100px;
-        }
-
-        .lyrics{
-            font-weight:bold;
-            font-size:16pt;
-            color:@theme_text_color;
-        }
-
-        .explicit-label{
-	        padding:0px;
-	        padding-left:3px;
-	        padding-right:3px;
-	        background-color:@popover_shade_color;
-	        border-radius:4px;
-	        font-size:11pt;
-	        font-weight:bold;
-        }
-        '''
-        css_provider = Gtk.CssProvider()
-        css_provider.load_from_data(css, -1)
-        Gtk.StyleContext.add_provider_for_display(
-            Gdk.Display.get_default(),
-            css_provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-
         variables.init()
 
     def on_download(self, *args):
@@ -184,7 +86,7 @@ class TidalApplication(Adw.Application):
         """Callback for the app.preferences action."""
         print('app.preferences action activated')
 
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/preferences.ui")
+        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/preferences.ui")
 
         builder.get_object("_quality_row").connect("notify::selected", self.on_quality_changed)
         builder.get_object("_quality_row").set_selected(self.win.settings.get_int("quality"))

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/io/github/nokse22/HighTide">
-    <file preprocess="xml-stripblanks">window.ui</file>
-    <file preprocess="xml-stripblanks">login.ui</file>
+    <file>style.css</file>
+    <file>style-dark.css</file>
+    <file preprocess="xml-stripblanks">ui/window.ui</file>
+    <file preprocess="xml-stripblanks">ui/login.ui</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
-    <file preprocess="xml-stripblanks">preferences.ui</file>
-    <file preprocess="xml-stripblanks">new_playlist.ui</file>
+    <file preprocess="xml-stripblanks">ui/preferences.ui</file>
+    <file preprocess="xml-stripblanks">ui/new_playlist.ui</file>
     <file preprocess="xml-stripblanks">ui/detailed_track_listing.ui</file>
     <file preprocess="xml-stripblanks">ui/card_template.ui</file>
     <file preprocess="xml-stripblanks">ui/pages_ui/page_template.ui</file>

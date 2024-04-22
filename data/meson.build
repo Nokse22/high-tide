@@ -7,6 +7,14 @@ desktop_file = i18n.merge_file(
   install_dir: join_paths(get_option('datadir'), 'applications')
 )
 
+pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
+gnome.compile_resources('HighTide',
+  'HighTide.gresource.xml',
+  gresource_bundle: true,
+  install: true,
+  install_dir: pkgdatadir,
+)
+
 desktop_utils = find_program('desktop-file-validate', required: false)
 if desktop_utils.found()
   test('Validate desktop file', desktop_utils, args: [desktop_file])
