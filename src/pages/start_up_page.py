@@ -40,6 +40,8 @@ import random
 
 from .page import Page
 
+from ..lib import variables
+
 class startUpPage(Page):
     __gtype_name__ = 'startUpPage'
 

@@ -3,11 +3,13 @@
 <interface>
   <!-- interface-name card_template.ui -->
   <requires lib="gtk" version="4.6"/>
-  <template class="CardWidget" parent="GtkBox">
+  <template class="CardWidget" parent="AdwBreakpointBin">
     <property name="css-classes">card-bg</property>
     <property name="hexpand">true</property>
     <property name="halign">center</property>
-    <child>
+    <property name="width-request">167</property>
+    <property name="height-request">214</property>
+    <property name="child">
       <object class="GtkBox">
         <property name="margin-bottom">6</property>
         <property name="margin-end">6</property>
@@ -52,27 +54,34 @@
           </object>
         </child>
         <child>
-          <object class="GtkInscription" id="title_label">
+          <object class="GtkLabel" id="title_label">
             <property name="css-classes">title-4</property>
-            <property name="hexpand">true</property>
+            <property name="max-width-chars">15</property>
+            <property name="xalign">0</property>
+            <property name="ellipsize">end</property>
           </object>
         </child>
         <child>
           <object class="GtkBox" id="details_box">
             <child>
-              <object class="GtkInscription" id="detail_label">
+              <object class="GtkLabel" id="detail_label">
                 <property name="css-classes">dim-label</property>
-                <property name="hexpand">true</property>
+                <property name="max-width-chars">17</property>
+                <property name="xalign">0</property>
+                <property name="ellipsize">end</property>
               </object>
             </child>
             <child>
              <object class="ArtistLabelWidget" id="track_artist_label">
               <signal name="activate-link" handler="on_artist_link_clicked"/>
+               <property name="ellipsize">end</property>
+               <property name="max-width-chars">17</property>
+               <property name="xalign">0</property>
             </object>
           </child>
           </object>
         </child>
       </object>
-    </child>
+    </property>
   </template>
 </interface>

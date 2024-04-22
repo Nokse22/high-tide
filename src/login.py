@@ -24,6 +24,8 @@ from gi.repository import GLib
 
 import tidalapi
 
+from .lib import variables
+
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/login.ui')
 class LoginWindow(Adw.Window):
     __gtype_name__ = 'LoginWindow'

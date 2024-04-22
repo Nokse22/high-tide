@@ -35,6 +35,10 @@
   border-radius:14px;
 }
 
+.artist-link{
+    color: #888;
+}
+
 .link-text{
     color: #888;
     text-decoration: underline;

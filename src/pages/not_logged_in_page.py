@@ -40,6 +40,8 @@ import random
 
 from .page import Page
 
+from ..lib import variables
+
 class notLoggedInPage(Page):
     __gtype_name__ = 'notLoggedInPage'
 

@@ -42,15 +42,16 @@ import os
 from ..widgets import GenericTrackWidget
 from ..widgets import CardWidget
 
+from ..lib import variables
+
 class Page(Adw.NavigationPage):
     __gtype_name__ = 'Page'
 
     """It's the base class for all types of pages, it contains all the shared functions"""
 
-    def __init__(self, _window, _item=None, _name=None):
+    def __init__(self, _item=None, _name=None):
         super().__init__()
 
-        self.window = _window
         if _name:
             self.set_title(_name)
 
@@ -88,49 +89,49 @@ class Page(Adw.NavigationPage):
         GLib.idle_add(_add_content_to_page)
 
     def get_album_card(self, item):
-        card = CardWidget(item, self.window)
+        card = CardWidget(item)
         return card
 
     def get_track_listing(self, track):
-        track_listing = GenericTrackWidget(track, self.window, False)
+        track_listing = GenericTrackWidget(track, False)
         return track_listing
 
     def get_mix_card(self, item):
-        card = CardWidget(item, self.window)
+        card = CardWidget(item)
         return card
 
     def get_album_track_listing(self, track):
-        track_listing = GenericTrackWidget(track, self.window, True)
+        track_listing = GenericTrackWidget(track, True)
         return track_listing
 
     def get_playlist_card(self, playlist):
-        card = CardWidget(playlist, self.window)
+        card = CardWidget(playlist)
         return card
 
     def on_mix_button_clicked(self, btn, mix):
-        self.window.sidebar_list.select_row(None)
+        variables.sidebar_list.select_row(None)
 
         from .mix_page import mixPage
 
-        page = mixPage(self.window, mix, mix.title)
+        page = mixPage(mix, mix.title)
         page.load()
-        self.window.navigation_view.push(page)
+        variables.navigation_view.push(page)
 
     def on_play_button_clicked(self, btn):
-        self.window.player_object.play_this(self.item)
+        variables.player_object.play_this(self.item)
 
     def on_shuffle_button_clicked(self, btn):
-        self.window.player_object.shuffle_this(self.item)
+        variables.player_object.shuffle_this(self.item)
 
     def on_artist_button_clicked(self, btn, artist):
         print(artist)
-        self.window.sidebar_list.select_row(None)
+        variables.sidebar_list.select_row(None)
 
         from .artist_page import artistPage
 
-        page = artistPage(self.window, artist, artist.name)
+        page = artistPage(artist, artist.name)
         page.load()
-        self.window.navigation_view.push(page)
+        variables.navigation_view.push(page)
 
     def get_link_carousel(self, title):
 
@@ -181,37 +182,37 @@ class Page(Adw.NavigationPage):
         carousel.scroll_to(next_page, True)
 
     def on_playlist_button_clicked(self, btn, playlist):
-        self.window.sidebar_list.select_row(None)
+        variables.sidebar_list.select_row(None)
 
         from .playlist_page import playlistPage
 
-        page = playlistPage(self.window, playlist, playlist.name)
+        page = playlistPage(playlist, playlist.name)
         page.load()
-        self.window.navigation_view.push(page)
+        variables.navigation_view.push(page)
 
     def on_album_button_clicked(self, btn, album):
-        self.window.sidebar_list.select_row(None)
-        self.window.player_object.current_mix_album = album
+        variables.sidebar_list.select_row(None)
+        variables.player_object.current_mix_album = album
 
         from .album_page import albumPage
 
-        page = albumPage(self.window, album, album.name)
+        page = albumPage(album, album.name)
         page.load()
-        self.window.navigation_view.push(page)
+        variables.navigation_view.push(page)
 
     def get_artist_page(self, artist):
         from .artist_page import artistPage
 
-        page = artistPage(self.window, artist, artist.name)
+        page = artistPage(artist, artist.name)
         page.load()
-        self.window.navigation_view.push(page)
+        variables.navigation_view.push(page)
 
     def get_artist_card(self, item):
-        card = CardWidget(item, self.window)
+        card = CardWidget(item)
         return card
 
     def get_page_item_card(self, page_item):
-        card = CardWidget(page_item, self.window)
+        card = CardWidget(page_item)
         return card
 
     def get_page_link_card(self, page_link):
@@ -223,23 +224,23 @@ class Page(Adw.NavigationPage):
     def on_page_link_clicked(self, btn, page_link):
         from .generic_page import genericPage
 
-        page = genericPage(self.window, page_link, page_link.title)
+        page = genericPage(page_link, page_link.title)
         page.load()
-        self.window.navigation_view.push(page)
+        variables.navigation_view.push(page)
 
     def add_to_my_collection(self, btn, item):
         print(item)
         if isinstance(item, Track):
-            result = self.window.session.user.favorites.add_track(item.id)
+            result = variables.session.user.favorites.add_track(item.id)
         elif isinstance(item, Mix):
             return # still not supported
-            result = self.window.session.user.favorites.add_mix(item.id)
+            result = variables.session.user.favorites.add_mix(item.id)
         elif isinstance(item, Album):
-            result = self.window.session.user.favorites.add_album(item.id)
+            result = variables.session.user.favorites.add_album(item.id)
         elif isinstance(item, Artist):
-            result = self.window.session.user.favorites.add_artist(item.id)
+            result = variables.session.user.favorites.add_artist(item.id)
         elif isinstance(item, Playlist):
-            result = self.window.session.user.favorites.add_playlist(item.id)
+            result = variables.session.user.favorites.add_playlist(item.id)
         else:
             result = False
 
@@ -251,17 +252,17 @@ class Page(Adw.NavigationPage):
 
     def remove_from_my_collection(self, btn, item):
         if isinstance(item, Track):
-            result = self.window.session.user.favorites.remove_track(item.id)
+            result = variables.session.user.favorites.remove_track(item.id)
         elif isinstance(item, Mix):
             return # still not supported
-            result = self.window.session.user.favorites.remove_mix(item.id)
+            result = variables.session.user.favorites.remove_mix(item.id)
         elif isinstance(item, Album):
-            result = self.window.session.user.favorites.remove_album(item.id)
+            result = variables.session.user.favorites.remove_album(item.id)
             print("adding album")
         elif isinstance(item, Artist):
-            result = self.window.session.user.favorites.remove_artist(item.id)
+            result = variables.session.user.favorites.remove_artist(item.id)
         elif isinstance(item, Playlist):
-            result = self.window.session.user.favorites.remove_playlist(item.id)
+            result = variables.session.user.favorites.remove_playlist(item.id)
         else:
             result = False
 
@@ -281,6 +282,6 @@ class Page(Adw.NavigationPage):
         from .pages import artistPage
 
         artist = Artist(self.session, uri)
-        page = artistPage(self, artist, artist.name)
+        page = artistPage(artist, artist.name)
         page.load()
         self.navigation_view.push(page)

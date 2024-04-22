@@ -25,6 +25,8 @@ from gi.repository import Gio
 from ..lib import utils
 from ..widgets import CardWidget
 
+from ..lib import variables
+
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/carousel_widget.ui')
 class CarouselWidget(Gtk.Box):
     __gtype_name__ = 'CarouselWidget'
@@ -37,12 +39,10 @@ class CarouselWidget(Gtk.Box):
     carousel = Gtk.Template.Child()
     more_button = Gtk.Template.Child()
 
-    def __init__(self, title="", _window=None):
+    def __init__(self, title=""):
         super().__init__()
 
         self.n_pages = 0
-
-        self.window = _window if not None else None
 
         self.title_label.set_label(title)
 
@@ -70,14 +70,11 @@ class CarouselWidget(Gtk.Box):
         self.items = items_list
         self.type = items_type
 
-        if not self.window:
-            return
-
         for index, item in enumerate(self.items):
             if index > 8:
                 self.more_button.set_visible(True)
                 break
-            self.append_card(CardWidget(item, self.window))
+            self.append_card(CardWidget(item))
 
     @Gtk.Template.Callback("on_more_clicked")
     def on_more_clicked(self, *args):
@@ -96,7 +93,7 @@ class CarouselWidget(Gtk.Box):
         print(f"clicked more, items len:{len(self.items)}")
 
         page.load()
-        self.window.navigation_view.push(page)
+        variables.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_next_clicked")
     def carousel_go_next(self, btn):

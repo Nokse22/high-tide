@@ -30,6 +30,8 @@ from ..lib import utils
 
 from tidalapi.user import Favorites
 
+from ..lib import variables
+
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/generic_track_widget.ui')
 class GenericTrackWidget(Gtk.ListBoxRow):
     __gtype_name__ = 'GenericTrackWidget'
@@ -46,7 +48,7 @@ class GenericTrackWidget(Gtk.ListBoxRow):
     _grid = Gtk.Template.Child()
     explicit_label = Gtk.Template.Child()
 
-    def __init__(self, _track, _win, is_album):
+    def __init__(self, _track, is_album):
         super().__init__()
 
         if is_album:
@@ -55,7 +57,6 @@ class GenericTrackWidget(Gtk.ListBoxRow):
             self.track_title_label.set_margin_start(12)
 
         self.track = _track
-        self.win = _win
 
         self.track_album_label.set_label(self.track.album.name)
         self.track_title_label.set_label(self.track.name)
@@ -85,17 +86,17 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         #     item.set_action_and_target_value("trackwidget.add-to-playlist", GLib.Variant.new_string(playlist.id))
         #     self.playlists_submenu.insert_item(index, item)
 
-        for index, playlist in enumerate(self.win.favourite_playlists):
-            if index > 10:
-                break
-            item = Gio.MenuItem.new()
-            item.set_label(playlist.name)
-            action_name = f"add-to-playlist-{index}"  # Unique action name for each playlist
-            action = Gio.SimpleAction.new(action_name, None)
-            action.connect("activate", self._add_to_playlist, index)
-            action_group.add_action(action)
-            item.set_action_and_target_value(action_name, GLib.Variant.new_string(playlist.id))
-            self.playlists_submenu.insert_item(index, item)
+        # for index, playlist in enumerate(self.win.favourite_playlists):
+        #     if index > 10:
+        #         break
+        #     item = Gio.MenuItem.new()
+        #     item.set_label(playlist.name)
+        #     action_name = f"add-to-playlist-{index}"  # Unique action name for each playlist
+        #     action = Gio.SimpleAction.new(action_name, None)
+        #     action.connect("activate", self._add_to_playlist, index)
+        #     action_group.add_action(action)
+        #     item.set_action_and_target_value(action_name, GLib.Variant.new_string(playlist.id))
+        #     self.playlists_submenu.insert_item(index, item)
 
         for name, callback in action_entries:
             action = Gio.SimpleAction.new(name, None)
@@ -110,9 +111,9 @@ class GenericTrackWidget(Gtk.ListBoxRow):
 
     def _get_radio(self, *args):
         from ..pages.track_radio_page import trackRadioPage
-        page = trackRadioPage(self.win, self.track, f"{self.track.name} Radio")
+        page = trackRadioPage(self.track, f"{self.track.name} Radio")
         page.load()
-        self.win.navigation_view.push(page)
+        variables.navigation_view.push(page)
 
     def _play_next(self, *args):
         self.win.player_object.add_next(self.track)
@@ -137,13 +138,13 @@ class GenericTrackWidget(Gtk.ListBoxRow):
     @Gtk.Template.Callback("on_artist_button_clicked")
     def _on_artist_button_clicked(self, *args):
         from ..pages.artist_page import artistPage
-        page = artistPage(self.win, self.track.artist, f"{self.track.artist.name}")
+        page = artistPage(self.track.artist, f"{self.track.artist.name}")
         page.load()
-        self.win.navigation_view.push(page)
+        variables.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_album_button_clicked")
     def _on_album_button_clicked(self, *args):
         from ..pages.album_page import albumPage
-        page = albumPage(self.win, self.track.album, f"{self.track.album.name}")
+        page = albumPage(self.track.album, f"{self.track.album.name}")
         page.load()
-        self.win.navigation_view.push(page)
+        variables.navigation_view.push(page)

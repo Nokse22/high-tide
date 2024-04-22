@@ -35,10 +35,6 @@ import threading
 import os
 import shutil
 
-# from .widgets import ArtistLabelWidget
-
-# GObject.type_register(ArtistLabelWidget)
-
 class TidalApplication(Adw.Application):
     """The main application singleton class."""
 

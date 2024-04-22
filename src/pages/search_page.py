@@ -41,6 +41,8 @@ import random
 
 from .page import Page
 
+from ..lib import variables
+
 class searchPage(Page):
     __gtype_name__ = 'searchPage'
 
@@ -58,12 +60,12 @@ class searchPage(Page):
 
         query = self.window.search_entry.get_text()
 
-        results = self.window.session.search(query, [Artist, Album, Playlist, Track], 10)
+        results = variables.session.search(query, [Artist, Album, Playlist, Track], 10)
 
         # print(query, results)
 
         top_hit = results["top_hit"]
-        top_hit_widget = TopHitWidget(top_hit, self.window)
+        top_hit_widget = TopHitWidget(top_hit)
         self.page_content.append(top_hit_widget)
         # self.page_content.append(Gtk.Label(label=top_hit.name))
         print(top_hit)

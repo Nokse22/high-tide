@@ -39,6 +39,8 @@ import random
 
 from .page import Page
 
+from ..lib import variables
+
 class trackRadioPage(Page):
     __gtype_name__ = 'trackRadioPage'
 
@@ -46,8 +48,8 @@ class trackRadioPage(Page):
 
     # FIXME Fix the favourite hearth (Probably impossible because tidalapi doesn't store a radio as a mix, but maybe possible with some ID)
 
-    def __init__(self, _window, _item, _name):
-        super().__init__(_window, _item, _name)
+    def __init__(self, _item, _name):
+        super().__init__(_item, _name)
 
         self.radio_tracks = []
 
@@ -91,15 +93,15 @@ class trackRadioPage(Page):
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        self.window.player_object.play_this(self.radio_tracks, index)
+        variables.player_object.play_this(self.radio_tracks, index)
 
     def on_play_button_clicked(self, btn):
         # overwritten to pass a list and not the Track or Artist (that is the self.item for the radio page)
-        self.window.player_object.play_this(self.radio_tracks)
+        variables.player_object.play_this(self.radio_tracks)
 
     def on_shuffle_button_clicked(self, btn):
         # overwritten to pass a list and not the Track or Artist (that is the self.item for the radio page)
-        self.window.player_object.shuffle_this(self.radio_tracks)
+        variables.player_object.shuffle_this(self.radio_tracks)
 
     def on_add_to_my_collection_button_clicked(self):
         pass

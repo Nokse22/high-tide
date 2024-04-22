@@ -42,6 +42,8 @@ import copy
 
 from .page import Page
 
+from ..lib import variables
+
 class artistPage(Page):
     __gtype_name__ = 'artistPage'
 
@@ -50,8 +52,8 @@ class artistPage(Page):
     # FIXME The bio is not displayed properly, it all bold and the links are not working
     # TODO Add missing features: influences, appears on, credits and so on
 
-    def __init__(self, _window, _artist, _name):
-        super().__init__(_window, _artist, _name)
+    def __init__(self, _artist, _name):
+        super().__init__(_artist, _name)
 
         self.top_tracks = []
         self.artist = _artist
@@ -87,11 +89,11 @@ class artistPage(Page):
 
         builder.get_object("_first_subtitle_label").set_label(roles_str)
 
-        tracks_list_widget = TracksListWidget("Top Tracks", self.window)
+        tracks_list_widget = TracksListWidget("Top Tracks")
         tracks_list_widget.set_function(self.artist.get_top_tracks)
         content_box.append(tracks_list_widget)
 
-        carousel = CarouselWidget("Albums", self.window)
+        carousel = CarouselWidget("Albums")
         try:
             albums = self.artist.get_albums(limit=10)
             carousel.set_more_function("album", self.artist.get_albums)
@@ -104,7 +106,7 @@ class artistPage(Page):
                     album_card = self.get_album_card(album)
                     carousel.append_card(album_card)
 
-        carousel = CarouselWidget("EP & Singles", self.window)
+        carousel = CarouselWidget("EP & Singles")
         try:
             albums = self.artist.get_albums_ep_singles(limit=10)
             carousel.set_more_function("album", self.artist.get_albums_ep_singles)
@@ -117,7 +119,7 @@ class artistPage(Page):
                     album_card = self.get_album_card(album)
                     carousel.append_card(album_card)
 
-        carousel = CarouselWidget("Appears On", self.window)
+        carousel = CarouselWidget("Appears On")
         try:
             albums = self.artist.get_albums_other(limit=10)
             carousel.set_more_function("album", self.artist.get_albums_other)
@@ -130,7 +132,7 @@ class artistPage(Page):
                     album_card = self.get_album_card(album)
                     carousel.append_card(album_card)
 
-        carousel = CarouselWidget("Similar Artists", self.window)
+        carousel = CarouselWidget("Similar Artists")
         try:
             artists = self.artist.get_similar(limit=10)
             carousel.set_more_function("artist", self.artist.get_similar)
@@ -159,26 +161,26 @@ class artistPage(Page):
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        self.window.player_object.current_mix_album_list = self.top_tracks
-        track = self.window.player_object.current_mix_album_list[index]
-        self.window.player_object.current_mix_album = track.album
-        self.window.player_object.play_track(track)
-        self.window.player_object.current_song_index = index
+        variables.player_object.current_mix_album_list = self.top_tracks
+        track = variables.player_object.current_mix_album_list[index]
+        variables.player_object.current_mix_album = track.album
+        variables.player_object.play_track(track)
+        variables.player_object.current_song_index = index
 
     def on_play_button_clicked(self, btn):
-        self.window.player_object.current_mix_album = self.artist
-        self.window.player_object.current_mix_album_list = self.top_tracks
-        track = self.window.player_object.current_mix_album_list[0]
-        self.window.player_object.play_track(track)
-        self.window.player_object.current_song_index = 0
+        variables.player_object.current_mix_album = self.artist
+        variables.player_object.current_mix_album_list = self.top_tracks
+        track = variables.player_object.current_mix_album_list[0]
+        variables.player_object.play_track(track)
+        variables.player_object.current_song_index = 0
 
     def on_shuffle_button_clicked(self, btn):
-        self.window.player_object.current_mix_album = None
-        self.window.player_object.current_mix_album_list = self.top_tracks
-        self.window.player_object.play_shuffle()
+        variables.player_object.current_mix_album = None
+        variables.player_object.current_mix_album_list = self.top_tracks
+        variables.player_object.play_shuffle()
 
     def on_artist_radio_button_clicked(self, btn):
         from .track_radio_page import trackRadioPage
-        page = trackRadioPage(self.window, self.artist, f"Radio of {self.artist.name}")
+        page = trackRadioPage(self.artist, f"Radio of {self.artist.name}")
         page.load()
-        self.window.navigation_view.push(page)
+        variables.navigation_view.push(page)

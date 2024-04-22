@@ -40,6 +40,8 @@ import random
 
 from .page import Page
 
+from ..lib import variables
+
 class singleTypePage(Page):
     __gtype_name__ = 'singleTypePage'
 
@@ -65,7 +67,7 @@ class singleTypePage(Page):
         tracks_list_box = Gtk.ListBox(css_classes=["boxed-list"], margin_bottom=12, margin_start=12, margin_end=12, margin_top=12)
         self.page_content.append(tracks_list_box)
 
-        favourite_tracks = Favorites(self.window.session, self.window.session.user.id).tracks(50)
+        favourite_tracks = Favorites(variables.session, variables.session.user.id).tracks(50)
         tracks_list_box.connect("row-activated", self.on_tracks_row_selected, favourite_tracks)
 
         for index, track in enumerate(favourite_tracks):
@@ -77,7 +79,7 @@ class singleTypePage(Page):
         flow_box = Gtk.FlowBox(selection_mode=0)
         self.page_content.append(flow_box)
 
-        favourites = Favorites(self.window.session, self.window.session.user.id).mix()
+        favourites = Favorites(variables.session, variables.session.user.id).mix()
 
         for index, mix in enumerate(favourites):
             card = self.get_mix_card(mix)
@@ -87,7 +89,7 @@ class singleTypePage(Page):
         flow_box = Gtk.FlowBox(selection_mode=0)
         self.page_content.append(flow_box)
 
-        favourites = Favorites(self.window.session, self.window.session.user.id).artists()
+        favourites = Favorites(variables.session, variables.session.user.id).artists()
 
         for index, artist in enumerate(favourites):
             card = self.get_artist_card(artist)
@@ -97,7 +99,7 @@ class singleTypePage(Page):
         flow_box = Gtk.FlowBox(selection_mode=0)
         self.page_content.append(flow_box)
 
-        favourites = Favorites(self.window.session, self.window.session.user.id).playlists()
+        favourites = Favorites(variables.session, variables.session.user.id).playlists()
 
         for index, playlist in enumerate(favourites):
             card = self.get_playlist_card(playlist)
@@ -107,7 +109,7 @@ class singleTypePage(Page):
         flow_box = Gtk.FlowBox(selection_mode=0)
         self.page_content.append(flow_box)
 
-        favourites = Favorites(self.window.session, self.window.session.user.id).albums()
+        favourites = Favorites(variables.session, variables.session.user.id).albums()
 
         for index, album in enumerate(favourites):
             card = self.get_album_card(album)
@@ -116,9 +118,9 @@ class singleTypePage(Page):
     def on_tracks_row_selected(self, list_box, row, favourite_tracks):
         index = int(row.get_name())
 
-        self.window.player_object.current_mix_album_list = favourite_tracks
+        variables.player_object.current_mix_album_list = favourite_tracks
         track = favourite_tracks[index]
         print(track)
-        self.window.player_object.song_album = track.album
-        self.window.player_object.play_track(track)
-        self.window.player_object.current_song_index = index
+        variables.player_object.song_album = track.album
+        variables.player_object.play_track(track)
+        variables.player_object.current_song_index = index

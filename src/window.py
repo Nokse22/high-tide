@@ -98,6 +98,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.settings.bind("window-height", self, "default-height", Gio.SettingsBindFlags.DEFAULT)
 
         self.player_object = playerObject()
+        variables.player_object = self.player_object
 
         self.volume_button.get_adjustment().set_value(self.settings.get_int("last-volume")/10)
 
@@ -136,7 +137,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.settings.set_string("refresh-token", "")
         self.settings.set_string("expiry-time", "")
 
-        page = startUpPage(self, None, "Loading")
+        page = startUpPage(None, "Loading")
         page.load()
         self.navigation_view.push(page)
 
@@ -144,7 +145,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         th.deamon = True
         th.start()
 
-        MPRIS(self.player_object, self)
+        MPRIS(self.player_object)
 
     def on_logged_in(self):
         print("on logged in")
@@ -282,7 +283,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.queue_list.set_child(box)
 
     def on_search_activated(self, *args):
-        page = searchPage(self, None, "Search")
+        page = searchPage(None, "Search")
         page.load()
         self.navigation_view.push(page)
 
@@ -435,7 +436,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         from .pages import artistPage
 
         artist = Artist(self.session, uri)
-        page = artistPage(self, artist, artist.name)
+        page = artistPage(artist, artist.name)
         page.load()
         self.navigation_view.push(page)
 
@@ -455,7 +456,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_track_radio_button_clicked")
     def on_track_radio_button_clicked_func(self, widget):
         track = self.player_object.playing_track
-        page = trackRadioPage(self, track, f"{track.name} Radio")
+        page = trackRadioPage(track, f"{track.name} Radio")
         page.load()
         self.navigation_view.push(page)
 
@@ -488,7 +489,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         playlist = self.favourite_playlists[int(index)]
 
-        page = playlistPage(self, playlist, playlist.name)
+        page = playlistPage(playlist, playlist.name)
         page.load()
         self.navigation_view.push(page)
 
@@ -499,27 +500,27 @@ class HighTideWindow(Adw.ApplicationWindow):
         if row.get_child().get_name() == "HOME":
             self.navigation_view.pop_to_tag("home")
         elif row.get_child().get_name() == "EXPLORE":
-            page = explorePage(self, None, "Explore")
+            page = explorePage(None, "Explore")
             page.load()
             self.navigation_view.push(page)
         elif row.get_child().get_name() == "F-TRACK":
-            page = singleTypePage(self, "track", "Favourite Tracks")
+            page = singleTypePage("track", "Favourite Tracks")
             page.load()
             self.navigation_view.push(page)
         elif row.get_child().get_name() == "F-MIX": # Not supported by tidalapi
-            page = singleTypePage(self, "mix", "Favourite Mixes")
+            page = singleTypePage("mix", "Favourite Mixes")
             page.load()
             self.navigation_view.push(page)
         elif row.get_child().get_name() == "F-ARTIST":
-            page = singleTypePage(self, "artist", "Favourite Artists")
+            page = singleTypePage("artist", "Favourite Artists")
             page.load()
             self.navigation_view.push(page)
         elif row.get_child().get_name() == "F-PLAYLIST":
-            page = singleTypePage(self, "playlist", "Favourite Playlists")
+            page = singleTypePage("playlist", "Favourite Playlists")
             page.load()
             self.navigation_view.push(page)
         elif row.get_child().get_name() == "F-ALBUM":
-            page = singleTypePage(self, "album", "Favourite Albums")
+            page = singleTypePage("album", "Favourite Albums")
             page.load()
             self.navigation_view.push(page)
 

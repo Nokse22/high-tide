@@ -25,6 +25,8 @@ from gi.repository import Gio
 from ..lib import utils
 from . import GenericTrackWidget
 
+from ..lib import variables
+
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/tracks_list_widget.ui')
 class TracksListWidget(Gtk.Box):
     __gtype_name__ = 'TracksListWidget'
@@ -35,12 +37,10 @@ class TracksListWidget(Gtk.Box):
     more_button = Gtk.Template.Child()
     title_label = Gtk.Template.Child()
 
-    def __init__(self, _title, _window):
+    def __init__(self, _title):
         super().__init__()
 
         self.n_pages = 0
-
-        self.window = _window if not None else None
 
         self.title_label.set_label(_title)
 
@@ -64,7 +64,7 @@ class TracksListWidget(Gtk.Box):
 
     def _add_tracks(self):
         for index, track in enumerate(self.tracks):
-            listing = GenericTrackWidget(track, self.window, False)
+            listing = GenericTrackWidget(track, False)
             listing.set_name(str(index))
             self.tracks_list_box.append(listing)
 
@@ -75,12 +75,12 @@ class TracksListWidget(Gtk.Box):
 
         from ..pages import fromFunctionPage
 
-        page = fromFunctionPage(self.window, "track")
+        page = fromFunctionPage("track")
         page.set_function(self.get_function)
         page.load()
-        self.window.navigation_view.push(page)
+        variables.navigation_view.push(page)
 
     def on_tracks_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        self.window.player_object.play_this(self.tracks, index)
+        variables.player_object.play_this(self.tracks, index)

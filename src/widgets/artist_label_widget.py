@@ -23,6 +23,8 @@ from tidalapi.artist import Artist
 
 import html
 
+from ..lib import variables
+
 class ArtistLabelWidget(Gtk.Label):
     __gtype_name__ = 'ArtistLabelWidget'
 
@@ -32,6 +34,7 @@ class ArtistLabelWidget(Gtk.Label):
         super().__init__(self)
 
         self.xalign = 0.0
+        self.css_classes = ["artist-link"]
 
     def set_artists(self, artists):
         label = ""

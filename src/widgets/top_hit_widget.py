@@ -36,6 +36,8 @@ from tidalapi.media import Track
 from tidalapi.playlist import Playlist
 from tidalapi.user import Favorites
 
+from ..lib import variables
+
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/top_hit_widget.ui')
 class TopHitWidget(Gtk.Box):
     __gtype_name__ = 'TopHitWidget'
@@ -49,11 +51,10 @@ class TopHitWidget(Gtk.Box):
     # track_artist_label = Gtk.Template.Child()
     # track_artist_button = Gtk.Template.Child()
 
-    def __init__(self, _item, _win):
+    def __init__(self, _item):
         super().__init__()
 
         self.item = _item
-        self.win = _win
 
         # if isinstance(_item, Mix):
         #     self.make_mix_card()
@@ -118,32 +119,32 @@ class TopHitWidget(Gtk.Box):
     @Gtk.Template.Callback("on_artist_button_clicked")
     def _on_artist_button_clicked(self, *args):
         from ..pages.artist_page import artistPage
-        page = artistPage(self.win, self.item.artist, f"{self.item.artist.name}")
+        page = artistPage(self.item.artist, f"{self.item.artist.name}")
         page.load()
-        self.win.navigation_view.push(page)
+        variables.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_image_button_clicked")
     def _on_image_button_clicked(self, *args):
         if isinstance(self.item, Mix):
             from ..pages.mix_page import mixPage
-            page = mixPage(self.win, self.item, f"{self.item.title}")
+            page = mixPage(self.item, f"{self.item.title}")
             page.load()
-            self.win.navigation_view.push(page)
+            variables.navigation_view.push(page)
 
         elif isinstance(self.item, Album):
             from ..pages.album_page import albumPage
-            page = albumPage(self.win, self.item, f"{self.item.name}")
+            page = albumPage(self.item, f"{self.item.name}")
             page.load()
-            self.win.navigation_view.push(page)
+            variables.navigation_view.push(page)
 
         elif isinstance(self.item, Playlist):
             from ..pages.playlist_page import playlistPage
-            page = playlistPage(self.win, self.item, f"{self.item.name}")
+            page = playlistPage(self.item, f"{self.item.name}")
             page.load()
-            self.win.navigation_view.push(page)
+            variables.navigation_view.push(page)
 
         elif isinstance(self.item, Artist):
             from ..pages.artist_page import artistPage
-            page = artistPage(self.win, self.item, f"{self.item.name}")
+            page = artistPage(self.item, f"{self.item.name}")
             page.load()
-            self.win.navigation_view.push(page)
+            variables.navigation_view.push(page)

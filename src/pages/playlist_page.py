@@ -40,6 +40,8 @@ import random
 
 from .page import Page
 
+from ..lib import variables
+
 class playlistPage(Page):
     __gtype_name__ = 'playlistPage'
 
@@ -83,4 +85,4 @@ class playlistPage(Page):
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        self.window.player_object.play_this(self.item, index)
+        variables.player_object.play_this(self.item, index)

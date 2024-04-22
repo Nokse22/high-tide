@@ -42,6 +42,8 @@ from .page import Page
 from ..widgets import CarouselWidget
 from ..widgets import TracksListWidget
 
+from ..lib import variables
+
 class homePage(Page):
     __gtype_name__ = 'homePage'
 
@@ -50,7 +52,7 @@ class homePage(Page):
 
         self.set_title("Home")
 
-        home = self.window.session.home()
+        home = variables.session.home()
 
         for index, category in enumerate(home.categories):
             items = []
@@ -58,11 +60,11 @@ class homePage(Page):
                 continue
 
             if isinstance(category.items[0], Track):
-                tracks_list_widget = TracksListWidget(category.title, self.window)
+                tracks_list_widget = TracksListWidget(category.title)
                 tracks_list_widget.set_tracks_list(category.items)
                 self.page_content.append(tracks_list_widget)
             else:
-                carousel = CarouselWidget(category.title, self.window)
+                carousel = CarouselWidget(category.title)
                 self.page_content.append(carousel)
 
                 if isinstance(category.items[0], Mix):

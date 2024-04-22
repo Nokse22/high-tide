@@ -39,13 +39,16 @@ import random
 
 from .page import Page
 
+from ..lib import variables
+
+
 class explorePage(Page):
     __gtype_name__ = 'explorePage'
 
     """It is used to display the explore page"""
 
     def _load_page(self):
-        explore = self.window.session.explore()
+        explore = variables.session.explore()
 
         # print(explore.categories)
 

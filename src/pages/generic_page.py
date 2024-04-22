@@ -40,6 +40,8 @@ import random
 from .page import Page
 from ..widgets import CarouselWidget
 
+from ..lib import variables
+
 class genericPage(Page):
     __gtype_name__ = 'genericPage'
 
@@ -56,7 +58,7 @@ class genericPage(Page):
             carousel = CarouselWidget(category.title)
 
             if isinstance(category.items[0], Track):
-                tracks_list_widget = TracksListWidget(category.title, self.window)
+                tracks_list_widget = TracksListWidget(category.title)
                 tracks_list_widget.set_tracks_list(category.items)
                 self.page_content.append(tracks_list_widget)
             else:

@@ -137,9 +137,8 @@ class MPRIS(Server):
     __MPRIS_HIGH_TIDE = "org.mpris.MediaPlayer2.HighTide"
     __MPRIS_PATH = "/org/mpris/MediaPlayer2"
 
-    def __init__(self, player, window):
+    def __init__(self, player):
         self.player = player
-        self.window = window
 
         self.__metadata = {}
 
@@ -166,10 +165,10 @@ class MPRIS(Server):
         # MainPlayer.get().connect("notify::volume", self._on_volume_changed)
 
     def Raise(self):
-        self.window.present_with_time(Gdk.CURRENT_TIME)
+        variables.window.present_with_time(Gdk.CURRENT_TIME)
 
     def Quit(self):
-        self.window.quit()
+        variables.window.quit()
 
     def Next(self):
         self.player.play_next()

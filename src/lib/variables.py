@@ -15,3 +15,7 @@ def init():
     global session
 
     global navigation_view
+
+    global player_object
+
+    global sidebar_list

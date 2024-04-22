@@ -39,7 +39,7 @@ from tidalapi.user import Favorites
 from ..lib import variables
 
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/card_widget.ui')
-class CardWidget(Gtk.Box):
+class CardWidget(Adw.BreakpointBin):
     __gtype_name__ = 'CardWidget'
 
     """It is card that adapts to the content it needs to display, it is used when listing artists, albums, mixes and so on"""
@@ -50,11 +50,10 @@ class CardWidget(Gtk.Box):
     detail_label = Gtk.Template.Child()
     track_artist_label = Gtk.Template.Child()
 
-    def __init__(self, _item, _win):
+    def __init__(self, _item):
         super().__init__()
 
         self.item = _item
-        self.win = _win
 
         if isinstance(_item, Mix):
             self.make_mix_card()
@@ -70,8 +69,8 @@ class CardWidget(Gtk.Box):
             self.make_track_card()
 
     def make_track_card(self):
-        self.title_label.set_text(self.item.name)
-        self.detail_label.set_text(self.item.artist.name)
+        self.title_label.set_label(self.item.name)
+        self.detail_label.set_label(self.item.artist.name)
         self.track_artist_label.set_visible(False)
 
         self.item = self.item.album
@@ -81,8 +80,8 @@ class CardWidget(Gtk.Box):
         th.start()
 
     def make_mix_card(self):
-        self.title_label.set_text(self.item.title)
-        self.detail_label.set_text(self.item.sub_title)
+        self.title_label.set_label(self.item.title)
+        self.detail_label.set_label(self.item.sub_title)
         self.track_artist_label.set_visible(False)
 
         th = threading.Thread(target=utils.add_image, args=(self.image, self.item))
@@ -90,7 +89,7 @@ class CardWidget(Gtk.Box):
         th.start()
 
     def make_album_card(self):
-        self.title_label.set_text(self.item.name)
+        self.title_label.set_label(self.item.name)
         self.track_artist_label.set_artists(self.item.artists)
         self.detail_label.set_visible(False)
 
@@ -99,7 +98,7 @@ class CardWidget(Gtk.Box):
         th.start()
 
     def make_playlist_card(self):
-        self.title_label.set_text(self.item.name)
+        self.title_label.set_label(self.item.name)
         self.track_artist_label.set_visible(False)
 
         creator = self.item.creator
@@ -107,15 +106,15 @@ class CardWidget(Gtk.Box):
             creator = creator.name
         else:
             creator = "TIDAL"
-        self.detail_label.set_text(f"by {creator}")
+        self.detail_label.set_label(f"by {creator}")
 
         th = threading.Thread(target=utils.add_image, args=(self.image, self.item))
         th.deamon = True
         th.start()
 
     def make_artist_card(self):
-        self.title_label.set_text(self.item.name)
-        self.detail_label.set_text("Artist")
+        self.title_label.set_label(self.item.name)
+        self.detail_label.set_label("Artist")
         self.track_artist_label.set_visible(False)
 
         th = threading.Thread(target=utils.add_image, args=(self.image, self.item))
@@ -123,8 +122,8 @@ class CardWidget(Gtk.Box):
         th.start()
 
     def make_page_item_card(self):
-        self.title_label.set_text(self.item.short_header)
-        self.detail_label.set_text(self.item.short_sub_header)
+        self.title_label.set_label(self.item.short_header)
+        self.detail_label.set_label(self.item.short_sub_header)
         self.track_artist_label.set_visible(False)
 
         th = threading.Thread(target=utils.add_image, args=(self.image, self.item))
@@ -136,32 +135,32 @@ class CardWidget(Gtk.Box):
         from ..pages import artistPage
 
         artist = Artist(variables.session, uri)
-        page = artistPage(self, artist, artist.name)
+        page = artistPage(artist, artist.name)
         page.load()
-        self.win.navigation_view.push(page)
+        variables.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_image_button_clicked")
     def _on_image_button_clicked(self, *args):
         if isinstance(self.item, Mix):
             from ..pages import mixPage
-            page = mixPage(self.win, self.item, f"{self.item.title}")
+            page = mixPage(self.item, f"{self.item.title}")
             page.load()
-            self.win.navigation_view.push(page)
+            variables.navigation_view.push(page)
 
         elif isinstance(self.item, Album):
             from ..pages import albumPage
-            page = albumPage(self.win, self.item, f"{self.item.name}")
+            page = albumPage(self.item, f"{self.item.name}")
             page.load()
-            self.win.navigation_view.push(page)
+            variables.navigation_view.push(page)
 
         elif isinstance(self.item, Playlist):
             from ..pages import playlistPage
-            page = playlistPage(self.win, self.item, f"{self.item.name}")
+            page = playlistPage(self.item, f"{self.item.name}")
             page.load()
-            self.win.navigation_view.push(page)
+            variables.navigation_view.push(page)
 
         elif isinstance(self.item, Artist):
             from ..pages import artistPage
-            page = artistPage(self.win, self.item, f"{self.item.name}")
+            page = artistPage(self.item, f"{self.item.name}")
             page.load()
-            self.win.navigation_view.push(page)
+            variables.navigation_view.push(page)

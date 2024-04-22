@@ -41,13 +41,15 @@ import random
 from .page import Page
 from ..widgets import CardWidget
 
+from ..lib import variables
+
 class fromFunctionPage(Page):
     __gtype_name__ = 'fromFunctionPage'
 
     """Used to display lists of albums/artists/mixes/playlists and tracks from a request function"""
 
-    def __init__(self, _window, _type):
-        super().__init__(_window)
+    def __init__(self, _type):
+        super().__init__()
 
         self.function = None
         self.type = _type
@@ -122,10 +124,10 @@ class fromFunctionPage(Page):
         self.items_n += self.items_limit
 
         for index, item in enumerate(new_items):
-            card = CardWidget(item, self.window)
+            card = CardWidget(item)
             GLib.idle_add(self.parent.append, card)
 
     def on_tracks_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        self.window.player_object.play_this(self.items, index)
+        variables.player_object.play_this(self.items, index)
