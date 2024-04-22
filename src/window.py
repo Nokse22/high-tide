@@ -55,8 +55,10 @@ import requests
 import random
 
 from .lib import SecretStore
+from .lib import variables
 
-from .widgets.generic_track_widget import GenericTrackWidget
+from .widgets import GenericTrackWidget
+from .widgets import ArtistLabelWidget
 
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/window.ui')
 class HighTideWindow(Adw.ApplicationWindow):
@@ -74,7 +76,6 @@ class HighTideWindow(Adw.ApplicationWindow):
     search_entry = Gtk.Template.Child()
     small_progress_bar = Gtk.Template.Child()
     song_title_label = Gtk.Template.Child()
-    artist_button = Gtk.Template.Child()
     playing_track_image = Gtk.Template.Child()
     artist_label = Gtk.Template.Child()
     sidebar_collection = Gtk.Template.Child()
@@ -107,11 +108,15 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.connect("song-changed", self.on_song_changed)
         self.player_object.connect("song-added-to-queue", self.update_queue)
         self.player_object.connect("play-changed", self.update_controls)
-        self.artist_button.connect("clicked", self.on_toolbar_artist_button_clicked)
+
+        self.artist_label.connect("activate-link", self.on_link_clicked)
 
         self.search_entry.connect("activate", self.on_search_activated)
 
         self.session = tidalapi.Session()
+
+        variables.session = self.session
+        variables.navigation_view = self.navigation_view
 
         self.user = self.session.user
 
@@ -200,7 +205,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         album = self.player_object.song_album
         track = self.player_object.playing_track
         self.song_title_label.set_label(track.name)
-        self.artist_label.set_label(track.artist.name)
+        self.artist_label.set_artists(track.artists)
         self.explicit_label.set_visible(track.explicit)
 
         for favourite_track in self.favourite_tracks:
@@ -275,14 +280,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         # self.queue_list.remove(self.queue_list.get_child())
         # print("REMOVED")
         self.queue_list.set_child(box)
-
-    def on_toolbar_artist_button_clicked(self, btn):
-        self.sidebar_list.select_row(None)
-        artist = self.player_object.playing_track.artist
-        page = artistPage(self, artist, artist.name)
-        page.load()
-        self.navigation_view.push(page)
-        print("clicked on artist")
 
     def on_search_activated(self, *args):
         page = searchPage(self, None, "Search")
@@ -433,6 +430,14 @@ class HighTideWindow(Adw.ApplicationWindow):
         result = self.session.user.favorites.remove_track(track_id)
         if result:
             print("successfully removed from my collection")
+
+    def on_link_clicked(self, label, uri):
+        from .pages import artistPage
+
+        artist = Artist(self.session, uri)
+        page = artistPage(self, artist, artist.name)
+        page.load()
+        self.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_volume_changed")
     def on_volume_changed_func(self, widget, value):

@@ -25,6 +25,7 @@ gi.require_version('Adw', '1')
 gi.require_version('Gst', '1.0')
 
 from gi.repository import Gtk, Gio, Adw, Gdk
+from gi.repository import GObject
 from .window import HighTideWindow
 
 from tidalapi.media import Quality
@@ -33,6 +34,10 @@ from .lib import variables
 import threading
 import os
 import shutil
+
+# from .widgets import ArtistLabelWidget
+
+# GObject.type_register(ArtistLabelWidget)
 
 class TidalApplication(Adw.Application):
     """The main application singleton class."""

@@ -11,3 +11,7 @@ def init():
         os.makedirs(IMG_DIR)
 
     print(DATA_DIR)
+
+    global session
+
+    global navigation_view

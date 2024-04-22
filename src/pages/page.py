@@ -276,3 +276,11 @@ class Page(Adw.NavigationPage):
             th = threading.Thread(target=self.remove_from_my_collection, args=(btn, self.item,))
         th.deamon = True
         th.start()
+
+    def on_link_clicked(self, label, uri):
+        from .pages import artistPage
+
+        artist = Artist(self.session, uri)
+        page = artistPage(self, artist, artist.name)
+        page.load()
+        self.navigation_view.push(page)

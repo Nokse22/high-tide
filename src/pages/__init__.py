@@ -8,3 +8,5 @@ from .track_radio_page import trackRadioPage
 from .playlist_page import playlistPage
 from .start_up_page import startUpPage
 from .not_logged_in_page import notLoggedInPage
+from .mix_page import mixPage
+from .album_page import albumPage

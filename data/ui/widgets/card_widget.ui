@@ -66,21 +66,8 @@
               </object>
             </child>
             <child>
-             <object class="GtkButton" id="track_artist_button">
-              <signal name="clicked" handler="on_artist_button_clicked"/>
-              <style>
-                <class name="link-text"/>
-                <class name="artist-button"/>
-              </style>
-              <child>
-                <object class="GtkInscription" id="track_artist_label">
-                  <property name="hexpand">true</property>
-                  <style>
-                    <class name="link-text"/>
-                    <class name="artist-button"/>
-                  </style>
-                </object>
-              </child>
+             <object class="ArtistLabelWidget" id="track_artist_label">
+              <signal name="activate-link" handler="on_artist_link_clicked"/>
             </object>
           </child>
           </object>
