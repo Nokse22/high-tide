@@ -34,7 +34,7 @@ class ArtistLabelWidget(Gtk.Label):
         super().__init__(self)
 
         self.xalign = 0.0
-        self.css_classes = ["artist-link"]
+        self.add_css_class("artist-link")
 
     def set_artists(self, artists):
         label = ""
