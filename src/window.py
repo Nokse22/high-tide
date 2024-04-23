@@ -47,8 +47,8 @@ import sys
 from .login import LoginWindow
 from .new_playlist import NewPlaylistWindow
 
-from .pages import homePage, singleTypePage, explorePage, artistPage, notLoggedInPage
-from .pages import searchPage, trackRadioPage, playlistPage, startUpPage
+from .pages import homePage, explorePage, artistPage, notLoggedInPage
+from .pages import searchPage, trackRadioPage, playlistPage, startUpPage, fromFunctionPage
 
 import threading
 import requests
@@ -504,23 +504,32 @@ class HighTideWindow(Adw.ApplicationWindow):
             page.load()
             self.navigation_view.push(page)
         elif row.get_child().get_name() == "F-TRACK":
-            page = singleTypePage("track", "Favourite Tracks")
+            page = fromFunctionPage("track", _("Favorite Tracks"))
+            page.set_function(self.session.user.favorites.tracks)
             page.load()
             self.navigation_view.push(page)
+
         elif row.get_child().get_name() == "F-MIX": # Not supported by tidalapi
-            page = singleTypePage("mix", "Favourite Mixes")
+            page = fromFunctionPage("mix", _("Favorite Mixes"))
+            page.set_function(self.session.user.favorites.mixes)
             page.load()
             self.navigation_view.push(page)
+
         elif row.get_child().get_name() == "F-ARTIST":
-            page = singleTypePage("artist", "Favourite Artists")
+            page = fromFunctionPage("artist", _("Favorite Artists"))
+            page.set_function(self.session.user.favorites.artists)
             page.load()
             self.navigation_view.push(page)
+
         elif row.get_child().get_name() == "F-PLAYLIST":
-            page = singleTypePage("playlist", "Favourite Playlists")
+            page = fromFunctionPage("playlist", _("Favorite Playlists"))
+            page.set_function(self.session.user.favorites.playlists)
             page.load()
             self.navigation_view.push(page)
+
         elif row.get_child().get_name() == "F-ALBUM":
-            page = singleTypePage("album", "Favourite Albums")
+            page = fromFunctionPage("album", _("Favorite Albums"))
+            page.set_function(self.session.user.favorites.albums)
             page.load()
             self.navigation_view.push(page)
 

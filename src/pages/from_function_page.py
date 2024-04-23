@@ -48,13 +48,13 @@ class fromFunctionPage(Page):
 
     """Used to display lists of albums/artists/mixes/playlists and tracks from a request function"""
 
-    def __init__(self, _type):
+    def __init__(self, _type, _title=""):
         super().__init__()
 
         self.function = None
         self.type = _type
 
-        self.set_title("More")
+        self.set_title(_title)
 
         self.parent = None
 
@@ -63,14 +63,13 @@ class fromFunctionPage(Page):
         self.items_limit = 50
         self.items_n = 0
 
+        self.handler_id = self.scrolled_window.connect("edge-overshot", self.on_edge_overshot)
+
     def set_function(self, function):
         self.function = function
 
-        self.scrolled_window.connect("edge-overshot", self.on_edge_overshot)
-
     def set_items(self, items):
         self.items = items
-        print(len(items))
 
     def on_edge_overshot(self, scrolled_window, pos):
         if pos == Gtk.PositionType.BOTTOM:
@@ -84,44 +83,40 @@ class fromFunctionPage(Page):
         self._page_loaded()
 
     def load_items(self):
-        print(f"loading {self.items_n} of type {self.type}")
-
-        if self.type == "track":
-            self.add_tracks()
-        else:
-            self.add_cards()
-
-    def add_tracks(self):
-        if self.parent == None:
-            self.parent = Gtk.ListBox(css_classes=["boxed-list"], margin_bottom=12, margin_start=12, margin_end=12, margin_top=12)
-            GLib.idle_add(self.page_content.append,self.parent)
-
         new_items = []
         if self.function:
             new_items = self.function(limit=self.items_limit, offset=(self.items_n))
             self.items.extend(new_items)
+            self.items_n += self.items_limit
+            if new_items == []:
+                self.scrolled_window.handler_disconnect(self.handler_id)
+                return
         else:
             new_items = self.items
-        self.items_n += self.items_limit
-        self.parent.connect("row-activated", self.on_tracks_row_selected)
+            self.scrolled_window.handler_disconnect(self.handler_id)
+
+        print(f"loading {self.items_n} of type {self.type}")
+
+        if self.type == "track":
+            self.add_tracks(new_items)
+        else:
+            self.add_cards(new_items)
+
+    def add_tracks(self, new_items):
+        if self.parent == None:
+            self.parent = Gtk.ListBox(css_classes=["boxed-list"], margin_bottom=12, margin_start=12, margin_end=12, margin_top=12)
+            GLib.idle_add(self.page_content.append,self.parent)
+            self.parent.connect("row-activated", self.on_tracks_row_selected)
 
         for index, track in enumerate(new_items):
             listing = self.get_track_listing(track)
             listing.set_name(str(index))
-            self.parent.append(listing)
+            GLib.idle_add(self.parent.append, listing)
 
-    def add_cards(self):
+    def add_cards(self, new_items):
         if self.parent == None:
             self.parent = Gtk.FlowBox(selection_mode=0)
             self.page_content.append(self.parent)
-
-        new_items = []
-        if self.function:
-            new_items = self.function(limit=self.items_limit, offset=(self.items_n))
-            self.items.extend(new_items)
-        else:
-            new_items = self.items
-        self.items_n += self.items_limit
 
         for index, item in enumerate(new_items):
             card = CardWidget(item)

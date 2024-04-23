@@ -39,12 +39,13 @@ class CarouselWidget(Gtk.Box):
     carousel = Gtk.Template.Child()
     more_button = Gtk.Template.Child()
 
-    def __init__(self, title=""):
+    def __init__(self, _title=""):
         super().__init__()
 
         self.n_pages = 0
 
-        self.title_label.set_label(title)
+        self.title = _title
+        self.title_label.set_label(self.title)
 
         self.more_function = None
         self.type = None
@@ -78,16 +79,13 @@ class CarouselWidget(Gtk.Box):
 
     @Gtk.Template.Callback("on_more_clicked")
     def on_more_clicked(self, *args):
-        if not self.window:
-            return
-
         from ..pages import fromFunctionPage
 
         if self.more_function == None:
-            page = fromFunctionPage(self, self.type)
+            page = fromFunctionPage(self.type, self.title)
             page.set_items(self.items)
         else:
-            page = fromFunctionPage(self, self.type)
+            page = fromFunctionPage(self.type, self.title)
             page.set_function(self.more_function)
 
         print(f"clicked more, items len:{len(self.items)}")
