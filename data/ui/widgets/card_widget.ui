@@ -56,7 +56,7 @@
         <child>
           <object class="GtkLabel" id="title_label">
             <property name="css-classes">title-4</property>
-            <property name="max-width-chars">15</property>
+            <property name="max-width-chars">14</property>
             <property name="xalign">0</property>
             <property name="ellipsize">end</property>
           </object>
