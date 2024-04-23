@@ -40,32 +40,16 @@
           <property name="hexpand">true</property>
 
           <child>
-             <object class="GtkButton" id="track_album_button">
-              <signal name="clicked" handler="on_album_button_clicked"/>
+             <object class="LinkLabelWidget" id="track_album_label">
+              <property name="xalign">0</property>
+              <property name="ellipsize">3</property>
                <layout>
                 <property name="column">5</property>
                 <property name="column-span">1</property>
                 <property name="row">0</property>
               </layout>
-              <style>
-                <class name="link-text"/>
-                <class name="artist-button"/>
-              </style>
-              <child>
-                <object class="GtkLabel" id="track_album_label">
-                  <property name="xalign">0</property>
-                  <property name="ellipsize">3</property>
-                  <style>
-                    <class name="link-text"/>
-                    <class name="artist-button"/>
-                  </style>
-                </object>
-              </child>
             </object>
           </child>
-
-
-
           <child>
             <object class="GtkBox">
               <layout>
@@ -96,27 +80,14 @@
           </child>
 
           <child>
-            <object class="GtkButton">
-              <signal name="clicked" handler="on_artist_button_clicked"/>
+            <object class="LinkLabelWidget" id="artist_label">
+              <property name="xalign">0</property>
+              <property name="ellipsize">3</property>
               <layout>
                 <property name="column">3</property>
                 <property name="column-span">1</property>
                 <property name="row">0</property>
               </layout>
-              <style>
-                <class name="link-text"/>
-                <class name="artist-button"/>
-              </style>
-              <child>
-                <object class="GtkLabel" id="artist_label">
-                  <property name="xalign">0</property>
-                  <property name="ellipsize">3</property>
-                  <style>
-                    <class name="link-text"/>
-                    <class name="artist-button"/>
-                  </style>
-                </object>
-              </child>
             </object>
           </child>
         </object>
@@ -124,7 +95,7 @@
       <child>
         <object class="GtkBox" id="_narrow_box">
           <property name="orientation">vertical</property>
-          <property name="visible">False</property>
+          <property name="visible">False</property>variables.favourite_tracks
           <property name="hexpand">true</property>
           <child>
             <object class="GtkBox">
@@ -149,24 +120,13 @@
               </child>
             </object>
           </child>
+
           <child>
-            <object class="GtkButton">
-              <signal name="clicked" handler="on_artist_button_clicked"/>
-              <style>
-                <class name="link-text"/>
-                <class name="artist-button"/>
-              </style>
-              <child>
-                <object class="GtkLabel">
-                  <property name="label" bind-source="artist_label" bind-property="label"></property>
-                  <property name="xalign">0</property>
-                  <property name="ellipsize">3</property>
-                  <style>
-                    <class name="link-text"/>
-                    <class name="artist-button"/>
-                  </style>
-                </object>
-              </child>
+            <object class="LinkLabelWidget" id="artist_label_2">
+              <property name="xalign">0</property>
+              <property name="use-markup">true</property>
+              <property name="ellipsize">3</property>
+              <property name="label" bind-source="artist_label" bind-property="label"></property>
             </object>
           </child>
         </object>
@@ -177,7 +137,7 @@
           <property name="margin-end">12</property>
           <property name="vexpand">True</property>
         </object>
-      </child>
+      </child>variables.favourite_tracks
       <child>
         <object class="GtkMenuButton">
           <property name="icon-name">view-more-symbolic</property>

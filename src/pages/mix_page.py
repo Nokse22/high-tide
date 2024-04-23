@@ -56,12 +56,20 @@ class mixPage(Page):
 
         builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
         builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
-        builder.get_object("_add_to_my_collection_button").connect("clicked", self.on_add_to_my_collection_button_clicked)
+        self.in_my_collection_button = builder.get_object("_add_to_my_collection_button")
+        self.in_my_collection_button.connect("clicked", self.on_add_to_my_collection_button_clicked)
 
         image = builder.get_object("_image")
         th = threading.Thread(target=utils.add_image, args=(image, self.item))
         th.deamon = True
         th.start()
+
+        for favourite_track in variables.favourite_tracks:
+            if favourite_track.isrc == track.isrc:
+                self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
+                break
+        else:
+            self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
 
         for index, track in enumerate(self.item.items()):
             listing = self.get_track_listing(track)

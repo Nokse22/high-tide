@@ -58,7 +58,7 @@ from .lib import SecretStore
 from .lib import variables
 
 from .widgets import GenericTrackWidget
-from .widgets import ArtistLabelWidget
+from .widgets import LinkLabelWidget
 
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/window.ui')
 class HighTideWindow(Adw.ApplicationWindow):
@@ -110,7 +110,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.connect("song-added-to-queue", self.update_queue)
         self.player_object.connect("play-changed", self.update_controls)
 
-        self.artist_label.connect("activate-link", self.on_link_clicked)
+        self.artist_label.connect("activate-link", variables.open_uri)
 
         self.search_entry.connect("activate", self.on_search_activated)
 
@@ -149,7 +149,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def on_logged_in(self):
         print("on logged in")
-        self.favourite_tracks = self.session.user.favorites.tracks()
+        variables.favourite_tracks = self.session.user.favorites.tracks()
         # FIXME if it doesn't login fast enough it doesn't let the user login
 
         self.search_entry.set_sensitive(True)
@@ -431,14 +431,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         result = self.session.user.favorites.remove_track(track_id)
         if result:
             print("successfully removed from my collection")
-
-    def on_link_clicked(self, label, uri):
-        from .pages import artistPage
-
-        artist = Artist(self.session, uri)
-        page = artistPage(artist, artist.name)
-        page.load()
-        self.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_volume_changed")
     def on_volume_changed_func(self, widget, value):

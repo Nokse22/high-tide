@@ -29,6 +29,7 @@ import threading
 from ..lib import utils
 
 from tidalapi.user import Favorites
+from tidalapi.artist import Artist
 
 from ..lib import variables
 
@@ -39,28 +40,33 @@ class GenericTrackWidget(Gtk.ListBoxRow):
     """It is used to display a single track"""
 
     image = Gtk.Template.Child()
-    track_album_label = Gtk.Template.Child()
     track_title_label = Gtk.Template.Child()
     track_duration_label = Gtk.Template.Child()
-    artist_label = Gtk.Template.Child()
     playlists_submenu = Gtk.Template.Child()
-    track_album_button = Gtk.Template.Child()
     _grid = Gtk.Template.Child()
     explicit_label = Gtk.Template.Child()
+
+    artist_label = Gtk.Template.Child()
+    artist_label_2 = Gtk.Template.Child()
+    track_album_label = Gtk.Template.Child()
 
     def __init__(self, _track, is_album):
         super().__init__()
 
+        self.artist_label.connect("activate-link", variables.open_uri)
+        self.artist_label_2.connect("activate-link", variables.open_uri)
+        self.track_album_label.connect("activate-link", variables.open_uri)
+
         if is_album:
-            self._grid.remove(self.track_album_button)
+            self._grid.remove(self.track_album_label)
             self.image.set_visible(False)
             self.track_title_label.set_margin_start(12)
 
         self.track = _track
 
-        self.track_album_label.set_label(self.track.album.name)
+        self.track_album_label.set_album(self.track.album)
         self.track_title_label.set_label(self.track.name)
-        self.artist_label.set_label(self.track.artist.name)
+        self.artist_label.set_artists(self.track.artists)
 
         self.explicit_label.set_visible(self.track.explicit)
 
@@ -134,17 +140,3 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         selected_playlist = self.win.favourite_playlists[playlist_index]
 
         print(f"Added to playlist: {selected_playlist.name}, ID: {playlist_id}")
-
-    @Gtk.Template.Callback("on_artist_button_clicked")
-    def _on_artist_button_clicked(self, *args):
-        from ..pages.artist_page import artistPage
-        page = artistPage(self.track.artist, f"{self.track.artist.name}")
-        page.load()
-        variables.navigation_view.push(page)
-
-    @Gtk.Template.Callback("on_album_button_clicked")
-    def _on_album_button_clicked(self, *args):
-        from ..pages.album_page import albumPage
-        page = albumPage(self.track.album, f"{self.track.album.name}")
-        page.load()
-        variables.navigation_view.push(page)

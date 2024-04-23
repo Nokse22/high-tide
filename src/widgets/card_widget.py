@@ -48,10 +48,13 @@ class CardWidget(Adw.BreakpointBin):
     button = Gtk.Template.Child()
     title_label = Gtk.Template.Child()
     detail_label = Gtk.Template.Child()
+
     track_artist_label = Gtk.Template.Child()
 
     def __init__(self, _item):
         super().__init__()
+
+        self.track_artist_label.connect("activate-link", variables.open_uri)
 
         self.item = _item
 
@@ -130,15 +133,6 @@ class CardWidget(Adw.BreakpointBin):
         th = threading.Thread(target=utils.add_image, args=(self.image, self.item))
         th.deamon = True
         th.start()
-
-    @Gtk.Template.Callback("on_artist_link_clicked")
-    def on_artist_link_clicked(self, label, uri):
-        from ..pages import artistPage
-
-        artist = Artist(variables.session, uri)
-        page = artistPage(artist, artist.name)
-        page.load()
-        variables.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_image_button_clicked")
     def _on_image_button_clicked(self, *args):

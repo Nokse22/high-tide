@@ -52,7 +52,6 @@
                   </object>
                 </child>
               </object>
-
             </property>
             <property name="name">content</property>
           </object>

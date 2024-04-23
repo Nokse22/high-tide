@@ -258,7 +258,6 @@ class Page(Adw.NavigationPage):
             result = variables.session.user.favorites.remove_mix(item.id)
         elif isinstance(item, Album):
             result = variables.session.user.favorites.remove_album(item.id)
-            print("adding album")
         elif isinstance(item, Artist):
             result = variables.session.user.favorites.remove_artist(item.id)
         elif isinstance(item, Playlist):
@@ -277,11 +276,3 @@ class Page(Adw.NavigationPage):
             th = threading.Thread(target=self.remove_from_my_collection, args=(btn, self.item,))
         th.deamon = True
         th.start()
-
-    def on_link_clicked(self, label, uri):
-        from .pages import artistPage
-
-        artist = Artist(self.session, uri)
-        page = artistPage(artist, artist.name)
-        page.load()
-        self.navigation_view.push(page)

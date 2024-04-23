@@ -424,8 +424,9 @@
                                 </object>
                               </child>
                               <child>
-                                <object class="ArtistLabelWidget" id="artist_label">
+                                <object class="LinkLabelWidget" id="artist_label">
                                   <property name="xalign">0</property>
+                                  <property name="ellipsize">end</property>
                                 </object>
                                 </child>
                               </object>

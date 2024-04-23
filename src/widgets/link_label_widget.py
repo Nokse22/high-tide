@@ -25,8 +25,8 @@ import html
 
 from ..lib import variables
 
-class ArtistLabelWidget(Gtk.Label):
-    __gtype_name__ = 'ArtistLabelWidget'
+class LinkLabelWidget(Gtk.Label):
+    __gtype_name__ = 'LinkLabelWidget'
 
     """It is used to display multiple artist with a link"""
 
@@ -42,6 +42,10 @@ class ArtistLabelWidget(Gtk.Label):
         for index, artist in enumerate(artists):
             if index >= 1:
                 label += ", "
-            label += f"""<a href="{artist.id}">{html.escape(artist.name)}</a>"""
+            label += f"""<a href="artist:{artist.id}">{html.escape(artist.name)}</a>"""
 
             self.set_markup(label)
+
+    def set_album(self, album):
+        label = f"""<a href="album:{album.id}">{html.escape(album.name)}</a>"""
+        self.set_markup(label)
