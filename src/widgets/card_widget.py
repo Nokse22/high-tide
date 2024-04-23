@@ -70,8 +70,9 @@ class CardWidget(Adw.BreakpointBin):
 
     def make_track_card(self):
         self.title_label.set_label(self.item.name)
-        self.detail_label.set_label(self.item.artist.name)
-        self.track_artist_label.set_visible(False)
+        self.track_artist_label.set_artists(self.item.artists)
+        self.track_artist_label.set_label("Track by " + self.track_artist_label.get_label())
+        self.detail_label.set_visible(False)
 
         self.item = self.item.album
 
