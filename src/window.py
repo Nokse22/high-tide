@@ -89,6 +89,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     queue_list = Gtk.Template.Child()
     main_view_stack = Gtk.Template.Child()
     playbar_main_box = Gtk.Template.Child()
+    mobile_picture = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -221,9 +222,8 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.settings.set_int("last-playing-song-id", track.id)
 
-        th = threading.Thread(target=utils.add_image, args=(self.playing_track_image, album))
-        th.deamon = True
-        th.start()
+        threading.Thread(target=utils.add_image, args=(self.playing_track_image, album)).start()
+        threading.Thread(target=utils.add_picture, args=(self.mobile_picture, album)).start()
 
         if self.player_object.is_playing:
             self.play_button.set_icon_name("media-playback-pause-symbolic")

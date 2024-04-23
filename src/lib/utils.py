@@ -54,6 +54,32 @@ def pretty_duration(secs):
 
     return "00:00"
 
+def add_picture(picture_widget, item):
+
+    """Retrieves and adds an picture"""
+
+    file_path = Path(f"{variables.IMG_DIR}/{item.id}.jpg")
+
+    if file_path.is_file():
+        GLib.idle_add(_add_picture, picture_widget, str(file_path))
+
+    try:
+        picture_url = item.image()
+        response = requests.get(picture_url)
+    except Exception as e:
+        print(str(e))
+        return
+    if response.status_code == 200:
+        picture_data = response.content
+
+        with open(file_path, "wb") as file:
+            file.write(picture_data)
+
+        GLib.idle_add(_add_picture, picture_widget, str(file_path))
+
+def _add_picture(picture_widget, file_path):
+        picture_widget.set_filename(file_path)
+
 def add_image(image_widget, item):
 
     """Retrieves and adds an image"""
