@@ -29,7 +29,7 @@ from ..lib import utils
 
 import tidalapi
 from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix, MixType
+from tidalapi.mix import MixV2, MixType, Mix
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.media import Track
@@ -58,7 +58,7 @@ class CardWidget(Adw.BreakpointBin):
 
         self.item = _item
 
-        if isinstance(_item, Mix):
+        if isinstance(_item, MixV2) or isinstance(_item, Mix):
             self.make_mix_card()
         elif isinstance(_item, Album):
             self.make_album_card()
@@ -136,7 +136,7 @@ class CardWidget(Adw.BreakpointBin):
 
     @Gtk.Template.Callback("on_image_button_clicked")
     def _on_image_button_clicked(self, *args):
-        if isinstance(self.item, Mix):
+        if isinstance(self.item, Mix) or isinstance(self.item, MixV2):
             from ..pages import mixPage
             page = mixPage(self.item, f"{self.item.title}")
             page.load()

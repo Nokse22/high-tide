@@ -24,6 +24,10 @@
     <file preprocess="xml-stripblanks">icons/16x16/actions/heart-outline-thick-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/navigate-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/music-artist-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/16x16/actions/explore2-large-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/16x16/actions/library-music-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/16x16/actions/music-note-single-symbolic.svg</file>
+    <!-- <file preprocess="xml-stripblanks">icons/16x16/actions/music-note-single-symbolic.svg</file> -->
   </gresource>
 </gresources>
 

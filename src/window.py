@@ -501,37 +501,36 @@ class HighTideWindow(Adw.ApplicationWindow):
     def on_sidebar_row_selected_clicked_func(self, list_box, row):
         if row == None:
             return
-        if row.get_child().get_name() == "HOME":
+
+        name = row.get_child().get_last_child().get_name()
+
+        if name == "HOME":
             self.navigation_view.pop_to_tag("home")
-        elif row.get_child().get_name() == "EXPLORE":
+        elif name == "EXPLORE":
             page = explorePage(None, "Explore")
             page.load()
             self.navigation_view.push(page)
-        elif row.get_child().get_name() == "F-TRACK":
+        elif name == "F-TRACK":
             page = fromFunctionPage("track", _("Favorite Tracks"))
             page.set_function(self.session.user.favorites.tracks)
             page.load()
             self.navigation_view.push(page)
-
-        elif row.get_child().get_name() == "F-MIX": # Not supported by tidalapi
+        elif name == "F-MIX":
             page = fromFunctionPage("mix", _("Favorite Mixes"))
             page.set_function(self.session.user.favorites.mixes)
             page.load()
             self.navigation_view.push(page)
-
-        elif row.get_child().get_name() == "F-ARTIST":
+        elif name == "F-ARTIST":
             page = fromFunctionPage("artist", _("Favorite Artists"))
             page.set_function(self.session.user.favorites.artists)
             page.load()
             self.navigation_view.push(page)
-
-        elif row.get_child().get_name() == "F-PLAYLIST":
+        elif name == "F-PLAYLIST":
             page = fromFunctionPage("playlist", _("Favorite Playlists"))
             page.set_function(self.session.user.favorites.playlists)
             page.load()
             self.navigation_view.push(page)
-
-        elif row.get_child().get_name() == "F-ALBUM":
+        elif name == "F-ALBUM":
             page = fromFunctionPage("album", _("Favorite Albums"))
             page.set_function(self.session.user.favorites.albums)
             page.load()

@@ -95,24 +95,47 @@
                                     <property name="selection-mode">none</property>
                                     <property name="sensitive" bind-source="search_entry" bind-property="sensitive">false</property>
                                     <child>
-                                      <object class="GtkLabel">
-                                        <property name="name">HOME</property>
-                                        <property name="label" translatable="yes">Home</property>
-                                        <property name="xalign">0</property>
+                                      <object class="GtkBox">
+                                        <property name="spacing">12</property>
+                                        <property name="margin-start">6</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">go-home-symbolic</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="name">HOME</property>
+                                            <property name="label" translatable="yes">Home</property>
+                                            <property name="xalign">0</property>
+                                          </object>
+                                        </child>
                                       </object>
                                     </child>
+
                                     <child>
-                                      <object class="GtkLabel">
-                                        <property name="name">EXPLORE</property>
-                                        <property name="label" translatable="yes">Explore</property>
-                                        <property name="xalign">0</property>
+                                      <object class="GtkBox">
+                                        <property name="spacing">12</property>
+                                        <property name="margin-start">6</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">explore2-large-symbolic</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="name">EXPLORE</property>
+                                            <property name="label" translatable="yes">Explore</property>
+                                            <property name="xalign">0</property>
+                                          </object>
+                                        </child>
                                       </object>
                                     </child>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
-                                    <property name="label" translatable="yes">MY COLLECTION</property>
+                                    <property name="label" translatable="yes">My Collection</property>
                                     <property name="xalign">0</property>
                                     <property name="css-classes">dim-label</property>
                                     <property name="margin-bottom">3</property>
@@ -126,41 +149,102 @@
                                     <property name="css-classes">navigation-sidebar</property>
                                     <property name="selection-mode">none</property>
                                     <property name="sensitive" bind-source="search_entry" bind-property="sensitive">false</property>
+
                                     <!-- <child> -->
-                                    <!--   <object class="GtkLabel"> -->
-                                    <!--     <property name="name">F-MIX</property> -->
-                                    <!--     <property name="label" translatable="yes">Mixes and Radios</property> -->
-                                    <!--     <property name="xalign">0</property> -->
+                                    <!--   <object class="GtkBox"> -->
+                                    <!--     <property name="spacing">12</property> -->
+                                    <!--     <property name="margin-start">6</property> -->
+                                    <!--     <child> -->
+                                    <!--       <object class="GtkImage"> -->
+                                    <!--         <property name="icon-name">media-tape-symbolic</property> -->
+                                    <!--       </object> -->
+                                    <!--     </child> -->
+                                    <!--     <child> -->
+                                    <!--       <object class="GtkLabel"> -->
+                                    <!--         <property name="name">F-MIX</property> -->
+                                    <!--         <property name="label" translatable="yes">Mixes and Radios</property> -->
+                                    <!--         <property name="xalign">0</property> -->
+                                    <!--       </object> -->
+                                    <!--     </child> -->
                                     <!--   </object> -->
                                     <!-- </child> -->
+
                                     <child>
-                                      <object class="GtkLabel">
-                                        <property name="name">F-PLAYLIST</property>
-                                        <property name="label" translatable="yes">Playlist</property>
-                                        <property name="xalign">0</property>
+                                      <object class="GtkBox">
+                                        <property name="spacing">12</property>
+                                        <property name="margin-start">6</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">library-music-symbolic</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="name">F-PLAYLIST</property>
+                                            <property name="label" translatable="yes">Playlist</property>
+                                            <property name="xalign">0</property>
+                                          </object>
+                                        </child>
                                       </object>
                                     </child>
+
                                     <child>
-                                      <object class="GtkLabel">
-                                        <property name="name">F-ALBUM</property>
-                                        <property name="label" translatable="yes">Albums</property>
-                                        <property name="xalign">0</property>
+                                      <object class="GtkBox">
+                                        <property name="spacing">12</property>
+                                        <property name="margin-start">6</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">media-optical-cd-symbolic</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="name">F-ALBUM</property>
+                                            <property name="label" translatable="yes">Albums</property>
+                                            <property name="xalign">0</property>
+                                          </object>
+                                        </child>
                                       </object>
                                     </child>
+
                                     <child>
-                                      <object class="GtkLabel">
-                                        <property name="name">F-TRACK</property>
-                                        <property name="label" translatable="yes">Tracks</property>
-                                        <property name="xalign">0</property>
+                                      <object class="GtkBox">
+                                        <property name="spacing">12</property>
+                                        <property name="margin-start">6</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">music-note-single-symbolic</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="name">F-TRACK</property>
+                                            <property name="label" translatable="yes">Tracks</property>
+                                            <property name="xalign">0</property>
+                                          </object>
+                                        </child>
                                       </object>
                                     </child>
+
                                     <child>
-                                      <object class="GtkLabel">
-                                        <property name="name">F-ARTIST</property>
-                                        <property name="label" translatable="yes">Artists</property>
-                                        <property name="xalign">0</property>
+                                      <object class="GtkBox">
+                                        <property name="spacing">12</property>
+                                        <property name="margin-start">6</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">music-artist-symbolic</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="name">F-ARTIST</property>
+                                            <property name="label" translatable="yes">Artists</property>
+                                            <property name="xalign">0</property>
+                                          </object>
+                                        </child>
                                       </object>
                                     </child>
+
                                   </object>
                                 </child>
                                 <child>
@@ -170,10 +254,9 @@
                                     <property name="margin-start">14</property>
                                       <child>
                                         <object class="GtkLabel">
-                                          <property name="label" translatable="yes">MY PLAYLISTS</property>
+                                          <property name="label" translatable="yes">My Playlists</property>
                                           <property name="xalign">0</property>
                                           <property name="css-classes">dim-label</property>
-
                                         </object>
                                       </child>
                                       <child>
