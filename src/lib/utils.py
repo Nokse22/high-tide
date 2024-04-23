@@ -33,6 +33,9 @@ from tidalapi.playlist import Playlist
 from tidalapi.user import Favorites
 
 import requests
+import re
+import html
+
 from pathlib import Path
 from . import variables
 
@@ -105,3 +108,31 @@ def add_image_to_avatar(avatar_widget, item):
             file.write(image_data)
 
         GLib.idle_add(_add_image_to_avatar, avatar_widget, str(file_path))
+
+def replace_links(text):
+    # Define regular expression pattern to match escaped [wimpLink ...]...[/wimpLink] tags
+    pattern = r'\[wimpLink (artistId|albumId)=&quot;(\d+)&quot;\]([^[]+)\[\/wimpLink\]'
+
+    # Escape HTML in the entire text
+    escaped_text = html.escape(text)
+
+    # Define a function to replace the matched pattern with the desired format
+    def replace(match):
+        link_type = match.group(1)
+        id_value = match.group(2)
+        label = match.group(3)
+
+        if link_type == "artistId":
+            return f'<a href="artist:{id_value}">{label}</a>'
+        elif link_type == "albumId":
+            return f'<a href="album:{id_value}">{label}</a>'
+        else:
+            return label
+
+    # Replace <br/> with two periods
+    escaped_text = escaped_text.replace('&lt;br/&gt;', '\n\n')
+
+    # Use re.sub() to perform the replacement
+    replaced_text = re.sub(pattern, replace, escaped_text)
+
+    return replaced_text

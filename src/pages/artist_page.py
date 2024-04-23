@@ -39,6 +39,8 @@ import threading
 import requests
 import random
 import copy
+import html
+import re
 
 from .page import Page
 
@@ -78,16 +80,14 @@ class artistPage(Page):
 
         artist_picture = builder.get_object("_avatar")
 
-        th = threading.Thread(target=utils.add_image_to_avatar, args=(artist_picture, self.artist))
-        th.deamon = True
-        th.start()
+        threading.Thread(target=utils.add_image_to_avatar, args=(artist_picture, self.artist)).start()
 
         roles_str = ""
         for role in self.artist.roles:
             print(role)
             roles_str += " " + role.main.value
 
-        builder.get_object("_first_subtitle_label").set_label(roles_str)
+        builder.get_object("_first_subtitle_label").set_label("Artist")
 
         tracks_list_widget = TracksListWidget("Top Tracks")
         tracks_list_widget.set_function(self.artist.get_top_tracks)
@@ -145,15 +145,21 @@ class artistPage(Page):
                     artist_card = self.get_artist_card(artist)
                     carousel.append_card(artist_card)
 
+        # [wimpLink artistId="3653311"]Hayley Williams[/wimpLink]
+        # <a href="artist:3653311">Hayley Williams</a>
+
         try:
             bio = self.artist.get_bio()
         except:
             pass
         else:
-            expander = Gtk.Expander(label="Bio", css_classes=["title-3"], margin_bottom=50)
-            label = Gtk.Label(label=bio, wrap=True, css_classes=[])
-            expander.set_child(label)
-            content_box.append(expander)
+            bio = utils.replace_links(bio)
+            # expander = Gtk.Expander(label="Bio", css_classes=["title-3"], margin_bottom=50)
+            label = Gtk.Label(wrap=True, css_classes=[])
+            label.set_markup(bio)
+            # expander.set_child(label)
+            content_box.append(label)
+            label.connect("activate-link", variables.open_uri)
 
         self.page_content.append(page_content)
         self._page_loaded()
@@ -184,3 +190,4 @@ class artistPage(Page):
         page = trackRadioPage(self.artist, f"Radio of {self.artist.name}")
         page.load()
         variables.navigation_view.push(page)
+

@@ -33,11 +33,11 @@ def init():
 
     global favourite_tracks
 
-def open_uri(label, uri):
+def open_uri(label, uri, turn=True):
     print(uri)
     th= threading.Thread(target=_load_object, args=(uri,))
     th.start()
-    return True
+    return turn
 
 def _open_uri(uri, loaded_object):
     uri_parts = uri.split(":")

@@ -78,6 +78,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     song_title_label = Gtk.Template.Child()
     playing_track_image = Gtk.Template.Child()
     artist_label = Gtk.Template.Child()
+    mobile_artist_label = Gtk.Template.Child()
     sidebar_collection = Gtk.Template.Child()
     right_sidebar_split_view = Gtk.Template.Child()
     lyrics_label = Gtk.Template.Child()
@@ -111,6 +112,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.connect("play-changed", self.update_controls)
 
         self.artist_label.connect("activate-link", variables.open_uri)
+        self.mobile_artist_label.connect("activate-link", variables.open_uri, False)
+        self.mobile_artist_label.connect("activate-link", self.toggle_mobile_view)
 
         self.search_entry.connect("activate", self.on_search_activated)
 
@@ -281,6 +284,15 @@ class HighTideWindow(Adw.ApplicationWindow):
         # self.queue_list.remove(self.queue_list.get_child())
         # print("REMOVED")
         self.queue_list.set_child(box)
+
+    def toggle_mobile_view(self, *args):
+        name = self.main_view_stack.get_visible_child_name()
+        if name == "normal_view":
+            self.main_view_stack.set_visible_child_name("mobile_view")
+        elif name == "mobile_view":
+            self.main_view_stack.set_visible_child_name("normal_view")
+
+        return True
 
     def on_search_activated(self, *args):
         page = searchPage(None, "Search")
