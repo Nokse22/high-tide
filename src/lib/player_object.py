@@ -257,8 +257,20 @@ class playerObject(GObject.GObject):
         # self.emit("songs-list-changed", self.shuffle_mode)
 
     def get_current_song(self):
-        """Get information about the currently playing song."""
-        return self.current_mix_album_playlist.items()[self.current_song_index]
+        """Get the currently playing song."""
+        return self.playing_track
+
+    def get_prev_track(self):
+        if len(self.played_songs) != 0:
+            return self.played_songs[-1]
+        return None
+
+    def get_next_track(self):
+        if len(self.queue) != 0:
+            return self.queue[0]
+        if len(self.tracks_to_play) != 0:
+            return self.tracks_to_play[0]
+        return None
 
     def clear_queue(self):
         """Clear the queue."""
