@@ -89,7 +89,10 @@ class HighTideWindow(Adw.ApplicationWindow):
     queue_list = Gtk.Template.Child()
     main_view_stack = Gtk.Template.Child()
     playbar_main_box = Gtk.Template.Child()
-    mobile_picture = Gtk.Template.Child()
+    # navigation_carousel = Gtk.Template.Child()
+    # previous_carousel_picture = Gtk.Template.Child()
+    current_carousel_picture = Gtk.Template.Child()
+    # next_carousel_picture = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -101,6 +104,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.player_object = playerObject()
         variables.player_object = self.player_object
+        variables.search_entry = self.search_entry
 
         self.volume_button.get_adjustment().set_value(self.settings.get_int("last-volume")/10)
 
@@ -223,7 +227,15 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.settings.set_int("last-playing-song-id", track.id)
 
         threading.Thread(target=utils.add_image, args=(self.playing_track_image, album)).start()
-        threading.Thread(target=utils.add_picture, args=(self.mobile_picture, album)).start()
+        threading.Thread(target=utils.add_picture, args=(self.current_carousel_picture, album)).start()
+
+        # next_track = self.player_object.get_next_track()
+        # if next_track:
+        #     threading.Thread(target=utils.add_picture, args=(self.next_carousel_picture, next_track.album)).start()
+
+        # prev_track = self.player_object.get_prev_track()
+        # if prev_track:
+        #     threading.Thread(target=utils.add_picture, args=(self.previous_carousel_picture, prev_track.album)).start()
 
         if self.player_object.is_playing:
             self.play_button.set_icon_name("media-playback-pause-symbolic")
@@ -390,8 +402,11 @@ class HighTideWindow(Adw.ApplicationWindow):
         th.start()
 
     def add_lyrics_to_page(self):
-        lyrics = self.player_object.playing_track.lyrics()
-        self.lyrics_label.set_label(lyrics.text)
+        try:
+            lyrics = self.player_object.playing_track.lyrics()
+            self.lyrics_label.set_label(lyrics.text)
+        except:
+            return
 
     def download_song(self):
         """Added to check the streamed song quality, triggered with ctrl+d"""
