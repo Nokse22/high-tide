@@ -58,7 +58,7 @@ class searchPage(Page):
 
         # page_content.prepend(filters_scrolled_window)
 
-        query = self.window.search_entry.get_text()
+        query = variables.search_entry.get_text()
 
         results = variables.session.search(query, [Artist, Album, Playlist, Track], 10)
 

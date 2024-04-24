@@ -33,6 +33,8 @@ def init():
 
     global favourite_tracks
 
+    global search_entry
+
 def open_uri(label, uri, turn=True):
     print(uri)
     th= threading.Thread(target=_load_object, args=(uri,))
