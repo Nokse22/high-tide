@@ -87,7 +87,6 @@ class fromFunctionPage(Page):
         if self.function:
             new_items = self.function(limit=self.items_limit, offset=(self.items_n))
             self.items.extend(new_items)
-            self.items_n += self.items_limit
             if new_items == []:
                 self.scrolled_window.handler_disconnect(self.handler_id)
                 return
@@ -102,6 +101,8 @@ class fromFunctionPage(Page):
         else:
             self.add_cards(new_items)
 
+        self.items_n += self.items_limit
+
     def add_tracks(self, new_items):
         if self.parent == None:
             self.parent = Gtk.ListBox(css_classes=["boxed-list"], margin_bottom=12, margin_start=12, margin_end=12, margin_top=12)
@@ -110,7 +111,7 @@ class fromFunctionPage(Page):
 
         for index, track in enumerate(new_items):
             listing = self.get_track_listing(track)
-            listing.set_name(str(index))
+            listing.set_name(str(index + self.items_n))
             GLib.idle_add(self.parent.append, listing)
 
     def add_cards(self, new_items):
@@ -124,5 +125,7 @@ class fromFunctionPage(Page):
 
     def on_tracks_row_selected(self, list_box, row):
         index = int(row.get_name())
+
+        print(index, row, list_box)
 
         variables.player_object.play_this(self.items, index)
