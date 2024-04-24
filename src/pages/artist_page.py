@@ -154,7 +154,7 @@ class artistPage(Page):
             pass
         else:
             bio = utils.replace_links(bio)
-            label = Gtk.Label(wrap=True, css_classes=[], margin_start=12, margin_end=12)
+            label = Gtk.Label(wrap=True, css_classes=[], margin_start=12, margin_end=12, margin_bottom=24)
             label.set_markup(bio)
             content_box.append(Gtk.Label(wrap=True, css_classes=["title-3"],
                         margin_start=12, label=_("Bio"), xalign=0, margin_top=12,margin_bottom=12))
