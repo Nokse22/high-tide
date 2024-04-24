@@ -760,69 +760,27 @@ flat</property>
                                     </child>
                                   </object>
                                 </child>
-                                <child>
-                                  <!-- <object class="GtkOverlay"> -->
-                                  <!--   <property name="css-classes">slide-carousel</property> -->
-                                  <!--     <property name="child"> -->
-                                  <!--       <object class="AdwCarousel"> -->
-                                  <!--         <property name="halign">center</property> -->
-                                  <!--         <property name="spacing">20</property> -->
-                                  <!--         <property name="valign">center</property> -->
-                                  <!--         <property name="overflow">visible</property> -->
-                                          <!-- <child> -->
-                                            <object class="GtkPicture" id="mobile_picture">
-                                              <!-- <property name="halign">center</property> -->
-                                              <!-- <property name="height-request">330</property> -->
-                                              <!-- <property name="hexpand">True</property> -->
-                                              <!-- <property name="icon-name">user-trash-full</property> -->
-                                              <!-- <property name="pixel-size">200</property> -->
-                                              <!-- <property name="valign">center</property> -->
-                                              <!-- <property name="vexpand">True</property> -->
-                                              <property name="height-request">335</property>
-                                              <!-- <property name="file" bind-source="playing_track_image" bind-property="file"/> -->
-                                            </object>
-                                  <!--         </child> -->
-                                  <!--         <child> -->
-                                  <!--           <object class="GtkImage"> -->
-                                  <!--             <property name="halign">center</property> -->
-                                  <!--             <property name="height-request">330</property> -->
-                                  <!--             <property name="hexpand">True</property> -->
-                                  <!--             <property name="icon-name">drive-optical</property> -->
-                                  <!--             <property name="pixel-size">200</property> -->
-                                  <!--             <property name="valign">center</property> -->
-                                  <!--             <property name="vexpand">True</property> -->
-                                  <!--             <property name="width-request">330</property> -->
-                                  <!--             <property name="file" bind-source="playing_track_image" bind-property="file"/> -->
-                                  <!--           </object> -->
-                                  <!--         </child> -->
-                                  <!--       </object> -->
-                                  <!--     </property> -->
-                                  <!--     <child type="overlay"> -->
-                                  <!--       <object class="GtkBox"> -->
-                                  <!--         <property name="orientation">horizontal</property> -->
-                                  <!--         <child> -->
-                                  <!--           <object class="GtkBox"> -->
-                                  <!--             <property name="css-classes">left-shadow</property> -->
-                                  <!--             <property name="vexpand">True</property> -->
-                                  <!--             <property name="hexpand">True</property> -->
-                                  <!--           </object> -->
-                                  <!--         </child> -->
-                                  <!--         <child> -->
-                                  <!--           <object class="GtkBox"> -->
-                                  <!--           <property name="width-request">330</property> -->
-                                  <!--           </object> -->
-                                  <!--         </child> -->
-                                  <!--         <child> -->
-                                  <!--           <object class="GtkBox"> -->
-                                  <!--             <property name="css-classes">right-shadow</property> -->
-                                  <!--             <property name="vexpand">True</property> -->
-                                  <!--             <property name="hexpand">True</property> -->
-                                  <!--           </object> -->
-                                  <!--         </child> -->
-                                  <!--       </object> -->
-                                  <!--     </child> -->
-                                    <!-- </object> -->
-                                  </child>
+                                <!-- <child> -->
+                                <!--   <object class="AdwCarousel" id="navigation_carousel"> -->
+                                <!--     <property name="hexpand">true</property> -->
+                                <!--     <property name="vexpand">true</property> -->
+                                <!--     <property name="spacing">140</property> -->
+                                <!--     <property name="overflow">visible</property> -->
+                                <!--     <property name="height-request">335</property> -->
+                                <!--     <child> -->
+                                <!--       <object class="GtkPicture" id="previous_carousel_picture"> -->
+                                <!--       </object> -->
+                                <!--     </child> -->
+                                    <child>
+                                      <object class="GtkPicture" id="current_carousel_picture">
+                                      </object>
+                                    </child>
+                                <!--     <child> -->
+                                <!--       <object class="GtkPicture" id="next_carousel_picture"> -->
+                                <!--       </object> -->
+                                <!--     </child> -->
+                                <!--   </object> -->
+                                <!-- </child> -->
                                 <child>
                                   <object class="GtkBox">
                                     <property name="spacing">6</property>
