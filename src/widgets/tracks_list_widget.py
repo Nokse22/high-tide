@@ -42,6 +42,7 @@ class TracksListWidget(Gtk.Box):
 
         self.n_pages = 0
 
+        self.title_name = _title
         self.title_label.set_label(_title)
 
         self.get_function = None
@@ -70,12 +71,9 @@ class TracksListWidget(Gtk.Box):
 
     @Gtk.Template.Callback("on_more_clicked")
     def on_more_clicked(self, *args):
-        if not self.window:
-            return
-
         from ..pages import fromFunctionPage
 
-        page = fromFunctionPage("track")
+        page = fromFunctionPage("track", self.title_name)
         page.set_function(self.get_function)
         page.load()
         variables.navigation_view.push(page)
