@@ -8,41 +8,105 @@
     <property name="orientation">vertical</property>
     <property name="spacing">12</property>
     <child>
-      <object class="GtkListBox">
-        <property name="css-classes">boxed-list</property>
-        <child>
-          <object class="GenericTrackWidget" id="playing_track"/>
-        </child>
-      </object>
-    </child>
-    <child>
-      <object class="GtkScrolledWindow">
-        <property name="vexpand">true</property>
-        <child>
-          <object class="GtkBox">
-            <property name="orientation">vertical</property>
+      <object class="AdwToolbarView">
+        <child type="top">
+          <object class="AdwClamp">
             <child>
-              <object class="GtkBox">
-                <property name="orientation">vertical</property>
+            <object class="GtkListBox">
+              <property name="css-classes">boxed-list</property>
+              <property name="margin-start">12</property>
+              <property name="margin-end">12</property>
+              <property name="margin-top">3</property>
+              <property name="margin-bottom">6</property>
                 <child>
-                  <object class="AdwPreferencesGroup" id="played_songs_list">
-                    <property name="title">Played Songs</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="AdwPreferencesGroup" id="queued_songs_list">
-                    <property name="title">Queue</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="AdwPreferencesGroup" id="next_songs_list">
-                    <property name="title">Next Songs</property>
+                  <object class="GenericTrackWidget" id="playing_track_widget">
                   </object>
                 </child>
               </object>
             </child>
           </object>
         </child>
+        <property name="content">
+          <object class="GtkScrolledWindow">
+            <property name="vexpand">true</property>
+              <child>
+                <object class="AdwClamp">
+                  <child>
+                <object class="GtkBox">
+                  <property name="orientation">vertical</property>
+                  <property name="spacing">12</property>
+                  <property name="margin-bottom">12</property>
+                  <property name="margin-top">12</property>
+                  <property name="margin-start">12</property>
+                  <property name="margin-end">12</property>
+                    <child>
+                      <object class="GtkBox" id="played_songs_box">
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">6</property>
+                          <child>
+                            <object class="GtkLabel">
+                              <property name="css-classes">title-4</property>
+                              <property name="ellipsize">end</property>
+                              <property name="hexpand">True</property>
+                              <property name="xalign">0.0</property>
+                              <property name="label">Played Songs</property>
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkListBox" id="played_songs_list">
+                              <property name="css-classes">boxed-list</property>
+                            </object>
+                          </child>
+                        </object>
+                      </child>
+
+                      <child>
+                        <object class="GtkBox" id="queued_songs_box">
+                          <property name="orientation">vertical</property>
+                          <property name="spacing">6</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="css-classes">title-4</property>
+                                <property name="ellipsize">end</property>
+                                <property name="hexpand">True</property>
+                                <property name="xalign">0.0</property>
+                                <property name="label">Queue</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkListBox" id="queued_songs_list">
+                                <property name="css-classes">boxed-list</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkBox" id="next_songs_box">
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">6</property>
+                              <child>
+                                <object class="GtkLabel">
+                                  <property name="css-classes">title-4</property>
+                                  <property name="ellipsize">end</property>
+                                  <property name="hexpand">True</property>
+                                  <property name="xalign">-0.0</property>
+                                  <property name="label">Next Songs</property>
+                                </object>
+                              </child>
+                              <child>
+                                <object class="GtkListBox" id="next_songs_list">
+                                  <property name="css-classes">boxed-list</property>
+                                </object>
+                              </child>
+                            </object>
+                          </child>
+                    </object>
+                  </child>
+                </object>
+              </child>
+          </object>
+        </property>
       </object>
     </child>
   </template>

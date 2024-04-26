@@ -4,3 +4,4 @@ from .generic_track_widget import GenericTrackWidget
 from .top_hit_widget import TopHitWidget
 from .tracks_list_widget import TracksListWidget
 from .link_label_widget import LinkLabelWidget
+from .queue_widget import QueueWidget

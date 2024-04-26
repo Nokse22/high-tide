@@ -50,17 +50,18 @@ class GenericTrackWidget(Gtk.ListBoxRow):
     artist_label_2 = Gtk.Template.Child()
     track_album_label = Gtk.Template.Child()
 
-    def __init__(self, _track, is_album):
+    def __init__(self, _track=None, is_album=False):
         super().__init__()
 
+        if not _track:
+            return
+
+        self.set_track(_track, is_album)
+
+    def set_track(self, _track, is_album=False):
         self.artist_label.connect("activate-link", variables.open_uri)
         self.artist_label_2.connect("activate-link", variables.open_uri)
         self.track_album_label.connect("activate-link", variables.open_uri)
-
-        if is_album:
-            self._grid.remove(self.track_album_label)
-            self.image.set_visible(False)
-            self.track_title_label.set_margin_start(12)
 
         self.track = _track
 
@@ -114,6 +115,16 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         th = threading.Thread(target=utils.add_image, args=(self.image, self.track.album))
         th.deamon = True
         th.start()
+
+    def hide_album(self):
+        self._grid.remove(self.track_album_label)
+        self.image.set_visible(False)
+        self.track_title_label.set_margin_start(12)
+
+    def hide_artist(self):
+        self._grid.remove(self.track_album_label)
+        self.image.set_visible(False)
+        self.track_title_label.set_margin_start(12)
 
     def _get_radio(self, *args):
         from ..pages.track_radio_page import trackRadioPage

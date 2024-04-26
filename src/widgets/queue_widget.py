@@ -27,16 +27,8 @@ import threading
 
 from ..lib import utils
 
-import tidalapi
-from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import MixV2, MixType, Mix
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
-from tidalapi.user import Favorites
-
 from ..lib import variables
+from ..widgets import GenericTrackWidget
 
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/queue_widget.ui')
 class QueueWidget(Gtk.Box):
@@ -47,7 +39,58 @@ class QueueWidget(Gtk.Box):
     played_songs_list = Gtk.Template.Child()
     queued_songs_list = Gtk.Template.Child()
     next_songs_list = Gtk.Template.Child()
-    playing_track = Gtk.Template.Child()
 
-    def __init__(self, _item):
+    played_songs_box = Gtk.Template.Child()
+    queued_songs_box = Gtk.Template.Child()
+    next_songs_box = Gtk.Template.Child()
+
+    playing_track_widget = Gtk.Template.Child()
+
+    def __init__(self):
         super().__init__()
+
+    def update(self, player):
+        track = player.playing_track
+        self.playing_track_widget.set_track(track)
+
+        child = self.played_songs_list.get_row_at_index(0)
+        while child:
+            self.played_songs_list.remove(child)
+            child = self.played_songs_list.get_row_at_index(0)
+
+        child = self.queued_songs_list.get_row_at_index(0)
+        while child:
+            self.queued_songs_list.remove(child)
+            child = self.queued_songs_list.get_row_at_index(0)
+
+        child = self.next_songs_list.get_row_at_index(0)
+        while child:
+            self.next_songs_list.remove(child)
+            child = self.next_songs_list.get_row_at_index(0)
+
+        if len(player.played_songs) > 0:
+            self.played_songs_box.set_visible(True)
+            for index, track in enumerate(player.played_songs):
+                listing = GenericTrackWidget(track, False)
+                listing.set_name(str(index))
+                self.played_songs_list.append(listing)
+        else:
+            self.played_songs_box.set_visible(False)
+
+        if len(player.queue) > 0:
+            self.queued_songs_box.set_visible(True)
+            for index, track in enumerate(player.queue):
+                listing = GenericTrackWidget(track, False)
+                listing.set_name(str(index))
+                self.queued_songs_list.append(listing)
+        else:
+            self.queued_songs_box.set_visible(False)
+
+        if len(player.tracks_to_play) > 0:
+            self.next_songs_box.set_visible(True)
+            for index, track in enumerate(player.tracks_to_play):
+                listing = GenericTrackWidget(track, False)
+                listing.set_name(str(index))
+                self.next_songs_list.append(listing)
+        else:
+            self.next_songs_box.set_visible(False)

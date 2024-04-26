@@ -59,6 +59,7 @@ from .lib import variables
 
 from .widgets import GenericTrackWidget
 from .widgets import LinkLabelWidget
+from .widgets import QueueWidget
 
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/window.ui')
 class HighTideWindow(Adw.ApplicationWindow):
@@ -80,19 +81,19 @@ class HighTideWindow(Adw.ApplicationWindow):
     artist_label = Gtk.Template.Child()
     mobile_artist_label = Gtk.Template.Child()
     sidebar_collection = Gtk.Template.Child()
-    right_sidebar_split_view = Gtk.Template.Child()
-    lyrics_label = Gtk.Template.Child()
     sidebar_playlists = Gtk.Template.Child()
     volume_button = Gtk.Template.Child()
     in_my_collection_button = Gtk.Template.Child()
     explicit_label = Gtk.Template.Child()
-    queue_list = Gtk.Template.Child()
     main_view_stack = Gtk.Template.Child()
     playbar_main_box = Gtk.Template.Child()
     # navigation_carousel = Gtk.Template.Child()
     # previous_carousel_picture = Gtk.Template.Child()
     current_carousel_picture = Gtk.Template.Child()
     # next_carousel_picture = Gtk.Template.Child()
+    queue_widget = Gtk.Template.Child()
+    mobile_stack = Gtk.Template.Child()
+    lyrics_label = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -113,7 +114,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.bind_property("shuffle_mode", self.shuffle_button, "active", GObject.BindingFlags.DEFAULT)
         self.player_object.connect("update-slider", self.update_slider)
         self.player_object.connect("song-changed", self.on_song_changed)
-        self.player_object.connect("song-added-to-queue", self.update_queue)
+        self.player_object.connect("song-changed",self.queue_widget.update)
+        self.player_object.connect("song-added-to-queue", self.queue_widget.update)
         self.player_object.connect("play-changed", self.update_controls)
 
         self.artist_label.connect("activate-link", variables.open_uri)
@@ -242,60 +244,12 @@ class HighTideWindow(Adw.ApplicationWindow):
         else:
             self.play_button.set_icon_name("media-playback-start-symbolic")
 
-        # if self.right_sidebar_split_view.get_show_sidebar() or :
         th = threading.Thread(target=self.add_lyrics_to_page, args=())
         th.deamon = True
         th.start()
 
         self.control_bar_artist = track.artist
         self.update_slider()
-        self.update_queue()
-
-    def update_queue(self, *args):
-        """Creates and populates the right sidebar queue view, if there is nothing in played_songs, queue or songs_to_play lists in player_object
-        it doesn't add that section"""
-
-        return
-
-        box = Gtk.Box(orientation=1)
-        played_songs_list_box = Gtk.ListBox(css_classes=["boxed-list"], margin_top=6,
-                margin_bottom=6, margin_start=6, margin_end=6)
-        queue_list_box = Gtk.ListBox(css_classes=["boxed-list"], margin_top=6,
-                margin_bottom=6, margin_start=6, margin_end=6)
-        songs_to_play_list_box = Gtk.ListBox(css_classes=["boxed-list"], margin_top=6,
-                margin_bottom=6, margin_start=6, margin_end=6)
-
-        if len(self.player_object.played_songs) > 0:
-            for index, track in enumerate(self.player_object.played_songs):
-                listing = GenericTrackWidget(track, self, False)
-                listing.set_name(str(index))
-                played_songs_list_box.append(listing)
-
-            box.append(Gtk.Label(label="Played songs", css_classes=["dim-label"], xalign=0, margin_start=12))
-            box.append(played_songs_list_box)
-
-        if len(self.player_object.queue) > 0:
-            for index, track in enumerate(self.player_object.queue):
-                listing = GenericTrackWidget(track, self, False)
-                listing.set_name(str(index))
-                queue_list_box.append(listing)
-
-            box.append(Gtk.Label(label="Queue", css_classes=["dim-label"], xalign=0, margin_start=12))
-            box.append(queue_list_box)
-
-        if len(self.player_object.tracks_to_play) > 0:
-            for index, track in enumerate(self.player_object.tracks_to_play):
-                listing = GenericTrackWidget(track, self, False)
-                listing.set_name(str(index))
-                songs_to_play_list_box.append(listing)
-
-            box.append(Gtk.Label(label="Songs to play", css_classes=["dim-label"], xalign=0, margin_start=12))
-            box.append(songs_to_play_list_box)
-
-        # print(self.queue_list.get_child().get_child())
-        # self.queue_list.remove(self.queue_list.get_child())
-        # print("REMOVED")
-        self.queue_list.set_child(box)
 
     def toggle_mobile_view(self, *args):
         name = self.main_view_stack.get_visible_child_name()
@@ -395,7 +349,8 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_lyrics_button_clicked")
     def on_lyrics_button_clicked_func(self, widget):
-        self.right_sidebar_split_view.set_show_sidebar(not self.right_sidebar_split_view.get_show_sidebar())
+        self.main_view_stack.set_visible_child_name("mobile_view")
+        self.mobile_stack.set_visible_child_name("lyrics_page")
 
         th = threading.Thread(target=self.add_lyrics_to_page, args=())
         th.deamon = True
@@ -556,7 +511,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.split_view.set_show_sidebar(True)
 
     @Gtk.Template.Callback("on_mobile_view_button_clicked")
-    def on_mobile_view_button_clicked(self, *args):
+    def toggle_mobile_view(self, *args):
         if self.main_view_stack.get_visible_child_name() == "normal_view":
             self.main_view_stack.set_visible_child_name("mobile_view")
         else:

@@ -288,116 +288,11 @@
                     </object>
                     </property>
                     <property name="content">
-
-                      <object class="AdwBreakpointBin">
-                        <property name="width-request">280</property>
-                        <property name="height-request">200</property>
-                        <child>
-                          <object class="AdwBreakpoint">
-                            <condition>max-width: 600px</condition>
-                            <!-- <setter object="lyrics_split_view" property="collapsed">true</setter> -->
-                          </object>
-                        </child>
-                        <property name="child">
-                          <object class="AdwOverlaySplitView" id="right_sidebar_split_view">
-                            <property name="height-request">200</property>
-                            <property name="collapsed">true</property>
-                            <property name="sidebar-position">end</property>
-                            <!-- <property name="collapsed" bind-source="_lyrics_toggle_button" bind-property="active">True</property> -->
-                            <property name="show-sidebar">false</property>
-
-                            <property name="sidebar-width-fraction">0.3</property>
-                            <property name="max-sidebar-width">400</property>
-                            <property name="min-sidebar-width">300</property>
-
-                            <property name="content">
-
-                              <object class="AdwNavigationView" id="navigation_view">
-                                <property name="vexpand">true</property>
-                              </object>
-
-                            </property>
-
-                            <property name="sidebar">
-
-                              <object class="GtkBox">
-                                <property name="orientation">vertical</property>
-                                <child>
-                                  <object class="AdwHeaderBar">
-                                    <property name="css-classes">flat</property>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkBox">
-                                    <property name="vexpand">True</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkStack" id="right_sidebar_stack">
-                                        <!-- <property name="interpolate-size"></property> -->
-                                        <property name="transition-duration">200</property>
-                                        <property name="transition-type">6</property>
-                                        <child>
-                                          <object class="GtkStackPage">
-                                            <property name="title" translatable="yes">Lyrics</property>
-                                            <property name="child">
-                                              <object class="GtkScrolledWindow">
-                                                <property name="hexpand">true</property>
-                                                <property name="vexpand">true</property>
-                                                <style>
-                                                  <class name="undershoot-top"/>
-                                                  <class name="undershoot-bottom"/>
-                                                </style>
-                                                <child>
-                                                <object class="GtkLabel" id="lyrics_label">
-                                                  <property name="wrap">True</property>
-                                                  <property name="justify">2</property>
-                                                  <property name="opacity">0.6</property>
-                                                  <property name="margin-start">12</property>
-                                                  <property name="margin-end">12</property>
-                                                  <property name="css-classes">lyrics</property>
-                                                </object>
-                                              </child>
-                                              </object>
-                                            </property>
-                                          </object>
-                                        </child>
-                                        <child>
-                                          <object class="GtkStackPage">
-                                            <property name="title" translatable="yes">Queue</property>
-                                            <property name="child">
-                                              <object class="GtkScrolledWindow" id="queue_list">
-                                                <property name="hexpand">true</property>
-                                                <property name="vexpand">true</property>
-                                                <style>
-                                                  <class name="undershoot-top"/>
-                                                  <class name="undershoot-bottom"/>
-                                                </style>
-                                              </object>
-                                            </property>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkStackSwitcher" id="stack_switcher">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="stack">right_sidebar_stack</property>
-                                        <property name="margin-end">6</property>
-                                        <property name="margin-start">6</property>
-                                        <property name="margin-bottom">6</property>
-                                        <property name="margin-top">6</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
-                              </object>
-                          </property>
-                        </object>
-                      </property>
-                    </object>
-                  </property>
-                </object>
+                      <object class="AdwNavigationView" id="navigation_view">
+                        <property name="vexpand">true</property>
+                      </object>
+          </property>
+        </object>
       </child>
       <child>
         <object class="GtkBox" id="playbar_main_box">
@@ -941,14 +836,14 @@ circular</property>
                                 <class name="undershoot-bottom"/>
                               </style>
                               <child>
-                              <object class="GtkLabel">
+                              <object class="GtkLabel" id="lyrics_label">
                                 <property name="wrap">True</property>
                                 <property name="justify">2</property>
                                 <property name="opacity">0.6</property>
                                 <property name="margin-start">12</property>
                                 <property name="margin-end">12</property>
                                 <property name="css-classes">lyrics</property>
-                                <property name="label" bind-source="lyrics_label" bind-property="label"/>
+                                <!-- <property name="label" bind-source="lyrics_label" bind-property="label"/> -->
                               </object>
                             </child>
                           </object>
@@ -962,10 +857,6 @@ circular</property>
                       <object class="AdwViewStackPage">
                         <property name="child">
                           <object class="QueueWidget" id="queue_widget">
-                          <property name="margin-bottom">12</property>
-                          <property name="margin-top">11</property>
-                          <property name="margin-start">11</property>
-                          <property name="margin-end">11</property>
                           </object>
                         </property>
                         <property name="icon-name">view-list-ordered-symbolic</property>
