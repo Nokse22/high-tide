@@ -29,6 +29,7 @@
         <property name="content">
           <object class="GtkScrolledWindow">
             <property name="vexpand">true</property>
+            <property name="css-classes">undershoot-bottom</property>
               <child>
                 <object class="AdwClamp">
                   <child>
