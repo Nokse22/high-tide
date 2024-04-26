@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.90.2 -->
+<interface>
+  <!-- interface-name queue.ui -->
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.4"/>
+  <template class="QueueWidget" parent="GtkBox">
+    <property name="orientation">vertical</property>
+    <property name="spacing">12</property>
+    <child>
+      <object class="GtkListBox">
+        <property name="css-classes">boxed-list</property>
+        <child>
+          <object class="GenericTrackWidget" id="playing_track"/>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="vexpand">true</property>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="AdwPreferencesGroup" id="played_songs_list">
+                    <property name="title">Played Songs</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwPreferencesGroup" id="queued_songs_list">
+                    <property name="title">Queue</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwPreferencesGroup" id="next_songs_list">
+                    <property name="title">Next Songs</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

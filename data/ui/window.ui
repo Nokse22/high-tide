@@ -773,6 +773,7 @@ flat</property>
                                 <!--     </child> -->
                                     <child>
                                       <object class="GtkPicture" id="current_carousel_picture">
+                                        <property name="height-request">335</property>
                                       </object>
                                     </child>
                                 <!--     <child> -->
@@ -801,7 +802,7 @@ flat</property>
                                         </child>
                                         <child>
                                           <object class="GtkLabel" id="mobile_artist_label">
-                                            <property name="css-classes">dim-label</property>
+                                            <property name="css-classes">title-3</property>
                                             <property name="label" bind-source="artist_label" bind-property="label">Song Title</property>
                                             <property name="xalign">0.0</property>
                                             <property name="ellipsize">3</property>
@@ -960,7 +961,12 @@ circular</property>
                     <child>
                       <object class="AdwViewStackPage">
                         <property name="child">
-                          <object class="GtkBox"/>
+                          <object class="QueueWidget" id="queue_widget">
+                          <property name="margin-bottom">12</property>
+                          <property name="margin-top">11</property>
+                          <property name="margin-start">11</property>
+                          <property name="margin-end">11</property>
+                          </object>
                         </property>
                         <property name="icon-name">view-list-ordered-symbolic</property>
                         <property name="name">queue_page</property>
