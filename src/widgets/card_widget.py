@@ -73,6 +73,7 @@ class CardWidget(Adw.BreakpointBin):
 
     def make_track_card(self):
         self.title_label.set_label(self.item.name)
+        self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_artists(self.item.artists)
         self.track_artist_label.set_label("Track by " + self.track_artist_label.get_label())
         self.detail_label.set_visible(False)
@@ -85,6 +86,7 @@ class CardWidget(Adw.BreakpointBin):
 
     def make_mix_card(self):
         self.title_label.set_label(self.item.title)
+        self.title_label.set_tooltip_text(self.item.title)
         self.detail_label.set_label(self.item.sub_title)
         self.track_artist_label.set_visible(False)
 
@@ -94,6 +96,7 @@ class CardWidget(Adw.BreakpointBin):
 
     def make_album_card(self):
         self.title_label.set_label(self.item.name)
+        self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_artists(self.item.artists)
         self.detail_label.set_visible(False)
 
@@ -103,6 +106,7 @@ class CardWidget(Adw.BreakpointBin):
 
     def make_playlist_card(self):
         self.title_label.set_label(self.item.name)
+        self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_visible(False)
 
         creator = self.item.creator
@@ -118,6 +122,7 @@ class CardWidget(Adw.BreakpointBin):
 
     def make_artist_card(self):
         self.title_label.set_label(self.item.name)
+        self.title_label.set_tooltip_text(self.item.name)
         self.detail_label.set_label("Artist")
         self.track_artist_label.set_visible(False)
 
@@ -127,6 +132,7 @@ class CardWidget(Adw.BreakpointBin):
 
     def make_page_item_card(self):
         self.title_label.set_label(self.item.short_header)
+        self.title_label.set_tooltip_text(self.item.short_header)
         self.detail_label.set_label(self.item.short_sub_header)
         self.track_artist_label.set_visible(False)
 
