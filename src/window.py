@@ -137,7 +137,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.current_song_index = 0
         self.previous_time = 0
         self.favourite_playlists = []
-        self.favourite_tracks = []
 
         self.secret_store = SecretStore(self.session)
 
@@ -219,7 +218,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.artist_label.set_artists(track.artists)
         self.explicit_label.set_visible(track.explicit)
 
-        for favourite_track in self.favourite_tracks:
+        for favourite_track in variables.favourite_tracks:
             if favourite_track.isrc == track.isrc:
                 self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
                 break
