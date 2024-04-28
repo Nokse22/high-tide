@@ -243,6 +243,7 @@ class playerObject(GObject.GObject):
 
     def add_next(self, track):
         self.queue.insert(0, track)
+        self.emit("song-added-to-queue")
 
     def change_volume(self, value):
         self.playbin.set_property("volume", value)
