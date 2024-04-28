@@ -59,7 +59,12 @@ class albumPage(Page):
 
         builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
         builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
-        builder.get_object("_add_to_my_collection_button").connect("clicked", self.on_add_to_my_collection_button_clicked)
+
+        in_my_collection_button = builder.get_object("_in_my_collection_button")
+        in_my_collection_button.connect("clicked", variables.on_in_to_my_collection_button_clicked, self.item)
+
+        if (variables.is_favourited(self.item)):
+            in_my_collection_button.set_icon_name("heart-filled-symbolic")
 
         image = builder.get_object("_image")
         th = threading.Thread(target=utils.add_image, args=(image, self.item))

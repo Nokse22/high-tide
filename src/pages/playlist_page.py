@@ -69,6 +69,12 @@ class playlistPage(Page):
         builder.get_object("_first_subtitle_label").set_label(f"by {creator}")
         builder.get_object("_second_subtitle_label").set_label(f"{self.item.num_tracks} tracks ({utils.pretty_duration(self.item.duration)})")
 
+        in_my_collection_button = builder.get_object("_in_my_collection_button")
+        in_my_collection_button.connect("clicked", variables.on_in_to_my_collection_button_clicked, self.item)
+
+        if (variables.is_favourited(self.item)):
+            in_my_collection_button.set_icon_name("heart-filled-symbolic")
+
         image = builder.get_object("_image")
         th = threading.Thread(target=utils.add_image, args=(image, self.item))
         th.deamon = True

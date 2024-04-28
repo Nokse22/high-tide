@@ -158,7 +158,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def on_logged_in(self):
         print("on logged in")
-        variables.favourite_tracks = self.session.user.favorites.tracks()
+        variables.get_favourites()
         # FIXME if it doesn't login fast enough it doesn't let the user login
 
         self.search_entry.set_sensitive(True)
@@ -218,10 +218,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.artist_label.set_artists(track.artists)
         self.explicit_label.set_visible(track.explicit)
 
-        for favourite_track in variables.favourite_tracks:
-            if favourite_track.isrc == track.isrc:
-                self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
-                break
+        if variables.is_favourited(track):
+            self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
         else:
             self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
 

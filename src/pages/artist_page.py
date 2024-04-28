@@ -75,7 +75,12 @@ class artistPage(Page):
         builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
         builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
 
-        # builder.get_object("_follow_button").connect("clicked", self.on_add_to_my_collection_button_clicked)
+        follow_button = builder.get_object("_follow_button")
+        follow_button.connect("clicked", variables.on_in_to_my_collection_button_clicked, self.artist)
+
+        if (variables.is_favourited(self.artist)):
+            follow_button.set_icon_name("heart-filled-symbolic")
+
         # builder.get_object("_radio_button").connect("clicked", self.on_artist_radio_button_clicked)
 
         artist_picture = builder.get_object("_avatar")

@@ -5,11 +5,17 @@ from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
+from tidalapi.mix import Mix, MixV2
 
 from ..pages import artistPage
 from ..pages import albumPage
 
 import threading
+
+favourite_tracks = []
+favourite_artists = []
+favourite_albums = []
+favourite_playlists = []
 
 def init():
     global DATA_DIR
@@ -24,16 +30,100 @@ def init():
     print(DATA_DIR)
 
     global session
-
     global navigation_view
-
     global player_object
-
     global sidebar_list
-
-    global favourite_tracks
-
     global search_entry
+
+def get_favourites():
+    global favourite_tracks
+    global favourite_artists
+    global favourite_albums
+    global favourite_playlists
+
+    favourite_artists = session.user.favorites.artists()
+    favourite_tracks = session.user.favorites.tracks()
+    favourite_albums = session.user.favorites.albums()
+    favourite_playlists = session.user.favorites.playlists()
+
+def is_favourited(item):
+    global favourite_tracks
+    global favourite_artists
+    global favourite_albums
+    global favourite_playlists
+
+    if isinstance(item, Track):
+        for fav in favourite_tracks:
+            print(fav.name)
+            if (fav.id == item.id):
+                return True
+
+    elif isinstance(item, Mix):
+        return # still not supported
+
+    elif isinstance(item, Album):
+        for fav in favourite_albums:
+            if (fav.id == item.id):
+                return True
+
+    elif isinstance(item, Artist):
+        for fav in favourite_artists:
+            if (fav.id == item.id):
+                return True
+
+    elif isinstance(item, Playlist):
+        for fav in favourite_artists:
+            if (fav.id == item.id):
+                return True
+
+    return False
+
+def add_to_my_collection(btn, item):
+    if isinstance(item, Track):
+        result = session.user.favorites.add_track(item.id)
+    elif isinstance(item, Mix):
+        return # still not supported
+        result = session.user.favorites.add_mix(item.id)
+    elif isinstance(item, Album):
+        result = session.user.favorites.add_album(item.id)
+    elif isinstance(item, Artist):
+        result = session.user.favorites.add_artist(item.id)
+    elif isinstance(item, Playlist):
+        result = session.user.favorites.add_playlist(item.id)
+    else:
+        result = False
+
+    if result:
+        print("item successfully added to my collection")
+        btn.set_icon_name("heart-filled-symbolic")
+        get_favourites()
+    else:
+        print("failed to add item to my collection")
+
+def remove_from_my_collection(btn, item):
+    if isinstance(item, Track):
+        result = session.user.favorites.remove_track(item.id)
+    elif isinstance(item, Mix):
+        return # still not supported
+        result = session.user.favorites.remove_mix(item.id)
+    elif isinstance(item, Album):
+        result = session.user.favorites.remove_album(item.id)
+    elif isinstance(item, Artist):
+        result = session.user.favorites.remove_artist(item.id)
+    elif isinstance(item, Playlist):
+        result = session.user.favorites.remove_playlist(item.id)
+    else:
+        result = False
+
+    if result:
+        print("item successfully removed from my collection")
+        btn.set_icon_name("heart-outline-thick-symbolic")
+
+def on_in_to_my_collection_button_clicked(btn, item):
+    if btn.get_icon_name() == "heart-outline-thick-symbolic":
+        threading.Thread(target=add_to_my_collection, args=(btn, item,)).start()
+    else:
+        threading.Thread(target=remove_from_my_collection, args=(btn, item,)).start()
 
 def open_uri(label, uri, turn=True):
     print(uri)

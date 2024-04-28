@@ -85,7 +85,7 @@
                       <property name="spacing">6</property>
                       <property name="valign">center</property>
                       <child>
-                        <object class="GtkButton" id="_add_to_my_collection_button">
+                        <object class="GtkButton" id="_in_my_collection_button">
                           <property name="icon-name">heart-outline-thick-symbolic</property>
                           <property name="css-classes">flat</property>
                         </object>
