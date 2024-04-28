@@ -54,7 +54,6 @@ def is_favourited(item):
 
     if isinstance(item, Track):
         for fav in favourite_tracks:
-            print(fav.name)
             if (fav.id == item.id):
                 return True
 

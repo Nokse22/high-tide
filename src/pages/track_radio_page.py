@@ -67,7 +67,7 @@ class trackRadioPage(Page):
 
         builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
         builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
-        builder.get_object("_in_to_my_collection_button").set_visible(False)
+        builder.get_object("_in_my_collection_button").set_visible(False)
 
         image = builder.get_object("_image")
         if isinstance(self.item, Track):
