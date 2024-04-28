@@ -300,7 +300,7 @@
           <property name="orientation">vertical</property>
           <property name="visible">false</property>
           <child>
-            <object class="GtkSeparator" id="playbar_separator"></object>
+            <object class="GtkSeparator" id="playbar_separator"/>
           </child>
           <child>
             <object class="GtkProgressBar" id="small_progress_bar">
@@ -629,8 +629,8 @@ flat</property>
                                 <property name="margin-start">12</property>
                                 <property name="margin-top">12</property>
                                 <property name="margin-bottom">12</property>
-                                <property name="maximum-size">600</property>
-                                <property name="tightening-threshold">400</property>
+                                <property name="maximum-size">1000</property>
+                                <property name="tightening-threshold">600</property>
                                 <property name="unit">px</property>
                                 <child>
                               <object class="GtkBox">

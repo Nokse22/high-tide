@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Cambalache 0.90.2 -->
 <interface>
   <!-- interface-name queue.ui -->
@@ -11,6 +11,8 @@
       <object class="AdwToolbarView">
         <child type="top">
           <object class="AdwClamp">
+            <property name="maximum-size">1000</property>
+            <property name="tightening-threshold">700</property>
             <child>
             <object class="GtkListBox">
               <property name="css-classes">boxed-list</property>
@@ -32,6 +34,8 @@
             <property name="css-classes">undershoot-bottom</property>
               <child>
                 <object class="AdwClamp">
+                  <property name="maximum-size">1000</property>
+                  <property name="tightening-threshold">700</property>
                   <child>
                 <object class="GtkBox">
                   <property name="orientation">vertical</property>
@@ -112,3 +116,4 @@
     </child>
   </template>
 </interface>
+
