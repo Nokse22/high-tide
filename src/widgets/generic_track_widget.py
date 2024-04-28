@@ -85,7 +85,7 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         # action.connect("activate", self.add_to_playlist)
         # action_group.add_action(action)
 
-        # for index, playlist in enumerate(self.win.favourite_playlists):
+        # for index, playlist in enumerate(variables.favourite_playlists):
         #     if index > 10:
         #         break
         #     item = Gio.MenuItem.new()
@@ -93,7 +93,7 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         #     item.set_action_and_target_value("trackwidget.add-to-playlist", GLib.Variant.new_string(playlist.id))
         #     self.playlists_submenu.insert_item(index, item)
 
-        # for index, playlist in enumerate(self.win.favourite_playlists):
+        # for index, playlist in enumerate(variables.favourite_playlists):
         #     if index > 10:
         #         break
         #     item = Gio.MenuItem.new()
@@ -133,10 +133,10 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         variables.navigation_view.push(page)
 
     def _play_next(self, *args):
-        self.win.player_object.add_next(self.track)
+        variables.player_object.add_next(self.track)
 
     def _add_to_queue(self, *args):
-        self.win.player_object.add_to_queue(self.track)
+        variables.player_object.add_to_queue(self.track)
 
     def _add_to_my_collection(self, *args):
         th = threading.Thread(target=self.th_add_to_my_collection, args=())
@@ -144,10 +144,10 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         th.start()
 
     def th_add_to_my_collection(self):
-        self.win.session.user.favorites.add_track(self.track.id)
+        variables.session.user.favorites.add_track(self.track.id)
 
     def _add_to_playlist(self, action, parameter, playlist_index):
         playlist_id = parameter.get_string()
-        selected_playlist = self.win.favourite_playlists[playlist_index]
+        selected_playlist = variables.favourite_playlists[playlist_index]
 
         print(f"Added to playlist: {selected_playlist.name}, ID: {playlist_id}")
