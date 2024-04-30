@@ -112,9 +112,7 @@ class GenericTrackWidget(Gtk.ListBoxRow):
 
         self.insert_action_group("trackwidget", action_group)
 
-        th = threading.Thread(target=utils.add_image, args=(self.image, self.track.album))
-        th.deamon = True
-        th.start()
+        threading.Thread(target=utils.add_image, args=(self.image, self.track.album)).start()
 
     def hide_album(self):
         self._grid.remove(self.track_album_label)

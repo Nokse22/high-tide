@@ -197,14 +197,26 @@ class HighTideWindow(Adw.ApplicationWindow):
     def _set_last_playing_song(self):
         track_id = self.settings.get_int("last-playing-song-id")
         list_id = self.settings.get_string("last-playing-list-id")
+        list_type = self.settings.get_string("last-playing-list-type")
+
+        album_mix_playlist = None
+
+        if list_type == "mix":
+            album_mix_playlist = self.session.mix(list_id)
+        elif list_type == "album":
+            album_mix_playlist = self.session.album(track_id)
+        elif list_type == "playlist":
+            album_mix_playlist = self.session.playlist(track_id)
 
         if track_id == -1:
             return
 
         self.playbar_main_box.set_visible(True)
 
-        track = self.session.track(track_id)
-        self.player_object.play_track(track)
+        # track = self.session.track(track_id)
+        self.player_object.play_this(album_mix_playlist, 0)
+
+        self.player_object.pause()
 
         # TODO Set last playing playlist/mix/album as current playing thing
 

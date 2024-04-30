@@ -124,6 +124,17 @@ def on_in_to_my_collection_button_clicked(btn, item):
     else:
         threading.Thread(target=remove_from_my_collection, args=(btn, item,)).start()
 
+def get_type(item):
+    if isinstance(item, Track):
+        return "track"
+    elif isinstance(item, Mix):
+        return "mix"
+    elif isinstance(item, Album):
+        return "album"
+    elif isinstance(item, Artist):
+        return "artist"
+    elif isinstance(item, Playlist):
+        return "playlist"
 def open_uri(label, uri, turn=True):
     print(uri)
     th= threading.Thread(target=_load_object, args=(uri,))

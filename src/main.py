@@ -72,6 +72,8 @@ class TidalApplication(Adw.Application):
             self.win = HighTideWindow(application=self)
         self.win.present()
 
+        self.win.connect("close-request", self.on_shutdown)
+
     def on_about_action(self, widget, _):
         """Callback for the app.about action."""
         about = Adw.AboutDialog(
@@ -112,23 +114,13 @@ class TidalApplication(Adw.Application):
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
 
-    # FIXME The do_shutdown function creates an error: (HighTide:2): GLib-GIO-CRITICAL **: 23:33:58.928: GApplication subclass 'high_tide+main+TidalApplication' failed to chain up on ::shutdown (from end of override function)
-    def do_shutdown(self):
-        track = self.win.player_object.playing_track
+    def on_shutdown(self, *args):
+        # track = self.win.player_object.playing_track
         list_ = self.win.player_object.current_mix_album_playlist
-        if track and list_:
-            track_id = track.id
-            list_id = list_.id
-            self.win.settings.set_int("last-playing-song-id", track_id)
-            self.win.settings.set_string("last-playing-list-id", list_id)
-
-        folder_path = "tmp_img"
-
-        # FIXME Directory not empty: 'tmp_img'
-        if os.path.exists(folder_path):
-            shutil.rmtree(folder_path)
-
-        os.makedirs(folder_path)
+        list_id = list_.id
+        # self.win.settings.set_int("last-playing-song-id", track_id)
+        self.win.settings.set_string("last-playing-list-id", list_id)
+        self.win.settings.set_string("last-playing-list-type", variables.get_type(list_))
 
 def main(version):
     """The application's entry point."""

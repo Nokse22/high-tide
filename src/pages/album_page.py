@@ -54,14 +54,18 @@ class albumPage(Page):
         tracks_list_box.connect("row-activated", self.on_row_selected)
 
         builder.get_object("_title_label").set_label(self.item.name)
-        builder.get_object("_first_subtitle_label").set_label(self.item.artist.name)
+        builder.get_object("_first_subtitle_label").set_label(f"{self.item.artist.name} - {self.item.release_date.strftime('%d-%m-%Y')}")
         builder.get_object("_second_subtitle_label").set_label(f"{self.item.num_tracks} tracks ({utils.pretty_duration(self.item.duration)})")
 
         builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
+        builder.get_object("_play_button_2").connect("clicked", self.on_play_button_clicked)
+
         builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
+        builder.get_object("_shuffle_button_2").connect("clicked", self.on_shuffle_button_clicked)
 
         in_my_collection_button = builder.get_object("_in_my_collection_button")
         in_my_collection_button.connect("clicked", variables.on_in_to_my_collection_button_clicked, self.item)
+        builder.get_object("_in_my_collection_button_2").connect("clicked", variables.on_in_to_my_collection_button_clicked, self.item)
 
         if (variables.is_favourited(self.item)):
             in_my_collection_button.set_icon_name("heart-filled-symbolic")

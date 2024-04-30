@@ -70,10 +70,38 @@ class playerObject(GObject.GObject):
 
         Gst.init()
 
-        self.playbin = Gst.ElementFactory.make("playbin", "playbin")
+        # TODO Rename all player_object to something like GstPlayer
 
-        # GLib.timeout_add(4000, self.print_queue_and_list)
-        GLib.timeout_add(1000, self.check_for_end_of_stream)
+        self._player = Gst.ElementFactory.make('playbin3', 'player')
+        self._bus = self._player.get_bus()
+        self._bus.add_signal_watch()
+
+        self._bus.connect('message::eos', self._on_bus_eos)
+
+        # ---------------------------- FROM GNOME-MUSIC ----------------------------
+        #
+        #
+        # self._bus = self._player.get_bus()
+        # self._bus.add_signal_watch()
+        # self._setup_replaygain()
+
+        # self._settings.connect(
+        #     'changed::replaygain', self._on_replaygain_setting_changed)
+        # self._on_replaygain_setting_changed(
+        #     None, self._settings.get_value('replaygain'))
+
+        # self._bus.connect('message::async-done', self._on_async_done)
+        # self._bus.connect('message::error', self._on_bus_error)
+        # self._bus.connect('message::element', self._on_bus_element)
+        # self._bus.connect('message::eos', self._on_bus_eos)
+        # self._bus.connect('message::new-clock', self._on_new_clock)
+        # self._bus.connect("message::state-changed", self._on_state_changed)
+        # self._bus.connect("message::stream-start", self._on_bus_stream_start)
+
+        # self._player.connect("about-to-finish", self._on_about_to_finish)
+
+    def _on_bus_eos(self, *args):
+        self.play_next()
 
     def play_this(self, thing, index = 0): # Used to play albums, playlists, mixes
         self.current_mix_album_playlist = thing
@@ -115,7 +143,7 @@ class playerObject(GObject.GObject):
         self.notify("is_playing")
 
         self.emit("play-changed", self.is_playing)
-        self.playbin.set_state(Gst.State.PLAYING)
+        self._player.set_state(Gst.State.PLAYING)
 
         GLib.timeout_add(1000, self.update_slider_call)
 
@@ -124,7 +152,7 @@ class playerObject(GObject.GObject):
         self.notify("is_playing")
 
         self.emit("play-changed", self.is_playing)
-        self.playbin.set_state(Gst.State.PAUSED)
+        self._player.set_state(Gst.State.PAUSED)
 
     def play_pause(self):
         if self.is_playing:
@@ -140,9 +168,9 @@ class playerObject(GObject.GObject):
     def _play_track(self, track):
         print(f"play track: {track.name} by {track.artist.name}, {track.media_metadata_tags}, {track.audio_quality}, {track.id}")
         music_url = track.get_url()
-        self.playbin.set_state(Gst.State.NULL)
+        self._player.set_state(Gst.State.NULL)
 
-        self.playbin.set_property("uri", music_url)
+        self._player.set_property("uri", music_url)
 
         if self.is_playing:
             self.play()
@@ -207,21 +235,6 @@ class playerObject(GObject.GObject):
         self.tracks_to_play.insert(0, self.playing_track)
         self.play_track(track)
 
-    def check_for_end_of_stream(self):
-        # FIXME Gstreamer position/duration don't update instantly after changing song (it still returns the previous values)
-        success1, duration = self.query_duration(Gst.Format.TIME)
-        success2, position = self.query_position(Gst.Format.TIME)
-
-        # print(f"{position} and {duration}")
-
-        if success1 and success2:
-            if position >= duration - 1:
-                print("song ended")
-                self.play_next()
-                # return False
-
-        return True
-
     def print_queue_and_list(self):
         return
         print("----------played songs----------")
@@ -246,7 +259,7 @@ class playerObject(GObject.GObject):
         self.emit("song-added-to-queue")
 
     def change_volume(self, value):
-        self.playbin.set_property("volume", value)
+        self._player.set_property("volume", value)
 
     def shuffle(self, state):
         """Enable or disable shuffle mode."""
@@ -290,10 +303,10 @@ class playerObject(GObject.GObject):
         return False
 
     def query_duration(self, time_format):
-        return self.playbin.query_duration(Gst.Format.TIME)
+        return self._player.query_duration(Gst.Format.TIME)
 
     def query_position(self, time_format):
-        return self.playbin.query_position(Gst.Format.TIME)
+        return self._player.query_position(Gst.Format.TIME)
 
     def seek(self, time_format, something, seek_time):
-        self.playbin.seek_simple(time_format, something, seek_time)
+        self._player.seek_simple(time_format, something, seek_time)

@@ -21,7 +21,35 @@
               <property name="margin-top">3</property>
               <property name="margin-bottom">6</property>
                 <child>
-                  <object class="GenericTrackWidget" id="playing_track_widget">
+                  <object class="GtkListBoxRow" id="playing_track_widget">
+                    <property name="selectable">False</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="margin-start">6</property>
+                        <property name="margin-end">6</property>
+                        <child>
+                          <object class="GtkImage" id="playing_track_image">
+                            <property name="height-request">44</property>
+                            <property name="icon-name">emblem-music-symbolic</property>
+                            <property name="width-request">44</property>
+                            <property name="margin-end">12</property>
+                            <property name="margin-bottom">6</property>
+                            <property name="margin-top">6</property>
+                            <property name="overflow">hidden</property>
+                            <property name="css-classes">small-image</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="playing_track_title_label">
+                            <property name="css-classes">title-4</property>
+                            <property name="ellipsize">end</property>
+                            <property name="label">Title</property>
+                            <property name="vexpand">True</property>
+                            <property name="xalign">0.0</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>

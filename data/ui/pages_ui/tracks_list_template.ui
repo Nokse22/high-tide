@@ -156,23 +156,23 @@
                       <property name="spacing">12</property>
                       <property name="valign">center</property>
                       <child>
-                        <object class="GtkButton">
+                        <object class="GtkButton" id="_play_button_2">
                           <property name="css-classes">pill
 suggested-action</property>
                           <property name="icon-name">media-playback-start-symbolic</property>
                         </object>
                       </child>
                       <child>
-                        <object class="GtkButton">
+                        <object class="GtkButton" id="_shuffle_button_2">
                           <property name="css-classes">pill</property>
                           <property name="icon-name">media-playlist-shuffle-symbolic</property>
                         </object>
                       </child>
                       <child>
-                        <object class="GtkButton">
+                        <object class="GtkButton" id="_in_my_collection_button_2">
                           <property name="css-classes">circular
 flat</property>
-                          <property name="icon-name">list-add-symbolic</property>
+                          <property name="icon-name" bind-source="_in_my_collection_button" bind-property="icon-name"/>
                           <property name="valign">center</property>
                         </object>
                       </child>

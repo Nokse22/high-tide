@@ -46,12 +46,16 @@ class QueueWidget(Gtk.Box):
 
     playing_track_widget = Gtk.Template.Child()
 
+    playing_track_image = Gtk.Template.Child()
+    playing_track_title_label = Gtk.Template.Child()
+
     def __init__(self):
         super().__init__()
 
     def update(self, player):
         track = player.playing_track
-        self.playing_track_widget.set_track(track)
+        self.playing_track_title_label.set_label(track.name)
+        threading.Thread(target=utils.add_image, args=(self.playing_track_image, track.album)).start()
 
         child = self.played_songs_list.get_row_at_index(0)
         while child:

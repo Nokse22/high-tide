@@ -28,6 +28,9 @@
 	  <key name="last-playing-list-id" type="s">
       <default>''</default>
     </key>
+	  <key name="last-playing-list-type" type="s">
+      <default>''</default>
+    </key>
 	  <key name="last-volume" type="i">
       <default>10</default>
     </key>
