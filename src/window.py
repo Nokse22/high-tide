@@ -278,15 +278,6 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.queue_widget.update(self.player_object)
             self.queue_widget_updated = True
 
-    def toggle_mobile_view(self, *args):
-        name = self.main_view_stack.get_visible_child_name()
-        if name == "normal_view":
-            self.main_view_stack.set_visible_child_name("mobile_view")
-        elif name == "mobile_view":
-            self.main_view_stack.set_visible_child_name("normal_view")
-
-        return True
-
     def on_search_activated(self, *args):
         page = searchPage(None, "Search")
         page.load()
@@ -543,3 +534,5 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.main_view_stack.set_visible_child_name("mobile_view")
         else:
             self.main_view_stack.set_visible_child_name("normal_view")
+
+        return True

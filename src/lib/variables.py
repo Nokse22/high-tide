@@ -135,6 +135,7 @@ def get_type(item):
         return "artist"
     elif isinstance(item, Playlist):
         return "playlist"
+
 def open_uri(label, uri, turn=True):
     print(uri)
     th= threading.Thread(target=_load_object, args=(uri,))
