@@ -114,13 +114,15 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.bind_property("shuffle_mode", self.shuffle_button, "active", GObject.BindingFlags.DEFAULT)
         self.player_object.connect("update-slider", self.update_slider)
         self.player_object.connect("song-changed", self.on_song_changed)
-        self.player_object.connect("song-changed",self.queue_widget.update)
-        self.player_object.connect("song-added-to-queue", self.queue_widget.update)
+        # self.player_object.connect("song-changed",self.on_tracks_queue_needs_update)
+        self.player_object.connect("song-added-to-queue", self.on_tracks_queue_needs_update)
         self.player_object.connect("play-changed", self.update_controls)
 
         self.artist_label.connect("activate-link", variables.open_uri)
         self.mobile_artist_label.connect("activate-link", variables.open_uri, False)
         self.mobile_artist_label.connect("activate-link", self.toggle_mobile_view)
+
+        self.queue_widget.connect("map", self.on_queue_widget_shown)
 
         self.search_entry.connect("activate", self.on_search_activated)
 
@@ -137,6 +139,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.current_song_index = 0
         self.previous_time = 0
         self.favourite_playlists = []
+
+        self.queue_widget_updated = False
 
         self.secret_store = SecretStore(self.session)
 
@@ -259,6 +263,20 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.control_bar_artist = track.artist
         self.update_slider()
+        # self.on_tracks_queue_needs_update()
+
+    def on_tracks_queue_needs_update(self, *args):
+        if self.main_view_stack.get_visible_child_name() == "mobile_view" and self.mobile_stack.get_visible_child_name() == "queue_page":
+            # self.queue_widget.update(self.player_object)
+            # self.queue_widget_updated = True
+            # FIXME the app crashes when the song is changed while the queue page is visible (using mpris). If you uncomment the code above. Now it will not update correctly
+            pass
+        self.queue_widget_updated = False
+
+    def on_queue_widget_shown(self, *args):
+        if not self.queue_widget_updated:
+            self.queue_widget.update(self.player_object)
+            self.queue_widget_updated = True
 
     def toggle_mobile_view(self, *args):
         name = self.main_view_stack.get_visible_child_name()
