@@ -156,7 +156,7 @@ def replace_links(text):
             return label
 
     # Replace <br/> with two periods
-    escaped_text = escaped_text.replace('&lt;br/&gt;', '\n\n')
+    escaped_text = escaped_text.replace('&lt;br/&gt;', '\n')
 
     # Use re.sub() to perform the replacement
     replaced_text = re.sub(pattern, replace, escaped_text)
