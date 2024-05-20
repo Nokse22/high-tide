@@ -115,7 +115,7 @@ def add_image_to_avatar(avatar_widget, item):
             image = Gdk.Texture.new_from_file(file)
             avatar_widget.set_custom_image(image)
 
-    file_path = Path(f"tmp_img/{item.id}.jpg")
+    file_path = Path(f"{variables.IMG_DIR}/{item.id}.jpg")
 
     if file_path.is_file():
         GLib.idle_add(_add_image_to_avatar, avatar_widget, str(file_path))
