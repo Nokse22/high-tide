@@ -536,3 +536,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.main_view_stack.set_visible_child_name("normal_view")
 
         return True
+
+    @Gtk.Template.Callback("on_page_popped")
+    def on_page_popped(self, navigation_view, page):
+        del page
