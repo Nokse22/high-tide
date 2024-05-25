@@ -16,6 +16,15 @@
 
   <url type="homepage">https://github.com/Nokse22/high-tide</url>
   <url type="bugtracker">https://github.com/Nokse22/high-tide/issues</url>
+  
+  <recommends>
+    <display_length compare="ge">360</display_length>
+  </recommends>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+  </supports>
 
   <releases>
   </releases>
