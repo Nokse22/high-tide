@@ -60,16 +60,19 @@ class QueueWidget(Gtk.Box):
         child = self.played_songs_list.get_row_at_index(0)
         while child:
             self.played_songs_list.remove(child)
+            del child
             child = self.played_songs_list.get_row_at_index(0)
 
         child = self.queued_songs_list.get_row_at_index(0)
         while child:
             self.queued_songs_list.remove(child)
+            del child
             child = self.queued_songs_list.get_row_at_index(0)
 
         child = self.next_songs_list.get_row_at_index(0)
         while child:
             self.next_songs_list.remove(child)
+            del child
             child = self.next_songs_list.get_row_at_index(0)
 
         if len(player.played_songs) > 0:
