@@ -25,7 +25,7 @@ from gi.repository import Gdk
 
 import tidalapi
 from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix, MixType
+from tidalapi.mix import Mix, MixV2
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.media import Track
@@ -68,12 +68,8 @@ class mixPage(Page):
         th.deamon = True
         th.start()
 
-        # for favourite_track in variables.favourite_tracks:
-        #     if favourite_track.isrc == track.isrc:
-        #         self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
-        #         break
-        # else:
-        #     self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
+        if isinstance(self.item, MixV2):
+            self.item = variables.session.mix(self.item.id)
 
         for index, track in enumerate(self.item.items()):
             listing = self.get_track_listing(track)

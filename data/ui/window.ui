@@ -150,24 +150,24 @@
                                     <property name="selection-mode">none</property>
                                     <property name="sensitive" bind-source="search_entry" bind-property="sensitive">false</property>
 
-                                    <!-- <child> -->
-                                    <!--   <object class="GtkBox"> -->
-                                    <!--     <property name="spacing">12</property> -->
-                                    <!--     <property name="margin-start">6</property> -->
-                                    <!--     <child> -->
-                                    <!--       <object class="GtkImage"> -->
-                                    <!--         <property name="icon-name">media-tape-symbolic</property> -->
-                                    <!--       </object> -->
-                                    <!--     </child> -->
-                                    <!--     <child> -->
-                                    <!--       <object class="GtkLabel"> -->
-                                    <!--         <property name="name">F-MIX</property> -->
-                                    <!--         <property name="label" translatable="yes">Mixes and Radios</property> -->
-                                    <!--         <property name="xalign">0</property> -->
-                                    <!--       </object> -->
-                                    <!--     </child> -->
-                                    <!--   </object> -->
-                                    <!-- </child> -->
+                                    <child>
+                                      <object class="GtkBox">
+                                        <property name="spacing">12</property>
+                                        <property name="margin-start">6</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="icon-name">media-tape-symbolic</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="name">F-MIX</property>
+                                            <property name="label" translatable="yes">Mixes and Radios</property>
+                                            <property name="xalign">0</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
 
                                     <child>
                                       <object class="GtkBox">
