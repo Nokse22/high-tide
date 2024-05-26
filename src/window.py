@@ -139,6 +139,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.current_song_index = 0
         self.previous_time = 0
         self.favourite_playlists = []
+        self.my_playlists = []
 
         self.queue_widget_updated = False
 
@@ -175,7 +176,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         th.deamon = True
         th.start()
 
-        self.add_favourite_playlists()
+        self.update_my_playlists()
 
     def on_login_failed(self):
         print("login failed")
@@ -184,19 +185,29 @@ class HighTideWindow(Adw.ApplicationWindow):
         page.load()
         self.navigation_view.replace([page])
 
-    def add_favourite_playlists(self):
-        playlists = self.session.user.favorites.playlists()
+    def on_create_new_playlist_requested(self, window, playlist_title, playlist_description):
+        self.session.user.create_playlist(playlist_title, playlist_description)
+        self.update_my_playlists()
+        window.close()
 
+    def update_my_playlists(self):
         child = self.sidebar_playlists.get_first_child()
         while child != None:
             self.sidebar_playlists.remove(child)
+            del child
             child = self.sidebar_playlists.get_first_child()
 
+        playlists = self.session.user.favorites.playlists()
+
         for index, playlist in enumerate(playlists):
+            if playlist.creator:
+                if playlist.creator.name != "me":
+                    playlists.remove(playlist)
+                    continue
             label = Gtk.Label(xalign=0, label=playlist.name, name=index)
             self.sidebar_playlists.append(label)
 
-        self.favourite_playlists = playlists
+        self.my_playlists = playlists
 
     def _set_last_playing_song(self):
         track_id = self.settings.get_int("last-playing-song-id")
@@ -440,10 +451,9 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_new_playlist_button_clicked")
     def on_new_playlist_button_clicked_func(self, btn):
-        new_playlist_win = NewPlaylistWindow(self, self.session)
-        new_playlist_win.set_transient_for(self)
-        new_playlist_win.set_modal(self)
-        new_playlist_win.present()
+        new_playlist_win = NewPlaylistWindow()
+        new_playlist_win.connect("create-playlist", self.on_create_new_playlist_requested)
+        new_playlist_win.present(self)
 
     @Gtk.Template.Callback("on_track_radio_button_clicked")
     def on_track_radio_button_clicked_func(self, widget):
@@ -479,7 +489,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             return
         index = row.get_child().get_name()
 
-        playlist = self.favourite_playlists[int(index)]
+        playlist = self.my_playlists[int(index)]
 
         page = playlistPage(playlist, playlist.name)
         page.load()
@@ -539,4 +549,5 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_page_popped")
     def on_page_popped(self, navigation_view, page):
+        page.delete_signals()
         del page
