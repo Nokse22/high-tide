@@ -85,7 +85,6 @@ class mixPage(Page):
         for index, track in enumerate(self.item.items()):
             listing = self.get_track_listing(track)
             listing.set_name(str(index))
-            self.del_childrens.append(listing)
             tracks_list_box.append(listing)
 
         self.page_content.append(page_content)

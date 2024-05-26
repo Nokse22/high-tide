@@ -64,6 +64,9 @@ class fromFunctionPage(Page):
         self.items_n = 0
 
         self.handler_id = self.scrolled_window.connect("edge-overshot", self.on_edge_overshot)
+        self.signals.append(
+            (self.scrolled_window, self.handler_id)
+        )
 
     def set_function(self, function):
         self.function = function
@@ -88,11 +91,11 @@ class fromFunctionPage(Page):
             new_items = self.function(limit=self.items_limit, offset=(self.items_n))
             self.items.extend(new_items)
             if new_items == []:
-                self.scrolled_window.handler_disconnect(self.handler_id)
+                self.scrolled_window.disconnect(self.handler_id)
                 return
         else:
             new_items = self.items
-            self.scrolled_window.handler_disconnect(self.handler_id)
+            self.scrolled_window.disconnect(self.handler_id)
 
         print(f"loading {self.items_n} of type {self.type}")
 
@@ -107,7 +110,9 @@ class fromFunctionPage(Page):
         if self.parent == None:
             self.parent = Gtk.ListBox(css_classes=["boxed-list"], margin_bottom=12, margin_start=12, margin_end=12, margin_top=12)
             GLib.idle_add(self.page_content.append,self.parent)
-            self.parent.connect("row-activated", self.on_tracks_row_selected)
+            self.signals.append(
+                (self.parent, self.parent.connect("row-activated", self.on_tracks_row_selected))
+            )
 
         for index, track in enumerate(new_items):
             listing = self.get_track_listing(track)

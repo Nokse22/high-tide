@@ -55,10 +55,19 @@ class playlistPage(Page):
 
         page_content = builder.get_object("_main")
         tracks_list_box = builder.get_object("_list_box")
-        tracks_list_box.connect("row-activated", self.on_row_selected)
+        self.signals.append(
+            (tracks_list_box, tracks_list_box.connect("row-activated", self.on_row_selected))
+        )
 
-        builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
-        builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
+        play_btn = builder.get_object("_play_button")
+        self.signals.append(
+            (play_btn, play_btn.connect("clicked", self.on_play_button_clicked))
+        )
+
+        shuffle_btn = builder.get_object("_shuffle_button")
+        self.signals.append(
+            (shuffle_btn, shuffle_btn.connect("clicked", self.on_shuffle_button_clicked))
+        )
 
         builder.get_object("_title_label").set_label(self.item.name)
         creator = self.item.creator
@@ -69,8 +78,10 @@ class playlistPage(Page):
         builder.get_object("_first_subtitle_label").set_label(f"by {creator}")
         builder.get_object("_second_subtitle_label").set_label(f"{self.item.num_tracks} tracks ({utils.pretty_duration(self.item.duration)})")
 
-        in_my_collection_button = builder.get_object("_in_my_collection_button")
-        in_my_collection_button.connect("clicked", variables.on_in_to_my_collection_button_clicked, self.item)
+        in_my_collection_btn = builder.get_object("_in_my_collection_button")
+        self.signals.append(
+            (in_my_collection_btn, in_my_collection_btn.connect("clicked", variables.on_in_to_my_collection_button_clicked, self.item))
+        )
 
         if (variables.is_favourited(self.item)):
             in_my_collection_button.set_icon_name("heart-filled-symbolic")

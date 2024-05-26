@@ -39,13 +39,14 @@ import random
 
 from .page import Page
 from ..widgets import CarouselWidget
+from ..widgets import TracksListWidget
 
 from ..lib import variables
 
 class genericPage(Page):
     __gtype_name__ = 'genericPage'
 
-    """It is not used much, possibly not needed anymore"""
+    """It is used for explore page categories page"""
 
     def _load_page(self):
         generic_content = self.item.get()

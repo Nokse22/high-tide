@@ -40,6 +40,16 @@ class TracksListWidget(Gtk.Box):
     def __init__(self, _title):
         super().__init__()
 
+        self.signals = []
+
+        self.signals.append(
+            (self, self.connect("unrealize", self.__on_unrealized))
+        )
+
+        self.signals.append(
+            (self.more_button, self.more_button.connect("clicked", self.on_more_clicked))
+        )
+
         self.n_pages = 0
 
         self.title_name = _title
@@ -47,7 +57,9 @@ class TracksListWidget(Gtk.Box):
 
         self.get_function = None
 
-        self.tracks_list_box.connect("row-activated", self.on_tracks_row_selected)
+        self.signals.append(
+            (self.tracks_list_box, self.tracks_list_box.connect("row-activated", self.on_tracks_row_selected))
+        )
 
         self.tracks = []
 
@@ -69,7 +81,6 @@ class TracksListWidget(Gtk.Box):
             listing.set_name(str(index))
             self.tracks_list_box.append(listing)
 
-    @Gtk.Template.Callback("on_more_clicked")
     def on_more_clicked(self, *args):
         from ..pages import fromFunctionPage
 
@@ -82,3 +93,21 @@ class TracksListWidget(Gtk.Box):
         index = int(row.get_name())
 
         variables.player_object.play_this(self.tracks, index)
+
+    def delete_signals(self):
+        disconnected_signals = 0
+        for obj, signal_id in self.signals:
+            disconnected_signals += 1
+            obj.disconnect(signal_id)
+
+            self.signals = []
+        print(f"disconnected {disconnected_signals} signals from {self}")
+
+    def __repr__(self, *args):
+        return "<TracksListWidget>"
+
+    def __on_unrealized(self, *args):
+        self.delete_signals()
+
+    def __del__(self, *args):
+        print(f"DELETING {self}")

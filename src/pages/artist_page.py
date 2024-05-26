@@ -72,11 +72,20 @@ class artistPage(Page):
 
         builder.get_object("_name_label").set_label(self.artist.name)
 
-        builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
-        builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
+        play_btn = builder.get_object("_play_button")
+        self.signals.append(
+            (play_btn, play_btn.connect("clicked", self.on_play_button_clicked))
+        )
+
+        shuffle_btn = builder.get_object("_shuffle_button")
+        self.signals.append(
+            (shuffle_btn, shuffle_btn.connect("clicked", self.on_shuffle_button_clicked))
+        )
 
         follow_button = builder.get_object("_follow_button")
-        follow_button.connect("clicked", variables.on_in_to_my_collection_button_clicked, self.artist)
+        self.signals.append(
+            (follow_button, follow_button.connect("clicked", variables.on_in_to_my_collection_button_clicked, self.artist))
+        )
 
         if (variables.is_favourited(self.artist)):
             follow_button.set_icon_name("heart-filled-symbolic")
@@ -89,7 +98,6 @@ class artistPage(Page):
 
         roles_str = ""
         for role in self.artist.roles:
-            print(role)
             roles_str += " " + role.main.value
 
         builder.get_object("_first_subtitle_label").set_label("Artist")
@@ -150,9 +158,6 @@ class artistPage(Page):
                     artist_card = self.get_artist_card(artist)
                     carousel.append_card(artist_card)
 
-        # [wimpLink artistId="3653311"]Hayley Williams[/wimpLink]
-        # <a href="artist:3653311">Hayley Williams</a>
-
         try:
             bio = self.artist.get_bio()
         except:
@@ -164,7 +169,9 @@ class artistPage(Page):
             content_box.append(Gtk.Label(wrap=True, css_classes=["title-3"],
                         margin_start=12, label=_("Bio"), xalign=0, margin_top=12,margin_bottom=12))
             content_box.append(label)
-            label.connect("activate-link", variables.open_uri)
+            self.signals.append(
+                (label, label.connect("activate-link", variables.open_uri))
+            )
 
         self.page_content.append(page_content)
         self._page_loaded()

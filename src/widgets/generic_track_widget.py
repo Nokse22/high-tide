@@ -52,11 +52,14 @@ class GenericTrackWidget(Gtk.ListBoxRow):
 
     def __init__(self, _track=None, is_album=False):
         super().__init__()
-
         if not _track:
             return
 
         self.signals = []
+
+        self.signals.append(
+            (self, self.connect("unrealize", self.__on_unrealized))
+        )
 
         self.set_track(_track, is_album)
 
@@ -170,10 +173,13 @@ class GenericTrackWidget(Gtk.ListBoxRow):
             obj.disconnect(signal_id)
 
             self.signals = []
-        print(f"disconnected {disconnected_signals} signals from {self} track widget")
+        print(f"disconnected {disconnected_signals} signals from {self}")
 
     def __repr__(self, *args):
-        return f"<TrackWidget of {self.track.name}>"
+        return "<TrackWidget>"
+
+    def __on_unrealized(self, *args):
+        self.delete_signals()
 
     def __del__(self, *args):
         print(f"DELETING {self}")

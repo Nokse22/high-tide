@@ -547,7 +547,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         return True
 
-    @Gtk.Template.Callback("on_page_popped")
-    def on_page_popped(self, navigation_view, page):
-        page.delete_signals()
-        del page
+    # @Gtk.Template.Callback("on_page_popped")
+    # def on_page_popped(self, navigation_view, page):
+    #     page.delete_signals()
+    #     del page

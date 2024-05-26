@@ -31,7 +31,6 @@
             <property name="margin-end">6</property>
             <property name="valign">center</property>
             <property name="visible">false</property>
-            <signal name="clicked" handler="on_more_clicked"/>
           </object>
         </child>
       </object>

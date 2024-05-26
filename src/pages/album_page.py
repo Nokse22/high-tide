@@ -86,7 +86,7 @@ class albumPage(Page):
         )
 
         if (variables.is_favourited(self.item)):
-            in_my_collection_button.set_icon_name("heart-filled-symbolic")
+            in_my_collection_btn.set_icon_name("heart-filled-symbolic")
 
         image = builder.get_object("_image")
         th = threading.Thread(target=utils.add_image, args=(image, self.item))
@@ -96,7 +96,6 @@ class albumPage(Page):
         for index, track in enumerate(self.item.items()):
             listing = self.get_album_track_listing(track)
             listing.set_name(str(index))
-            self.del_childrens.append(listing)
             tracks_list_box.append(listing)
 
         self.page_content.append(page_content)

@@ -289,7 +289,7 @@
                     </property>
                     <property name="content">
                       <object class="AdwNavigationView" id="navigation_view">
-                        <signal name="popped" handler="on_page_popped"/>
+                        <!-- <signal name="popped" handler="on_page_popped"/> -->
                         <property name="vexpand">true</property>
                       </object>
           </property>

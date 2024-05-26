@@ -32,7 +32,6 @@
             <property name="margin-end">12</property>
             <property name="valign">center</property>
             <property name="visible">false</property>
-            <signal name="clicked" handler="on_more_clicked"/>
           </object>
         </child>
         <child>
@@ -43,7 +42,6 @@
             <property name="margin-start">6</property>
             <property name="valign">center</property>
             <property name="sensitive">false</property>
-            <signal name="clicked" handler="on_prev_clicked"/>
           </object>
         </child>
         <child>
@@ -53,7 +51,6 @@
             <property name="icon-name">go-next-symbolic</property>
             <property name="margin-start">6</property>
             <property name="sensitive">false</property>
-            <signal name="clicked" handler="on_next_clicked"/>
           </object>
         </child>
       </object>

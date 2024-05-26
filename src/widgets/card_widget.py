@@ -45,7 +45,7 @@ class CardWidget(Adw.BreakpointBin):
     """It is card that adapts to the content it needs to display, it is used when listing artists, albums, mixes and so on"""
 
     image = Gtk.Template.Child()
-    button = Gtk.Template.Child()
+    card_button = Gtk.Template.Child()
     title_label = Gtk.Template.Child()
     detail_label = Gtk.Template.Child()
 
@@ -54,7 +54,19 @@ class CardWidget(Adw.BreakpointBin):
     def __init__(self, _item):
         super().__init__()
 
-        self.track_artist_label.connect("activate-link", variables.open_uri)
+        self.signals = []
+
+        self.signals.append(
+            (self, self.connect("unrealize", self.__on_unrealized))
+        )
+
+        self.signals.append(
+            (self.track_artist_label, self.track_artist_label.connect("activate-link", variables.open_uri))
+        )
+
+        self.signals.append(
+            (self.card_button, self.card_button.connect("clicked", self.on_button_clicked))
+        )
 
         self.item = _item
 
@@ -114,7 +126,7 @@ class CardWidget(Adw.BreakpointBin):
             creator = creator.name
         else:
             creator = "TIDAL"
-        self.detail_label.set_label(f"by {creator}")
+        self.detail_label.set_label(f"by {creator.title()}")
 
         th = threading.Thread(target=utils.add_image, args=(self.image, self.item))
         th.deamon = True
@@ -140,8 +152,7 @@ class CardWidget(Adw.BreakpointBin):
         th.deamon = True
         th.start()
 
-    @Gtk.Template.Callback("on_image_button_clicked")
-    def _on_image_button_clicked(self, *args):
+    def on_button_clicked(self, *args):
         if isinstance(self.item, Mix) or isinstance(self.item, MixV2):
             from ..pages import mixPage
             page = mixPage(self.item, f"{self.item.title}")
@@ -165,3 +176,21 @@ class CardWidget(Adw.BreakpointBin):
             page = artistPage(self.item, f"{self.item.name}")
             page.load()
             variables.navigation_view.push(page)
+
+    def delete_signals(self):
+        disconnected_signals = 0
+        for obj, signal_id in self.signals:
+            disconnected_signals += 1
+            obj.disconnect(signal_id)
+
+            self.signals = []
+        print(f"disconnected {disconnected_signals} signals from {self}")
+
+    def __repr__(self, *args):
+        return "<CardWidget>"
+
+    def __on_unrealized(self, *args):
+        self.delete_signals()
+
+    def __del__(self, *args):
+        print(f"DELETING {self}")

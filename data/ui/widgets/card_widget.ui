@@ -18,10 +18,9 @@
         <property name="orientation">vertical</property>
         <property name="spacing">3</property>
         <child>
-          <object class="GtkButton" id="button">
+          <object class="GtkButton" id="card_button">
             <property name="css-classes">card-button</property>
             <property name="overflow">hidden</property>
-            <signal name="clicked" handler="on_image_button_clicked"/>
             <child>
               <object class="GtkOverlay">
                 <child>

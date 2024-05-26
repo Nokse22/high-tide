@@ -53,7 +53,10 @@ class Page(Adw.NavigationPage):
         super().__init__()
 
         self.signals = []
-        self.del_childrens = []
+
+        self.signals.append(
+            (self, self.connect("unrealize", self.__on_unrealized))
+        )
 
         if _name:
             self.set_title(_name)
@@ -155,8 +158,13 @@ class Page(Adw.NavigationPage):
         cards_box.set_overflow(Gtk.Overflow.VISIBLE)
         box.append(cards_box)
 
-        prev_button.connect("clicked", self.carousel_go_prev, cards_box, 1)
-        next_button.connect("clicked", self.carousel_go_next, cards_box, 1)
+        self.signals.append(
+            (prev_button, prev_button.connect("clicked", self.carousel_go_prev, cards_box, 1))
+        )
+
+        self.signals.append(
+            (next_button, next_button.connect("clicked", self.carousel_go_next, cards_box, 1))
+        )
 
         return box, cards_box
 
@@ -221,7 +229,10 @@ class Page(Adw.NavigationPage):
     def get_page_link_card(self, page_link):
         button = Gtk.Button(label=page_link.title, margin_start=12, margin_end=12,
                 hexpand=True, width_request=200, vexpand=True)
-        button.connect("clicked", self.on_page_link_clicked, page_link)
+        self.signals.append(
+            (button, button.connect("clicked", self.on_page_link_clicked, page_link))
+        )
+
         return button
 
     def on_page_link_clicked(self, btn, page_link):
@@ -232,14 +243,16 @@ class Page(Adw.NavigationPage):
         variables.navigation_view.push(page)
 
     def delete_signals(self):
+        disconnected_signals = 0
         for obj, signal_id in self.signals:
+            disconnected_signals += 1
             obj.disconnect(signal_id)
 
-        for child in self.del_childrens:
-            child.delete_signals()
+            self.signals = []
+        print(f"disconnected {disconnected_signals} signals from {self}")
 
-        self.signals = []
-        self.del_childrens = []
+    def __on_unrealized(self, *args):
+        self.delete_signals()
 
     def __del__(self, *args):
         print(f"DELETING {self}")

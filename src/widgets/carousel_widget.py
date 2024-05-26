@@ -42,6 +42,24 @@ class CarouselWidget(Gtk.Box):
     def __init__(self, _title=""):
         super().__init__()
 
+        self.signals = []
+
+        self.signals.append(
+            (self, self.connect("unrealize", self.__on_unrealized))
+        )
+
+        self.signals.append(
+            (self.next_button, self.next_button.connect("clicked", self.carousel_go_next))
+        )
+
+        self.signals.append(
+            (self.prev_button, self.prev_button.connect("clicked", self.carousel_go_prev))
+        )
+
+        self.signals.append(
+            (self.more_button, self.more_button.connect("clicked", self.on_more_clicked))
+        )
+
         self.n_pages = 0
 
         self.title = _title
@@ -77,7 +95,6 @@ class CarouselWidget(Gtk.Box):
                 break
             self.append_card(CardWidget(item))
 
-    @Gtk.Template.Callback("on_more_clicked")
     def on_more_clicked(self, *args):
         from ..pages import fromFunctionPage
 
@@ -93,7 +110,6 @@ class CarouselWidget(Gtk.Box):
         page.load()
         variables.navigation_view.push(page)
 
-    @Gtk.Template.Callback("on_next_clicked")
     def carousel_go_next(self, btn):
         pos = self.carousel.get_position()
         if pos + 2 >= self.carousel.get_n_pages():
@@ -109,7 +125,6 @@ class CarouselWidget(Gtk.Box):
 
         self.prev_button.set_sensitive(True)
 
-    @Gtk.Template.Callback("on_prev_clicked")
     def carousel_go_prev(self, btn):
         pos = self.carousel.get_position()
         if pos - 2 < 0:
@@ -124,3 +139,21 @@ class CarouselWidget(Gtk.Box):
 
         if pos - 2 <= 0:
             self.prev_button.set_sensitive(False)
+
+    def delete_signals(self):
+        disconnected_signals = 0
+        for obj, signal_id in self.signals:
+            disconnected_signals += 1
+            obj.disconnect(signal_id)
+
+            self.signals = []
+        print(f"disconnected {disconnected_signals} signals from {self}")
+
+    def __repr__(self, *args):
+        return "<CarouselWidget>"
+
+    def __on_unrealized(self, *args):
+        self.delete_signals()
+
+    def __del__(self, *args):
+        print(f"DELETING {self}")
