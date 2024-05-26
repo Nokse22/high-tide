@@ -52,28 +52,23 @@ class QueueWidget(Gtk.Box):
     def __init__(self):
         super().__init__()
 
-    def update(self, player):
+    def update_all(self, player):
+        self.update_playing_song(player)
+        self.update_played_songs(player)
+        self.update_queue(player)
+        self.update_next_songs(player)
+
+    def update_playing_song(self, player):
         track = player.playing_track
         self.playing_track_title_label.set_label(track.name)
         threading.Thread(target=utils.add_image, args=(self.playing_track_image, track.album)).start()
 
+    def update_played_songs(self, player):
         child = self.played_songs_list.get_row_at_index(0)
         while child:
             self.played_songs_list.remove(child)
             del child
             child = self.played_songs_list.get_row_at_index(0)
-
-        child = self.queued_songs_list.get_row_at_index(0)
-        while child:
-            self.queued_songs_list.remove(child)
-            del child
-            child = self.queued_songs_list.get_row_at_index(0)
-
-        child = self.next_songs_list.get_row_at_index(0)
-        while child:
-            self.next_songs_list.remove(child)
-            del child
-            child = self.next_songs_list.get_row_at_index(0)
 
         if len(player.played_songs) > 0:
             self.played_songs_box.set_visible(True)
@@ -84,6 +79,13 @@ class QueueWidget(Gtk.Box):
         else:
             self.played_songs_box.set_visible(False)
 
+    def update_queue(self, player):
+        child = self.queued_songs_list.get_row_at_index(0)
+        while child:
+            self.queued_songs_list.remove(child)
+            del child
+            child = self.queued_songs_list.get_row_at_index(0)
+
         if len(player.queue) > 0:
             self.queued_songs_box.set_visible(True)
             for index, track in enumerate(player.queue):
@@ -92,6 +94,13 @@ class QueueWidget(Gtk.Box):
                 self.queued_songs_list.append(listing)
         else:
             self.queued_songs_box.set_visible(False)
+
+    def update_next_songs(self, player):
+        child = self.next_songs_list.get_row_at_index(0)
+        while child:
+            self.next_songs_list.remove(child)
+            del child
+            child = self.next_songs_list.get_row_at_index(0)
 
         if len(player.tracks_to_play) > 0:
             self.next_songs_box.set_visible(True)

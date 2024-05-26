@@ -165,6 +165,7 @@ class GenericTrackWidget(Gtk.ListBoxRow):
 
     def on_open_uri(self, label, uri, *args):
         variables.open_uri(label, uri)
+        return True
 
     def delete_signals(self):
         disconnected_signals = 0

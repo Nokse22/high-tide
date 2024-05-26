@@ -34,6 +34,7 @@ def init():
     global player_object
     global sidebar_list
     global search_entry
+    global stack
 
 def get_favourites():
     global favourite_tracks
@@ -136,11 +137,12 @@ def get_type(item):
     elif isinstance(item, Playlist):
         return "playlist"
 
-def open_uri(label, uri, turn=True):
+def open_uri(label, uri):
     print(uri)
+    stack.set_visible_child_name("normal_view")
     th= threading.Thread(target=_load_object, args=(uri,))
     th.start()
-    return turn
+    return True
 
 def _open_uri(uri, loaded_object):
     uri_parts = uri.split(":")
