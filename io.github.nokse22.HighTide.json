@@ -12,7 +12,8 @@
         "--socket=wayland",
 	"--socket=pulseaudio",
         "--talk-name=org.freedesktop.secrets",
-        "--own-name=org.mpris.MediaPlayer2.HighTide"
+        "--own-name=org.mpris.MediaPlayer2.HighTide",
+        "--env=GOBJECT_DEBUG=instance-count"
     ],
     "cleanup" : [
         "/include",
@@ -104,18 +105,18 @@
 		},
 		{
 		    "type": "file",
-		    "url": "https://files.pythonhosted.org/packages/70/8e/0e2d847013cb52cd35b38c009bb167a1a26b2ce6cd6965bf26b47bc0bf44/requests-2.31.0-py3-none-any.whl",
-		    "sha256": "58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f"
+		    "url": "https://files.pythonhosted.org/packages/c3/20/748e38b466e0819491f0ce6e90ebe4184966ee304fe483e2c414b0f4ef07/requests-2.32.2-py3-none-any.whl",
+		    "sha256": "fc06670dd0ed212426dfeb94fc1b983d917c4f9847c863f313c9dfaaffb7c23c"
 		},
 		{
 		    "type": "file",
-		    "url": "https://files.pythonhosted.org/packages/1c/23/6c33dd205036a42d9181827ec30ffda913400294f5f96b4e447f687df0d1/tidalapi-0.7.5-py3-none-any.whl",
-		    "sha256": "99623dc1325d16f740e88b4bc7e5041a9ac9ff212935acc1d4ae4c9af9f37ea1"
+		    "url": "https://files.pythonhosted.org/packages/8d/dd/6669a0deae9808320416793f7111b6cb0c80a1a65c9be0f1ed66f2c0a201/tidalapi-0.7.6-py3-none-any.whl",
+		    "sha256": "ac9afe91296d2db71381e70470a710c052ce45b5014c4735bd1908ca3938f233"
 		},
 		{
 		    "type": "file",
-		    "url": "https://files.pythonhosted.org/packages/01/f3/936e209267d6ef7510322191003885de524fc48d1b43269810cd589ceaf5/typing_extensions-4.11.0-py3-none-any.whl",
-		    "sha256": "c1f94d72897edaf4ce775bb7558d5b79d8126906a14ea5ed1635921406c0387a"
+		    "url": "https://files.pythonhosted.org/packages/e1/4d/d612de852a0bc64a64418e1cef25fe1914c5b1611e34cc271ed7e36174c8/typing_extensions-4.12.0-py3-none-any.whl",
+		    "sha256": "b349c66bea9016ac22978d800cfff206d5f9816951f12a7d0ec5578b0a819594"
 		},
 		{
 		    "type": "file",
