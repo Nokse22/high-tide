@@ -56,12 +56,20 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         if not _track:
             return
 
+        self.signals = []
+
         self.set_track(_track, is_album)
 
     def set_track(self, _track, is_album=False):
-        self.artist_label.connect("activate-link", variables.open_uri)
-        self.artist_label_2.connect("activate-link", variables.open_uri)
-        self.track_album_label.connect("activate-link", variables.open_uri)
+        self.signals.append(
+            (self.artist_label, self.artist_label.connect("activate-link", self.on_open_uri))
+        )
+        self.signals.append(
+            (self.artist_label_2, self.artist_label_2.connect("activate-link", self.on_open_uri))
+        )
+        self.signals.append(
+            (self.track_album_label, self.track_album_label.connect("activate-link", self.on_open_uri))
+        )
 
         self.track = _track
 
@@ -107,7 +115,9 @@ class GenericTrackWidget(Gtk.ListBoxRow):
 
         for name, callback in action_entries:
             action = Gio.SimpleAction.new(name, None)
-            action.connect("activate", callback)
+            self.signals.append(
+                (action, action.connect("activate", callback))
+            )
             action_group.add_action(action)
 
         self.insert_action_group("trackwidget", action_group)
@@ -149,3 +159,21 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         selected_playlist = variables.favourite_playlists[playlist_index]
 
         print(f"Added to playlist: {selected_playlist.name}, ID: {playlist_id}")
+
+    def on_open_uri(self, label, uri, *args):
+        variables.open_uri(label, uri)
+
+    def delete_signals(self):
+        disconnected_signals = 0
+        for obj, signal_id in self.signals:
+            disconnected_signals += 1
+            obj.disconnect(signal_id)
+
+            self.signals = []
+        print(f"disconnected {disconnected_signals} signals from {self} track widget")
+
+    def __repr__(self, *args):
+        return f"<TrackWidget of {self.track.name}>"
+
+    def __del__(self, *args):
+        print(f"DELETING {self}")

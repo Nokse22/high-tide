@@ -49,19 +49,30 @@ class mixPage(Page):
 
         page_content = builder.get_object("_main")
         tracks_list_box = builder.get_object("_list_box")
-        tracks_list_box.connect("row-activated", self.on_row_selected)
+        self.signals.append(
+            (tracks_list_box, tracks_list_box.connect("row-activated", self.on_row_selected))
+        )
 
         builder.get_object("_title_label").set_label(self.item.title)
         builder.get_object("_first_subtitle_label").set_label(self.item.sub_title)
 
-        builder.get_object("_play_button").connect("clicked", self.on_play_button_clicked)
-        builder.get_object("_shuffle_button").connect("clicked", self.on_shuffle_button_clicked)
+        play_btn = builder.get_object("_play_button")
+        self.signals.append(
+            (play_btn, play_btn.connect("clicked", self.on_play_button_clicked))
+        )
 
-        in_my_collection_button = builder.get_object("_in_my_collection_button")
-        in_my_collection_button.connect("clicked", variables.on_in_to_my_collection_button_clicked, self.item)
+        shuffle_btn = builder.get_object("_shuffle_button")
+        self.signals.append(
+            (shuffle_btn, shuffle_btn.connect("clicked", self.on_shuffle_button_clicked))
+        )
+
+        in_my_collection_btn = builder.get_object("_in_my_collection_button")
+        self.signals.append(
+            (in_my_collection_btn, in_my_collection_btn.connect("clicked", self.add_to_my_collection))
+        )
 
         if (variables.is_favourited(self.item)):
-            in_my_collection_button.set_icon_name("heart-filled-symbolic")
+            in_my_collection_btn.set_icon_name("heart-filled-symbolic")
 
         image = builder.get_object("_image")
         th = threading.Thread(target=utils.add_image, args=(image, self.item))
@@ -74,6 +85,7 @@ class mixPage(Page):
         for index, track in enumerate(self.item.items()):
             listing = self.get_track_listing(track)
             listing.set_name(str(index))
+            self.del_childrens.append(listing)
             tracks_list_box.append(listing)
 
         self.page_content.append(page_content)
@@ -83,3 +95,6 @@ class mixPage(Page):
         index = int(row.get_name())
 
         variables.player_object.play_this(self.item, index)
+
+    def add_to_my_collection(btn):
+        variables.on_in_to_my_collection_button_clicked(btn, self.item)

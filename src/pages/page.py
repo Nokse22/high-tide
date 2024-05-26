@@ -52,6 +52,9 @@ class Page(Adw.NavigationPage):
     def __init__(self, _item=None, _name=None):
         super().__init__()
 
+        self.signals = []
+        self.del_childrens = []
+
         if _name:
             self.set_title(_name)
 
@@ -227,3 +230,16 @@ class Page(Adw.NavigationPage):
         page = genericPage(page_link, page_link.title)
         page.load()
         variables.navigation_view.push(page)
+
+    def delete_signals(self):
+        for obj, signal_id in self.signals:
+            obj.disconnect(signal_id)
+
+        for child in self.del_childrens:
+            child.delete_signals()
+
+        self.signals = []
+        self.del_childrens = []
+
+    def __del__(self, *args):
+        print(f"DELETING {self}")
