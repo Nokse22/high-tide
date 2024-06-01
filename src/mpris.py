@@ -153,6 +153,7 @@ class MPRIS(Server):
             self.__metadata["xesam:title"] = GLib.Variant("s", track.name)
             self.__metadata["xesam:album"] = GLib.Variant("s", track.album)
             self.__metadata["xesam:artist"] = GLib.Variant("as", [track.artist])
+            self.__metadata["mpris:length"] = GLib.Variant("i", self.player.query_duration())
 
         self.__bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
         Gio.bus_own_name_on_connection(
@@ -161,6 +162,7 @@ class MPRIS(Server):
         Server.__init__(self, self.__bus, self.__MPRIS_PATH)
 
         self.player.connect("song-changed", self._on_preset_changed)
+        self.player.connect("duration-changed", self._on_preset_changed)
         self.player.connect("play-changed", self._on_playing_changed)
         # MainPlayer.get().connect("notify::volume", self._on_volume_changed)
 
@@ -268,6 +270,7 @@ class MPRIS(Server):
         self.__metadata["xesam:title"] = GLib.Variant("s", self.player.playing_track.name)
         self.__metadata["xesam:album"] = GLib.Variant("s", self.player.playing_track.album.name)
         self.__metadata["xesam:artist"] = GLib.Variant("as", [self.player.playing_track.artist.name])
+        self.__metadata["mpris:length"] = GLib.Variant("i", self.player.duration)
 
         url = f"file://{variables.IMG_DIR}/{self.player.playing_track.album.id}.jpg"
 

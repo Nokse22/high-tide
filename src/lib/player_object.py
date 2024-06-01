@@ -46,10 +46,20 @@ class playerObject(GObject.GObject):
         'song-changed': (GObject.SignalFlags.RUN_FIRST, None, ()),
         'song-added-to-queue': (GObject.SignalFlags.RUN_FIRST, None, ()),
         'play-changed': (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
+        'duration-changed': (GObject.SignalFlags.RUN_FIRST, None, ()),
     }
 
     def __init__(self):
         GObject.GObject.__init__(self)
+
+        # TODO Rename all player_object to something like GstPlayer
+
+        Gst.init()
+
+        self._player = Gst.ElementFactory.make('playbin3', 'player')
+        self._bus = self._player.get_bus()
+        self._bus.add_signal_watch()
+
         self.queue = []  # List to store queued songs (Not the next songs in an album/playlist/mix, but the ones added with play next/add to queue)
 
         self.current_mix_album_playlist = None  # Information about the currently playing mix/album
@@ -65,16 +75,10 @@ class playerObject(GObject.GObject):
         self.playing_track = None
         self.song_album = None
 
+        self.duration = self.query_duration()
+
         self.can_next = False
         self.can_prev = False
-
-        Gst.init()
-
-        # TODO Rename all player_object to something like GstPlayer
-
-        self._player = Gst.ElementFactory.make('playbin3', 'player')
-        self._bus = self._player.get_bus()
-        self._bus.add_signal_watch()
 
         self._bus.connect('message::eos', self._on_bus_eos)
 
@@ -171,6 +175,8 @@ class playerObject(GObject.GObject):
         self._player.set_state(Gst.State.NULL)
 
         self._player.set_property("uri", music_url)
+
+        self.duration = self.query_duration()
 
         if self.is_playing:
             self.play()
@@ -298,15 +304,29 @@ class playerObject(GObject.GObject):
 
     def update_slider_call(self):
         self.emit("update-slider")
+
+        duration = self.query_duration()
+        if duration != self.duration:
+            self.emit("duration-changed")
+
         if self.is_playing:
             return True
         return False
 
-    def query_duration(self, time_format):
-        return self._player.query_duration(Gst.Format.TIME)
+    def query_duration(self):
+        success, duration = self._player.query_duration(Gst.Format.TIME)
+        if success:
+            print(duration)
+            return duration
+        else:
+            return 0
 
-    def query_position(self, time_format):
-        return self._player.query_position(Gst.Format.TIME)
+    def query_position(self):
+        success, position = self._player.query_position(Gst.Format.TIME)
+        if success:
+            return position
+        else:
+            return 0
 
     def seek(self, time_format, something, seek_time):
         self._player.seek_simple(time_format, something, seek_time)
