@@ -96,10 +96,6 @@ class artistPage(Page):
 
         threading.Thread(target=utils.add_image_to_avatar, args=(artist_picture, self.artist)).start()
 
-        roles_str = ""
-        for role in self.artist.roles:
-            roles_str += " " + role.main.value
-
         builder.get_object("_first_subtitle_label").set_label("Artist")
 
         tracks_list_widget = TracksListWidget("Top Tracks")
