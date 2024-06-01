@@ -46,13 +46,19 @@ class TopHitWidget(Gtk.Box):
 
     artist_avatar = Gtk.Template.Child()
     artist_label = Gtk.Template.Child()
-    # title_label = Gtk.Template.Child()
-    # detail_label = Gtk.Template.Child()
+    play_button = Gtk.Template.Child()
+    shuffle_button = Gtk.Template.Child()
     # track_artist_label = Gtk.Template.Child()
     # track_artist_button = Gtk.Template.Child()
 
     def __init__(self, _item):
         super().__init__()
+
+        self.signals = []
+
+        self.signals.append(
+            (self, self.connect("unrealize", self.__on_unrealized))
+        )
 
         self.item = _item
 
@@ -71,6 +77,13 @@ class TopHitWidget(Gtk.Box):
         self.title_label.set_text(self.item.title)
         self.detail_label.set_text(self.item.sub_title)
         self.track_artist_label.set_visible(False)
+
+        # self.signals.append(
+        #     (self.play_button, self.play_button.connect("clicked", self.on_))
+        # )
+        # self.signals.append(
+        #     (self.shuffle_button, self.shuffle_button.connect("clicked", self.on_))
+        # )
 
         th = threading.Thread(target=utils.add_image, args=(self.image, self.item))
         th.deamon = True
@@ -116,14 +129,12 @@ class TopHitWidget(Gtk.Box):
         th.deamon = True
         th.start()
 
-    @Gtk.Template.Callback("on_artist_button_clicked")
     def _on_artist_button_clicked(self, *args):
         from ..pages.artist_page import artistPage
         page = artistPage(self.item.artist, f"{self.item.artist.name}")
         page.load()
         variables.navigation_view.push(page)
 
-    @Gtk.Template.Callback("on_image_button_clicked")
     def _on_image_button_clicked(self, *args):
         if isinstance(self.item, Mix):
             from ..pages.mix_page import mixPage
@@ -148,3 +159,22 @@ class TopHitWidget(Gtk.Box):
             page = artistPage(self.item, f"{self.item.name}")
             page.load()
             variables.navigation_view.push(page)
+
+    def delete_signals(self):
+        disconnected_signals = 0
+        for obj, signal_id in self.signals:
+            disconnected_signals += 1
+            obj.disconnect(signal_id)
+
+            self.signals = []
+        # print(f"disconnected {disconnected_signals} signals from {self}")
+
+    def __repr__(self, *args):
+        return "<CardWidget>"
+
+    def __on_unrealized(self, *args):
+        self.delete_signals()
+
+    def __del__(self, *args):
+        # print(f"DELETING {self}")
+        pass
