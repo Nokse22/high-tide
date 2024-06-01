@@ -62,7 +62,7 @@ class explorePage(Page):
                 flow_box_box.append(flow_box)
                 self.page_content.append(carousel)
             else:
-                carousel, cards_box = self.get_carousel(category.title)
+                carousel, cards_box = self.get_link_carousel(category.title)
                 self.page_content.append(carousel)
 
             buttons_for_page = 0
