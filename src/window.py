@@ -339,26 +339,19 @@ class HighTideWindow(Adw.ApplicationWindow):
         if not self.player_object.is_playing:
             return False # cancel timeout
         else:
-            success, self.duration = self.player_object.query_duration(Gst.Format.TIME)
-            if not success:
-                end_value = 100
-                pass
-            else:
-                end_value = self.duration / Gst.SECOND
-                self.progress_bar.set_range(0, end_value)
+            self.duration = self.player_object.query_duration()
+            end_value = self.duration / Gst.SECOND
+            self.progress_bar.set_range(0, end_value)
 
-                self.duration_label.set_label(utils.pretty_duration(end_value))
+            self.duration_label.set_label(utils.pretty_duration(end_value))
 
-            success, position = self.player_object.query_position(Gst.Format.TIME)
-            if not success:
-                pass
-            else:
-                position = position / Gst.SECOND
-                self.progress_bar.get_adjustment().set_value(position)
-                self.small_progress_bar.set_fraction(position/end_value)
-                self.previous_time = position
+            position = self.player_object.query_position()
+            position = position / Gst.SECOND
+            self.progress_bar.get_adjustment().set_value(position)
+            self.small_progress_bar.set_fraction(position/end_value)
+            self.previous_time = position
 
-                self.time_played_label.set_label(utils.pretty_duration(position))
+            self.time_played_label.set_label(utils.pretty_duration(position))
         return True
 
     @Gtk.Template.Callback("on_lyrics_button_clicked")
