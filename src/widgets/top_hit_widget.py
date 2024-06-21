@@ -70,8 +70,17 @@ class TopHitWidget(Gtk.Box):
         #     self.make_playlist_card()
         if isinstance(_item, Artist):
             self.make_artist()
+        # elif isinstance(_item, Track):
+        #     self.make_track()
         elif isinstance(_item, PageItem):
             self.make_page_item_card()
+
+    def make_track(self):
+        self.artist_label.set_text(self.item.name)
+
+        th = threading.Thread(target=utils.add_image_to_avatar, args=(self.artist_avatar, self.item.album.artist))
+        th.deamon = True
+        th.start()
 
     def make_mix_card(self):
         self.title_label.set_text(self.item.title)
@@ -157,6 +166,12 @@ class TopHitWidget(Gtk.Box):
         elif isinstance(self.item, Artist):
             from ..pages.artist_page import artistPage
             page = artistPage(self.item, f"{self.item.name}")
+            page.load()
+            variables.navigation_view.push(page)
+
+        elif isinstance(self.item, Track):
+            from ..pages.artist_page import albumPage
+            page = artistPage(self.item.album, f"{self.item.album.name}")
             page.load()
             variables.navigation_view.push(page)
 

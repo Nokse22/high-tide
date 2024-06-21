@@ -76,25 +76,25 @@ class searchPage(Page):
         artists = results["artists"]
         if len(artists) > 0:
             self.page_content.append(carousel)
-            for artist in artists:
-                artist_card = self.get_artist_card(artist)
-                carousel.append_card(artist_card)
+            carousel.set_items(artists, "artist")
 
         carousel = CarouselWidget("Albums")
         albums = results["albums"]
         if len(albums) > 0:
             self.page_content.append(carousel)
-            for album in albums:
-                album_card = self.get_album_card(album)
-                carousel.append_card(album_card)
+            carousel.set_items(albums, "album")
 
         carousel = CarouselWidget("Playlists")
         playlists = results["playlists"]
         if len(playlists) > 0:
             self.page_content.append(carousel)
-            for playlist in playlists:
-                playlist_card = self.get_playlist_card(playlist)
-                carousel.append_card(playlist_card)
+            carousel.set_items(playlists, "playlist")
+
+        carousel = CarouselWidget("Tracks")
+        tracks = results["tracks"]
+        if len(tracks) > 0:
+            self.page_content.append(carousel)
+            carousel.set_items(tracks, "track")
 
         scrolled_window = Gtk.ScrolledWindow(vexpand=True, hscrollbar_policy=Gtk.PolicyType.NEVER)
 
