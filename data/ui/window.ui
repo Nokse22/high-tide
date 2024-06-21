@@ -80,6 +80,7 @@
                       </child>
                       <child>
                         <object class="GtkScrolledWindow">
+                          <property name="hscrollbar-policy">never</property>
                           <property name="vexpand">true</property>
                           <style>
                             <class name="undershoot-top"/>
@@ -830,6 +831,7 @@ circular</property>
                       <object class="AdwViewStackPage">
                         <property name="child">
                           <object class="GtkScrolledWindow">
+                              <property name="hscrollbar-policy">never</property>
                               <property name="hexpand">true</property>
                               <property name="vexpand">true</property>
                               <style>
