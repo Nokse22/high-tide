@@ -68,16 +68,16 @@
                           </child>
                         </object>
                       </child>
-                      <child>
-                        <object class="GtkSearchEntry" id="search_entry">
-                          <property name="placeholder-text">Search...</property>
-                          <property name="search-delay">300</property>
-                          <property name="margin-end">6</property>
-                          <property name="margin-start">6</property>
-                          <property name="margin-bottom">6</property>
-                          <property name="sensitive">false</property>
-                        </object>
-                      </child>
+                      <!-- <child> -->
+                      <!--   <object class="GtkSearchEntry" id="search_entry"> -->
+                      <!--     <property name="placeholder-text">Search...</property> -->
+                      <!--     <property name="search-delay">300</property> -->
+                      <!--     <property name="margin-end">6</property> -->
+                      <!--     <property name="margin-start">6</property> -->
+                      <!--     <property name="margin-bottom">6</property> -->
+                      <!--     <property name="sensitive">false</property> -->
+                      <!--   </object> -->
+                      <!-- </child> -->
                       <child>
                         <object class="GtkScrolledWindow">
                           <property name="hscrollbar-policy">never</property>
@@ -94,7 +94,7 @@
                                     <signal name="row-activated" handler="on_sidebar_row_selected_clicked"/>
                                     <property name="css-classes">navigation-sidebar</property>
                                     <property name="selection-mode">none</property>
-                                    <property name="sensitive" bind-source="search_entry" bind-property="sensitive">false</property>
+                                    <property name="sensitive">false</property>
                                     <child>
                                       <object class="GtkBox">
                                         <property name="spacing">12</property>
@@ -149,8 +149,7 @@
                                     <signal name="row-activated" handler="on_sidebar_row_selected_clicked"/>
                                     <property name="css-classes">navigation-sidebar</property>
                                     <property name="selection-mode">none</property>
-                                    <property name="sensitive" bind-source="search_entry" bind-property="sensitive">false</property>
-
+                                    <property name="sensitive" bind-source="sidebar_list" bind-property="sensitive">false</property>
                                     <child>
                                       <object class="GtkBox">
                                         <property name="spacing">12</property>
@@ -279,7 +278,7 @@
                                     <signal name="row-activated" handler="on_playlists_sidebar_row_activated"/>
                                     <property name="css-classes">navigation-sidebar</property>
                                     <property name="selection-mode">none</property>
-                                    <property name="sensitive" bind-source="search_entry" bind-property="sensitive">false</property>
+                                    <property name="sensitive" bind-source="sidebar_list" bind-property="sensitive">false</property>
                                   </object>
                                 </child>
                             </object>
@@ -321,7 +320,7 @@
               <property name="height-request">60</property>
               <property name="hexpand">true</property>
               <property name="homogeneous">false</property>
-              <property name="sensitive" bind-source="search_entry" bind-property="sensitive">false</property>
+              <property name="sensitive" bind-source="sidebar_list" bind-property="sensitive">false</property>
               <child>
                 <object class="GtkBox">
                   <property name="orientation">horizontal</property>

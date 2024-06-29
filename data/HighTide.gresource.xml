@@ -20,6 +20,7 @@
     <file preprocess="xml-stripblanks">ui/widgets/top_hit_widget.ui</file>
     <file preprocess="xml-stripblanks">ui/widgets/tracks_list_widget.ui</file>
     <file preprocess="xml-stripblanks">ui/search_filter.ui</file>
+    <file preprocess="xml-stripblanks">ui/search_entry.ui</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/chat-bubble-text-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/heart-filled-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/heart-outline-thick-symbolic.svg</file>

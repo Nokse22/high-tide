@@ -74,7 +74,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     shuffle_button = Gtk.Template.Child()
     navigation_view = Gtk.Template.Child()
     play_button = Gtk.Template.Child()
-    search_entry = Gtk.Template.Child()
+    # search_entry = Gtk.Template.Child()
     small_progress_bar = Gtk.Template.Child()
     song_title_label = Gtk.Template.Child()
     playing_track_image = Gtk.Template.Child()
@@ -105,7 +105,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.player_object = playerObject()
         variables.player_object = self.player_object
-        variables.search_entry = self.search_entry
+        # variables.search_entry = self.search_entry
 
         self.volume_button.get_adjustment().set_value(self.settings.get_int("last-volume")/10)
 
@@ -121,8 +121,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.artist_label.connect("activate-link", variables.open_uri)
         self.mobile_artist_label.connect("activate-link", variables.open_uri)
         self.mobile_artist_label.connect("activate-link", self.toggle_mobile_view)
-
-        self.search_entry.connect("activate", self.on_search_activated)
 
         self.session = tidalapi.Session()
 
@@ -165,7 +163,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         variables.get_favourites()
         # FIXME if it doesn't login fast enough it doesn't let the user login
 
-        self.search_entry.set_sensitive(True)
+        self.sidebar_list.set_sensitive(True)
 
         page = homePage(self)
         page.load()
@@ -274,11 +272,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.control_bar_artist = track.artist
         self.update_slider()
 
-    def on_search_activated(self, *args):
-        page = searchPage(None, "Search")
-        page.load()
-        self.navigation_view.push(page)
-
     def update_controls(self, is_playing, *arg):
         self.playbar_main_box.set_visible(True)
         if not is_playing:
@@ -313,7 +306,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     def logout(self):
         self.secret_store.clear()
 
-        self.search_entry.set_sensitive(False)
+        self.sidebar_list.set_sensitive(False)
 
         page = notLoggedInPage(self)
         page.load()

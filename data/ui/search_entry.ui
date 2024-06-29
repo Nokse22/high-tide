@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.16.0 -->
+<interface>
+  <!-- interface-name filters.ui -->
+  <requires lib="gtk" version="4.12"/>
+  <object class="GtkSearchEntry" id="search_entry">
+    <property name="placeholder-text">Search...</property>
+    <property name="search-delay">300</property>
+    <property name="margin-end">12</property>
+    <property name="margin-start">12</property>
+    <property name="margin-bottom">6</property>
+  </object>
+</interface>
