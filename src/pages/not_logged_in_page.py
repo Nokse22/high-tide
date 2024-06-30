@@ -48,11 +48,22 @@ class notLoggedInPage(Page):
     def _load_page(self):
         self.set_title("Not Logged In")
 
-        descr = '''To be able to use this app you need to login with your TIDAL account.
-Open the hamburger menu on the left and click Login.'''
+        descr = '''To be able to use this app you need to login with your TIDAL account.'''
 
-        status_page = Adw.StatusPage(title="Login first", description=descr, icon_name="face-wink-symbolic")
-        status_page.set_vexpand(True)
-        status_page.set_hexpand(True)
+        login_button = Gtk.Button(
+            label="Login",
+            css_classes=["pill", "suggested-action"],
+            action_name="app.log-in",
+            halign=Gtk.Align.CENTER
+        )
+        status_page = Adw.StatusPage(
+            title="Login first",
+            description=descr,
+            icon_name="face-wink-symbolic",
+            child=login_button,
+            valign=Gtk.Align.CENTER,
+            vexpand=True
+        )
 
+        self.page_content.append(status_page)
         self._page_loaded()

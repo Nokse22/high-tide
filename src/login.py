@@ -20,15 +20,15 @@
 from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import GLib
-# from gi.repository import GObject
+from gi.repository import Gdk
 
 import tidalapi
 
 from .lib import variables
 
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/login.ui')
-class LoginWindow(Adw.Window):
-    __gtype_name__ = 'LoginWindow'
+class LoginDialog(Adw.Dialog):
+    __gtype_name__ = 'LoginDialog'
 
     link_button = Gtk.Template.Child()
     code_label = Gtk.Template.Child()
@@ -39,13 +39,17 @@ class LoginWindow(Adw.Window):
         self.session = _session
         self.win = _win
 
+        self.code = ""
+
         login, future = self.session.login_oauth()
 
         uri = login.verification_uri_complete
 
         link = f"https://{uri}"
 
-        self.code_label.set_label(uri[-5:])
+        self.code = uri[-5:]
+
+        self.code_label.set_label(self.code)
         self.link_button.set_label(link)
         self.link_button.set_uri(link)
 
@@ -55,10 +59,11 @@ class LoginWindow(Adw.Window):
         if self.session.check_login():
             self.win.secret_store.save()
             self.win.on_logged_in()
-            self.destroy()
+            self.close()
             return False
         return True
 
     @Gtk.Template.Callback("on_copy_code_button_clicked")
     def foo(self, btn):
-        pass
+        clipboard = Gdk.Display().get_default().get_clipboard()
+        clipboard.set(self.code)

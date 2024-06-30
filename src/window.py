@@ -44,7 +44,7 @@ from .lib import utils
 import os
 import sys
 
-from .login import LoginWindow
+from .login import LoginDialog
 from .new_playlist import NewPlaylistWindow
 
 from .pages import homePage, explorePage, artistPage, notLoggedInPage
@@ -282,12 +282,10 @@ class HighTideWindow(Adw.ApplicationWindow):
             print("play")
 
     def new_login(self):
-        """Opens a LoginWindow"""
+        """Opens a LoginDialog"""
 
-        login_window = LoginWindow(self, self.session)
-        login_window.set_transient_for(self)
-        login_window.set_modal(self)
-        login_window.present()
+        login_dialog = LoginDialog(self, self.session)
+        login_dialog.present(self)
 
     def login(self):
         """Logs the user in, if it doesn't work it calls on_login_failed()"""
@@ -341,7 +339,8 @@ class HighTideWindow(Adw.ApplicationWindow):
             position = self.player_object.query_position()
             position = position / Gst.SECOND
             self.progress_bar.get_adjustment().set_value(position)
-            self.small_progress_bar.set_fraction(position/end_value)
+            if end_value != 0:
+                self.small_progress_bar.set_fraction(position/end_value)
             self.previous_time = position
 
             self.time_played_label.set_label(utils.pretty_duration(position))
