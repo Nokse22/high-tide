@@ -45,5 +45,5 @@ from ..lib import variables
 class startUpPage(Page):
     __gtype_name__ = 'startUpPage'
 
-    def _load_page(self):
+    def _th_load_page(self):
         self.set_tag("loading-page")

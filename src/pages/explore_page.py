@@ -48,7 +48,7 @@ class explorePage(Page):
 
     """It is used to display the explore page"""
 
-    def _load_page(self):
+    def _th_load_page(self):
         explore = variables.session.explore()
 
         # print(explore.categories)

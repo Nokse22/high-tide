@@ -45,7 +45,7 @@ from ..lib import variables
 class notLoggedInPage(Page):
     __gtype_name__ = 'notLoggedInPage'
 
-    def _load_page(self):
+    def _th_load_page(self):
         self.set_title("Not Logged In")
 
         descr = '''To be able to use this app you need to login with your TIDAL account.'''

@@ -48,7 +48,7 @@ class genericPage(Page):
 
     """It is used for explore page categories page"""
 
-    def _load_page(self):
+    def _th_load_page(self):
         generic_content = self.item.get()
 
         for index, category in enumerate(generic_content.categories):

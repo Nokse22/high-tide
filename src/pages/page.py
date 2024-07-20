@@ -77,11 +77,11 @@ class Page(Adw.NavigationPage):
 
         """Called when the page is created, it just starts a thread running the actual function to load the page UI"""
 
-        th = threading.Thread(target=self._load_page)
+        th = threading.Thread(target=self._th_load_page)
         th.deamon = True
         th.start()
 
-    def _load_page(self):
+    def _th_load_page(self):
 
         """Overwritten by each different page"""
 

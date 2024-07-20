@@ -47,7 +47,7 @@ from ..lib import variables
 class homePage(Page):
     __gtype_name__ = 'homePage'
 
-    def _load_page(self):
+    def _th_load_page(self):
         self.set_tag("home")
 
         self.set_title("Home")

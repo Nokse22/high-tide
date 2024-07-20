@@ -51,7 +51,7 @@ class TidalApplication(Adw.Application):
         variables.init()
 
     def on_download(self, *args):
-        th = threading.Thread(target=self.win.download_song)
+        th = threading.Thread(target=self.win.th_download_song)
         th.deamon = True
         th.start()
 

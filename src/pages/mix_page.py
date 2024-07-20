@@ -44,7 +44,7 @@ from ..lib import variables
 class mixPage(Page):
     __gtype_name__ = 'mixPage'
 
-    def _load_page(self):
+    def _th_load_page(self):
         builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/tracks_list_template.ui")
 
         page_content = builder.get_object("_main")
@@ -68,7 +68,7 @@ class mixPage(Page):
 
         in_my_collection_btn = builder.get_object("_in_my_collection_button")
         self.signals.append(
-            (in_my_collection_btn, in_my_collection_btn.connect("clicked", self.add_to_my_collection))
+            (in_my_collection_btn, in_my_collection_btn.connect("clicked", self.th_add_to_my_collection))
         )
 
         if (variables.is_favourited(self.item)):
@@ -95,5 +95,5 @@ class mixPage(Page):
 
         variables.player_object.play_this(self.item, index)
 
-    def add_to_my_collection(btn):
+    def th_add_to_my_collection(btn):
         variables.on_in_to_my_collection_button_clicked(btn, self.item)

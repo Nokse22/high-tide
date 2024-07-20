@@ -89,7 +89,7 @@ class GenericTrackWidget(Gtk.ListBoxRow):
             ("radio", self._get_radio),
             ("play-next", self._play_next),
             ("add-to-queue", self._add_to_queue),
-            ("add-to-my-collection", self._add_to_my_collection)
+            ("add-to-my-collection", self._th_add_to_my_collection)
         ]
 
         # action = Gio.SimpleAction.new("add-to-playlist", GLib.Variant("s"))
@@ -149,12 +149,12 @@ class GenericTrackWidget(Gtk.ListBoxRow):
     def _add_to_queue(self, *args):
         variables.player_object.add_to_queue(self.track)
 
-    def _add_to_my_collection(self, *args):
-        th = threading.Thread(target=self.th_add_to_my_collection, args=())
+    def _th_add_to_my_collection(self, *args):
+        th = threading.Thread(target=self.th_th_add_to_my_collection, args=())
         th.deamon = True
         th.start()
 
-    def th_add_to_my_collection(self):
+    def th_th_add_to_my_collection(self):
         variables.session.user.favorites.add_track(self.track.id)
 
     def _add_to_playlist(self, action, parameter, playlist_index):

@@ -265,7 +265,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         else:
             self.play_button.set_icon_name("media-playback-start-symbolic")
 
-        th = threading.Thread(target=self.add_lyrics_to_page, args=())
+        th = threading.Thread(target=self.th_add_lyrics_to_page, args=())
         th.deamon = True
         th.start()
 
@@ -351,18 +351,16 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.main_view_stack.set_visible_child_name("mobile_view")
         self.mobile_stack.set_visible_child_name("lyrics_page")
 
-        th = threading.Thread(target=self.add_lyrics_to_page, args=())
-        th.deamon = True
-        th.start()
+        threading.Thread(target=self.th_add_lyrics_to_page, deamon=True).start()
 
-    def add_lyrics_to_page(self):
+    def th_add_lyrics_to_page(self):
         try:
             lyrics = self.player_object.playing_track.lyrics()
-            self.lyrics_label.set_label(lyrics.text)
+            GLib.idle_add(self.lyrics_label.set_label, lyrics.text)
         except:
             return
 
-    def download_song(self):
+    def th_download_song(self):
         """Added to check the streamed song quality, triggered with ctrl+d"""
 
         song = self.player_object.playing_track

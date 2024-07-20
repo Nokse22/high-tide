@@ -60,7 +60,7 @@ class artistPage(Page):
         self.top_tracks = []
         self.artist = _artist
 
-    def _load_page(self):
+    def _th_load_page(self):
 
         print(f"artist: {self.artist.name}, id: {self.artist.id}, {self.artist.picture}")
 

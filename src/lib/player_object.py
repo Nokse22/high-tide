@@ -165,11 +165,11 @@ class playerObject(GObject.GObject):
             self.play()
 
     def play_track(self, track):
-        th = threading.Thread(target=self._play_track, args=(track,))
+        th = threading.Thread(target=self._th_play_track, args=(track,))
         th.deamon = True
         th.start()
 
-    def _play_track(self, track):
+    def _th_play_track(self, track):
         print(f"play track: {track.name} by {track.artist.name}, {track.media_metadata_tags}, {track.audio_quality}, {track.id}")
         music_url = track.get_url()
         self._player.set_state(Gst.State.NULL)

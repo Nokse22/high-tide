@@ -46,7 +46,7 @@ class albumPage(Page):
 
     """It is used to display an album"""
 
-    def _load_page(self):
+    def _th_load_page(self):
         builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/tracks_list_template.ui")
 
         page_content = builder.get_object("_main")

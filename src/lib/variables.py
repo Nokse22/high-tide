@@ -78,7 +78,7 @@ def is_favourited(item):
 
     return False
 
-def add_to_my_collection(btn, item):
+def th_add_to_my_collection(btn, item):
     if isinstance(item, Track):
         result = session.user.favorites.add_track(item.id)
     elif isinstance(item, Mix):
@@ -121,7 +121,7 @@ def remove_from_my_collection(btn, item):
 
 def on_in_to_my_collection_button_clicked(btn, item):
     if btn.get_icon_name() == "heart-outline-thick-symbolic":
-        threading.Thread(target=add_to_my_collection, args=(btn, item,)).start()
+        threading.Thread(target=th_add_to_my_collection, args=(btn, item,)).start()
     else:
         threading.Thread(target=remove_from_my_collection, args=(btn, item,)).start()
 
