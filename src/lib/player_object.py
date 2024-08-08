@@ -199,7 +199,7 @@ class playerObject(GObject.GObject):
     def play_next(self):
         """Play the next song in the queue or from the currently playing album/mix/playlist."""
 
-        # FIXME when not on shuffle it works, on shuffle it doesn't, but I thing the shuffle is not registered
+        # FIXME when not on shuffle it works, on shuffle it doesn't, but I think the shuffle is not registered
 
         # Appends the track that just finished playing or was skipped to the played_songs list
         self.played_songs.append(self.playing_track)
