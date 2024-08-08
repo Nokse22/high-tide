@@ -42,7 +42,7 @@ class GenericTrackWidget(Gtk.ListBoxRow):
     image = Gtk.Template.Child()
     track_title_label = Gtk.Template.Child()
     track_duration_label = Gtk.Template.Child()
-    playlists_submenu = Gtk.Template.Child()
+    # playlists_submenu = Gtk.Template.Child()
     _grid = Gtk.Template.Child()
     explicit_label = Gtk.Template.Child()
 

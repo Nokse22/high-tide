@@ -169,8 +169,8 @@
       <attribute name="action">trackwidget.add-to-my-collection</attribute>
       <attribute name="label">Add to my collection</attribute>
     </item>
-    <submenu id="playlists_submenu">
-      <attribute name="label">Add to Playlist</attribute>
-    </submenu>
+    <!-- <submenu id="playlists_submenu"> -->
+    <!--   <attribute name="label">Add to Playlist</attribute> -->
+    <!-- </submenu> -->
   </menu>
 </interface>
