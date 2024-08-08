@@ -51,7 +51,6 @@ class artistPage(Page):
 
     """It is used to display an artist page"""
 
-    # FIXME The bio is not displayed properly, it all bold and the links are not working
     # TODO Add missing features: influences, appears on, credits and so on
 
     def __init__(self, _artist, _name):
@@ -111,9 +110,7 @@ class artistPage(Page):
         else:
             if len(albums) != 0:
                 content_box.append(carousel)
-                for album in albums:
-                    album_card = self.get_album_card(album)
-                    carousel.append_card(album_card)
+                carousel.set_items(albums, "album")
 
         carousel = CarouselWidget("EP & Singles")
         try:
@@ -124,9 +121,7 @@ class artistPage(Page):
         else:
             if len(albums) != 0:
                 content_box.append(carousel)
-                for album in albums:
-                    album_card = self.get_album_card(album)
-                    carousel.append_card(album_card)
+                carousel.set_items(albums, "album")
 
         carousel = CarouselWidget("Appears On")
         try:
@@ -137,22 +132,17 @@ class artistPage(Page):
         else:
             if len(albums) != 0:
                 content_box.append(carousel)
-                for album in albums:
-                    album_card = self.get_album_card(album)
-                    carousel.append_card(album_card)
+                carousel.set_items(albums, "album")
 
         carousel = CarouselWidget("Similar Artists")
         try:
-            artists = self.artist.get_similar(limit=10)
-            carousel.set_more_function("artist", self.artist.get_similar)
-        except:
-            pass
+            artists = self.artist.get_similar()
+        except Exception as e:
+            print("could not find similar artists", e)
         else:
             if len(artists) != 0:
                 content_box.append(carousel)
-                for artist in artists:
-                    artist_card = self.get_artist_card(artist)
-                    carousel.append_card(artist_card)
+                carousel.set_items(artists, "artist")
 
         try:
             bio = self.artist.get_bio()
