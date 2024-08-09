@@ -150,11 +150,11 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         variables.player_object.add_to_queue(self.track)
 
     def _th_add_to_my_collection(self, *args):
-        th = threading.Thread(target=self.th_th_add_to_my_collection, args=())
+        th = threading.Thread(target=self.th_add_to_my_collection, args=())
         th.deamon = True
         th.start()
 
-    def th_th_add_to_my_collection(self):
+    def th_add_to_my_collection(self):
         variables.session.user.favorites.add_track(self.track.id)
 
     def _add_to_playlist(self, action, parameter, playlist_index):

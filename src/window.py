@@ -152,7 +152,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         page.load()
         self.navigation_view.push(page)
 
-        th = threading.Thread(target=self.login, args=())
+        th = threading.Thread(target=self.th_login, args=())
         th.deamon = True
         th.start()
 
@@ -169,7 +169,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         page.load()
         self.navigation_view.replace([page])
 
-        th = threading.Thread(target=self._set_last_playing_song, args=())
+        th = threading.Thread(target=self.th_set_last_playing_song, args=())
         th.deamon = True
         th.start()
 
@@ -206,7 +206,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.my_playlists = playlists
 
-    def _set_last_playing_song(self):
+    def th_set_last_playing_song(self):
         track_id = self.settings.get_int("last-playing-song-id")
         list_id = self.settings.get_string("last-playing-list-id")
         list_type = self.settings.get_string("last-playing-list-type")
@@ -287,7 +287,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         login_dialog = LoginDialog(self, self.session)
         login_dialog.present(self)
 
-    def login(self):
+    def th_login(self):
         """Logs the user in, if it doesn't work it calls on_login_failed()"""
         try:
             result = self.session.load_oauth_session(
@@ -299,7 +299,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             print(f"error! {e}")
             GLib.idle_add(self.on_login_failed)
         else:
-            self.on_logged_in()
+            GLib.idle_add(self.on_logged_in)
 
     def logout(self):
         self.secret_store.clear()
@@ -393,20 +393,20 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_in_my_collection_button_clicked")
     def on_in_my_collection_button_clicked(self, btn):
         if self.in_my_collection_button.get_icon_name() == "heart-outline-thick-symbolic":
-            th = threading.Thread(target=self.add_track_to_my_collection, args=(self.player_object.playing_track.id,))
+            th = threading.Thread(target=self.th_add_track_to_my_collection, args=(self.player_object.playing_track.id,))
             self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
         else:
-            th = threading.Thread(target=self.remove_track_from_my_collection, args=(self.player_object.playing_track.id,))
+            th = threading.Thread(target=self.th_remove_track_from_my_collection, args=(self.player_object.playing_track.id,))
             self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
         th.deamon = True
         th.start()
 
-    def add_track_to_my_collection(self, track_id):
+    def th_add_track_to_my_collection(self, track_id):
         result = self.session.user.favorites.add_track(track_id)
         if result:
             print("successfully added to my collection")
 
-    def remove_track_from_my_collection(self, track_id):
+    def th_remove_track_from_my_collection(self, track_id):
         result = self.session.user.favorites.remove_track(track_id)
         if result:
             print("successfully removed from my collection")
