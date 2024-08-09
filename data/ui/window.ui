@@ -777,7 +777,7 @@ flat</property>
                                         <property name="css-classes">flat
 circular</property>
                                         <property name="icon-name">media-playlist-shuffle-symbolic</property>
-                                        <property name="active" bind-source="shuffle_button" bind-property="active"/>
+                                        <property name="active" bind-source="shuffle_button" bind-property="active" bind-flags="bidirectional"/>
                                         <property name="valign">center</property>
                                       </object>
                                     </child>

@@ -109,9 +109,9 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.volume_button.get_adjustment().set_value(self.settings.get_int("last-volume")/10)
 
-        # self.shuffle_button.connect("toggled", self.on_shuffle_button_toggled)
+        self.shuffle_button.connect("toggled", self.on_shuffle_button_toggled)
 
-        self.player_object.bind_property("shuffle_mode", self.shuffle_button, "active", GObject.BindingFlags.DEFAULT)
+        self.player_object.connect("shuffle-changed", self.on_shuffle_changed)
         self.player_object.connect("update-slider", self.update_slider)
         self.player_object.connect("song-changed", self.on_song_changed)
         self.player_object.connect("song-changed",self.queue_widget.update_all)
@@ -323,6 +323,14 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.player_object.pause()
             btn.set_icon_name("media-playback-start-symbolic")
             print("play")
+
+    def on_shuffle_button_toggled(self, btn):
+        state = btn.get_active()
+        self.player_object.shuffle(state)
+
+    def on_shuffle_changed(self, player, state):
+        print("SHUFFLE CHANGED")
+        self.shuffle_button.set_active(state)
 
     def update_slider(self, *args):
         """Called on a timer, it updates the progress bar and
