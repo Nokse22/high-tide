@@ -267,7 +267,6 @@
                                           <property name="hexpand">true</property>
                                           <property name="valign">center</property>
                                           <property name="margin-end">12</property>
-                                          <property name="visible">false</property>
                                           <signal name="clicked" handler="on_new_playlist_button_clicked"/>
                                         </object>
                                       </child>
@@ -403,7 +402,7 @@
                                 </object>
                               </child>
                               <child>
-                                <object class="LinkLabelWidget" id="artist_label">
+                                <object class="HTLinkLabelWidget" id="artist_label">
                                   <property name="xalign">0</property>
                                   <property name="ellipsize">end</property>
                                 </object>
@@ -858,7 +857,7 @@ circular</property>
                     <child>
                       <object class="AdwViewStackPage">
                         <property name="child">
-                          <object class="QueueWidget" id="queue_widget">
+                          <object class="HTQueueWidget" id="queue_widget">
                           </object>
                         </property>
                         <property name="icon-name">view-list-ordered-symbolic</property>

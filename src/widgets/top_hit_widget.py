@@ -39,8 +39,8 @@ from tidalapi.user import Favorites
 from ..lib import variables
 
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/top_hit_widget.ui')
-class TopHitWidget(Gtk.Box):
-    __gtype_name__ = 'TopHitWidget'
+class HTTopHitWidget(Gtk.Box):
+    __gtype_name__ = 'HTTopHitWidget'
 
     """It is used to display the top hit when searching regardless of the type"""
 
@@ -185,7 +185,7 @@ class TopHitWidget(Gtk.Box):
         # print(f"disconnected {disconnected_signals} signals from {self}")
 
     def __repr__(self, *args):
-        return "<CardWidget>"
+        return "<HTCardWidget>"
 
     def __on_unrealized(self, *args):
         self.delete_signals()

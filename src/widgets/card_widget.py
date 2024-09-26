@@ -19,28 +19,23 @@
 
 from gi.repository import Adw
 from gi.repository import Gtk
-from gi.repository import GLib
-from gi.repository import Gio
 
-import tidalapi
 import threading
 
 from ..lib import utils
 
-import tidalapi
-from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import MixV2, MixType, Mix
+from tidalapi.page import PageItem
+from tidalapi.mix import MixV2, Mix
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
-from tidalapi.user import Favorites
 
 from ..lib import variables
 
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/card_widget.ui')
-class CardWidget(Adw.BreakpointBin):
-    __gtype_name__ = 'CardWidget'
+class HTCardWidget(Adw.BreakpointBin):
+    __gtype_name__ = 'HTCardWidget'
 
     """It is card that adapts to the content it needs to display, it is used when listing artists, albums, mixes and so on"""
 

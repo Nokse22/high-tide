@@ -15,8 +15,7 @@
         <child>
           <object class="GtkStackPage">
             <property name="child">
-              <object class="GtkSpinner" id="_spinner">
-                <property name="spinning">true</property>
+              <object class="AdwSpinner" id="_spinner">
                 <property name="hexpand">true</property>
                 <property name="vexpand">true</property>
                 <property name="halign">center</property>

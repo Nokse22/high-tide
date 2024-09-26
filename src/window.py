@@ -17,49 +17,36 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import threading
+import requests
+import tidalapi
+
 from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import Gio
-from gi.repository import GObject
-# from gi.repository import Secret
-
 from gi.repository import Gst, GLib
 
 from .mpris import MPRIS
 
-import base64
-import json
-
-import tidalapi
-from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix, MixType
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track, Quality
-from tidalapi.playlist import Playlist
+from tidalapi.media import Quality
 
 from .lib import playerObject
 from .lib import utils
 
-import os
-import sys
-
 from .login import LoginDialog
 from .new_playlist import NewPlaylistWindow
 
-from .pages import homePage, explorePage, artistPage, notLoggedInPage
-from .pages import searchPage, trackRadioPage, playlistPage, startUpPage, fromFunctionPage
-
-import threading
-import requests
-import random
+from .pages import homePage, explorePage, notLoggedInPage
+from .pages import trackRadioPage, playlistPage, startUpPage, fromFunctionPage
 
 from .lib import SecretStore
 from .lib import variables
 
-from .widgets import GenericTrackWidget
-from .widgets import LinkLabelWidget
-from .widgets import QueueWidget
+from .widgets import HTGenericTrackWidget
+from .widgets import HTLinkLabelWidget
+from .widgets import HTQueueWidget
+
+from gettext import gettext as _
 
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/window.ui')
 class HighTideWindow(Adw.ApplicationWindow):
@@ -114,9 +101,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.connect("shuffle-changed", self.on_shuffle_changed)
         self.player_object.connect("update-slider", self.update_slider)
         self.player_object.connect("song-changed", self.on_song_changed)
-        self.player_object.connect("song-changed",self.queue_widget.update_all)
-        self.player_object.connect("song-added-to-queue", self.queue_widget.update_queue)
+        self.player_object.connect("song-added-to-queue", self.on_song_added_to_queue)
         self.player_object.connect("play-changed", self.update_controls)
+
+        self.queue_widget.connect("map", self.on_queue_widget_mapped)
 
         self.artist_label.connect("activate-link", variables.open_uri)
         self.mobile_artist_label.connect("activate-link", variables.open_uri)
@@ -189,12 +177,12 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def update_my_playlists(self):
         child = self.sidebar_playlists.get_first_child()
-        while child != None:
+        while child is not None:
             self.sidebar_playlists.remove(child)
             del child
             child = self.sidebar_playlists.get_first_child()
 
-        playlists = self.session.user.favorites.playlists()
+        playlists = self.session.user.playlists()
 
         for index, playlist in enumerate(playlists):
             if playlist.creator:
@@ -238,6 +226,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         print("song changed")
         album = self.player_object.song_album
         track = self.player_object.playing_track
+
+        if track is None:
+            return
+
         self.song_title_label.set_label(track.name)
         self.artist_label.set_artists(track.artists)
         self.explicit_label.set_visible(track.explicit)
@@ -271,6 +263,13 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.control_bar_artist = track.artist
         self.update_slider()
+
+        if (self.main_view_stack.get_visible_child_name() == "mobile_view" and
+                self.mobile_stack.get_visible_child_name() == "queue_page"):
+            self.queue_widget.update_all(self.player_object)
+            self.queue_widget_updated = True
+        else:
+            self.queue_widget_updated = False
 
     def update_controls(self, is_playing, *arg):
         self.playbar_main_box.set_visible(True)
@@ -310,9 +309,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         page.load()
         self.navigation_view.replace([page])
 
-    def explore_page(self):
-        explore = session.explore()
-
     @Gtk.Template.Callback("on_play_button_clicked")
     def on_play_button_clicked(self, btn):
         if not self.player_object.is_playing:
@@ -336,7 +332,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         """Called on a timer, it updates the progress bar and
             adds the song duration and position."""
         if not self.player_object.is_playing:
-            return False # cancel timeout
+            return False  # cancel timeout
         else:
             self.duration = self.player_object.query_duration()
             end_value = self.duration / Gst.SECOND
@@ -359,13 +355,14 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.main_view_stack.set_visible_child_name("mobile_view")
         self.mobile_stack.set_visible_child_name("lyrics_page")
 
-        threading.Thread(target=self.th_add_lyrics_to_page, deamon=True).start()
+        threading.Thread(
+            target=self.th_add_lyrics_to_page, deamon=True).start()
 
     def th_add_lyrics_to_page(self):
         try:
             lyrics = self.player_object.playing_track.lyrics()
             GLib.idle_add(self.lyrics_label.set_label, lyrics.text)
-        except:
+        except Exception:
             return
 
     def th_download_song(self):
@@ -375,7 +372,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         song_url = song.get_url()
         try:
             response = requests.get(song_url)
-        except:
+        except Exception:
             return
         if response.status_code == 200:
             image_data = response.content
@@ -401,11 +398,17 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_in_my_collection_button_clicked")
     def on_in_my_collection_button_clicked(self, btn):
         if self.in_my_collection_button.get_icon_name() == "heart-outline-thick-symbolic":
-            th = threading.Thread(target=self.th_add_track_to_my_collection, args=(self.player_object.playing_track.id,))
-            self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
+            th = threading.Thread(
+                target=self.th_add_track_to_my_collection,
+                args=(self.player_object.playing_track.id,))
+            self.in_my_collection_button.set_icon_name(
+                "heart-filled-symbolic")
         else:
-            th = threading.Thread(target=self.th_remove_track_from_my_collection, args=(self.player_object.playing_track.id,))
-            self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
+            th = threading.Thread(
+                target=self.th_remove_track_from_my_collection,
+                args=(self.player_object.playing_track.id,))
+            self.in_my_collection_button.set_icon_name(
+                "heart-outline-thick-symbolic")
         th.deamon = True
         th.start()
 
@@ -428,7 +431,8 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_new_playlist_button_clicked")
     def on_new_playlist_button_clicked_func(self, btn):
         new_playlist_win = NewPlaylistWindow()
-        new_playlist_win.connect("create-playlist", self.on_create_new_playlist_requested)
+        new_playlist_win.connect(
+            "create-playlist", self.on_create_new_playlist_requested)
         new_playlist_win.present(self)
 
     @Gtk.Template.Callback("on_track_radio_button_clicked")
@@ -444,7 +448,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         if abs(seek_time_secs - self.previous_time) > 6:
             print("seeking")
             print(abs(seek_time_secs - self.previous_time))
-            self.player_object.seek(Gst.Format.TIME,  Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, seek_time_secs * Gst.SECOND)
+            self.player_object.seek(
+                Gst.Format.TIME,
+                Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
+                seek_time_secs * Gst.SECOND)
             self.previous_time = seek_time_secs
 
     @Gtk.Template.Callback("on_skip_forward_button_clicked")
@@ -461,7 +468,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     def on_playlists_sidebar_row_activated_func(self, list_box, row):
         """Handles the click on an user playlist on the sidebar"""
 
-        if row == None:
+        if row is None:
             return
         index = row.get_child().get_name()
 
@@ -473,7 +480,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_sidebar_row_selected_clicked")
     def on_sidebar_row_selected_clicked_func(self, list_box, row):
-        if row == None:
+        if row is None:
             return
 
         name = row.get_child().get_last_child().get_name()
@@ -522,3 +529,18 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.main_view_stack.set_visible_child_name("normal_view")
 
         return True
+
+    def on_song_added_to_queue(self, *args):
+
+        if (self.main_view_stack.get_visible_child_name() == "mobile_view" and
+                self.mobile_stack.get_visible_child_name() == "queue_page"):
+            self.queue_widget.update_queue(self.player_object)
+            self.queue_widget_updated = True
+        else:
+            self.queue_widget_updated = False
+
+    def on_queue_widget_mapped(self, *args):
+        print("queue mapped")
+        if not self.queue_widget_updated:
+            self.queue_widget.update_all(self.player_object)
+            self.queue_widget_updated = True

@@ -25,8 +25,8 @@ import html
 
 from ..lib import variables
 
-class LinkLabelWidget(Gtk.Label):
-    __gtype_name__ = 'LinkLabelWidget'
+class HTLinkLabelWidget(Gtk.Label):
+    __gtype_name__ = 'HTLinkLabelWidget'
 
     """It is used to display multiple artist with a link"""
 

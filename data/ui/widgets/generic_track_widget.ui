@@ -3,7 +3,7 @@
 <interface>
   <!-- interface-name detailed_track_listing.ui -->
   <requires lib="gtk" version="4.10"/>
-  <template class="GenericTrackWidget" parent="GtkListBoxRow">
+  <template class="HTGenericTrackWidget" parent="GtkListBoxRow">
   <property name="selectable">False</property>
     <child>
   <object class="AdwBreakpointBin">
@@ -40,7 +40,7 @@
           <property name="hexpand">true</property>
 
           <child>
-             <object class="LinkLabelWidget" id="track_album_label">
+             <object class="HTLinkLabelWidget" id="track_album_label">
               <property name="xalign">0</property>
               <property name="ellipsize">3</property>
                <layout>
@@ -80,7 +80,7 @@
           </child>
 
           <child>
-            <object class="LinkLabelWidget" id="artist_label">
+            <object class="HTLinkLabelWidget" id="artist_label">
               <property name="xalign">0</property>
               <property name="ellipsize">3</property>
               <layout>
@@ -122,7 +122,7 @@
           </child>
 
           <child>
-            <object class="LinkLabelWidget" id="artist_label_2">
+            <object class="HTLinkLabelWidget" id="artist_label_2">
               <property name="xalign">0</property>
               <property name="use-markup">true</property>
               <property name="ellipsize">3</property>

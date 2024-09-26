@@ -32,8 +32,8 @@ from tidalapi.media import Track
 from tidalapi.playlist import Playlist
 
 from ..lib import utils
-from ..widgets import CarouselWidget
-from ..widgets import TracksListWidget
+from ..widgets import HTCarouselWidget
+from ..widgets import HTTracksListWidget
 
 import threading
 import requests
@@ -97,11 +97,11 @@ class artistPage(Page):
 
         builder.get_object("_first_subtitle_label").set_label("Artist")
 
-        tracks_list_widget = TracksListWidget("Top Tracks")
+        tracks_list_widget = HTTracksListWidget("Top Tracks")
         tracks_list_widget.set_function(self.artist.get_top_tracks)
         content_box.append(tracks_list_widget)
 
-        carousel = CarouselWidget("Albums")
+        carousel = HTCarouselWidget("Albums")
         try:
             albums = self.artist.get_albums(limit=10)
             carousel.set_more_function("album", self.artist.get_albums)
@@ -112,7 +112,7 @@ class artistPage(Page):
                 content_box.append(carousel)
                 carousel.set_items(albums, "album")
 
-        carousel = CarouselWidget("EP & Singles")
+        carousel = HTCarouselWidget("EP & Singles")
         try:
             albums = self.artist.get_albums_ep_singles(limit=10)
             carousel.set_more_function("album", self.artist.get_albums_ep_singles)
@@ -123,7 +123,7 @@ class artistPage(Page):
                 content_box.append(carousel)
                 carousel.set_items(albums, "album")
 
-        carousel = CarouselWidget("Appears On")
+        carousel = HTCarouselWidget("Appears On")
         try:
             albums = self.artist.get_albums_other(limit=10)
             carousel.set_more_function("album", self.artist.get_albums_other)
@@ -134,7 +134,7 @@ class artistPage(Page):
                 content_box.append(carousel)
                 carousel.set_items(albums, "album")
 
-        carousel = CarouselWidget("Similar Artists")
+        carousel = HTCarouselWidget("Similar Artists")
         try:
             artists = self.artist.get_similar()
         except Exception as e:

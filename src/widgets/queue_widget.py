@@ -17,24 +17,21 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
 from gi.repository import Gtk
-from gi.repository import GLib
-from gi.repository import Gio
 
-import tidalapi
 import threading
 
 from ..lib import utils
+from ..widgets import HTGenericTrackWidget
 
-from ..lib import variables
-from ..widgets import GenericTrackWidget
 
-@Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/queue_widget.ui')
-class QueueWidget(Gtk.Box):
-    __gtype_name__ = 'QueueWidget'
+@Gtk.Template(
+    resource_path='/io/github/nokse22/HighTide/ui/widgets/queue_widget.ui')
+class HTQueueWidget(Gtk.Box):
+    __gtype_name__ = 'HTQueueWidget'
 
-    """It is used to display the track queue, including played tracks, tracks to play and tracks added to the queue"""
+    """It is used to display the track queue, including played tracks,
+        tracks to play and tracks added to the queue"""
 
     played_songs_list = Gtk.Template.Child()
     queued_songs_list = Gtk.Template.Child()
@@ -60,8 +57,14 @@ class QueueWidget(Gtk.Box):
 
     def update_playing_song(self, player):
         track = player.playing_track
+        if track is None:
+            return
+
         self.playing_track_title_label.set_label(track.name)
-        threading.Thread(target=utils.add_image, args=(self.playing_track_image, track.album)).start()
+        threading.Thread(
+            target=utils.add_image,
+            args=(self.playing_track_image, track.album)
+        ).start()
 
     def update_played_songs(self, player):
         child = self.played_songs_list.get_row_at_index(0)
@@ -73,7 +76,7 @@ class QueueWidget(Gtk.Box):
         if len(player.played_songs) > 0:
             self.played_songs_box.set_visible(True)
             for index, track in enumerate(player.played_songs):
-                listing = GenericTrackWidget(track, False)
+                listing = HTGenericTrackWidget(track, False)
                 listing.set_name(str(index))
                 self.played_songs_list.append(listing)
         else:
@@ -89,7 +92,7 @@ class QueueWidget(Gtk.Box):
         if len(player.queue) > 0:
             self.queued_songs_box.set_visible(True)
             for index, track in enumerate(player.queue):
-                listing = GenericTrackWidget(track, False)
+                listing = HTGenericTrackWidget(track, False)
                 listing.set_name(str(index))
                 self.queued_songs_list.append(listing)
         else:
@@ -105,7 +108,7 @@ class QueueWidget(Gtk.Box):
         if len(player.tracks_to_play) > 0:
             self.next_songs_box.set_visible(True)
             for index, track in enumerate(player.tracks_to_play):
-                listing = GenericTrackWidget(track, False)
+                listing = HTGenericTrackWidget(track, False)
                 listing.set_name(str(index))
                 self.next_songs_list.append(listing)
         else:

@@ -32,8 +32,8 @@ from tidalapi.media import Track
 from tidalapi.playlist import Playlist
 
 from ..lib import utils
-from ..widgets.carousel_widget import CarouselWidget
-from ..widgets.top_hit_widget import TopHitWidget
+from ..widgets.carousel_widget import HTCarouselWidget
+from ..widgets.top_hit_widget import HTTopHitWidget
 
 import threading
 import requests
@@ -63,32 +63,32 @@ class searchPage(Page):
         # print(query, results)
 
         top_hit = results["top_hit"]
-        top_hit_widget = TopHitWidget(top_hit)
+        top_hit_widget = HTTopHitWidget(top_hit)
         self.page_content.append(top_hit_widget)
         # self.page_content.append(Gtk.Label(label=top_hit.name))
         print(top_hit)
 
         # Adds a carousel with artists, albums and playlists if in the search results
 
-        carousel = CarouselWidget("Artists")
+        carousel = HTCarouselWidget("Artists")
         artists = results["artists"]
         if len(artists) > 0:
             self.page_content.append(carousel)
             carousel.set_items(artists, "artist")
 
-        carousel = CarouselWidget("Albums")
+        carousel = HTCarouselWidget("Albums")
         albums = results["albums"]
         if len(albums) > 0:
             self.page_content.append(carousel)
             carousel.set_items(albums, "album")
 
-        carousel = CarouselWidget("Playlists")
+        carousel = HTCarouselWidget("Playlists")
         playlists = results["playlists"]
         if len(playlists) > 0:
             self.page_content.append(carousel)
             carousel.set_items(playlists, "playlist")
 
-        carousel = CarouselWidget("Tracks")
+        carousel = HTCarouselWidget("Tracks")
         tracks = results["tracks"]
         if len(tracks) > 0:
             self.page_content.append(carousel)

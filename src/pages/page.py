@@ -39,8 +39,8 @@ import requests
 import random
 import os
 
-from ..widgets import GenericTrackWidget
-from ..widgets import CardWidget
+from ..widgets import HTGenericTrackWidget
+from ..widgets import HTCardWidget
 
 from ..lib import variables
 
@@ -95,23 +95,23 @@ class Page(Adw.NavigationPage):
         GLib.idle_add(_add_content_to_page)
 
     def get_album_card(self, item):
-        card = CardWidget(item)
+        card = HTCardWidget(item)
         return card
 
     def get_track_listing(self, track):
-        track_listing = GenericTrackWidget(track, False)
+        track_listing = HTGenericTrackWidget(track, False)
         return track_listing
 
     def get_mix_card(self, item):
-        card = CardWidget(item)
+        card = HTCardWidget(item)
         return card
 
     def get_album_track_listing(self, track):
-        track_listing = GenericTrackWidget(track, True)
+        track_listing = HTGenericTrackWidget(track, True)
         return track_listing
 
     def get_playlist_card(self, playlist):
-        card = CardWidget(playlist)
+        card = HTCardWidget(playlist)
         return card
 
     def on_mix_button_clicked(self, btn, mix):
@@ -219,11 +219,11 @@ class Page(Adw.NavigationPage):
         variables.navigation_view.push(page)
 
     def get_artist_card(self, item):
-        card = CardWidget(item)
+        card = HTCardWidget(item)
         return card
 
     def get_page_item_card(self, page_item):
-        card = CardWidget(page_item)
+        card = HTCardWidget(page_item)
         return card
 
     def get_page_link_card(self, page_link):

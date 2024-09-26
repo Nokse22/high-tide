@@ -267,6 +267,9 @@ class MPRIS(Server):
             return "Paused"
 
     def _on_preset_changed(self, *args):
+        if self.player.playing_track is None:
+            return
+
         self.__metadata["xesam:title"] = GLib.Variant("s", self.player.playing_track.name)
         self.__metadata["xesam:album"] = GLib.Variant("s", self.player.playing_track.album.name)
         self.__metadata["xesam:artist"] = GLib.Variant("as", [self.player.playing_track.artist.name])

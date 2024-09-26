@@ -39,7 +39,7 @@ import requests
 import random
 
 from .page import Page
-from ..widgets import CardWidget
+from ..widgets import HTCardWidget
 
 from ..lib import variables
 
@@ -125,7 +125,7 @@ class fromFunctionPage(Page):
             self.page_content.append(self.parent)
 
         for index, item in enumerate(new_items):
-            card = CardWidget(item)
+            card = HTCardWidget(item)
             GLib.idle_add(self.parent.append, card)
 
     def on_tracks_row_selected(self, list_box, row):

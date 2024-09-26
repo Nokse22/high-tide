@@ -3,7 +3,7 @@
 <interface>
   <!-- interface-name card_template.ui -->
   <requires lib="gtk" version="4.6"/>
-  <template class="CardWidget" parent="AdwBreakpointBin">
+  <template class="HTCardWidget" parent="AdwBreakpointBin">
     <property name="css-classes">card-bg</property>
     <property name="hexpand">true</property>
     <property name="halign">center</property>
@@ -71,7 +71,7 @@
               </object>
             </child>
             <child>
-             <object class="LinkLabelWidget" id="track_artist_label">
+             <object class="HTLinkLabelWidget" id="track_artist_label">
                <property name="ellipsize">end</property>
                <property name="max-width-chars">17</property>
                <property name="xalign">0</property>

@@ -17,19 +17,14 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
 from gi.repository import Gtk
-from gi.repository import GLib
-from gi.repository import Gio
 
-from ..lib import utils
-from ..widgets import CardWidget
-
+from ..widgets import HTCardWidget
 from ..lib import variables
 
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/carousel_widget.ui')
-class CarouselWidget(Gtk.Box):
-    __gtype_name__ = 'CarouselWidget'
+class HTCarouselWidget(Gtk.Box):
+    __gtype_name__ = 'HTCarouselWidget'
 
     """It is used to display multiple elements side by side with navigation arrows"""
 
@@ -93,7 +88,7 @@ class CarouselWidget(Gtk.Box):
             if index > 8:
                 self.more_button.set_visible(True)
                 break
-            self.append_card(CardWidget(item))
+            self.append_card(HTCardWidget(item))
 
     def on_more_clicked(self, *args):
         from ..pages import fromFunctionPage
@@ -150,7 +145,7 @@ class CarouselWidget(Gtk.Box):
         print(f"disconnected {disconnected_signals} signals from {self}")
 
     def __repr__(self, *args):
-        return "<CarouselWidget>"
+        return "<HTCarouselWidget>"
 
     def __on_unrealized(self, *args):
         self.delete_signals()

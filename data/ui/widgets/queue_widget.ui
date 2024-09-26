@@ -4,7 +4,7 @@
   <!-- interface-name queue.ui -->
   <requires lib="gtk" version="4.0"/>
   <requires lib="libadwaita" version="1.4"/>
-  <template class="QueueWidget" parent="GtkBox">
+  <template class="HTQueueWidget" parent="GtkBox">
     <property name="orientation">vertical</property>
     <property name="spacing">12</property>
     <child>

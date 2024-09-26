@@ -4,7 +4,7 @@
   <!-- interface-name carousel.ui -->
   <requires lib="gtk" version="4.12"/>
   <requires lib="libadwaita" version="1.0"/>
-  <template class="CarouselWidget" parent="GtkBox">
+  <template class="HTCarouselWidget" parent="GtkBox">
     <property name="margin-bottom">12</property>
     <property name="margin-end">12</property>
     <property name="margin-start">12</property>

@@ -23,13 +23,13 @@ from gi.repository import GLib
 from gi.repository import Gio
 
 from ..lib import utils
-from . import GenericTrackWidget
+from . import HTGenericTrackWidget
 
 from ..lib import variables
 
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/tracks_list_widget.ui')
-class TracksListWidget(Gtk.Box):
-    __gtype_name__ = 'TracksListWidget'
+class HTTracksListWidget(Gtk.Box):
+    __gtype_name__ = 'HTTracksListWidget'
 
     """It is used to display multiple elements side by side with navigation arrows"""
 
@@ -77,7 +77,7 @@ class TracksListWidget(Gtk.Box):
 
     def _add_tracks(self):
         for index, track in enumerate(self.tracks):
-            listing = GenericTrackWidget(track, False)
+            listing = HTGenericTrackWidget(track, False)
             listing.set_name(str(index))
             self.tracks_list_box.append(listing)
 
@@ -104,7 +104,7 @@ class TracksListWidget(Gtk.Box):
         print(f"disconnected {disconnected_signals} signals from {self}")
 
     def __repr__(self, *args):
-        return "<TracksListWidget>"
+        return "<HTTracksListWidget>"
 
     def __on_unrealized(self, *args):
         self.delete_signals()

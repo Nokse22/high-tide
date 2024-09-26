@@ -34,8 +34,8 @@ from tidalapi.artist import Artist
 from ..lib import variables
 
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/generic_track_widget.ui')
-class GenericTrackWidget(Gtk.ListBoxRow):
-    __gtype_name__ = 'GenericTrackWidget'
+class HTGenericTrackWidget(Gtk.ListBoxRow):
+    __gtype_name__ = 'HTGenericTrackWidget'
 
     """It is used to display a single track"""
 
@@ -125,7 +125,10 @@ class GenericTrackWidget(Gtk.ListBoxRow):
 
         self.insert_action_group("trackwidget", action_group)
 
-        threading.Thread(target=utils.add_image, args=(self.image, self.track.album)).start()
+        threading.Thread(
+            target=utils.add_image,
+            args=(self.image, self.track.album)
+        ).start()
 
     def hide_album(self):
         self._grid.remove(self.track_album_label)
@@ -167,7 +170,10 @@ class GenericTrackWidget(Gtk.ListBoxRow):
         variables.open_uri(label, uri)
         return True
 
-    def delete_signals(self):
+    def __repr__(self, *args):
+        return "<TrackWidget>"
+
+    def __on_unrealized(self, *args):
         disconnected_signals = 0
         for obj, signal_id in self.signals:
             disconnected_signals += 1
@@ -175,12 +181,6 @@ class GenericTrackWidget(Gtk.ListBoxRow):
 
             self.signals = []
         print(f"disconnected {disconnected_signals} signals from {self}")
-
-    def __repr__(self, *args):
-        return "<TrackWidget>"
-
-    def __on_unrealized(self, *args):
-        self.delete_signals()
 
     def __del__(self, *args):
         print(f"DELETING {self}")
