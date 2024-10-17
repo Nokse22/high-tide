@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="tidal">
 	<schema id="io.github.nokse22.HighTide" path="/io/github/nokse22/tidal/">
-	  <key name="token-type" type="s">
-      <default>""</default>
-    </key>
-	  <key name="access-token" type="s">
-      <default>""</default>
-    </key>
-	  <key name="refresh-token" type="s">
-      <default>""</default>
-    </key>
-	  <key name="expiry-time" type="s">
-      <default>""</default>
-    </key>
 	  <key name="window-width" type="i">
       <default>1000</default>
     </key>
@@ -33,6 +21,9 @@
     </key>
 	  <key name="last-volume" type="i">
       <default>10</default>
+    </key>
+	  <key name="repeat" type="b">
+      <default>false</default>
     </key>
 	</schema>
 </schemalist>

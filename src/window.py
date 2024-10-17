@@ -81,34 +81,56 @@ class HighTideWindow(Adw.ApplicationWindow):
     queue_widget = Gtk.Template.Child()
     mobile_stack = Gtk.Template.Child()
     lyrics_label = Gtk.Template.Child()
+    repeat_button = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self.settings = Gio.Settings.new('io.github.nokse22.HighTide')
 
-        self.settings.bind("window-width", self, "default-width", Gio.SettingsBindFlags.DEFAULT)
-        self.settings.bind("window-height", self, "default-height", Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind(
+            "window-width", self,
+            "default-width", Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind(
+            "window-height", self,
+            "default-height", Gio.SettingsBindFlags.DEFAULT)
 
         self.player_object = playerObject()
         variables.player_object = self.player_object
         # variables.search_entry = self.search_entry
 
-        self.volume_button.get_adjustment().set_value(self.settings.get_int("last-volume")/10)
+        self.volume_button.get_adjustment().set_value(
+            self.settings.get_int("last-volume")/10)
 
         self.shuffle_button.connect("toggled", self.on_shuffle_button_toggled)
 
-        self.player_object.connect("shuffle-changed", self.on_shuffle_changed)
-        self.player_object.connect("update-slider", self.update_slider)
-        self.player_object.connect("song-changed", self.on_song_changed)
-        self.player_object.connect("song-added-to-queue", self.on_song_added_to_queue)
+        self.player_object.connect(
+            "shuffle-changed", self.on_shuffle_changed)
+        self.player_object.connect(
+            "update-slider", self.update_slider)
+        self.player_object.connect(
+            "song-changed", self.on_song_changed)
+        self.player_object.connect(
+            "song-added-to-queue", self.on_song_added_to_queue)
         self.player_object.connect("play-changed", self.update_controls)
 
-        self.queue_widget.connect("map", self.on_queue_widget_mapped)
+        self.player_object.repeat = self.settings.get_boolean("repeat")
+        if not self.player_object.repeat:
+            self.repeat_button.set_icon_name(
+                "media-playlist-consecutive-symbolic")
+        else:
+            self.repeat_button.set_icon_name(
+                "media-playlist-repeat-symbolic")
 
-        self.artist_label.connect("activate-link", variables.open_uri)
-        self.mobile_artist_label.connect("activate-link", variables.open_uri)
-        self.mobile_artist_label.connect("activate-link", self.toggle_mobile_view)
+        self.queue_widget.connect(
+            "map", self.on_queue_widget_mapped)
+
+        self.artist_label.connect(
+            "activate-link", variables.open_uri)
+        self.mobile_artist_label.connect(
+            "activate-link", variables.open_uri)
+        self.mobile_artist_label.connect(
+            "activate-link", self.toggle_mobile_view)
 
         self.session = tidalapi.Session()
 
@@ -129,12 +151,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.queue_widget_updated = False
 
         self.secret_store = SecretStore(self.session)
-
-        # TO REMOVE UNSECURED TOKENS set in early development
-        self.settings.set_string("token-type", "")
-        self.settings.set_string("access-token", "")
-        self.settings.set_string("refresh-token", "")
-        self.settings.set_string("expiry-time", "")
 
         page = startUpPage(None, "Loading")
         page.load()
@@ -170,8 +186,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         page.load()
         self.navigation_view.replace([page])
 
-    def on_create_new_playlist_requested(self, window, playlist_title, playlist_description):
-        self.session.user.create_playlist(playlist_title, playlist_description)
+    def on_create_new_playlist_requested(self, window, p_title, p_description):
+        self.session.user.create_playlist(p_title, p_description)
         self.update_my_playlists()
         window.close()
 
@@ -235,14 +251,20 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.explicit_label.set_visible(track.explicit)
 
         if variables.is_favourited(track):
-            self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
+            self.in_my_collection_button.set_icon_name(
+                "heart-filled-symbolic")
         else:
-            self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
+            self.in_my_collection_button.set_icon_name(
+                "heart-outline-thick-symbolic")
 
         self.settings.set_int("last-playing-song-id", track.id)
 
-        threading.Thread(target=utils.add_image, args=(self.playing_track_image, album)).start()
-        threading.Thread(target=utils.add_picture, args=(self.current_carousel_picture, album)).start()
+        threading.Thread(
+            target=utils.add_image,
+            args=(self.playing_track_image, album)).start()
+        threading.Thread(
+            target=utils.add_picture,
+            args=(self.current_carousel_picture, album)).start()
 
         # next_track = self.player_object.get_next_track()
         # if next_track:
@@ -530,8 +552,20 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         return True
 
-    def on_song_added_to_queue(self, *args):
+    @Gtk.Template.Callback("on_repeat_clicked")
+    def on_repeat_clicked(self, *args):
+        if self.player_object.repeat:
+            self.repeat_button.set_icon_name(
+                "media-playlist-consecutive-symbolic")
+            self.player_object.repeat = False
+        else:
+            self.repeat_button.set_icon_name(
+                "media-playlist-repeat-symbolic")
+            self.player_object.repeat = True
 
+        self.settings.set_boolean("repeat", self.player_object.repeat)
+
+    def on_song_added_to_queue(self, *args):
         if (self.main_view_stack.get_visible_child_name() == "mobile_view" and
                 self.mobile_stack.get_visible_child_name() == "queue_page"):
             self.queue_widget.update_queue(self.player_object)

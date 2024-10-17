@@ -66,10 +66,10 @@ class SecretStore():
         expiry_time = self.session.expiry_time
 
         self.token_dictionary = {
-            "token-type" : token_type,
-            "access-token" : access_token,
-            "refresh-token" : refresh_token,
-            "expiry-time" : str(expiry_time)
+            "token-type": token_type,
+            "access-token": access_token,
+            "refresh-token": refresh_token,
+            "expiry-time": str(expiry_time)
         }
 
         json_data = json.dumps(self.token_dictionary, indent=2)

@@ -152,3 +152,4 @@ class HTCarouselWidget(Gtk.Box):
 
     def __del__(self, *args):
         print(f"DELETING {self}")
+

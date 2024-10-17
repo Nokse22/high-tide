@@ -472,7 +472,7 @@ flat</property>
                   </object>
                 </child>
               <child>
-                  <object class="GtkToggleButton" id="repeat_button">
+                  <object class="GtkButton" id="repeat_button">
                     <property name="css-classes">circular
 flat</property>
                     <property name="icon-name">media-playlist-repeat-symbolic</property>
@@ -481,6 +481,7 @@ flat</property>
                     <property name="margin-end">6</property>
                     <property name="margin-top">6</property>
                     <property name="opacity">0.6</property>
+                    <signal name="clicked" handler="on_repeat_clicked"/>
                   </object>
                 </child>
               </object>

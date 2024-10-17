@@ -65,16 +65,18 @@ class playerObject(GObject.GObject):
 
         self.current_mix_album_playlist = None  # Information about the currently playing mix/album
 
-        self._tracks_to_play = [] # The tracks to play in the correct order
-        self.tracks_to_play = [] # List of all the tracks to play in the current album/mix/playlist EXPOSED
+        self._tracks_to_play = []  # The tracks to play in the correct order
+        self.tracks_to_play = []  # List of all the tracks to play in the current album/mix/playlist EXPOSED
         self._shuffled_tracks_to_play = []  # Shuffled version of the next tracks to play
 
-        self.played_songs = [] # List of played songs when not shuffling
+        self.played_songs = []  # List of played songs when not shuffling
 
         self.shuffle_mode = False
         self.is_playing = False
         self.playing_track = None
         self.song_album = None
+
+        self.repeat = True
 
         self.duration = self.query_duration()
 
@@ -127,7 +129,7 @@ class playerObject(GObject.GObject):
         self.play_this(tracks, random.randint(0, len(tracks)))
         self.shuffle(True)
 
-    def get_track_list(self, thing): # Converts albums, playlists, mixes in a list of tracks
+    def get_track_list(self, thing):  # Converts albums, playlists, mixes in a list of tracks
         if isinstance(thing, Mix):
             tracks = thing.items()
         elif isinstance(thing, Album):
@@ -214,8 +216,12 @@ class playerObject(GObject.GObject):
 
         # If the tracks_to_play list is empty it refills it with the played songs and empties the played_songs
         if self._tracks_to_play == []:
-            self._tracks_to_play = self.played_songs
-            self.played_songs = []
+            if self.repeat:
+                self._tracks_to_play = self.played_songs
+                self.played_songs = []
+            else:
+                self.pause()
+                return
 
         # If it's shuffling it plays the first song in the shuffled_tracks_to_play. If it's not on shuffle it will play the first song from tracks_to_play
         if self.shuffle_mode:
