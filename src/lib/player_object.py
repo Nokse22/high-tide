@@ -30,8 +30,17 @@ from tidalapi.user import Favorites
 from gi.repository import GObject
 from gi.repository import Gst, GLib
 
+from enum import IntEnum
+
 import random
 import threading
+
+
+class RepeatType(IntEnum):
+    NONE = 0
+    SONG = 1
+    LIST = 2
+
 
 class playerObject(GObject.GObject):
     """This class handles all the player logic, queue, shuffle..."""
@@ -76,7 +85,7 @@ class playerObject(GObject.GObject):
         self.playing_track = None
         self.song_album = None
 
-        self.repeat = True
+        self.repeat = RepeatType.NONE
 
         self.duration = self.query_duration()
 
@@ -200,12 +209,19 @@ class playerObject(GObject.GObject):
     def play_next(self):
         """Play the next song in the queue or from the currently playing album/mix/playlist."""
 
-        # Appends the track that just finished playing or was skipped to the played_songs list
-        self.played_songs.append(self.playing_track)
-
         print(f"Shuffle mode is {self.shuffle_mode}")
 
         print(f"The queue is {len(self.queue)} long and the tracks to play are {len(self._tracks_to_play)}")
+
+        if self.repeat == RepeatType.SONG:
+            self.seek(
+                Gst.Format.TIME,
+                Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
+                0)
+            return
+
+        # Appends the track that just finished playing or was skipped to the played_songs list
+        self.played_songs.append(self.playing_track)
 
         # If the queue is not empty it plays the first song in the queue
         if len(self.queue) != 0:
@@ -216,10 +232,11 @@ class playerObject(GObject.GObject):
 
         # If the tracks_to_play list is empty it refills it with the played songs and empties the played_songs
         if self._tracks_to_play == []:
-            if self.repeat:
+            if self.repeat == RepeatType.LIST:
                 self._tracks_to_play = self.played_songs
+                self.tracks_to_play = self._tracks_to_play
                 self.played_songs = []
-            else:
+            elif self.repeat == RepeatType.NONE:
                 self.pause()
                 return
 

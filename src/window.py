@@ -30,7 +30,7 @@ from .mpris import MPRIS
 
 from tidalapi.media import Quality
 
-from .lib import playerObject
+from .lib import playerObject, RepeatType
 from .lib import utils
 
 from .login import LoginDialog
@@ -114,13 +114,16 @@ class HighTideWindow(Adw.ApplicationWindow):
             "song-added-to-queue", self.on_song_added_to_queue)
         self.player_object.connect("play-changed", self.update_controls)
 
-        self.player_object.repeat = self.settings.get_boolean("repeat")
-        if not self.player_object.repeat:
+        self.player_object.repeat = self.settings.get_int("repeat")
+        if self.player_object.repeat == RepeatType.NONE:
             self.repeat_button.set_icon_name(
                 "media-playlist-consecutive-symbolic")
-        else:
+        elif self.player_object.repeat == RepeatType.LIST:
             self.repeat_button.set_icon_name(
                 "media-playlist-repeat-symbolic")
+        elif self.player_object.repeat == RepeatType.SONG:
+            self.repeat_button.set_icon_name(
+                "playlist-repeat-song-symbolic")
 
         self.queue_widget.connect(
             "map", self.on_queue_widget_mapped)
@@ -554,16 +557,20 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_repeat_clicked")
     def on_repeat_clicked(self, *args):
-        if self.player_object.repeat:
+        if self.player_object.repeat == RepeatType.NONE:
+            self.repeat_button.set_icon_name(
+                "playlist-repeat-song-symbolic")
+            self.player_object.repeat = RepeatType.SONG
+        elif self.player_object.repeat == RepeatType.LIST:
             self.repeat_button.set_icon_name(
                 "media-playlist-consecutive-symbolic")
-            self.player_object.repeat = False
-        else:
+            self.player_object.repeat = RepeatType.NONE
+        elif self.player_object.repeat == RepeatType.SONG:
             self.repeat_button.set_icon_name(
                 "media-playlist-repeat-symbolic")
-            self.player_object.repeat = True
+            self.player_object.repeat = RepeatType.LIST
 
-        self.settings.set_boolean("repeat", self.player_object.repeat)
+        self.settings.set_int("repeat", self.player_object.repeat)
 
     def on_song_added_to_queue(self, *args):
         if (self.main_view_stack.get_visible_child_name() == "mobile_view" and

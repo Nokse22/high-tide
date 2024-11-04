@@ -22,8 +22,8 @@
 	  <key name="last-volume" type="i">
       <default>10</default>
     </key>
-	  <key name="repeat" type="b">
-      <default>false</default>
+	  <key name="repeat" type="i">
+      <default>0</default>
     </key>
 	</schema>
 </schemalist>
