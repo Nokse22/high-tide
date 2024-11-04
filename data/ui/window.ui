@@ -427,8 +427,10 @@
                 <!-- <property name="margin-start">12</property> -->
                 <child>
                   <object class="GtkToggleButton" id="shuffle_button">
-                    <property name="css-classes">circular
-flat</property>
+                    <style>
+                      <class name="flat"/>
+                      <class name="circular"/>
+                    </style>
                     <property name="icon-name">media-playlist-shuffle-symbolic</property>
                     <property name="valign">center</property>
                     <property name="margin-bottom">6</property>
@@ -440,8 +442,10 @@ flat</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="skip_backward_button">
-                    <property name="css-classes">circular
-flat</property>
+                    <style>
+                      <class name="flat"/>
+                      <class name="circular"/>
+                    </style>
                     <property name="icon-name">media-skip-backward-symbolic</property>
                      <property name="valign">center</property>
                     <property name="margin-bottom">6</property>
@@ -452,8 +456,10 @@ flat</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="play_button">
-                    <property name="css-classes">pill
-play-btn</property>
+                    <style>
+                      <class name="pill"/>
+                      <class name="play-btn"/>
+                    </style>
                     <property name="icon-name">media-playback-pause-symbolic</property>
                     <property name="valign">center</property>
                     <signal name="clicked" handler="on_play_button_clicked"/>
@@ -461,8 +467,10 @@ play-btn</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="skip_forward_button">
-                    <property name="css-classes">circular
-flat</property>
+                    <style>
+                      <class name="flat"/>
+                      <class name="circular"/>
+                    </style>
                     <property name="icon-name">media-skip-forward-symbolic</property>
                     <property name="valign">center</property>
                     <property name="margin-bottom">6</property>
@@ -473,8 +481,10 @@ flat</property>
                 </child>
               <child>
                   <object class="GtkButton" id="repeat_button">
-                    <property name="css-classes">circular
-flat</property>
+                    <style>
+                      <class name="flat"/>
+                      <class name="circular"/>
+                    </style>
                     <property name="icon-name">media-playlist-repeat-symbolic</property>
                     <property name="valign">center</property>
                     <property name="margin-bottom">6</property>
@@ -656,28 +666,11 @@ flat</property>
                                     </child>
                                   </object>
                                 </child>
-                                <!-- <child> -->
-                                <!--   <object class="AdwCarousel" id="navigation_carousel"> -->
-                                <!--     <property name="hexpand">true</property> -->
-                                <!--     <property name="vexpand">true</property> -->
-                                <!--     <property name="spacing">140</property> -->
-                                <!--     <property name="overflow">visible</property> -->
-                                <!--     <property name="height-request">335</property> -->
-                                <!--     <child> -->
-                                <!--       <object class="GtkPicture" id="previous_carousel_picture"> -->
-                                <!--       </object> -->
-                                <!--     </child> -->
-                                    <child>
-                                      <object class="GtkPicture" id="current_carousel_picture">
-                                        <property name="height-request">335</property>
-                                      </object>
-                                    </child>
-                                <!--     <child> -->
-                                <!--       <object class="GtkPicture" id="next_carousel_picture"> -->
-                                <!--       </object> -->
-                                <!--     </child> -->
-                                <!--   </object> -->
-                                <!-- </child> -->
+                                <child>
+                                  <object class="GtkPicture" id="current_carousel_picture">
+                                    <property name="height-request">335</property>
+                                  </object>
+                                </child>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="spacing">6</property>
@@ -774,8 +767,10 @@ flat</property>
                                     <property name="vexpand">True</property>
                                     <child>
                                       <object class="GtkToggleButton">
-                                        <property name="css-classes">flat
-circular</property>
+                                        <style>
+                                          <class name="flat"/>
+                                          <class name="circular"/>
+                                        </style>
                                         <property name="icon-name">media-playlist-shuffle-symbolic</property>
                                         <property name="active" bind-source="shuffle_button" bind-property="active" bind-flags="bidirectional"/>
                                         <property name="valign">center</property>
@@ -791,8 +786,10 @@ circular</property>
                                     </child>
                                     <child>
                                       <object class="GtkButton">
-                                        <property name="css-classes">pill
-suggested-action</property>
+                                        <style>
+                                          <class name="pill"/>
+                                          <class name="suggested-action"/>
+                                        </style>
                                         <property name="icon-name" bind-source="play_button" bind-property="icon-name"/>
                                         <signal name="clicked" handler="on_play_button_clicked"/>
                                       </object>
@@ -806,11 +803,14 @@ suggested-action</property>
                                       </object>
                                     </child>
                                     <child>
-                                      <object class="GtkToggleButton">
-                                        <property name="css-classes">flat
-circular</property>
-                                        <property name="icon-name">media-playlist-repeat-symbolic</property>
+                                      <object class="GtkButton">
+                                        <property name="icon-name" bind-source="repeat_button" bind-property="icon-name"/>
                                         <property name="valign">center</property>
+                                        <signal name="clicked" handler="on_repeat_clicked"/>
+                                        <style>
+                                          <class name="flat"/>
+                                          <class name="circular"/>
+                                        </style>
                                       </object>
                                     </child>
                                   </object>
