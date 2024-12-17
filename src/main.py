@@ -18,22 +18,18 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import sys
-import gi
 
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
-gi.require_version('Gst', '1.0')
-
-from gi.repository import Gtk, Gio, Adw, Gdk
-from gi.repository import GObject
+from gi.repository import Gtk, Gio, Adw
 from .window import HighTideWindow
+# from gi.events import GLibEventLoopPolicy
 
-from tidalapi.media import Quality
 from .lib import variables
 
 import threading
-import os
-import shutil
+# import asyncio
+
+# asyncio.set_event_loop_policy(GLibEventLoopPolicy())
+
 
 class TidalApplication(Adw.Application):
     """The main application singleton class."""
@@ -49,6 +45,8 @@ class TidalApplication(Adw.Application):
         self.create_action('download', self.on_download, ['<primary>d'])
 
         variables.init()
+
+        self.preferences = None
 
     def on_download(self, *args):
         th = threading.Thread(target=self.win.th_download_song)
@@ -77,24 +75,29 @@ class TidalApplication(Adw.Application):
     def on_about_action(self, widget, _):
         """Callback for the app.about action."""
         about = Adw.AboutDialog(
-                                application_name='High Tide',
-                                application_icon='io.github.nokse22.HighTide',
-                                developer_name='Nokse',
-                                version='0.1.0',
-                                developers=['Nokse'],
-                                copyright='© 2023 Nokse')
+            application_name='High Tide',
+            application_icon='io.github.nokse22.HighTide',
+            developer_name='Nokse',
+            version='0.1.0',
+            developers=['Nokse'],
+            copyright='© 2023 Nokse')
         about.present(self.props.active_window)
 
     def on_preferences_action(self, widget, _):
         """Callback for the app.preferences action."""
-        print('app.preferences action activated')
 
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/preferences.ui")
+        if not self.preferences:
+            builder = Gtk.Builder.new_from_resource(
+                "/io/github/nokse22/HighTide/ui/preferences.ui")
 
-        builder.get_object("_quality_row").connect("notify::selected", self.on_quality_changed)
-        builder.get_object("_quality_row").set_selected(self.win.settings.get_int("quality"))
+            builder.get_object("_quality_row").connect(
+                "notify::selected", self.on_quality_changed)
+            builder.get_object("_quality_row").set_selected(
+                self.win.settings.get_int("quality"))
 
-        builder.get_object("_preference_window").present(self.props.active_window)
+            self.preferences = builder.get_object("_preference_window")
+
+        self.preferences.present(self.win)
 
     def on_quality_changed(self, widget, *args):
         self.win.select_quality(widget.get_selected())
@@ -120,7 +123,9 @@ class TidalApplication(Adw.Application):
         list_id = list_.id
         # self.win.settings.set_int("last-playing-song-id", track_id)
         self.win.settings.set_string("last-playing-list-id", list_id)
-        self.win.settings.set_string("last-playing-list-type", variables.get_type(list_))
+        self.win.settings.set_string(
+            "last-playing-list-type", variables.get_type(list_))
+
 
 def main(version):
     """The application's entry point."""

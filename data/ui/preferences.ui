@@ -13,14 +13,12 @@
               <object class="AdwComboRow" id="_quality_row">
                 <property name="model">
                   <object class="GtkStringList">
-                    <property name="strings">Low
-High
+                    <property name="strings">Low 96k
+High 320k
 Lossless
-Hi-res
 Hi-res Lossless</property>
                   </object>
                 </property>
-                <property name="subtitle">The last quality is enabled only for HiFi+ subscribers</property>
                 <property name="title">Quality</property>
               </object>
             </child>

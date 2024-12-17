@@ -18,22 +18,17 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import random
+import threading
 
 from tidalapi.mix import Mix
 from tidalapi.artist import Artist
 from tidalapi.album import Album
-from tidalapi.media import Track
 from tidalapi.playlist import Playlist
-
-from tidalapi.user import Favorites
 
 from gi.repository import GObject
 from gi.repository import Gst, GLib
 
 from enum import IntEnum
-
-import random
-import threading
 
 
 class RepeatType(IntEnum):
@@ -70,15 +65,22 @@ class playerObject(GObject.GObject):
         self._bus = self._player.get_bus()
         self._bus.add_signal_watch()
 
-        self.queue = []  # List to store queued songs (Not the next songs in an album/playlist/mix, but the ones added with play next/add to queue)
+        # List to store queued songs (Not the next songs in an
+        #   album/playlist/mix, but the ones added with play next/add to queue)
+        self.queue = []
 
-        self.current_mix_album_playlist = None  # Information about the currently playing mix/album
+        # Information about the currently playing mix/album
+        self.current_mix_album_playlist = None
 
-        self._tracks_to_play = []  # The tracks to play in the correct order
-        self.tracks_to_play = []  # List of all the tracks to play in the current album/mix/playlist EXPOSED
-        self._shuffled_tracks_to_play = []  # Shuffled version of the next tracks to play
+        # The tracks to play in the correct order
+        self._tracks_to_play = []
+        # List of all the tracks to play in the current album/mix/playlist
+        self.tracks_to_play = []
+        # Shuffled version of the next tracks to play
+        self._shuffled_tracks_to_play = []
 
-        self.played_songs = []  # List of played songs when not shuffling
+        # List of played songs when not shuffling
+        self.played_songs = []
 
         self.shuffle_mode = False
         self.is_playing = False
@@ -119,7 +121,8 @@ class playerObject(GObject.GObject):
     def _on_bus_eos(self, *args):
         self.play_next()
 
-    def play_this(self, thing, index = 0): # Used to play albums, playlists, mixes
+    def play_this(self, thing, index=0):
+        """Used to play albums, playlists, mixes"""
         self.current_mix_album_playlist = thing
         tracks = self.get_track_list(thing)
         self._tracks_to_play = tracks[index:] + tracks[:index]
@@ -133,12 +136,14 @@ class playerObject(GObject.GObject):
         self.play_track(track)
         self.play()
 
-    def shuffle_this(self, thing): # Same as play_this, but on shuffle
+    def shuffle_this(self, thing):
+        """Same as play_this, but on shuffle"""
         tracks = self.get_track_list(thing)
         self.play_this(tracks, random.randint(0, len(tracks)))
         self.shuffle(True)
 
-    def get_track_list(self, thing):  # Converts albums, playlists, mixes in a list of tracks
+    def get_track_list(self, thing):
+        """Converts albums, playlists, mixes in a list of tracks"""
         if isinstance(thing, Mix):
             tracks = thing.items()
         elif isinstance(thing, Album):
@@ -180,7 +185,9 @@ class playerObject(GObject.GObject):
         th.start()
 
     def th_play_track(self, track):
-        print(f"play track: {track.name} by {track.artist.name}, {track.media_metadata_tags}, {track.audio_quality}, {track.id}")
+        print(f"""play track: {track.name} by {track.artist.name}""" +
+              f"""{track.media_metadata_tags}, {track.audio_quality}""")
+
         music_url = track.get_url()
         self._player.set_state(Gst.State.NULL)
 
@@ -207,7 +214,8 @@ class playerObject(GObject.GObject):
         self.emit("song-changed")
 
     def play_next(self):
-        """Play the next song in the queue or from the currently playing album/mix/playlist."""
+        """Play the next song in the queue or from the currently
+        playing album/mix/playlist."""
 
         print(f"Shuffle mode is {self.shuffle_mode}")
 
@@ -220,7 +228,8 @@ class playerObject(GObject.GObject):
                 0)
             return
 
-        # Appends the track that just finished playing or was skipped to the played_songs list
+        # Appends the track that just finished playing or was skipped to the
+        #   played_songs list
         self.played_songs.append(self.playing_track)
 
         # If the queue is not empty it plays the first song in the queue
@@ -230,7 +239,8 @@ class playerObject(GObject.GObject):
             self.play_track(track)
             return
 
-        # If the tracks_to_play list is empty it refills it with the played songs and empties the played_songs
+        # If the tracks_to_play list is empty it refills it with the
+        #   played songs and empties the played_songs
         if self._tracks_to_play == []:
             if self.repeat == RepeatType.LIST:
                 self._tracks_to_play = self.played_songs
@@ -240,7 +250,9 @@ class playerObject(GObject.GObject):
                 self.pause()
                 return
 
-        # If it's shuffling it plays the first song in the shuffled_tracks_to_play. If it's not on shuffle it will play the first song from tracks_to_play
+        # If it's shuffling it plays the first song in the
+        #   shuffled_tracks_to_play. If it's not on shuffle it will play
+        #   the first song from tracks_to_play
         if self.shuffle_mode:
             track = self._shuffled_tracks_to_play[0]
             self.play_track(track)

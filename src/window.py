@@ -413,8 +413,6 @@ class HighTideWindow(Adw.ApplicationWindow):
                 self.session.audio_quality = Quality.low_320k
             case 2:
                 self.session.audio_quality = Quality.high_lossless
-            case 3:
-                self.session.audio_quality = Quality.hi_res
             case 4:
                 self.session.audio_quality = Quality.hi_res_lossless
 
