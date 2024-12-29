@@ -1,0 +1,87 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $HTCardWidget: Adw.BreakpointBin {
+  styles [
+    "card-bg",
+  ]
+
+  hexpand: true;
+  halign: center;
+  width-request: 167;
+  height-request: 214;
+
+  child: Box {
+    margin-bottom: 6;
+    margin-end: 6;
+    margin-start: 6;
+    margin-top: 6;
+    orientation: vertical;
+    spacing: 3;
+
+    Button card_button {
+      styles [
+        "card-button",
+      ]
+
+      overflow: hidden;
+
+      Overlay {
+        Image image {
+          halign: center;
+          icon-name: 'emblem-music-symbolic';
+          pixel-size: 155;
+          valign: center;
+
+          styles [
+            "card-image",
+          ]
+        }
+
+        [overlay]
+        Button play_button {
+          valign: center;
+          halign: center;
+          margin-start: 80;
+          margin-top: 80;
+          visible: false;
+          icon-name: 'media-playback-start-symbolic';
+
+          styles [
+            "hover-show",
+            "osd",
+            "pill",
+          ]
+        }
+      }
+    }
+
+    Label title_label {
+      styles [
+        "title-4",
+      ]
+
+      max-width-chars: 14;
+      xalign: 0;
+      ellipsize: end;
+    }
+
+    Box details_box {
+      Label detail_label {
+        styles [
+          "dim-label",
+        ]
+
+        max-width-chars: 17;
+        xalign: 0;
+        ellipsize: end;
+      }
+
+      $HTLinkLabelWidget track_artist_label {
+        ellipsize: 'end';
+        max-width-chars: '17';
+        xalign: '0';
+      }
+    }
+  };
+}

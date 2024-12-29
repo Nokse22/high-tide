@@ -1,0 +1,56 @@
+using Gtk 4.0;
+
+Box _main {
+  styles [
+    "card-bg",
+  ]
+
+  hexpand: true;
+  halign: center;
+
+  Box {
+    margin-bottom: 6;
+    margin-end: 6;
+    margin-start: 6;
+    margin-top: 6;
+    orientation: vertical;
+    spacing: 3;
+
+    Button _button {
+      styles [
+        "card-button",
+      ]
+
+      overflow: hidden;
+
+      Image _image {
+        halign: center;
+        icon-name: 'emblem-music-symbolic';
+        pixel-size: 160;
+        valign: center;
+
+        styles [
+          "card-image",
+        ]
+      }
+    }
+
+    Inscription _title_label {
+      styles [
+        "title-4",
+      ]
+
+      hexpand: true;
+    }
+
+    Box _details_box {
+      Inscription _detail_label {
+        styles [
+          "dim-label",
+        ]
+
+        hexpand: true;
+      }
+    }
+  }
+}

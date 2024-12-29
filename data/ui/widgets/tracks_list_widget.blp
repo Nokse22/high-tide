@@ -1,0 +1,49 @@
+using Gtk 4.0;
+
+template $HTTracksListWidget: Box {
+  margin-bottom: 12;
+  margin-end: 12;
+  margin-start: 12;
+  margin-top: 12;
+  orientation: vertical;
+  overflow: hidden;
+
+  Box {
+    Label title_label {
+      styles [
+        "title-3",
+      ]
+
+      ellipsize: end;
+      hexpand: true;
+      margin-start: 6;
+      xalign: -0.0;
+    }
+
+    Button more_button {
+      label: _('More');
+
+      styles [
+        "small-pill",
+      ]
+
+      halign: end;
+      hexpand: true;
+      margin-end: 6;
+      valign: center;
+      visible: false;
+    }
+  }
+
+  ListBox tracks_list_box {
+    valign: start;
+    margin-top: 12;
+    margin-start: 6;
+    margin-end: 6;
+    margin-bottom: 6;
+
+    styles [
+      "boxed-list",
+    ]
+  }
+}

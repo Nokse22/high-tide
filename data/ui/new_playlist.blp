@@ -1,0 +1,53 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $NewPlaylistWindow: Adw.Dialog {
+  width-request: 360;
+  height-request: 300;
+
+  Box {
+    orientation: vertical;
+
+    Adw.HeaderBar {
+      styles [
+        "flat",
+      ]
+    }
+
+    ListBox {
+      margin-bottom: 12;
+      margin-end: 12;
+      margin-start: 12;
+      margin-top: 12;
+      selection-mode: none;
+
+      styles [
+        "boxed-list",
+      ]
+
+      Adw.EntryRow playlist_name_entry {
+        title: 'Playlist Name';
+      }
+
+      Adw.EntryRow playlist_description_entry {
+        title: 'Playlist Description';
+      }
+    }
+
+    Button create_button {
+      sensitive: false;
+
+      styles [
+        "suggested-action",
+        "pill",
+      ]
+
+      halign: center;
+      hexpand: true;
+      label: 'Create';
+      valign: center;
+      vexpand: true;
+      clicked => $on_create_button_clicked();
+    }
+  }
+}

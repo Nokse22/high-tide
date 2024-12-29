@@ -1,0 +1,218 @@
+using Gtk 4.0;
+using Adw 1;
+
+Box _main {
+  orientation: vertical;
+
+  Adw.BreakpointBin _bin {
+    width-request: 10;
+    height-request: 150;
+    valign: start;
+    vexpand-set: true;
+
+    Adw.Breakpoint {
+      condition ("max-width: 400px")
+
+      setters {
+        _vertical_layout_box.visible: true;
+        _horizontal_layout_box.visible: false;
+        _bin.height-request: 360;
+      }
+    }
+
+    child: Box {
+      Box _horizontal_layout_box {
+        valign: center;
+        vexpand: true;
+        hexpand: true;
+
+        Image _image {
+          icon-name: "emblem-music-symbolic";
+
+          styles [
+            "small-image",
+          ]
+
+          overflow: hidden;
+          margin-bottom: 12;
+          margin-end: 12;
+          margin-start: 12;
+          margin-top: 12;
+          pixel-size: 120;
+        }
+
+        Box {
+          hexpand: true;
+          margin-top: 12;
+          margin-bottom: 12;
+          orientation: vertical;
+
+          Label _title_label {
+            styles [
+              "title-1",
+            ]
+
+            ellipsize: end;
+            vexpand: true;
+            xalign: 0.0;
+          }
+
+          Label _first_subtitle_label {
+            styles [
+              "dim-label",
+            ]
+
+            ellipsize: end;
+            vexpand: true;
+            xalign: 0.0;
+            lines: 2;
+          }
+
+          Label _second_subtitle_label {
+            styles [
+              "dim-label",
+            ]
+
+            ellipsize: end;
+            vexpand: true;
+            xalign: 0.0;
+          }
+
+          Button _artist_button {
+            visible: false;
+          }
+        }
+
+        Box {
+          halign: end;
+          margin-end: 12;
+          spacing: 6;
+          valign: center;
+
+          Button _in_my_collection_button {
+            icon-name: "heart-outline-thick-symbolic";
+
+            styles [
+              "flat",
+            ]
+          }
+
+          Button _shuffle_button {
+            icon-name: "media-playlist-shuffle-symbolic";
+
+            styles [
+              "flat",
+            ]
+          }
+
+          Button _play_button {
+            styles [
+              "suggested-action",
+            ]
+
+            icon-name: "media-playback-start-symbolic";
+          }
+        }
+      }
+
+      Box _vertical_layout_box {
+        valign: center;
+        halign: center;
+        vexpand: true;
+        hexpand: true;
+        height-request: 200;
+        orientation: vertical;
+        spacing: 12;
+        visible: false;
+        margin-top: 12;
+        margin-bottom: 12;
+        margin-start: 12;
+        margin-end: 12;
+
+        Image {
+          styles [
+            "small-image",
+          ]
+
+          halign: center;
+          icon-name: "emblem-music-symbolic";
+          pixel-size: 160;
+          overflow: hidden;
+          file: bind _image.file no-sync-create;
+        }
+
+        Label _title_label2 {
+          styles [
+            "title-1",
+          ]
+
+          valign: start;
+          ellipsize: end;
+          label: bind _title_label.label no-sync-create;
+        }
+
+        Label _first_subtitle_label2 {
+          styles [
+            "dim-label",
+          ]
+
+          valign: start;
+          ellipsize: end;
+          lines: 2;
+          wrap: true;
+          justify: center;
+          label: bind _first_subtitle_label.label no-sync-create;
+        }
+
+        Box {
+          halign: center;
+          spacing: 12;
+          valign: center;
+
+          Button _play_button_2 {
+            styles [
+              "pill",
+              "suggested-action",
+            ]
+
+            icon-name: "media-playback-start-symbolic";
+          }
+
+          Button _shuffle_button_2 {
+            styles [
+              "pill",
+            ]
+
+            icon-name: "media-playlist-shuffle-symbolic";
+          }
+
+          Button _in_my_collection_button_2 {
+            styles [
+              "circular",
+              "flat",
+            ]
+
+            icon-name: bind _in_my_collection_button.icon-name no-sync-create;
+            valign: center;
+          }
+        }
+      }
+    };
+  }
+
+  Separator {
+    valign: start;
+  }
+
+  ListBox _list_box {
+    valign: start;
+    margin-top: 12;
+    margin-start: 12;
+    margin-end: 12;
+    margin-bottom: 12;
+
+    styles [
+      "boxed-list",
+    ]
+  }
+}

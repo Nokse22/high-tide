@@ -1,0 +1,50 @@
+using Gtk 4.0;
+using Adw 1;
+
+Adw.ToolbarView _main {
+  [top]
+  Adw.HeaderBar {}
+
+  content: Stack _content_stack {
+    StackPage {
+      child: Adw.Spinner _spinner {
+        hexpand: true;
+        vexpand: true;
+        halign: center;
+        valign: center;
+        width-request: 42;
+        height-request: 42;
+      };
+
+      name: 'loading';
+    }
+
+    StackPage {
+      child: ScrolledWindow _scrolled_window {
+        vexpand: true;
+        vexpand-set: true;
+
+        styles [
+          "undershoot-top",
+        ]
+
+        Adw.Clamp {
+          maximum-size: 1000;
+          tightening-threshold: 700;
+          valign: fill;
+          vexpand: true;
+
+          Box _content {
+            orientation: vertical;
+            overflow: hidden;
+            vexpand: true;
+          }
+        }
+      };
+
+      name: 'content';
+    }
+
+    visible-child-name: 'loading';
+  };
+}

@@ -1,0 +1,99 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $HTTopHitWidget: Box {
+  margin-bottom: 12;
+  margin-end: 12;
+  margin-start: 12;
+  margin-top: 12;
+  orientation: vertical;
+  spacing: 6;
+  valign: start;
+
+  Label {
+    styles [
+      "title-3",
+    ]
+
+    label: 'Top Hit';
+    xalign: 0.0;
+  }
+
+  Stack {
+    valign: start;
+
+    StackPage {
+      child: Adw.Bin {
+        styles [
+          "cart",
+          "activatable",
+        ]
+
+        valign: start;
+
+        Box {
+          margin-bottom: 12;
+          margin-end: 12;
+          margin-start: 12;
+          margin-top: 12;
+          orientation: vertical;
+          spacing: 12;
+
+          Box {
+            spacing: 12;
+
+            Adw.Avatar artist_avatar {
+              size: 80;
+            }
+
+            Box {
+              orientation: vertical;
+              spacing: 6;
+
+              Label artist_label {
+                styles [
+                  "title-1",
+                ]
+
+                ellipsize: end;
+                vexpand: true;
+                xalign: 0.0;
+              }
+
+              Label {
+                label: 'Artist';
+                vexpand: true;
+                xalign: 0.0;
+              }
+            }
+          }
+
+          Box {
+            spacing: 12;
+
+            Button play_button {
+              styles [
+                "pill",
+                "suggested-action",
+              ]
+
+              hexpand: true;
+              icon-name: 'media-playback-start-symbolic';
+            }
+
+            Button shuffle_button {
+              styles [
+                "pill",
+              ]
+
+              hexpand: true;
+              icon-name: 'media-playlist-shuffle-symbolic';
+            }
+          }
+        }
+      };
+
+      name: 'artist';
+    }
+  }
+}

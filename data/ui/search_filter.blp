@@ -1,0 +1,64 @@
+using Gtk 4.0;
+
+ScrolledWindow filters_scrolled_window {
+  valign: start;
+  vscrollbar-policy: never;
+  window-placement: bottom_right;
+
+  Box {
+    halign: start;
+    margin-start: 12;
+    margin-top: 12;
+    margin-bottom: 12;
+    spacing: 12;
+
+    ToggleButton all_filter {
+      styles [
+        "pill",
+      ]
+
+      label: 'All';
+      valign: center;
+    }
+
+    ToggleButton artists_filter {
+      styles [
+        "pill",
+      ]
+
+      group: all_filter;
+      label: 'Artists';
+      valign: center;
+    }
+
+    ToggleButton albums_filter {
+      styles [
+        "pill",
+      ]
+
+      group: all_filter;
+      label: 'Albums';
+      valign: center;
+    }
+
+    ToggleButton tracks_filter {
+      styles [
+        "pill",
+      ]
+
+      group: all_filter;
+      label: 'Tracks';
+      valign: center;
+    }
+
+    ToggleButton playlist_filter {
+      styles [
+        "pill",
+      ]
+
+      group: all_filter;
+      label: 'Playlists';
+      valign: center;
+    }
+  }
+}

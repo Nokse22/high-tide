@@ -1,0 +1,30 @@
+using Gtk 4.0;
+using Adw 1;
+
+Box _main {
+  orientation: vertical;
+  vexpand: true;
+  hexpand: true;
+
+  ScrolledWindow {
+    vexpand: true;
+    vexpand-set: true;
+
+    styles [
+      "undershoot-top",
+    ]
+
+    Adw.Clamp {
+      maximum-size: 1000;
+      tightening-threshold: 700;
+      valign: start;
+      vexpand-set: true;
+
+      Box _content {
+        orientation: vertical;
+        overflow: hidden;
+        vexpand: true;
+      }
+    }
+  }
+}

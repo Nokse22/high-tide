@@ -1,0 +1,177 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $HTGenericTrackWidget: ListBoxRow {
+  selectable: false;
+
+  Adw.BreakpointBin {
+    width-request: 100;
+    height-request: 56;
+
+    Adw.Breakpoint {
+      condition ("max-width: 600px")
+
+      setters {
+        _grid.visible: false;
+        _narrow_box.visible: true;
+      }
+    }
+
+    child: Box {
+      margin-start: 6;
+      margin-end: 6;
+
+      Image image {
+        height-request: 44;
+        icon-name: "emblem-music-symbolic";
+        width-request: 44;
+        margin-end: 12;
+        margin-bottom: 6;
+        margin-top: 6;
+        overflow: hidden;
+
+        styles [
+          "small-image",
+        ]
+      }
+
+      Grid _grid {
+        column-homogeneous: true;
+        column-spacing: 6;
+        margin-end: 12;
+        hexpand: true;
+
+        $HTLinkLabelWidget track_album_label {
+          xalign: "0";
+          ellipsize: "3";
+
+          layout {
+            column: "5";
+            column-span: "1";
+            row: "0";
+          }
+        }
+
+        Box {
+          layout {
+            column: "0";
+            column-span: "3";
+            row: "0";
+          }
+
+          Label track_title_label {
+            styles [
+              "title-4",
+            ]
+
+            ellipsize: end;
+            label: "Title";
+            vexpand: true;
+            xalign: 0.0;
+          }
+
+          Label explicit_label {
+            label: "E";
+
+            styles [
+              "explicit-label",
+            ]
+
+            visible: false;
+            valign: center;
+            margin-start: 6;
+          }
+        }
+
+        $HTLinkLabelWidget artist_label {
+          xalign: "0";
+          ellipsize: "3";
+
+          layout {
+            column: "3";
+            column-span: "1";
+            row: "0";
+          }
+        }
+      }
+
+      Box _narrow_box {
+        orientation: vertical;
+        visible: false;
+        hexpand: true;
+
+        Box {
+          Label {
+            label: bind track_title_label.label;
+
+            styles [
+              "title-4",
+            ]
+
+            ellipsize: end;
+            vexpand: true;
+            xalign: 0.0;
+          }
+
+          Label {
+            visible: bind explicit_label.visible;
+            label: "E";
+
+            styles [
+              "explicit-label",
+            ]
+
+            valign: center;
+            margin-start: 6;
+          }
+        }
+
+        $HTLinkLabelWidget artist_label_2 {
+          xalign: "0";
+          use-markup: "true";
+          ellipsize: "3";
+          margin-bottom: "6";
+          label: bind artist_label.label;
+        }
+      }
+
+      Label track_duration_label {
+        label: "00:00";
+        margin-end: 12;
+        vexpand: true;
+      }
+
+      MenuButton {
+        icon-name: "view-more-symbolic";
+        menu-model: track_menu;
+        valign: center;
+
+        styles [
+          "flat",
+        ]
+      }
+    };
+  }
+}
+
+menu track_menu {
+  item {
+    action: "trackwidget.radio";
+    label: "Go to track radio";
+  }
+
+  item {
+    action: "trackwidget.play-next";
+    label: "Play next";
+  }
+
+  item {
+    action: "trackwidget.add-to-queue";
+    label: "Add to queue";
+  }
+
+  item {
+    action: "trackwidget.add-to-my-collection";
+    label: "Add to my collection";
+  }
+}

@@ -1,0 +1,874 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $HighTideWindow: Adw.ApplicationWindow {
+  default-width: 800;
+  default-height: 600;
+  width-request: 360;
+  height-request: 400;
+  title: "High Tide";
+
+  Adw.Breakpoint {
+    condition ("max-width: 700px")
+
+    setters {
+      split_view.collapsed: true;
+      sidebar_show_button.visible: true;
+    }
+  }
+
+  Adw.Breakpoint {
+    condition ("max-width: 800px")
+
+    setters {
+      split_view.collapsed: true;
+      sidebar_show_button.visible: true;
+      big_progress_bar_box.visible: false;
+      small_progress_bar.visible: true;
+      _more_functions_box.visible: false;
+      _song_box.width-request: -1;
+      skip_backward_button.visible: false;
+      shuffle_button.visible: false;
+      repeat_button.visible: false;
+      // play_button.css-classes: flat;
+      playbar_controls_box.halign: end;
+      playbar_controls_box.margin-end: 12;
+      playbar_controls_box.margin-top: 6;
+      playing_track_image.pixel-size: 50;
+      image_overlay.margin-start: 6;
+      _center_control_box.width-request: -1;
+    }
+  }
+
+  content: Stack main_view_stack {
+    transition-type: slide_up_down;
+
+    StackPage {
+      name: "normal_view";
+
+      child: Box normal_view_box {
+        orientation: vertical;
+        vexpand: true;
+
+        Adw.OverlaySplitView split_view {
+          vexpand: true;
+
+          sidebar: Box {
+            orientation: vertical;
+
+            Adw.HeaderBar {
+              styles [
+                "flat",
+              ]
+
+              [end]
+              MenuButton {
+                icon-name: "open-menu-symbolic";
+                menu-model: primary_menu;
+              }
+            }
+
+            ScrolledWindow {
+              hscrollbar-policy: never;
+              vexpand: true;
+
+              styles [
+                "undershoot-top",
+                "undershoot-bottom",
+              ]
+
+              Box {
+                orientation: vertical;
+
+                ListBox sidebar_list {
+                  row-activated => $on_sidebar_row_selected_clicked();
+
+                  styles [
+                    "navigation-sidebar",
+                  ]
+
+                  selection-mode: none;
+                  sensitive: false;
+
+                  Box {
+                    spacing: 12;
+                    margin-start: 6;
+
+                    Image {
+                      icon-name: "go-home-symbolic";
+                    }
+
+                    Label {
+                      name: "HOME";
+                      label: _("Home");
+                      xalign: 0;
+                    }
+                  }
+
+                  Box {
+                    spacing: 12;
+                    margin-start: 6;
+
+                    Image {
+                      icon-name: "explore2-large-symbolic";
+                    }
+
+                    Label {
+                      name: "EXPLORE";
+                      label: _("Explore");
+                      xalign: 0;
+                    }
+                  }
+                }
+
+                Label {
+                  label: _("My Collection");
+                  xalign: 0;
+
+                  styles [
+                    "dim-label",
+                  ]
+
+                  margin-bottom: 3;
+                  margin-top: 18;
+                  margin-start: 14;
+                }
+
+                ListBox sidebar_collection {
+                  row-activated => $on_sidebar_row_selected_clicked();
+
+                  styles [
+                    "navigation-sidebar",
+                  ]
+
+                  selection-mode: none;
+                  sensitive: bind sidebar_list.sensitive no-sync-create;
+
+                  Box {
+                    spacing: 12;
+                    margin-start: 6;
+
+                    Image {
+                      icon-name: "media-tape-symbolic";
+                    }
+
+                    Label {
+                      name: "F-MIX";
+                      label: _("Mixes and Radios");
+                      xalign: 0;
+                    }
+                  }
+
+                  Box {
+                    spacing: 12;
+                    margin-start: 6;
+
+                    Image {
+                      icon-name: "library-music-symbolic";
+                    }
+
+                    Label {
+                      name: "F-PLAYLIST";
+                      label: _("Playlist");
+                      xalign: 0;
+                    }
+                  }
+
+                  Box {
+                    spacing: 12;
+                    margin-start: 6;
+
+                    Image {
+                      icon-name: "media-optical-cd-symbolic";
+                    }
+
+                    Label {
+                      name: "F-ALBUM";
+                      label: _("Albums");
+                      xalign: 0;
+                    }
+                  }
+
+                  Box {
+                    spacing: 12;
+                    margin-start: 6;
+
+                    Image {
+                      icon-name: "music-note-single-symbolic";
+                    }
+
+                    Label {
+                      name: "F-TRACK";
+                      label: _("Tracks");
+                      xalign: 0;
+                    }
+                  }
+
+                  Box {
+                    spacing: 12;
+                    margin-start: 6;
+
+                    Image {
+                      icon-name: "music-artist-symbolic";
+                    }
+
+                    Label {
+                      name: "F-ARTIST";
+                      label: _("Artists");
+                      xalign: 0;
+                    }
+                  }
+                }
+
+                Box {
+                  margin-bottom: 3;
+                  margin-top: 18;
+                  margin-start: 14;
+
+                  Label {
+                    label: _("My Playlists");
+                    xalign: 0;
+
+                    styles [
+                      "dim-label",
+                    ]
+                  }
+
+                  Button {
+                    icon-name: "list-add-symbolic";
+                    halign: end;
+
+                    styles [
+                      "flat",
+                    ]
+
+                    hexpand: true;
+                    valign: center;
+                    margin-end: 12;
+                    clicked => $on_new_playlist_button_clicked();
+                  }
+                }
+
+                ListBox sidebar_playlists {
+                  row-activated => $on_playlists_sidebar_row_activated();
+
+                  styles [
+                    "navigation-sidebar",
+                  ]
+
+                  selection-mode: none;
+                  sensitive: bind sidebar_list.sensitive no-sync-create;
+                }
+              }
+            }
+          };
+
+          content: Adw.NavigationView navigation_view {
+            vexpand: true;
+          };
+        }
+
+        Box playbar_main_box {
+          hexpand: true;
+          orientation: vertical;
+          visible: false;
+
+          Separator playbar_separator {}
+
+          ProgressBar small_progress_bar {
+            fraction: 0.0;
+            visible: false;
+
+            styles [
+              "osd",
+              "horizonatal",
+            ]
+          }
+
+          Box playbar_box {
+            orientation: horizontal;
+            height-request: 60;
+            hexpand: true;
+            homogeneous: false;
+            sensitive: bind sidebar_list.sensitive no-sync-create;
+
+            Box {
+              orientation: horizontal;
+
+              Box _song_box {
+                orientation: horizontal;
+                width-request: 270;
+                hexpand: true;
+
+                Button sidebar_show_button {
+                  icon-name: "sidebar-show-symbolic";
+                  visible: false;
+                  valign: fill;
+                  margin-start: 6;
+                  margin-top: 6;
+                  margin-bottom: 6;
+
+                  styles [
+                    "flat",
+                  ]
+
+                  clicked => $show_sidebar();
+                }
+
+                Overlay image_overlay {
+                  margin-start: 10;
+                  margin-end: 12;
+                  valign: center;
+                  halign: center;
+
+                  child: Image playing_track_image {
+                    icon-name: "emblem-music-symbolic";
+                    pixel-size: 60;
+                    valign: center;
+                    overflow: hidden;
+
+                    styles [
+                      "small-image",
+                    ]
+                  };
+
+                  [overlay]
+                  Button {
+                    styles [
+                      "flat",
+                    ]
+
+                    icon-name: "go-up-symbolic";
+                    clicked => $on_mobile_view_button_clicked();
+                  }
+                }
+
+                Box {
+                  orientation: vertical;
+
+                  Box {
+                    Label song_title_label {
+                      label: _("Song Title");
+                      xalign: 0;
+                      margin-top: 6;
+
+                      styles [
+                        "title-4",
+                      ]
+
+                      ellipsize: end;
+                    }
+
+                    Label explicit_label {
+                      label: "E";
+
+                      styles [
+                        "explicit-label",
+                      ]
+
+                      visible: false;
+                      valign: end;
+                      margin-start: 6;
+                    }
+                  }
+
+                  $HTLinkLabelWidget artist_label {
+                    xalign: "0";
+                    ellipsize: "end";
+                  }
+                }
+              }
+            }
+
+            Box _center_control_box {
+              orientation: vertical;
+              hexpand: true;
+              width-request: 360;
+
+              Box playbar_controls_box {
+                halign: center;
+                hexpand: true;
+
+                ToggleButton shuffle_button {
+                  styles [
+                    "flat",
+                    "circular",
+                  ]
+
+                  icon-name: "media-playlist-shuffle-symbolic";
+                  valign: center;
+                  margin-bottom: 6;
+                  margin-end: 6;
+                  margin-top: 6;
+                  opacity: 0.6;
+                }
+
+                Button skip_backward_button {
+                  styles [
+                    "flat",
+                    "circular",
+                  ]
+
+                  icon-name: "media-skip-backward-symbolic";
+                  valign: center;
+                  margin-bottom: 6;
+                  margin-end: 6;
+                  margin-top: 6;
+                  clicked => $on_skip_backward_button_clicked();
+                }
+
+                Button play_button {
+                  styles [
+                    "pill",
+                    "play-btn",
+                  ]
+
+                  icon-name: "media-playback-pause-symbolic";
+                  valign: center;
+                  clicked => $on_play_button_clicked();
+                }
+
+                Button skip_forward_button {
+                  styles [
+                    "flat",
+                    "circular",
+                  ]
+
+                  icon-name: "media-skip-forward-symbolic";
+                  valign: center;
+                  margin-bottom: 6;
+                  margin-start: 6;
+                  margin-top: 6;
+                  clicked => $on_skip_forward_button_clicked();
+                }
+
+                Button repeat_button {
+                  styles [
+                    "flat",
+                    "circular",
+                  ]
+
+                  icon-name: "media-playlist-repeat-symbolic";
+                  valign: center;
+                  margin-bottom: 6;
+                  margin-end: 6;
+                  margin-top: 6;
+                  opacity: 0.6;
+                  clicked => $on_repeat_clicked();
+                }
+              }
+
+              Box big_progress_bar_box {
+                hexpand: true;
+                width-request: 200;
+                margin-start: 6;
+                margin-end: 12;
+
+                Label time_played_label {
+                  label: "00:00";
+                  width-request: 40;
+                }
+
+                Scale progress_bar {
+                  sensitive: true;
+                  hexpand: true;
+                  change-value => $on_slider_seek();
+
+                  adjustment: Adjustment progress_bar_adjustment {
+                    upper: 1.0;
+                    value: 0.0;
+                  };
+                }
+
+                Label duration_label {
+                  label: "00:00";
+                  width-request: 40;
+                }
+              }
+            }
+
+            Box _more_functions_box {
+              hexpand: true;
+              halign: end;
+              margin-end: 6;
+              margin-start: 12;
+
+              VolumeButton volume_button {
+                styles [
+                  "flat",
+                ]
+
+                valign: center;
+                halign: end;
+                hexpand: true;
+                margin-bottom: 6;
+                margin-start: 6;
+                margin-top: 6;
+                value-changed => $on_volume_changed();
+              }
+
+              Button track_radio_button {
+                styles [
+                  "flat",
+                ]
+
+                icon-name: "navigate-symbolic";
+                valign: center;
+                halign: end;
+                margin-bottom: 6;
+                margin-start: 6;
+                margin-top: 6;
+                clicked => $on_track_radio_button_clicked();
+              }
+
+              Button in_my_collection_button {
+                styles [
+                  "flat",
+                ]
+
+                icon-name: "heart-outline-thick-symbolic";
+                valign: center;
+                halign: end;
+                margin-bottom: 6;
+                margin-start: 6;
+                margin-top: 6;
+                clicked => $on_in_my_collection_button_clicked();
+              }
+
+              Button _lyrics_toggle_button {
+                styles [
+                  "flat",
+                ]
+
+                icon-name: "chat-bubble-text-symbolic";
+                valign: center;
+                halign: end;
+                margin-bottom: 6;
+                margin-start: 6;
+                margin-top: 6;
+                clicked => $on_lyrics_button_clicked();
+              }
+            }
+          }
+        }
+      };
+    }
+
+    StackPage {
+      name: "mobile_view";
+
+      child: Box mobile_view_box {
+        orientation: vertical;
+
+        HeaderBar {
+          styles [
+            "flat",
+          ]
+
+          Button {
+            styles [
+              "flat",
+            ]
+
+            icon-name: "go-down-symbolic";
+            clicked => $on_mobile_view_button_clicked();
+          }
+        }
+
+        Box {
+          orientation: vertical;
+          spacing: 12;
+
+          Adw.ViewStack mobile_stack {
+            Adw.ViewStackPage {
+              child: ScrolledWindow {
+                hscrollbar-policy: never;
+
+                styles [
+                  "undershoot-top",
+                  "undershoot-bottom",
+                ]
+
+                Adw.Clamp {
+                  margin-end: 12;
+                  margin-start: 12;
+                  margin-top: 12;
+                  margin-bottom: 12;
+                  maximum-size: 1000;
+                  tightening-threshold: 600;
+                  unit: px;
+
+                  Box {
+                    orientation: vertical;
+                    spacing: 12;
+                    overflow: hidden;
+
+                    Box {
+                      spacing: 12;
+                      valign: start;
+
+                      Label {
+                        hexpand: true;
+                        label: _("Playing from: Album");
+                        xalign: 0.0;
+                      }
+
+                      Button {
+                        icon-name: "view-list-ordered-symbolic";
+                      }
+                    }
+
+                    Picture current_carousel_picture {
+                      height-request: 335;
+                    }
+
+                    Box {
+                      spacing: 6;
+                      valign: start;
+
+                      Box {
+                        hexpand: true;
+                        orientation: vertical;
+                        valign: center;
+                        vexpand: true;
+
+                        Label {
+                          styles [
+                            "title-2",
+                          ]
+
+                          label: bind song_title_label.label no-sync-create;
+                          xalign: 0.0;
+                          ellipsize: end;
+                        }
+
+                        Label mobile_artist_label {
+                          styles [
+                            "title-3",
+                          ]
+
+                          label: bind artist_label.label no-sync-create;
+                          xalign: 0.0;
+                          ellipsize: end;
+                          use-markup: true;
+                        }
+                      }
+
+                      Button {
+                        styles [
+                          "flat",
+                        ]
+
+                        icon-name: "audio-headphones-symbolic";
+                        valign: center;
+                      }
+
+                      MenuButton {
+                        styles [
+                          "flat",
+                        ]
+
+                        icon-name: "view-more-symbolic";
+                        valign: center;
+                        menu-model: mobile_view_menu;
+                      }
+                    }
+
+                    Box {
+                      valign: center;
+                      vexpand: true;
+                      hexpand: true;
+
+                      Label {
+                        label: bind time_played_label.label no-sync-create;
+                        width-request: 40;
+                      }
+
+                      Scale {
+                        vexpand: true;
+                        hexpand: true;
+
+                        adjustment: Adjustment {
+                          upper: bind progress_bar_adjustment.upper bidirectional;
+                          value: bind progress_bar_adjustment.value bidirectional;
+                          lower: bind progress_bar_adjustment.lower bidirectional;
+                        };
+
+                        fill-level: 0.8;
+                        valign: start;
+                      }
+
+                      Label {
+                        label: bind duration_label.label no-sync-create;
+                        width-request: 40;
+                      }
+                    }
+
+                    Box {
+                      halign: center;
+                      hexpand: true;
+                      spacing: 12;
+                      valign: start;
+                      vexpand: true;
+
+                      ToggleButton {
+                        styles [
+                          "flat",
+                          "circular",
+                        ]
+
+                        icon-name: "media-playlist-shuffle-symbolic";
+                        active: bind shuffle_button.active no-sync-create bidirectional;
+                        valign: center;
+                      }
+
+                      Button {
+                        styles [
+                          "circular",
+                        ]
+
+                        icon-name: "media-skip-backward-symbolic";
+                        valign: center;
+                        clicked => $on_skip_backward_button_clicked();
+                      }
+
+                      Button {
+                        styles [
+                          "pill",
+                          "suggested-action",
+                        ]
+
+                        icon-name: bind play_button.icon-name no-sync-create;
+                        clicked => $on_play_button_clicked();
+                      }
+
+                      Button {
+                        icon-name: "media-skip-forward-symbolic";
+                        valign: center;
+                        clicked => $on_skip_forward_button_clicked();
+
+                        styles [
+                          "circular",
+                        ]
+                      }
+
+                      Button {
+                        icon-name: bind repeat_button.icon-name no-sync-create;
+                        valign: center;
+                        clicked => $on_repeat_clicked();
+
+                        styles [
+                          "flat",
+                          "circular",
+                        ]
+                      }
+                    }
+                  }
+                }
+              };
+
+              icon-name: "emblem-music-symbolic";
+              name: "song_page";
+              title: "Song";
+            }
+
+            Adw.ViewStackPage {
+              child: ScrolledWindow {
+                hscrollbar-policy: never;
+                hexpand: true;
+                vexpand: true;
+
+                styles [
+                  "undershoot-top",
+                  "undershoot-bottom",
+                ]
+
+                Label lyrics_label {
+                  wrap: true;
+                  justify: center;
+                  opacity: 0.6;
+                  margin-start: 12;
+                  margin-end: 12;
+
+                  styles [
+                    "lyrics",
+                  ]
+                }
+              };
+
+              icon-name: "accessories-text-editor-symbolic";
+              name: "lyrics_page";
+              title: "Lyrics";
+            }
+
+            Adw.ViewStackPage {
+              child: $HTQueueWidget queue_widget {};
+
+              icon-name: "view-list-ordered-symbolic";
+              name: "queue_page";
+              title: "Queue";
+            }
+          }
+
+          Adw.ViewSwitcher {
+            halign: center;
+            hexpand: true;
+            margin-bottom: 11;
+            stack: mobile_stack;
+          }
+        }
+      };
+    }
+  };
+}
+
+menu primary_menu {
+  section {
+    item {
+      label: _("Logout");
+      action: "app.log-out";
+    }
+  }
+
+  section {
+    item {
+      label: _("_Preferences");
+      action: "app.preferences";
+    }
+
+    item {
+      label: _("_Keyboard Shortcuts");
+      action: "win.show-help-overlay";
+    }
+
+    item {
+      label: _("_About High Tide");
+      action: "app.about";
+    }
+  }
+}
+
+menu mobile_view_menu {
+  section {
+    item {
+      action: "track.radio";
+      icon: "address-book-new-symbolic";
+      label: _("Go to Radio");
+    }
+
+    item {
+      action: "track.album";
+      label: _("Go to Album");
+    }
+
+    item {
+      action: "track.artist";
+      label: _("Go to Artist");
+    }
+
+    item {
+      action: "track.add-collection";
+      label: _("Add to my collection");
+    }
+  }
+}

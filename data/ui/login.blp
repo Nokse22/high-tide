@@ -1,0 +1,58 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LoginDialog: Adw.Dialog {
+  title: 'Log In';
+  content-height: 220;
+  content-width: 360;
+
+  Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {}
+
+    content: Box {
+      margin-bottom: 12;
+      margin-end: 12;
+      margin-start: 12;
+      margin-top: 12;
+      orientation: vertical;
+      spacing: 12;
+      vexpand: true;
+
+      Label {
+        label: 'Go to this website and login with your account, if it asks for a code insert the code provided below.';
+        vexpand: true;
+        wrap: true;
+      }
+
+      LinkButton link_button {
+        halign: center;
+        label: 'www.tidal.login/IEOUE';
+        uri: 'prova.com';
+      }
+
+      Box {
+        halign: center;
+        spacing: 12;
+        valign: start;
+        vexpand: true;
+
+        Label code_label {
+          label: 'WEOID';
+        }
+
+        Button {
+          halign: center;
+          icon-name: 'edit-copy-symbolic';
+          valign: center;
+
+          styles [
+            "circular",
+          ]
+
+          clicked => $on_copy_code_button_clicked();
+        }
+      }
+    };
+  }
+}
