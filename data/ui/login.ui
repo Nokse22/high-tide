@@ -53,7 +53,9 @@
                     <property name="halign">center</property>
                     <property name="icon-name">edit-copy-symbolic</property>
                     <property name="valign">center</property>
-                    <property name="css-classes">circular</property>
+                    <style>
+                  <class name="circular"/>
+                </style>
                     <signal name="clicked" handler="on_copy_code_button_clicked"/>
                   </object>
                 </child>

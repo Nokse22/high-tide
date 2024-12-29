@@ -29,7 +29,9 @@
           <property name="margin-bottom">6</property>
           <property name="margin-top">6</property>
           <property name="overflow">hidden</property>
-          <property name="css-classes">small-image</property>
+          <style>
+          <class name="small-image"/>
+        </style>
         </object>
       </child>
       <child>
@@ -52,7 +54,9 @@
           </child>
           <child>
             <object class="GtkLabel" id="_track_title_label">
-              <property name="css-classes">title-4</property>
+              <style>
+          <class name="title-4"/>
+        </style>
               <property name="ellipsize">end</property>
               <property name="label">Title</property>
               <property name="vexpand">True</property>
@@ -82,7 +86,9 @@
           <property name="hexpand">true</property>
           <child>
             <object class="GtkLabel" id="_track_title_label_2">
-              <property name="css-classes">title-4</property>
+              <style>
+          <class name="title-4"/>
+        </style>
               <property name="ellipsize">end</property>
               <property name="label">Title</property>
               <property name="vexpand">True</property>
@@ -108,20 +114,26 @@
           <property name="icon-name">view-more-symbolic</property>
           <property name="menu-model">track_menu</property>
           <property name="valign">center</property>
-          <property name="css-classes">flat</property>
+          <style>
+                                          <class name="flat"/>
+                                        </style>
           <property name="visible">false</property>
         </object>
       </child>
       <child>
       <object class="GtkMenuButton">
         <property name="icon-name">view-more-symbolic</property>
-        <property name="css-classes">flat</property>
+        <style>
+                                          <class name="flat"/>
+                                        </style>
         <!-- <property name="visible">false</property> -->
         <property name="popover">
           <object class="GtkPopover">
             <child>
               <object class="GtkListBox">
-                <property name="css-classes">navigation-sidebar</property>
+                <style>
+                  <class name="navigation-sidebar"/>
+                </style>
                 <property name="selection-mode">none</property>
                 <child>
                   <object class="GtkLabel">

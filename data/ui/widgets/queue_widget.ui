@@ -15,7 +15,9 @@
             <property name="tightening-threshold">700</property>
             <child>
             <object class="GtkListBox">
-              <property name="css-classes">boxed-list</property>
+              <style>
+                                          <class name="boxed-list"/>
+                                        </style>
               <property name="margin-start">12</property>
               <property name="margin-end">12</property>
               <property name="margin-top">3</property>
@@ -36,12 +38,16 @@
                             <property name="margin-bottom">6</property>
                             <property name="margin-top">6</property>
                             <property name="overflow">hidden</property>
-                            <property name="css-classes">small-image</property>
+                            <style>
+                                          <class name="small-image"/>
+                                        </style>
                           </object>
                         </child>
                         <child>
                           <object class="GtkLabel" id="playing_track_title_label">
-                            <property name="css-classes">title-4</property>
+                            <style>
+                                          <class name="title-4"/>
+                                        </style>
                             <property name="ellipsize">end</property>
                             <property name="label">Title</property>
                             <property name="vexpand">True</property>
@@ -59,7 +65,9 @@
         <property name="content">
           <object class="GtkScrolledWindow">
             <property name="vexpand">true</property>
-            <property name="css-classes">undershoot-bottom</property>
+            <style>
+          <class name="undershoot-bottom"/>
+        </style>
               <child>
                 <object class="AdwClamp">
                   <property name="maximum-size">1000</property>
@@ -78,7 +86,9 @@
                         <property name="spacing">6</property>
                           <child>
                             <object class="GtkLabel">
-                              <property name="css-classes">title-4</property>
+                              <style>
+                                          <class name="title-4"/>
+                                        </style>
                               <property name="ellipsize">end</property>
                               <property name="hexpand">True</property>
                               <property name="xalign">0.0</property>
@@ -87,7 +97,9 @@
                           </child>
                           <child>
                             <object class="GtkListBox" id="played_songs_list">
-                              <property name="css-classes">boxed-list</property>
+                              <style>
+                                          <class name="boxed-list"/>
+                                        </style>
                             </object>
                           </child>
                         </object>
@@ -99,7 +111,9 @@
                           <property name="spacing">6</property>
                             <child>
                               <object class="GtkLabel">
-                                <property name="css-classes">title-4</property>
+                                <style>
+                                          <class name="title-4"/>
+                                        </style>
                                 <property name="ellipsize">end</property>
                                 <property name="hexpand">True</property>
                                 <property name="xalign">0.0</property>
@@ -108,7 +122,9 @@
                             </child>
                             <child>
                               <object class="GtkListBox" id="queued_songs_list">
-                                <property name="css-classes">boxed-list</property>
+                                <style>
+                                          <class name="boxed-list"/>
+                                        </style>
                               </object>
                             </child>
                           </object>
@@ -120,7 +136,9 @@
                             <property name="spacing">6</property>
                               <child>
                                 <object class="GtkLabel">
-                                  <property name="css-classes">title-4</property>
+                                  <style>
+                                          <class name="title-4"/>
+                                        </style>
                                   <property name="ellipsize">end</property>
                                   <property name="hexpand">True</property>
                                   <property name="xalign">-0.0</property>
@@ -129,7 +147,9 @@
                               </child>
                               <child>
                                 <object class="GtkListBox" id="next_songs_list">
-                                  <property name="css-classes">boxed-list</property>
+                                  <style>
+                                          <class name="boxed-list"/>
+                                        </style>
                                 </object>
                               </child>
                             </object>

@@ -7,12 +7,33 @@ desktop_file = i18n.merge_file(
   install_dir: join_paths(get_option('datadir'), 'applications')
 )
 
+blueprints = custom_target('blueprints',
+  input: files(
+    'ui/pages_ui/page_template.blp',
+    'ui/pages_ui/search_page_template.blp',
+    'ui/widgets/top_hit_widget.blp',
+    'ui/widgets/card_widget.blp',
+    'ui/widgets/carousel_widget.blp',
+    'ui/widgets/tracks_list_widget.blp',
+    'ui/widgets/queue_widget.blp',
+    'ui/search_entry.blp',
+    'ui/login.blp',
+    'ui/new_playlist.blp',
+    'ui/search_filter.blp',
+    'ui/card_template.blp',
+    'gtk/help-overlay.blp',
+  ),
+  output: '.',
+  command: [find_program('blueprint-compiler'), 'batch-compile', '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@'],
+)
+
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
 gnome.compile_resources('HighTide',
   'HighTide.gresource.xml',
   gresource_bundle: true,
   install: true,
   install_dir: pkgdatadir,
+  dependencies: blueprints,
 )
 
 desktop_utils = find_program('desktop-file-validate', required: false)

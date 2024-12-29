@@ -4,7 +4,9 @@
   <!-- interface-name card_template.ui -->
   <requires lib="gtk" version="4.6"/>
   <object class="GtkBox" id="_main">
-    <property name="css-classes">card-bg</property>
+    <style>
+                                          <class name="card-bg"/>
+                                        </style>
     <property name="hexpand">true</property>
     <property name="halign">center</property>
     <child>
@@ -17,7 +19,9 @@
     <property name="spacing">3</property>
     <child>
       <object class="GtkButton" id="_button">
-        <property name="css-classes">card-button</property>
+        <style>
+          <class name="card-button"/>
+        </style>
         <property name="overflow">hidden</property>
         <child>
           <object class="GtkImage" id="_image">
@@ -25,14 +29,18 @@
             <property name="icon-name">emblem-music-symbolic</property>
             <property name="pixel-size">160</property>
             <property name="valign">center</property>
-            <property name="css-classes">card-image</property>
+            <style>
+          <class name="card-image"/>
+        </style>
           </object>
         </child>
       </object>
     </child>
     <child>
       <object class="GtkInscription" id="_title_label">
-        <property name="css-classes">title-4</property>
+        <style>
+          <class name="title-4"/>
+        </style>
         <property name="hexpand">true</property>
         <!-- <property name="label" translatable="yes">Title</property> -->
         <!-- <property name="margin-start">12</property> -->
@@ -44,7 +52,9 @@
         <!-- <property name="margin-start">12</property> -->
         <child>
           <object class="GtkInscription" id="_detail_label">
-            <property name="css-classes">dim-label</property>
+            <style>
+          <class name="dim-label"/>
+        </style>
             <property name="hexpand">true</property>
             <!-- <property name="ellipsize">end</property> -->
             <!-- <property name="label">Artist</property> -->

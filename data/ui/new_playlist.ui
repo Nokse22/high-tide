@@ -12,7 +12,9 @@
         <property name="orientation">vertical</property>
         <child>
           <object class="AdwHeaderBar">
-            <property name="css-classes">flat</property>
+            <style>
+                                          <class name="flat"/>
+                                        </style>
           </object>
         </child>
         <child>
@@ -41,8 +43,10 @@
         <child>
           <object class="GtkButton" id="create_button">
             <property name="sensitive">false</property>
-            <property name="css-classes">suggested-action
-pill</property>
+            <style>
+                  <class name="suggested-action"/>
+              <class name="pill"/>
+                </style>
             <property name="halign">center</property>
             <property name="hexpand">True</property>
             <property name="label">Create</property>

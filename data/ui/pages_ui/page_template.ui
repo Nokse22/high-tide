@@ -34,7 +34,9 @@
               <object class="GtkScrolledWindow" id="_scrolled_window">
                 <property name="vexpand">True</property>
                 <property name="vexpand-set">True</property>
-                <property name="css-classes">undershoot-top</property>
+                <style>
+                  <class name="undershoot-top"/>
+                </style>
                 <child>
                   <object class="AdwClamp">
                     <property name="maximum-size">1000</property>

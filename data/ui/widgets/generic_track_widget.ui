@@ -29,7 +29,9 @@
           <property name="margin-bottom">6</property>
           <property name="margin-top">6</property>
           <property name="overflow">hidden</property>
-          <property name="css-classes">small-image</property>
+          <style>
+                                          <class name="small-image"/>
+                                        </style>
         </object>
       </child>
       <child>
@@ -59,7 +61,9 @@
                 </layout>
               <child>
                 <object class="GtkLabel" id="track_title_label">
-                  <property name="css-classes">title-4</property>
+                  <style>
+                                          <class name="title-4"/>
+                                        </style>
                   <property name="ellipsize">end</property>
                   <property name="label">Title</property>
                   <property name="vexpand">True</property>
@@ -70,7 +74,9 @@
               <child>
                 <object class="GtkLabel" id="explicit_label">
                   <property name="label">E</property>
-                  <property name="css-classes">explicit-label</property>
+                  <style>
+          <class name="explicit-label"/>
+        </style>
                   <property name="visible">false</property>
                   <property name="valign">center</property>
                   <property name="margin-start">6</property>
@@ -102,7 +108,9 @@
               <child>
                 <object class="GtkLabel">
                   <property name="label" bind-source="track_title_label" bind-property="label"></property>
-                  <property name="css-classes">title-4</property>
+                  <style>
+                                          <class name="title-4"/>
+                                        </style>
                   <property name="ellipsize">end</property>
                   <property name="label">Title</property>
                   <property name="vexpand">True</property>
@@ -113,7 +121,9 @@
                 <object class="GtkLabel">
                   <property name="visible" bind-source="explicit_label" bind-property="visible">false</property>
                   <property name="label">E</property>
-                  <property name="css-classes">explicit-label</property>
+                  <style>
+          <class name="explicit-label"/>
+        </style>
                   <property name="valign">center</property>
                   <property name="margin-start">6</property>
                 </object>
@@ -144,7 +154,9 @@
           <property name="icon-name">view-more-symbolic</property>
           <property name="menu-model">track_menu</property>
           <property name="valign">center</property>
-          <property name="css-classes">flat</property>
+          <style>
+                                          <class name="flat"/>
+                                        </style>
         </object>
       </child>
     </object>

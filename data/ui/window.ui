@@ -59,7 +59,9 @@
                       <property name="orientation">vertical</property>
                       <child>
                         <object class="AdwHeaderBar">
-                          <property name="css-classes">flat</property>
+                          <style>
+                                          <class name="flat"/>
+                                        </style>
                           <child type="end">
                             <object class="GtkMenuButton">
                               <property name="icon-name">open-menu-symbolic</property>
@@ -92,7 +94,9 @@
                                 <child>
                                   <object class="GtkListBox" id="sidebar_list">
                                     <signal name="row-activated" handler="on_sidebar_row_selected_clicked"/>
-                                    <property name="css-classes">navigation-sidebar</property>
+                                    <style>
+                                          <class name="navigation-sidebar"/>
+                                        </style>
                                     <property name="selection-mode">none</property>
                                     <property name="sensitive">false</property>
                                     <child>
@@ -138,7 +142,9 @@
                                   <object class="GtkLabel">
                                     <property name="label" translatable="yes">My Collection</property>
                                     <property name="xalign">0</property>
-                                    <property name="css-classes">dim-label</property>
+                                    <style>
+                                          <class name="dim-label"/>
+                                        </style>
                                     <property name="margin-bottom">3</property>
                                     <property name="margin-top">18</property>
                                     <property name="margin-start">14</property>
@@ -147,7 +153,9 @@
                                 <child>
                                   <object class="GtkListBox" id="sidebar_collection">
                                     <signal name="row-activated" handler="on_sidebar_row_selected_clicked"/>
-                                    <property name="css-classes">navigation-sidebar</property>
+                                    <style>
+                                          <class name="navigation-sidebar"/>
+                                        </style>
                                     <property name="selection-mode">none</property>
                                     <property name="sensitive" bind-source="sidebar_list" bind-property="sensitive">false</property>
                                     <child>
@@ -256,14 +264,18 @@
                                         <object class="GtkLabel">
                                           <property name="label" translatable="yes">My Playlists</property>
                                           <property name="xalign">0</property>
-                                          <property name="css-classes">dim-label</property>
+                                          <style>
+                                          <class name="dim-label"/>
+                                        </style>
                                         </object>
                                       </child>
                                       <child>
                                         <object class="GtkButton">
                                           <property name="icon-name">list-add-symbolic</property>
                                           <property name="halign">end</property>
-                                          <property name="css-classes">flat</property>
+                                          <style>
+                                          <class name="flat"/>
+                                        </style>
                                           <property name="hexpand">true</property>
                                           <property name="valign">center</property>
                                           <property name="margin-end">12</property>
@@ -275,7 +287,9 @@
                                 <child>
                                   <object class="GtkListBox" id="sidebar_playlists">
                                     <signal name="row-activated" handler="on_playlists_sidebar_row_activated"/>
-                                    <property name="css-classes">navigation-sidebar</property>
+                                    <style>
+                                          <class name="navigation-sidebar"/>
+                                        </style>
                                     <property name="selection-mode">none</property>
                                     <property name="sensitive" bind-source="sidebar_list" bind-property="sensitive">false</property>
                                   </object>
@@ -336,7 +350,9 @@
                               <property name="margin-start">6</property>
                               <property name="margin-top">6</property>
                               <property name="margin-bottom">6</property>
-                              <property name="css-classes">flat</property>
+                              <style>
+                                          <class name="flat"/>
+                                        </style>
                               <signal name="clicked" handler="show_sidebar"/>
                             </object>
                           </child>
@@ -352,30 +368,23 @@
                               <property name="pixel-size">60</property>
                               <property name="valign">center</property>
                               <property name="overflow">hidden</property>
-                              <property name="css-classes">small-image</property>
+                              <style>
+                                          <class name="small-image"/>
+                                        </style>
                             </object>
                             </property>
 
                             <child type="overlay">
                               <object class="GtkButton">
-                                <property name="css-classes">flat</property>
+                                <style>
+                                          <class name="flat"/>
+                                        </style>
                                 <property name="icon-name">go-up-symbolic</property>
                                 <signal name="clicked" handler="on_mobile_view_button_clicked" swapped="no"/>
                               </object>
                             </child>
                           </object>
                         </child>
-                          <!-- <child> -->
-                            <!-- <object class="GtkImage" id="playing_track_image"> -->
-                            <!--   <property name="icon-name">emblem-music-symbolic</property> -->
-                            <!--   <property name="pixel-size">60</property> -->
-                            <!--   <property name="margin-start">10</property> -->
-                            <!--   <property name="margin-end">12</property> -->
-                            <!--   <property name="valign">center</property> -->
-                            <!--   <property name="overflow">hidden</property> -->
-                            <!--   <property name="css-classes">small-image</property> -->
-                            <!-- </object> -->
-                          <!-- </child> -->
                           <child>
                             <object class="GtkBox">
                               <property name="orientation">vertical</property>
@@ -386,14 +395,18 @@
                                       <property name="label" translatable="yes">Song Title</property>
                                       <property name="xalign">0</property>
                                       <property name="margin_top">6</property>
-                                      <property name="css-classes">title-4</property>
+                                      <style>
+                                          <class name="title-4"/>
+                                        </style>
                                       <property name="ellipsize">3</property>
                                     </object>
                                   </child>
                                   <child>
                                     <object class="GtkLabel" id="explicit_label">
                                       <property name="label">E</property>
-                                      <property name="css-classes">explicit-label</property>
+                                      <style>
+                                          <class name="explicit-label"/>
+                                        </style>
                                       <property name="visible">false</property>
                                       <property name="valign">end</property>
                                       <property name="margin-start">6</property>
@@ -541,7 +554,9 @@
                               <property name="margin-start">12</property>
                               <child>
                               <object class="GtkVolumeButton" id="volume_button">
-                                <property name="css-classes">flat</property>
+                                <style>
+                                          <class name="flat"/>
+                                        </style>
                                 <property name="valign">center</property>
                                 <property name="halign">end</property>
                                 <property name="hexpand">true</property>
@@ -553,7 +568,9 @@
                             </child>
                               <child>
                               <object class="GtkButton" id="track_radio_button">
-                                <property name="css-classes">flat</property>
+                                <style>
+                                          <class name="flat"/>
+                                        </style>
                                 <property name="icon-name">navigate-symbolic</property>
                                 <property name="valign">center</property>
                                 <property name="halign">end</property>
@@ -565,7 +582,9 @@
                             </child>
                               <child>
                               <object class="GtkButton" id="in_my_collection_button">
-                                <property name="css-classes">flat</property>
+                                <style>
+                                          <class name="flat"/>
+                                        </style>
                                 <property name="icon-name">heart-outline-thick-symbolic</property>
                                 <property name="valign">center</property>
                                 <property name="halign">end</property>
@@ -577,7 +596,9 @@
                             </child>
                               <child>
                               <object class="GtkButton" id="_lyrics_toggle_button">
-                                <property name="css-classes">flat</property>
+                                <style>
+                                          <class name="flat"/>
+                                        </style>
                                 <property name="icon-name">chat-bubble-text-symbolic</property>
                                 <property name="valign">center</property>
                                 <property name="halign">end</property>
@@ -607,10 +628,14 @@
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkHeaderBar">
-                <property name="css-classes">flat</property>
+                <style>
+                                          <class name="flat"/>
+                                        </style>
                 <child>
                   <object class="GtkButton">
-                    <property name="css-classes">flat</property>
+                    <style>
+                                          <class name="flat"/>
+                                        </style>
                     <property name="icon-name">go-down-symbolic</property>
                     <signal name="clicked" handler="on_mobile_view_button_clicked" swapped="no"/>
                   </object>
@@ -683,7 +708,9 @@
                                         <property name="vexpand">True</property>
                                         <child>
                                           <object class="GtkLabel">
-                                            <property name="css-classes">title-2</property>
+                                            <style>
+                                          <class name="title-2"/>
+                                        </style>
                                             <property name="label" bind-source="song_title_label" bind-property="label">Song Title</property>
                                             <property name="xalign">0.0</property>
                                             <property name="ellipsize">3</property>
@@ -691,7 +718,9 @@
                                         </child>
                                         <child>
                                           <object class="GtkLabel" id="mobile_artist_label">
-                                            <property name="css-classes">title-3</property>
+                                            <style>
+                                          <class name="title-3"/>
+                                        </style>
                                             <property name="label" bind-source="artist_label" bind-property="label">Song Title</property>
                                             <property name="xalign">0.0</property>
                                             <property name="ellipsize">3</property>
@@ -702,14 +731,18 @@
                                     </child>
                                     <child>
                                       <object class="GtkButton">
-                                        <property name="css-classes">flat</property>
+                                        <style>
+                                          <class name="flat"/>
+                                        </style>
                                         <property name="icon-name">audio-headphones-symbolic</property>
                                         <property name="valign">center</property>
                                       </object>
                                     </child>
                                     <child>
                                       <object class="GtkMenuButton">
-                                        <property name="css-classes">flat</property>
+                                        <style>
+                                          <class name="flat"/>
+                                        </style>
                                         <property name="icon-name">view-more-symbolic</property>
                                         <property name="valign">center</property>
                                         <property name="menu-model">mobile_view_menu</property>
@@ -778,7 +811,9 @@
                                     </child>
                                     <child>
                                       <object class="GtkButton">
-                                        <property name="css-classes">circular</property>
+                                        <style>
+                                          <class name="circular"/>
+                                        </style>
                                         <property name="icon-name">media-skip-backward-symbolic</property>
                                         <property name="valign">center</property>
                                         <signal name="clicked" handler="on_skip_backward_button_clicked"/>
@@ -796,10 +831,12 @@
                                     </child>
                                     <child>
                                       <object class="GtkButton">
-                                        <property name="css-classes">circular</property>
                                         <property name="icon-name">media-skip-forward-symbolic</property>
                                         <property name="valign">center</property>
                                         <signal name="clicked" handler="on_skip_forward_button_clicked"/>
+                                        <style>
+                                          <class name="circular"/>
+                                        </style>
                                       </object>
                                     </child>
                                     <child>
@@ -844,7 +881,9 @@
                                 <property name="opacity">0.6</property>
                                 <property name="margin-start">12</property>
                                 <property name="margin-end">12</property>
-                                <property name="css-classes">lyrics</property>
+                                <style>
+                                  <class name="lyrics"/>
+                                </style>
                                 <!-- <property name="label" bind-source="lyrics_label" bind-property="label"/> -->
                               </object>
                             </child>

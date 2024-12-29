@@ -15,7 +15,9 @@
       <object class="GtkBox">
         <child>
           <object class="GtkLabel" id="title_label">
-            <property name="css-classes">title-3</property>
+            <style>
+                                          <class name="title-3"/>
+                                        </style>
             <property name="ellipsize">end</property>
             <property name="hexpand">True</property>
             <property name="margin-start">6</property>
@@ -25,7 +27,9 @@
         <child>
           <object class="GtkButton" id="more_button">
             <property name="label" translatable="yes">More</property>
-            <property name="css-classes">small-pill</property>
+            <style>
+          <class name="small-pill"/>
+        </style>
             <property name="halign">end</property>
             <property name="hexpand">True</property>
             <property name="margin-end">6</property>
@@ -42,7 +46,9 @@
         <property name="margin-start">6</property>
         <property name="margin-end">6</property>
         <property name="margin-bottom">6</property>
-        <property name="css-classes">boxed-list</property>
+        <style>
+                                          <class name="boxed-list"/>
+                                        </style>
       </object>
     </child>
   </template>

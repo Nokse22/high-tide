@@ -16,14 +16,18 @@
         <property name="spacing">12</property>
         <child>
           <object class="GtkToggleButton" id="all_filter">
-            <property name="css-classes">pill</property>
+            <style>
+                                          <class name="pill"/>
+                                        </style>
             <property name="label">All</property>
             <property name="valign">center</property>
           </object>
         </child>
         <child>
           <object class="GtkToggleButton" id="artists_filter">
-            <property name="css-classes">pill</property>
+            <style>
+                                          <class name="pill"/>
+                                        </style>
             <property name="group">all_filter</property>
             <property name="label">Artists</property>
             <property name="valign">center</property>
@@ -31,7 +35,9 @@
         </child>
         <child>
           <object class="GtkToggleButton" id="albums_filter">
-            <property name="css-classes">pill</property>
+            <style>
+                                          <class name="pill"/>
+                                        </style>
             <property name="group">all_filter</property>
             <property name="label">Albums</property>
             <property name="valign">center</property>
@@ -39,7 +45,9 @@
         </child>
         <child>
           <object class="GtkToggleButton" id="tracks_filter">
-            <property name="css-classes">pill</property>
+            <style>
+                                          <class name="pill"/>
+                                        </style>
             <property name="group">all_filter</property>
             <property name="label">Tracks</property>
             <property name="valign">center</property>
@@ -47,7 +55,9 @@
         </child>
         <child>
           <object class="GtkToggleButton" id="playlist_filter">
-            <property name="css-classes">pill</property>
+            <style>
+                                          <class name="pill"/>
+                                        </style>
             <property name="group">all_filter</property>
             <property name="label">Playlists</property>
             <property name="valign">center</property>

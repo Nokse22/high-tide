@@ -31,7 +31,9 @@
                   <child>
                     <object class="GtkImage" id="_image">
                       <property name="icon-name">emblem-music-symbolic</property>
-                      <property name="css-classes">small-image</property>
+                      <style>
+                  <class name="small-image"/>
+                </style>
                       <property name="overflow">hidden</property>
                       <property name="margin-bottom">12</property>
                       <property name="margin-end">12</property>
@@ -48,7 +50,9 @@
                       <property name="orientation">vertical</property>
                       <child>
                         <object class="GtkLabel" id="_title_label">
-                          <property name="css-classes">title-1</property>
+                          <style>
+                  <class name="title-1"/>
+                </style>
                           <property name="ellipsize">end</property>
                           <property name="vexpand">True</property>
                           <property name="xalign">0.0</property>
@@ -56,7 +60,9 @@
                       </child>
                       <child>
                         <object class="GtkLabel" id="_first_subtitle_label">
-                          <property name="css-classes">dim-label</property>
+                          <style>
+                  <class name="dim-label"/>
+                </style>
                           <property name="ellipsize">end</property>
                           <property name="vexpand">True</property>
                           <property name="xalign">0.0</property>
@@ -65,7 +71,9 @@
                       </child>
                       <child>
                         <object class="GtkLabel" id="_second_subtitle_label">
-                          <property name="css-classes">dim-label</property>
+                          <style>
+                  <class name="dim-label"/>
+                </style>
                           <property name="ellipsize">end</property>
                           <property name="vexpand">True</property>
                           <property name="xalign">0.0</property>
@@ -87,18 +95,24 @@
                       <child>
                         <object class="GtkButton" id="_in_my_collection_button">
                           <property name="icon-name">heart-outline-thick-symbolic</property>
-                          <property name="css-classes">flat</property>
+                          <style>
+                                          <class name="flat"/>
+                                        </style>
                         </object>
                       </child>
                       <child>
                         <object class="GtkButton" id="_shuffle_button">
                           <property name="icon-name">media-playlist-shuffle-symbolic</property>
-                          <property name="css-classes">flat</property>
+                          <style>
+                                          <class name="flat"/>
+                                        </style>
                         </object>
                       </child>
                       <child>
                         <object class="GtkButton" id="_play_button">
-                          <property name="css-classes">suggested-action</property>
+                          <style>
+                  <class name="suggested-action"/>
+                </style>
                           <property name="icon-name">media-playback-start-symbolic</property>
                         </object>
                       </child>
@@ -123,7 +137,9 @@
                   <property name="margin-end">12</property>
                   <child>
                     <object class="GtkImage">
-                      <property name="css-classes">small-image</property>
+                      <style>
+                                          <class name="small-image"/>
+                                        </style>
                       <property name="halign">center</property>
                       <property name="icon-name">emblem-music-symbolic</property>
                       <property name="pixel-size">160</property>
@@ -133,7 +149,9 @@
                   </child>
                   <child>
                     <object class="GtkLabel" id="_title_label2">
-                      <property name="css-classes">title-1</property>
+                      <style>
+                                          <class name="title-1"/>
+                                        </style>
                       <property name="valign">start</property>
                       <property name="ellipsize">end</property>
                       <property name="label" bind-source="_title_label" bind-property="label"/>
@@ -141,7 +159,9 @@
                   </child>
                   <child>
                     <object class="GtkLabel" id="_first_subtitle_label2">
-                      <property name="css-classes">dim-label</property>
+                      <style>
+                                          <class name="dim-label"/>
+                                        </style>
                       <property name="valign">start</property>
                       <property name="ellipsize">end</property>
                       <property name="lines">2</property>
@@ -157,21 +177,27 @@
                       <property name="valign">center</property>
                       <child>
                         <object class="GtkButton" id="_play_button_2">
-                          <property name="css-classes">pill
-suggested-action</property>
+                          <style>
+                            <class name="pill"/>
+                            <class name="suggested-action"/>
+                          </style>
                           <property name="icon-name">media-playback-start-symbolic</property>
                         </object>
                       </child>
                       <child>
                         <object class="GtkButton" id="_shuffle_button_2">
-                          <property name="css-classes">pill</property>
+                          <style>
+                                          <class name="pill"/>
+                                        </style>
                           <property name="icon-name">media-playlist-shuffle-symbolic</property>
                         </object>
                       </child>
                       <child>
                         <object class="GtkButton" id="_in_my_collection_button_2">
-                          <property name="css-classes">circular
-flat</property>
+                          <style>
+                            <class name="circular"/>
+                            <class name="flat"/>
+                          </style>
                           <property name="icon-name" bind-source="_in_my_collection_button" bind-property="icon-name"/>
                           <property name="valign">center</property>
                         </object>
@@ -198,7 +224,9 @@ flat</property>
           <property name="margin-start">12</property>
           <property name="margin-end">12</property>
           <property name="margin-bottom">12</property>
-          <property name="css-classes">boxed-list</property>
+          <style>
+                                          <class name="boxed-list"/>
+                                        </style>
         </object>
       </child>
   </object>
