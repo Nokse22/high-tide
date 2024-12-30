@@ -11,12 +11,15 @@ Box _main {
     vexpand-set: true;
 
     Adw.Breakpoint {
-      condition ("max-width: 400px")
+      condition ("max-width: 460px")
 
       setters {
         multi_layout_view.layout-name: "vertical";
         _bin.height-request: 360;
         _image.pixel-size: 200;
+        _title_label.xalign: 0.5;
+        _first_subtitle_label.xalign: 0.5;
+        _first_subtitle_label.justify: center;
       }
     }
 
@@ -170,9 +173,11 @@ Box _main {
       [in-my-collection-button]
       Button _in_my_collection_button {
         icon-name: "heart-outline-thick-symbolic";
+        valign: center;
 
         styles [
           "flat",
+          "circular"
         ]
       }
 
@@ -182,6 +187,7 @@ Box _main {
 
         styles [
           "flat",
+          "pill"
         ]
       }
 
@@ -189,6 +195,7 @@ Box _main {
       Button _play_button {
         styles [
           "suggested-action",
+          "pill"
         ]
 
         icon-name: "media-playback-start-symbolic";

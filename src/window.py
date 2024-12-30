@@ -48,6 +48,7 @@ from .widgets import HTQueueWidget
 
 from gettext import gettext as _
 
+
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/window.ui')
 class HighTideWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'HighTideWindow'
@@ -65,7 +66,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     playing_track_image = Gtk.Template.Child()
     artist_label = Gtk.Template.Child()
     mobile_artist_label = Gtk.Template.Child()
-    sidebar_collection = Gtk.Template.Child()
+    # sidebar_collection = Gtk.Template.Child()
     sidebar_playlists = Gtk.Template.Child()
     volume_button = Gtk.Template.Child()
     in_my_collection_button = Gtk.Template.Child()
@@ -157,7 +158,8 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         MPRIS(self.player_object)
 
-        self.create_action('show-sidebar', self.on_show_sidebar_action)
+        self.create_action(
+            'show-sidebar', self.on_show_sidebar_action)
 
     def on_logged_in(self):
         print("on logged in")
