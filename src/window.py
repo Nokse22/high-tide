@@ -53,9 +53,8 @@ from gettext import gettext as _
 class HighTideWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'HighTideWindow'
 
-    split_view = Gtk.Template.Child()
     progress_bar = Gtk.Template.Child()
-    sidebar_list = Gtk.Template.Child()
+    # sidebar_list = Gtk.Template.Child()
     duration_label = Gtk.Template.Child()
     time_played_label = Gtk.Template.Child()
     shuffle_button = Gtk.Template.Child()
@@ -63,19 +62,19 @@ class HighTideWindow(Adw.ApplicationWindow):
     play_button = Gtk.Template.Child()
     small_progress_bar = Gtk.Template.Child()
     song_title_label = Gtk.Template.Child()
-    playing_track_image = Gtk.Template.Child()
+    playing_track_picture = Gtk.Template.Child()
     artist_label = Gtk.Template.Child()
-    mobile_artist_label = Gtk.Template.Child()
+    # mobile_artist_label = Gtk.Template.Child()
     # sidebar_collection = Gtk.Template.Child()
-    sidebar_playlists = Gtk.Template.Child()
+    # sidebar_playlists = Gtk.Template.Child()
     volume_button = Gtk.Template.Child()
     in_my_collection_button = Gtk.Template.Child()
     explicit_label = Gtk.Template.Child()
-    main_view_stack = Gtk.Template.Child()
-    playbar_main_box = Gtk.Template.Child()
-    current_carousel_picture = Gtk.Template.Child()
+    # main_view_stack = Gtk.Template.Child()
+    # playbar_main_box = Gtk.Template.Child()
+    # current_carousel_picture = Gtk.Template.Child()
     queue_widget = Gtk.Template.Child()
-    mobile_stack = Gtk.Template.Child()
+    # mobile_stack = Gtk.Template.Child()
     lyrics_label = Gtk.Template.Child()
     repeat_button = Gtk.Template.Child()
 
@@ -125,16 +124,16 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.artist_label.connect(
             "activate-link", variables.open_uri)
-        self.mobile_artist_label.connect(
-            "activate-link", variables.open_uri)
-        self.mobile_artist_label.connect(
-            "activate-link", self.toggle_mobile_view)
+        # self.mobile_artist_label.connect(
+        #     "activate-link", variables.open_uri)
+        # self.mobile_artist_label.connect(
+        #     "activate-link", self.toggle_mobile_view)
 
         self.session = tidalapi.Session()
 
         variables.session = self.session
         variables.navigation_view = self.navigation_view
-        variables.stack = self.main_view_stack
+        # variables.stack = self.main_view_stack
 
         self.user = self.session.user
 
@@ -158,15 +157,12 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         MPRIS(self.player_object)
 
-        self.create_action(
-            'show-sidebar', self.on_show_sidebar_action)
-
     def on_logged_in(self):
         print("on logged in")
         variables.get_favourites()
         # FIXME if it doesn't login fast enough it doesn't let the user login
 
-        self.sidebar_list.set_sensitive(True)
+        # self.sidebar_list.set_sensitive(True)
 
         page = homePage(self)
         page.load()
@@ -176,7 +172,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         th.deamon = True
         th.start()
 
-        self.update_my_playlists()
+        # self.update_my_playlists()
 
     def on_login_failed(self):
         print("login failed")
@@ -187,7 +183,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def on_create_new_playlist_requested(self, window, p_title, p_description):
         self.session.user.create_playlist(p_title, p_description)
-        self.update_my_playlists()
+        # self.update_my_playlists()
         window.close()
 
     def update_my_playlists(self):
@@ -226,7 +222,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         if track_id == -1:
             return
 
-        self.playbar_main_box.set_visible(True)
+        # self.playbar_main_box.set_visible(True)
 
         # track = self.session.track(track_id)
         self.player_object.play_this(album_mix_playlist, 0)
@@ -259,11 +255,11 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.settings.set_int("last-playing-song-id", track.id)
 
         threading.Thread(
-            target=utils.add_image,
-            args=(self.playing_track_image, album)).start()
-        threading.Thread(
             target=utils.add_picture,
-            args=(self.current_carousel_picture, album)).start()
+            args=(self.playing_track_picture, album)).start()
+        # threading.Thread(
+        #     target=utils.add_picture,
+        #     args=(self.current_carousel_picture, album)).start()
 
         # next_track = self.player_object.get_next_track()
         # if next_track:
@@ -285,15 +281,15 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.control_bar_artist = track.artist
         self.update_slider()
 
-        if (self.main_view_stack.get_visible_child_name() == "mobile_view" and
-                self.mobile_stack.get_visible_child_name() == "queue_page"):
-            self.queue_widget.update_all(self.player_object)
-            self.queue_widget_updated = True
-        else:
-            self.queue_widget_updated = False
+        # if (self.main_view_stack.get_visible_child_name() == "mobile_view" and
+        #         self.mobile_stack.get_visible_child_name() == "queue_page"):
+        #     self.queue_widget.update_all(self.player_object)
+        #     self.queue_widget_updated = True
+        # else:
+        #     self.queue_widget_updated = False
 
     def update_controls(self, is_playing, *arg):
-        self.playbar_main_box.set_visible(True)
+        # self.playbar_main_box.set_visible(True)
         if not is_playing:
             self.play_button.set_icon_name("media-playback-pause-symbolic")
             print("pause")
@@ -371,13 +367,13 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.time_played_label.set_label(utils.pretty_duration(position))
         return True
 
-    @Gtk.Template.Callback("on_lyrics_button_clicked")
-    def on_lyrics_button_clicked_func(self, widget):
-        self.main_view_stack.set_visible_child_name("mobile_view")
-        self.mobile_stack.set_visible_child_name("lyrics_page")
+    # @Gtk.Template.Callback("on_lyrics_button_clicked")
+    # def on_lyrics_button_clicked_func(self, widget):
+    #     self.main_view_stack.set_visible_child_name("mobile_view")
+    #     self.mobile_stack.set_visible_child_name("lyrics_page")
 
-        threading.Thread(
-            target=self.th_add_lyrics_to_page, deamon=True).start()
+    #     threading.Thread(
+    #         target=self.th_add_lyrics_to_page, deamon=True).start()
 
     def th_add_lyrics_to_page(self):
         try:
@@ -447,31 +443,31 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.change_volume(value)
         self.settings.set_int("last-volume", int(value*10))
 
-    @Gtk.Template.Callback("on_new_playlist_button_clicked")
-    def on_new_playlist_button_clicked_func(self, btn):
-        new_playlist_win = NewPlaylistWindow()
-        new_playlist_win.connect(
-            "create-playlist", self.on_create_new_playlist_requested)
-        new_playlist_win.present(self)
+    # @Gtk.Template.Callback("on_new_playlist_button_clicked")
+    # def on_new_playlist_button_clicked_func(self, btn):
+    #     new_playlist_win = NewPlaylistWindow()
+    #     new_playlist_win.connect(
+    #         "create-playlist", self.on_create_new_playlist_requested)
+    #     new_playlist_win.present(self)
 
-    @Gtk.Template.Callback("on_track_radio_button_clicked")
-    def on_track_radio_button_clicked_func(self, widget):
-        track = self.player_object.playing_track
-        page = trackRadioPage(track, f"{track.name} Radio")
-        page.load()
-        self.navigation_view.push(page)
+    # @Gtk.Template.Callback("on_track_radio_button_clicked")
+    # def on_track_radio_button_clicked_func(self, widget):
+    #     track = self.player_object.playing_track
+    #     page = trackRadioPage(track, f"{track.name} Radio")
+    #     page.load()
+    #     self.navigation_view.push(page)
 
-    @Gtk.Template.Callback("on_slider_seek")
-    def on_slider_seek(self, *args):
-        seek_time_secs = self.progress_bar.get_value()
-        if abs(seek_time_secs - self.previous_time) > 6:
-            print("seeking")
-            print(abs(seek_time_secs - self.previous_time))
-            self.player_object.seek(
-                Gst.Format.TIME,
-                Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
-                seek_time_secs * Gst.SECOND)
-            self.previous_time = seek_time_secs
+    # @Gtk.Template.Callback("on_slider_seek")
+    # def on_slider_seek(self, *args):
+    #     seek_time_secs = self.progress_bar.get_value()
+    #     if abs(seek_time_secs - self.previous_time) > 6:
+    #         print("seeking")
+    #         print(abs(seek_time_secs - self.previous_time))
+    #         self.player_object.seek(
+    #             Gst.Format.TIME,
+    #             Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
+    #             seek_time_secs * Gst.SECOND)
+    #         self.previous_time = seek_time_secs
 
     @Gtk.Template.Callback("on_skip_forward_button_clicked")
     def on_skip_forward_button_clicked_func(self, widget):
@@ -483,67 +479,67 @@ class HighTideWindow(Adw.ApplicationWindow):
         print("skip backward")
         self.player_object.play_previous()
 
-    @Gtk.Template.Callback("on_playlists_sidebar_row_activated")
-    def on_playlists_sidebar_row_activated_func(self, list_box, row):
-        """Handles the click on an user playlist on the sidebar"""
+    # @Gtk.Template.Callback("on_playlists_sidebar_row_activated")
+    # def on_playlists_sidebar_row_activated_func(self, list_box, row):
+    #     """Handles the click on an user playlist on the sidebar"""
 
-        if row is None:
-            return
-        index = row.get_child().get_name()
+    #     if row is None:
+    #         return
+    #     index = row.get_child().get_name()
 
-        playlist = self.my_playlists[int(index)]
+    #     playlist = self.my_playlists[int(index)]
 
-        page = playlistPage(playlist, playlist.name)
-        page.load()
-        self.navigation_view.push(page)
+    #     page = playlistPage(playlist, playlist.name)
+    #     page.load()
+    #     self.navigation_view.push(page)
 
-    @Gtk.Template.Callback("on_sidebar_row_selected_clicked")
-    def on_sidebar_row_selected_clicked_func(self, list_box, row):
-        if row is None:
-            return
+    # @Gtk.Template.Callback("on_sidebar_row_selected_clicked")
+    # def on_sidebar_row_selected_clicked_func(self, list_box, row):
+    #     if row is None:
+    #         return
 
-        name = row.get_child().get_last_child().get_name()
+    #     name = row.get_child().get_last_child().get_name()
 
-        if name == "HOME":
-            self.navigation_view.pop_to_tag("home")
-        elif name == "EXPLORE":
-            page = explorePage(None, "Explore")
-            page.load()
-            self.navigation_view.push(page)
-        elif name == "F-TRACK":
-            page = fromFunctionPage("track", _("Favorite Tracks"))
-            page.set_function(self.session.user.favorites.tracks)
-            page.load()
-            self.navigation_view.push(page)
-        elif name == "F-MIX":
-            page = fromFunctionPage("mix", _("Favorite Mixes"))
-            page.set_function(self.session.user.favorites.mixes)
-            page.load()
-            self.navigation_view.push(page)
-        elif name == "F-ARTIST":
-            page = fromFunctionPage("artist", _("Favorite Artists"))
-            page.set_function(self.session.user.favorites.artists)
-            page.load()
-            self.navigation_view.push(page)
-        elif name == "F-PLAYLIST":
-            page = fromFunctionPage("playlist", _("Favorite Playlists"))
-            page.set_function(self.session.user.favorites.playlists)
-            page.load()
-            self.navigation_view.push(page)
-        elif name == "F-ALBUM":
-            page = fromFunctionPage("album", _("Favorite Albums"))
-            page.set_function(self.session.user.favorites.albums)
-            page.load()
-            self.navigation_view.push(page)
+    #     if name == "HOME":
+    #         self.navigation_view.pop_to_tag("home")
+    #     elif name == "EXPLORE":
+    #         page = explorePage(None, "Explore")
+    #         page.load()
+    #         self.navigation_view.push(page)
+    #     elif name == "F-TRACK":
+    #         page = fromFunctionPage("track", _("Favorite Tracks"))
+    #         page.set_function(self.session.user.favorites.tracks)
+    #         page.load()
+    #         self.navigation_view.push(page)
+    #     elif name == "F-MIX":
+    #         page = fromFunctionPage("mix", _("Favorite Mixes"))
+    #         page.set_function(self.session.user.favorites.mixes)
+    #         page.load()
+    #         self.navigation_view.push(page)
+    #     elif name == "F-ARTIST":
+    #         page = fromFunctionPage("artist", _("Favorite Artists"))
+    #         page.set_function(self.session.user.favorites.artists)
+    #         page.load()
+    #         self.navigation_view.push(page)
+    #     elif name == "F-PLAYLIST":
+    #         page = fromFunctionPage("playlist", _("Favorite Playlists"))
+    #         page.set_function(self.session.user.favorites.playlists)
+    #         page.load()
+    #         self.navigation_view.push(page)
+    #     elif name == "F-ALBUM":
+    #         page = fromFunctionPage("album", _("Favorite Albums"))
+    #         page.set_function(self.session.user.favorites.albums)
+    #         page.load()
+    #         self.navigation_view.push(page)
 
-    @Gtk.Template.Callback("on_mobile_view_button_clicked")
-    def toggle_mobile_view(self, *args):
-        if self.main_view_stack.get_visible_child_name() == "normal_view":
-            self.main_view_stack.set_visible_child_name("mobile_view")
-        else:
-            self.main_view_stack.set_visible_child_name("normal_view")
+    # @Gtk.Template.Callback("on_mobile_view_button_clicked")
+    # def toggle_mobile_view(self, *args):
+    #     if self.main_view_stack.get_visible_child_name() == "normal_view":
+    #         self.main_view_stack.set_visible_child_name("mobile_view")
+    #     else:
+    #         self.main_view_stack.set_visible_child_name("normal_view")
 
-        return True
+    #     return True
 
     @Gtk.Template.Callback("on_repeat_clicked")
     def on_repeat_clicked(self, *args):
@@ -575,9 +571,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         if not self.queue_widget_updated:
             self.queue_widget.update_all(self.player_object)
             self.queue_widget_updated = True
-
-    def on_show_sidebar_action(self, *args):
-        self.split_view.set_show_sidebar(True)
 
     #
     #   CREATE ACTIONS WITH OR WITHOUT TARGETS

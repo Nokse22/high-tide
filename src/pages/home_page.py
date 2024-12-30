@@ -37,7 +37,6 @@ class homePage(Page):
     def _th_load_page(self):
         self.set_tag("home")
         self.set_title("Home")
-        self.sidebar_show_button.set_visible(True)
 
         home = variables.session.home()
 

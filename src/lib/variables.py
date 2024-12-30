@@ -34,7 +34,6 @@ def init():
     global player_object
     global sidebar_list
     global search_entry
-    global stack
 
 
 def get_favourites():
@@ -151,8 +150,6 @@ def get_type(item):
 
 
 def open_uri(label, uri):
-    print(uri)
-    stack.set_visible_child_name("normal_view")
     threading.Thread(target=_load_object, args=(uri,)).start()
     return True
 

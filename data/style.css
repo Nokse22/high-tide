@@ -76,6 +76,10 @@
     border-radius:100px;
 }
 
+.track-picture{
+    border-radius:12px;
+}
+
 .lyrics{
     font-weight:bold;
     font-size:16pt;

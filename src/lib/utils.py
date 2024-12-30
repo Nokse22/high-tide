@@ -17,20 +17,9 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
-from gi.repository import Gtk
 from gi.repository import GLib
 from gi.repository import Gio
 from gi.repository import Gdk
-
-import tidalapi
-from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix, MixType
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
-from tidalapi.user import Favorites
 
 import requests
 import re
@@ -38,6 +27,7 @@ import html
 
 from pathlib import Path
 from . import variables
+
 
 def pretty_duration(secs):
     if not secs:
@@ -53,6 +43,7 @@ def pretty_duration(secs):
         return f"{int(minutes):02}:{int(seconds):02}"
 
     return "00:00"
+
 
 def add_picture(picture_widget, item):
 
@@ -77,11 +68,12 @@ def add_picture(picture_widget, item):
 
         GLib.idle_add(_add_picture, picture_widget, str(file_path))
 
+
 def _add_picture(picture_widget, file_path):
-        picture_widget.set_filename(file_path)
+    picture_widget.set_filename(file_path)
+
 
 def add_image(image_widget, item):
-
     """Retrieves and adds an image"""
 
     file_path = Path(f"{variables.IMG_DIR}/{item.id}.jpg")
@@ -103,17 +95,19 @@ def add_image(image_widget, item):
 
         GLib.idle_add(_add_image, image_widget, str(file_path))
 
+
 def _add_image(image_widget, file_path):
-        image_widget.set_from_file(file_path)
+    image_widget.set_from_file(file_path)
+
 
 def add_image_to_avatar(avatar_widget, item):
 
     """Same ad the previous function, but for Adwaita's avatar widgets"""
 
     def _add_image_to_avatar(avatar_widget, file_path):
-            file = Gio.File.new_for_path(file_path)
-            image = Gdk.Texture.new_from_file(file)
-            avatar_widget.set_custom_image(image)
+        file = Gio.File.new_for_path(file_path)
+        image = Gdk.Texture.new_from_file(file)
+        avatar_widget.set_custom_image(image)
 
     file_path = Path(f"{variables.IMG_DIR}/{item.id}.jpg")
 
@@ -134,6 +128,7 @@ def add_image_to_avatar(avatar_widget, item):
             file.write(image_data)
 
         GLib.idle_add(_add_image_to_avatar, avatar_widget, str(file_path))
+
 
 def replace_links(text):
     # Define regular expression pattern to match escaped [wimpLink ...]...[/wimpLink] tags

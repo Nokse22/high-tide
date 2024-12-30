@@ -56,8 +56,6 @@ class Page(Adw.NavigationPage):
         self.content_stack = self.builder.get_object("_content_stack")
         self.object = self.builder.get_object("_main")
         self.scrolled_window = self.builder.get_object("_scrolled_window")
-        self.sidebar_show_button = self.builder.get_object(
-            "_sidebar_show_button")
 
         self.set_child(self.object)
 

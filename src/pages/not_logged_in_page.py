@@ -28,7 +28,6 @@ class notLoggedInPage(Page):
 
     def _th_load_page(self):
         self.set_title("Not Logged In")
-        self.sidebar_show_button.set_visible(True)
 
         login_button = Gtk.Button(
             label="Login",

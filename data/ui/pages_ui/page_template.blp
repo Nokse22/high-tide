@@ -3,18 +3,7 @@ using Adw 1;
 
 Adw.ToolbarView _main {
   [top]
-  Adw.HeaderBar {
-    [start]
-    Button _sidebar_show_button {
-      icon-name: "sidebar-show-symbolic";
-      visible: false;
-      action-name: "win.show-sidebar";
-
-      styles [
-        "flat",
-      ]
-    }
-  }
+  Adw.HeaderBar {}
 
   content: Stack _content_stack {
     StackPage {
