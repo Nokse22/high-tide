@@ -12,171 +12,169 @@ Box _main {
       condition ("max-width: 400px")
 
       setters {
-        _vertical_layout_box.visible: true;
-        _horizontal_layout_box.visible: false;
+        multi_layout_view.layout-name: "vertical";
         _bin.height-request: 360;
+        _avatar.size: 200;
+        _first_subtitle_label.xalign: 0.5;
+        _name_label.xalign: 0.5;
       }
     }
 
-    child: Box {
-      Box _horizontal_layout_box {
-        valign: center;
-        vexpand: true;
-        hexpand: true;
-
-        Adw.Avatar _avatar {
-          icon-name: "music-artist-symbolic";
-          overflow: hidden;
+    child: Adw.MultiLayoutView multi_layout_view {
+      Adw.Layout {
+        name: "horizontal";
+        content: Box _horizontal_layout_box {
+          valign: center;
+          vexpand: true;
+          hexpand: true;
           margin-bottom: 12;
           margin-end: 12;
           margin-start: 12;
           margin-top: 12;
-          size: 120;
-        }
+          spacing: 12;
 
-        Box {
-          hexpand: true;
-          margin-top: 12;
-          orientation: vertical;
-
-          Label _name_label {
-            styles [
-              "title-1",
-            ]
-
-            ellipsize: end;
-            vexpand: true;
-            xalign: 0.0;
+          Adw.LayoutSlot {
+            id: "avatar";
           }
 
-          Label _first_subtitle_label {
-            styles [
-              "dim-label",
-            ]
+          Box {
+            hexpand: true;
+            margin-top: 12;
+            orientation: vertical;
 
-            ellipsize: end;
-            vexpand: true;
-            lines: 2;
-            xalign: 0.0;
+            Adw.LayoutSlot {
+              id: "name-label";
+            }
+            Adw.LayoutSlot {
+              id: "first-subtitle-label";
+            }
+            Adw.LayoutSlot {
+              id: "artist-button";
+            }
           }
 
-          Button _artist_button {
-            visible: false;
+          Box {
+            halign: end;
+            margin-end: 12;
+            spacing: 6;
+            valign: center;
+
+            Adw.LayoutSlot {
+              id: "follow-button";
+            }
+            Adw.LayoutSlot {
+              id: "shuffle-button";
+            }
+            Adw.LayoutSlot {
+              id: "play-button";
+            }
           }
-        }
-
-        Box {
-          halign: end;
-          margin-end: 12;
-          spacing: 6;
-          valign: center;
-
-          Button _follow_button {
-            icon-name: "heart-outline-thick-symbolic";
-
-            styles [
-              "flat",
-            ]
-          }
-
-          Button _shuffle_button {
-            icon-name: "media-playlist-shuffle-symbolic";
-
-            styles [
-              "flat",
-            ]
-          }
-
-          Button _play_button {
-            styles [
-              "suggested-action",
-            ]
-
-            icon-name: "media-playback-start-symbolic";
-          }
-        }
+        };
       }
 
-      Box _vertical_layout_box {
-        valign: center;
-        halign: center;
-        vexpand: true;
-        hexpand: true;
-        orientation: vertical;
-        spacing: 12;
-        visible: false;
-        margin-top: 12;
-        margin-bottom: 12;
-        margin-start: 12;
-        margin-end: 12;
-
-        Adw.Avatar {
-          styles [
-            "small-image",
-          ]
-
-          halign: center;
-          icon-name: "music-artist-symbolic";
-          size: 160;
-          overflow: hidden;
-          custom-image: bind _avatar.custom-image no-sync-create;
-        }
-
-        Label _name_label2 {
-          styles [
-            "title-1",
-          ]
-
-          valign: start;
-          ellipsize: end;
-          label: bind _name_label.label no-sync-create;
-        }
-
-        Label _first_subtitle_label2 {
-          styles [
-            "dim-label",
-          ]
-
-          valign: start;
-          ellipsize: end;
-          lines: 2;
-          wrap: true;
-          justify: center;
-          label: bind _first_subtitle_label.label no-sync-create;
-        }
-
-        Box {
-          halign: center;
-          spacing: 12;
+      Adw.Layout {
+        name: "vertical";
+        content: Box _vertical_layout_box {
           valign: center;
+          halign: center;
+          vexpand: true;
+          hexpand: true;
+          orientation: vertical;
+          spacing: 12;
+          margin-top: 12;
+          margin-bottom: 12;
+          margin-start: 12;
+          margin-end: 12;
 
-          Button {
-            styles [
-              "pill",
-              "suggested-action",
-            ]
-
-            icon-name: "media-playback-start-symbolic";
+          Adw.LayoutSlot {
+            id: "avatar";
           }
 
-          Button {
-            styles [
-              "pill",
-            ]
-
-            icon-name: "media-playlist-shuffle-symbolic";
+          Adw.LayoutSlot {
+            id: "name-label";
+          }
+          Adw.LayoutSlot {
+            id: "first-subtitle-label";
           }
 
-          Button {
-            styles [
-              "circular",
-              "flat",
-            ]
-
-            icon-name: "list-add-symbolic";
+          Box {
+            halign: center;
+            spacing: 12;
             valign: center;
+
+            Adw.LayoutSlot {
+              id: "play-button";
+            }
+            Adw.LayoutSlot {
+              id: "shuffle-button";
+            }
+            Adw.LayoutSlot {
+              id: "follow-button";
+            }
           }
-        }
+        };
+      }
+
+      [avatar]
+      Adw.Avatar _avatar {
+        icon-name: "music-artist-symbolic";
+        overflow: hidden;
+        size: 120;
+      }
+
+      [name-label]
+      Label _name_label {
+        styles [
+          "title-1",
+        ]
+
+        ellipsize: end;
+        vexpand: true;
+        xalign: 0.0;
+      }
+
+      [first-subtitle-label]
+      Label _first_subtitle_label {
+        styles [
+          "dim-label",
+        ]
+
+        ellipsize: end;
+        vexpand: true;
+        lines: 2;
+        xalign: 0.0;
+      }
+
+      [artist-button]
+      Button _artist_button {
+        visible: false;
+      }
+
+      [follow-button]
+      Button _follow_button {
+        icon-name: "heart-outline-thick-symbolic";
+
+        styles [
+          "flat",
+        ]
+      }
+
+      [shuffle-button]
+      Button _shuffle_button {
+        icon-name: "media-playlist-shuffle-symbolic";
+
+        styles [
+          "flat",
+        ]
+      }
+
+      [play-button]
+      Button _play_button {
+        styles [
+          "suggested-action",
+        ]
+
+        icon-name: "media-playback-start-symbolic";
       }
     };
   }

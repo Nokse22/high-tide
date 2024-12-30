@@ -17,59 +17,50 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
 from gi.repository import Gtk
-from gi.repository import GLib
-from gi.repository import Gio
-from gi.repository import Gdk
 
-import tidalapi
-from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix, MixV2
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
+from tidalapi.mix import MixV2
 
 from ..lib import utils
 
 import threading
-import requests
-import random
-
 from .page import Page
 
 from ..lib import variables
+
 
 class mixPage(Page):
     __gtype_name__ = 'mixPage'
 
     def _th_load_page(self):
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/tracks_list_template.ui")
+        builder = Gtk.Builder.new_from_resource(
+            "/io/github/nokse22/HighTide/ui/pages_ui/tracks_list_template.ui")
 
         page_content = builder.get_object("_main")
         tracks_list_box = builder.get_object("_list_box")
-        self.signals.append(
-            (tracks_list_box, tracks_list_box.connect("row-activated", self.on_row_selected))
-        )
+        self.signals.append((
+            tracks_list_box,
+            tracks_list_box.connect("row-activated", self.on_row_selected)))
 
         builder.get_object("_title_label").set_label(self.item.title)
-        builder.get_object("_first_subtitle_label").set_label(self.item.sub_title)
+        builder.get_object("_first_subtitle_label").set_label(
+            self.item.sub_title)
 
         play_btn = builder.get_object("_play_button")
-        self.signals.append(
-            (play_btn, play_btn.connect("clicked", self.on_play_button_clicked))
-        )
+        self.signals.append((
+            play_btn,
+            play_btn.connect("clicked", self.on_play_button_clicked)))
 
         shuffle_btn = builder.get_object("_shuffle_button")
-        self.signals.append(
-            (shuffle_btn, shuffle_btn.connect("clicked", self.on_shuffle_button_clicked))
-        )
+        self.signals.append((
+            shuffle_btn,
+            shuffle_btn.connect("clicked", self.on_shuffle_button_clicked)))
 
         in_my_collection_btn = builder.get_object("_in_my_collection_button")
-        self.signals.append(
-            (in_my_collection_btn, in_my_collection_btn.connect("clicked", self.th_add_to_my_collection))
-        )
+        self.signals.append((
+            in_my_collection_btn,
+            in_my_collection_btn.connect(
+                "clicked", self.th_add_to_my_collection)))
 
         if (variables.is_favourited(self.item)):
             in_my_collection_btn.set_icon_name("heart-filled-symbolic")
@@ -95,5 +86,5 @@ class mixPage(Page):
 
         variables.player_object.play_this(self.item, index)
 
-    def th_add_to_my_collection(btn):
+    def th_add_to_my_collection(self, btn):
         variables.on_in_to_my_collection_button_clicked(btn, self.item)

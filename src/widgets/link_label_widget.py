@@ -18,12 +18,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk
-
-from tidalapi.artist import Artist
-
 import html
 
-from ..lib import variables
 
 class HTLinkLabelWidget(Gtk.Label):
     __gtype_name__ = 'HTLinkLabelWidget'
@@ -42,7 +38,8 @@ class HTLinkLabelWidget(Gtk.Label):
         for index, artist in enumerate(artists):
             if index >= 1:
                 label += ", "
-            label += f"""<a href="artist:{artist.id}">{html.escape(artist.name)}</a>"""
+            label += "<a href='artist:{}'>{}</a>".format(
+                artist.id, html.escape(artist.name))
 
             self.set_markup(label)
 

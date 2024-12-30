@@ -17,26 +17,12 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
-from gi.repository import Gtk
-from gi.repository import GLib
-from gi.repository import Gio
-from gi.repository import Gdk
-
-import tidalapi
 from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix, MixType
+from tidalapi.mix import Mix
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
-from tidalapi.user import Favorites
-
-from ..lib import utils
-
-import threading
-import requests
-import random
 
 from .page import Page
 from ..widgets import HTCarouselWidget
@@ -44,19 +30,22 @@ from ..widgets import HTTracksListWidget
 
 from ..lib import variables
 
+
 class homePage(Page):
     __gtype_name__ = 'homePage'
 
     def _th_load_page(self):
         self.set_tag("home")
-
         self.set_title("Home")
+        self.sidebar_show_button.set_visible(True)
 
         home = variables.session.home()
 
         for index, category in enumerate(home.categories):
-            items = []
-            if isinstance(category.items[0], PageItem) or isinstance(category.items[0], PageLink):
+            if (
+                isinstance(category.items[0], PageItem) or
+                isinstance(category.items[0], PageLink)
+            ):
                 continue
 
             if isinstance(category.items[0], Track):

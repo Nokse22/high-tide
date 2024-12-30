@@ -17,28 +17,22 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
 from gi.repository import Gtk
-from gi.repository import GLib
-from gi.repository import Gio
 
-import tidalapi
-import threading
-
-from ..lib import utils
-
-import tidalapi
-from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix, MixType
+from tidalapi.page import PageItem
+from tidalapi.mix import Mix
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
-from tidalapi.user import Favorites
 
+from ..lib import utils
 from ..lib import variables
+import threading
 
-@Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/top_hit_widget.ui')
+
+@Gtk.Template(
+    resource_path='/io/github/nokse22/HighTide/ui/widgets/top_hit_widget.ui')
 class HTTopHitWidget(Gtk.Box):
     __gtype_name__ = 'HTTopHitWidget'
 
@@ -78,9 +72,9 @@ class HTTopHitWidget(Gtk.Box):
     def make_track(self):
         self.artist_label.set_text(self.item.name)
 
-        th = threading.Thread(target=utils.add_image_to_avatar, args=(self.artist_avatar, self.item.album.artist))
-        th.deamon = True
-        th.start()
+        threading.Thread(
+            target=utils.add_image_to_avatar,
+            args=(self.artist_avatar, self.item.album.artist)).start()
 
     def make_mix_card(self):
         self.title_label.set_text(self.item.title)
@@ -94,18 +88,18 @@ class HTTopHitWidget(Gtk.Box):
         #     (self.shuffle_button, self.shuffle_button.connect("clicked", self.on_))
         # )
 
-        th = threading.Thread(target=utils.add_image, args=(self.image, self.item))
-        th.deamon = True
-        th.start()
+        threading.Thread(
+            target=utils.add_image,
+            args=(self.image, self.item)).start()
 
     def make_album_card(self):
         self.title_label.set_text(self.item.name)
         self.track_artist_label.set_text(self.item.artist.name)
         self.detail_label.set_visible(False)
 
-        th = threading.Thread(target=utils.add_image, args=(self.image, self.item))
-        th.deamon = True
-        th.start()
+        threading.Thread(
+            target=utils.add_image,
+            args=(self.image, self.item)).start()
 
     def make_playlist_card(self):
         self.title_label.set_text(self.item.name)
@@ -118,25 +112,25 @@ class HTTopHitWidget(Gtk.Box):
             creator = "TIDAL"
         self.detail_label.set_text(f"by {creator}")
 
-        th = threading.Thread(target=utils.add_image, args=(self.image, self.item))
-        th.deamon = True
-        th.start()
+        threading.Thread(
+            target=utils.add_image,
+            args=(self.image, self.item)).start()
 
     def make_artist(self):
         self.artist_label.set_text(self.item.name)
 
-        th = threading.Thread(target=utils.add_image_to_avatar, args=(self.artist_avatar, self.item))
-        th.deamon = True
-        th.start()
+        threading.Thread(
+            target=utils.add_image_to_avatar,
+            args=(self.artist_avatar, self.item)).start()
 
     def make_page_item_card(self):
         self.title_label.set_text(self.item.short_header)
         self.detail_label.set_text(self.item.short_sub_header)
         self.track_artist_label.set_visible(False)
 
-        th = threading.Thread(target=utils.add_image, args=(self.image, self.item))
-        th.deamon = True
-        th.start()
+        threading.Thread(
+            target=utils.add_image,
+            args=(self.image, self.item)).start()
 
     def _on_artist_button_clicked(self, *args):
         from ..pages.artist_page import artistPage

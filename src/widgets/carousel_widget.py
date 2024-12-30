@@ -22,11 +22,14 @@ from gi.repository import Gtk
 from ..widgets import HTCardWidget
 from ..lib import variables
 
-@Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/carousel_widget.ui')
+
+@Gtk.Template(
+    resource_path='/io/github/nokse22/HighTide/ui/widgets/carousel_widget.ui')
 class HTCarouselWidget(Gtk.Box):
     __gtype_name__ = 'HTCarouselWidget'
 
-    """It is used to display multiple elements side by side with navigation arrows"""
+    """It is used to display multiple elements side by side with
+    navigation arrows"""
 
     title_label = Gtk.Template.Child()
     next_button = Gtk.Template.Child()
@@ -39,21 +42,21 @@ class HTCarouselWidget(Gtk.Box):
 
         self.signals = []
 
-        self.signals.append(
-            (self, self.connect("unrealize", self.__on_unrealized))
-        )
+        self.signals.append((
+            self,
+            self.connect("unrealize", self.__on_unrealized)))
 
-        self.signals.append(
-            (self.next_button, self.next_button.connect("clicked", self.carousel_go_next))
-        )
+        self.signals.append((
+            self.next_button,
+            self.next_button.connect("clicked", self.carousel_go_next)))
 
-        self.signals.append(
-            (self.prev_button, self.prev_button.connect("clicked", self.carousel_go_prev))
-        )
+        self.signals.append((
+            self.prev_button,
+            self.prev_button.connect("clicked", self.carousel_go_prev)))
 
-        self.signals.append(
-            (self.more_button, self.more_button.connect("clicked", self.on_more_clicked))
-        )
+        self.signals.append((
+            self.more_button,
+            self.more_button.connect("clicked", self.on_more_clicked)))
 
         self.n_pages = 0
 
@@ -93,7 +96,7 @@ class HTCarouselWidget(Gtk.Box):
     def on_more_clicked(self, *args):
         from ..pages import fromFunctionPage
 
-        if self.more_function == None:
+        if self.more_function is None:
             page = fromFunctionPage(self.type, self.title)
             page.set_items(self.items)
         else:
@@ -115,7 +118,7 @@ class HTCarouselWidget(Gtk.Box):
         else:
             next_page = self.carousel.get_nth_page(pos + 2)
 
-        if next_page != None:
+        if next_page is not None:
             self.carousel.scroll_to(next_page, True)
 
         self.prev_button.set_sensitive(True)
@@ -152,4 +155,3 @@ class HTCarouselWidget(Gtk.Box):
 
     def __del__(self, *args):
         print(f"DELETING {self}")
-

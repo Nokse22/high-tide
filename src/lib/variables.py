@@ -1,11 +1,10 @@
 import os
 
-import tidalapi
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
-from tidalapi.mix import Mix, MixV2
+from tidalapi.mix import Mix
 
 from ..pages import artistPage
 from ..pages import albumPage
@@ -16,6 +15,7 @@ favourite_tracks = []
 favourite_artists = []
 favourite_albums = []
 favourite_playlists = []
+
 
 def init():
     global DATA_DIR
@@ -36,6 +36,7 @@ def init():
     global search_entry
     global stack
 
+
 def get_favourites():
     global favourite_tracks
     global favourite_artists
@@ -46,6 +47,7 @@ def get_favourites():
     favourite_tracks = session.user.favorites.tracks()
     favourite_albums = session.user.favorites.albums()
     favourite_playlists = session.user.favorites.playlists()
+
 
 def is_favourited(item):
     global favourite_tracks
@@ -59,7 +61,7 @@ def is_favourited(item):
                 return True
 
     elif isinstance(item, Mix):
-        return # still not supported
+        return  # still not supported
 
     elif isinstance(item, Album):
         for fav in favourite_albums:
@@ -78,11 +80,12 @@ def is_favourited(item):
 
     return False
 
+
 def th_add_to_my_collection(btn, item):
     if isinstance(item, Track):
         result = session.user.favorites.add_track(item.id)
     elif isinstance(item, Mix):
-        return # still not supported
+        return  # still not supported
         result = session.user.favorites.add_mix(item.id)
     elif isinstance(item, Album):
         result = session.user.favorites.add_album(item.id)
@@ -100,11 +103,12 @@ def th_add_to_my_collection(btn, item):
     else:
         print("failed to add item to my collection")
 
+
 def remove_from_my_collection(btn, item):
     if isinstance(item, Track):
         result = session.user.favorites.remove_track(item.id)
     elif isinstance(item, Mix):
-        return # still not supported
+        return  # still not supported
         result = session.user.favorites.remove_mix(item.id)
     elif isinstance(item, Album):
         result = session.user.favorites.remove_album(item.id)
@@ -119,11 +123,19 @@ def remove_from_my_collection(btn, item):
         print("item successfully removed from my collection")
         btn.set_icon_name("heart-outline-thick-symbolic")
 
+
 def on_in_to_my_collection_button_clicked(btn, item):
     if btn.get_icon_name() == "heart-outline-thick-symbolic":
-        threading.Thread(target=th_add_to_my_collection, args=(btn, item,)).start()
+        threading.Thread(
+            target=th_add_to_my_collection,
+            args=(btn, item,),
+        ).start()
     else:
-        threading.Thread(target=remove_from_my_collection, args=(btn, item,)).start()
+        threading.Thread(
+            target=remove_from_my_collection,
+            args=(btn, item,),
+        ).start()
+
 
 def get_type(item):
     if isinstance(item, Track):
@@ -137,12 +149,13 @@ def get_type(item):
     elif isinstance(item, Playlist):
         return "playlist"
 
+
 def open_uri(label, uri):
     print(uri)
     stack.set_visible_child_name("normal_view")
-    th= threading.Thread(target=_load_object, args=(uri,))
-    th.start()
+    threading.Thread(target=_load_object, args=(uri,)).start()
     return True
+
 
 def _open_uri(uri, loaded_object):
     uri_parts = uri.split(":")
@@ -156,6 +169,7 @@ def _open_uri(uri, loaded_object):
             page = albumPage(loaded_object, loaded_object.name)
             page.load()
             navigation_view.push(page)
+
 
 def _load_object(uri):
     uri_parts = uri.split(":")

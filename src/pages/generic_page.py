@@ -17,31 +17,18 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
-from gi.repository import Gtk
-from gi.repository import GLib
-from gi.repository import Gio
-from gi.repository import Gdk
 
-import tidalapi
 from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix, MixType
 from tidalapi.artist import Artist
+from tidalapi.mix import Mix
 from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
-
-from ..lib import utils
-
-import threading
-import requests
-import random
 
 from .page import Page
 from ..widgets import HTCarouselWidget
 from ..widgets import HTTracksListWidget
 
-from ..lib import variables
 
 class genericPage(Page):
     __gtype_name__ = 'genericPage'
@@ -67,14 +54,14 @@ class genericPage(Page):
                 self.page_content.append(carousel)
 
                 for item in category.items:
-                    if isinstance(item, PageItem): # Featured
+                    if isinstance(item, PageItem):  # Featured
                         button = self.get_page_item_card(item)
                         carousel.append_card(button)
-                    elif isinstance(item, PageLink): # Generes and moods
+                    elif isinstance(item, PageLink):  # Generes and moods
                         items.append("\t" + item.title)
                         button = self.get_page_link_card(item)
                         carousel.append_card(button)
-                    elif isinstance(item, Mix): # Mixes and for you
+                    elif isinstance(item, Mix):  # Mixes and for you
                         button = self.get_mix_card(item)
                         carousel.append_card(button)
                     elif isinstance(item, Album):

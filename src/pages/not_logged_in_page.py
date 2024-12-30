@@ -19,36 +19,16 @@
 
 from gi.repository import Adw
 from gi.repository import Gtk
-from gi.repository import GLib
-from gi.repository import Gio
-from gi.repository import Gdk
-
-import tidalapi
-from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix, MixType
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
-from tidalapi.user import Favorites
-
-from ..lib import utils
-
-import threading
-import requests
-import random
 
 from .page import Page
 
-from ..lib import variables
 
 class notLoggedInPage(Page):
     __gtype_name__ = 'notLoggedInPage'
 
     def _th_load_page(self):
         self.set_title("Not Logged In")
-
-        descr = '''To be able to use this app you need to login with your TIDAL account.'''
+        self.sidebar_show_button.set_visible(True)
 
         login_button = Gtk.Button(
             label="Login",
@@ -58,7 +38,7 @@ class notLoggedInPage(Page):
         )
         status_page = Adw.StatusPage(
             title="Login first",
-            description=descr,
+            description="To be able to use this app you need to login with your TIDAL account.",
             icon_name="face-wink-symbolic",
             child=login_button,
             valign=Gtk.Align.CENTER,

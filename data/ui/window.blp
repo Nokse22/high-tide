@@ -13,7 +13,6 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
     setters {
       split_view.collapsed: true;
-      sidebar_show_button.visible: true;
     }
   }
 
@@ -22,7 +21,6 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
     setters {
       split_view.collapsed: true;
-      sidebar_show_button.visible: true;
       big_progress_bar_box.visible: false;
       small_progress_bar.visible: true;
       _more_functions_box.visible: false;
@@ -299,21 +297,6 @@ template $HighTideWindow: Adw.ApplicationWindow {
                 orientation: horizontal;
                 width-request: 270;
                 hexpand: true;
-
-                Button sidebar_show_button {
-                  icon-name: "sidebar-show-symbolic";
-                  visible: false;
-                  valign: fill;
-                  margin-start: 6;
-                  margin-top: 6;
-                  margin-bottom: 6;
-
-                  styles [
-                    "flat",
-                  ]
-
-                  clicked => $show_sidebar();
-                }
 
                 Overlay image_overlay {
                   margin-start: 10;

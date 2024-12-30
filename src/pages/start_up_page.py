@@ -17,30 +17,8 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
-from gi.repository import Gtk
-from gi.repository import GLib
-from gi.repository import Gio
-from gi.repository import Gdk
-
-import tidalapi
-from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix, MixType
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
-from tidalapi.user import Favorites
-
-from ..lib import utils
-
-import threading
-import requests
-import random
-
 from .page import Page
 
-from ..lib import variables
 
 class startUpPage(Page):
     __gtype_name__ = 'startUpPage'

@@ -17,34 +17,20 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
 from gi.repository import Gtk
-from gi.repository import GLib
-from gi.repository import Gio
-from gi.repository import Gdk
-
-import tidalapi
-from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix, MixType
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
 
 from ..lib import utils
 from ..widgets import HTCarouselWidget
 from ..widgets import HTTracksListWidget
 
 import threading
-import requests
-import random
-import copy
-import html
-import re
 
 from .page import Page
 
 from ..lib import variables
+
+from gettext import gettext as _
+
 
 class artistPage(Page):
     __gtype_name__ = 'artistPage'
@@ -60,40 +46,43 @@ class artistPage(Page):
         self.artist = _artist
 
     def _th_load_page(self):
-
         print(f"artist: {self.artist.name}, id: {self.artist.id}, {self.artist.picture}")
 
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/pages_ui/artist_page_template.ui")
+        builder = Gtk.Builder.new_from_resource(
+            "/io/github/nokse22/HighTide/ui/pages_ui/artist_page_template.ui")
 
         page_content = builder.get_object("_main")
-        top_tracks_list_box = builder.get_object("_top_tracks_list_box")
+        # top_tracks_list_box = builder.get_object("_top_tracks_list_box")
         content_box = builder.get_object("_content_box")
 
         builder.get_object("_name_label").set_label(self.artist.name)
 
         play_btn = builder.get_object("_play_button")
-        self.signals.append(
-            (play_btn, play_btn.connect("clicked", self.on_play_button_clicked))
-        )
+        self.signals.append((
+            play_btn,
+            play_btn.connect("clicked", self.on_play_button_clicked)))
 
         shuffle_btn = builder.get_object("_shuffle_button")
-        self.signals.append(
-            (shuffle_btn, shuffle_btn.connect("clicked", self.on_shuffle_button_clicked))
-        )
+        self.signals.append((
+            shuffle_btn,
+            shuffle_btn.connect("clicked", self.on_shuffle_button_clicked)))
 
         follow_button = builder.get_object("_follow_button")
-        self.signals.append(
-            (follow_button, follow_button.connect("clicked", variables.on_in_to_my_collection_button_clicked, self.artist))
-        )
+        self.signals.append((
+            follow_button,
+            follow_button.connect(
+                "clicked",
+                variables.on_in_to_my_collection_button_clicked,
+                self.artist)))
 
         if (variables.is_favourited(self.artist)):
             follow_button.set_icon_name("heart-filled-symbolic")
 
-        # builder.get_object("_radio_button").connect("clicked", self.on_artist_radio_button_clicked)
-
         artist_picture = builder.get_object("_avatar")
 
-        threading.Thread(target=utils.add_image_to_avatar, args=(artist_picture, self.artist)).start()
+        threading.Thread(
+            target=utils.add_image_to_avatar,
+            args=(artist_picture, self.artist)).start()
 
         builder.get_object("_first_subtitle_label").set_label("Artist")
 
@@ -105,8 +94,8 @@ class artistPage(Page):
         try:
             albums = self.artist.get_albums(limit=10)
             carousel.set_more_function("album", self.artist.get_albums)
-        except:
-            pass
+        except Exception as e:
+            print(e)
         else:
             if len(albums) != 0:
                 content_box.append(carousel)
@@ -115,9 +104,10 @@ class artistPage(Page):
         carousel = HTCarouselWidget("EP & Singles")
         try:
             albums = self.artist.get_albums_ep_singles(limit=10)
-            carousel.set_more_function("album", self.artist.get_albums_ep_singles)
-        except:
-            pass
+            carousel.set_more_function(
+                "album", self.artist.get_albums_ep_singles)
+        except Exception as e:
+            print(e)
         else:
             if len(albums) != 0:
                 content_box.append(carousel)
@@ -127,8 +117,8 @@ class artistPage(Page):
         try:
             albums = self.artist.get_albums_other(limit=10)
             carousel.set_more_function("album", self.artist.get_albums_other)
-        except:
-            pass
+        except Exception as e:
+            print(e)
         else:
             if len(albums) != 0:
                 content_box.append(carousel)
@@ -146,14 +136,26 @@ class artistPage(Page):
 
         try:
             bio = self.artist.get_bio()
-        except:
-            pass
+        except Exception as e:
+            print(e)
         else:
             bio = utils.replace_links(bio)
-            label = Gtk.Label(wrap=True, css_classes=[], margin_start=12, margin_end=12, margin_bottom=24)
+            label = Gtk.Label(
+                wrap=True,
+                css_classes=[],
+                margin_start=12,
+                margin_end=12,
+                margin_bottom=24)
             label.set_markup(bio)
-            content_box.append(Gtk.Label(wrap=True, css_classes=["title-3"],
-                        margin_start=12, label=_("Bio"), xalign=0, margin_top=12,margin_bottom=12))
+            content_box.append(
+                Gtk.Label(
+                    wrap=True,
+                    css_classes=["title-3"],
+                    margin_start=12,
+                    label=_("Bio"),
+                    xalign=0,
+                    margin_top=12,
+                    margin_bottom=12))
             content_box.append(label)
             self.signals.append(
                 (label, label.connect("activate-link", variables.open_uri))
@@ -188,4 +190,3 @@ class artistPage(Page):
         page = trackRadioPage(self.artist, f"Radio of {self.artist.name}")
         page.load()
         variables.navigation_view.push(page)
-

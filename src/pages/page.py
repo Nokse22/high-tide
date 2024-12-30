@@ -20,69 +20,54 @@
 from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import GLib
-from gi.repository import Gio
-from gi.repository import Gdk
-
-import tidalapi
-from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix, MixType
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
-from tidalapi.user import Favorites
-
-from ..lib import utils
 
 import threading
-import requests
-import random
-import os
 
 from ..widgets import HTGenericTrackWidget
 from ..widgets import HTCardWidget
 
 from ..lib import variables
 
+
 class Page(Adw.NavigationPage):
     __gtype_name__ = 'Page'
 
-    """It's the base class for all types of pages, it contains all the shared functions"""
+    """It's the base class for all types of pages,
+    it contains all the shared functions"""
 
     def __init__(self, _item=None, _name=None):
         super().__init__()
 
         self.signals = []
 
-        self.signals.append(
-            (self, self.connect("unrealize", self.__on_unrealized))
-        )
+        self.signals.append((
+            self, self.connect("unrealize", self.__on_unrealized)))
 
         if _name:
             self.set_title(_name)
 
         self.page_content = Gtk.Box(vexpand=True, hexpand=True, orientation=1)
 
-        self.builder = Gtk.Builder.new_from_resource('/io/github/nokse22/HighTide/ui/pages_ui/page_template.ui')
+        self.builder = Gtk.Builder.new_from_resource(
+            '/io/github/nokse22/HighTide/ui/pages_ui/page_template.ui')
         self.item = _item
 
         self.content = self.builder.get_object("_content")
         self.content_stack = self.builder.get_object("_content_stack")
         self.object = self.builder.get_object("_main")
         self.scrolled_window = self.builder.get_object("_scrolled_window")
+        self.sidebar_show_button = self.builder.get_object(
+            "_sidebar_show_button")
 
         self.set_child(self.object)
 
     def load(self):
+        """Called when the page is created, it just starts a thread running
+        the actual function to load the page UI"""
 
-        """Called when the page is created, it just starts a thread running the actual function to load the page UI"""
-
-        th = threading.Thread(target=self._th_load_page)
-        th.deamon = True
-        th.start()
+        threading.Thread(target=self._th_load_page).start()
 
     def _th_load_page(self):
-
         """Overwritten by each different page"""
 
         return
@@ -158,13 +143,15 @@ class Page(Adw.NavigationPage):
         cards_box.set_overflow(Gtk.Overflow.VISIBLE)
         box.append(cards_box)
 
-        self.signals.append(
-            (prev_button, prev_button.connect("clicked", self.carousel_go_prev, cards_box, 1))
-        )
+        self.signals.append((
+            prev_button,
+            prev_button.connect(
+                "clicked", self.carousel_go_prev, cards_box, 1)))
 
-        self.signals.append(
-            (next_button, next_button.connect("clicked", self.carousel_go_next, cards_box, 1))
-        )
+        self.signals.append((
+            next_button,
+            next_button.connect(
+                "clicked", self.carousel_go_next, cards_box, 1)))
 
         return box, cards_box
 
@@ -177,7 +164,7 @@ class Page(Adw.NavigationPage):
                 next_page = carousel.get_nth_page(pos + 1)
         else:
             next_page = carousel.get_nth_page(pos + jump)
-        if next_page != None:
+        if next_page is not None:
             carousel.scroll_to(next_page, True)
 
     def carousel_go_next(self, btn, carousel, jump=2):
@@ -227,11 +214,16 @@ class Page(Adw.NavigationPage):
         return card
 
     def get_page_link_card(self, page_link):
-        button = Gtk.Button(label=page_link.title, margin_start=12, margin_end=12,
-                hexpand=True, width_request=200, vexpand=True)
-        self.signals.append(
-            (button, button.connect("clicked", self.on_page_link_clicked, page_link))
-        )
+        button = Gtk.Button(
+            label=page_link.title,
+            margin_start=12,
+            margin_end=12,
+            hexpand=True,
+            width_request=200,
+            vexpand=True)
+        self.signals.append((
+            button,
+            button.connect("clicked", self.on_page_link_clicked, page_link)))
 
         return button
 

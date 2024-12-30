@@ -17,21 +17,20 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
 from gi.repository import Gtk
-from gi.repository import GLib
-from gi.repository import Gio
 
-from ..lib import utils
 from . import HTGenericTrackWidget
 
 from ..lib import variables
 
-@Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/widgets/tracks_list_widget.ui')
+
+@Gtk.Template(
+    resource_path='/io/github/nokse22/HighTide/ui/widgets/tracks_list_widget.ui')
 class HTTracksListWidget(Gtk.Box):
     __gtype_name__ = 'HTTracksListWidget'
 
-    """It is used to display multiple elements side by side with navigation arrows"""
+    """It is used to display multiple elements side by side
+    with navigation arrows"""
 
     tracks_list_box = Gtk.Template.Child()
     more_button = Gtk.Template.Child()
@@ -42,13 +41,13 @@ class HTTracksListWidget(Gtk.Box):
 
         self.signals = []
 
-        self.signals.append(
-            (self, self.connect("unrealize", self.__on_unrealized))
-        )
+        self.signals.append((
+            self,
+            self.connect("unrealize", self.__on_unrealized)))
 
-        self.signals.append(
-            (self.more_button, self.more_button.connect("clicked", self.on_more_clicked))
-        )
+        self.signals.append((
+            self.more_button,
+            self.more_button.connect("clicked", self.on_more_clicked)))
 
         self.n_pages = 0
 
@@ -57,9 +56,10 @@ class HTTracksListWidget(Gtk.Box):
 
         self.get_function = None
 
-        self.signals.append(
-            (self.tracks_list_box, self.tracks_list_box.connect("row-activated", self.on_tracks_row_selected))
-        )
+        self.signals.append((
+            self.tracks_list_box,
+            self.tracks_list_box.connect(
+                "row-activated", self.on_tracks_row_selected)))
 
         self.tracks = []
 

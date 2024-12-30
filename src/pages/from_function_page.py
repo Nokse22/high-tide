@@ -17,36 +17,22 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import GLib
-from gi.repository import Gio
-from gi.repository import Gdk
-
-import tidalapi
-from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix, MixType
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
-from tidalapi.user import Favorites
-
-from ..lib import utils
 
 import threading
-import requests
-import random
 
 from .page import Page
 from ..widgets import HTCardWidget
 
 from ..lib import variables
 
+
 class fromFunctionPage(Page):
     __gtype_name__ = 'fromFunctionPage'
 
-    """Used to display lists of albums/artists/mixes/playlists and tracks from a request function"""
+    """Used to display lists of albums/artists/mixes/playlists and tracks
+    from a request function"""
 
     def __init__(self, _type, _title=""):
         super().__init__()
@@ -63,10 +49,9 @@ class fromFunctionPage(Page):
         self.items_limit = 50
         self.items_n = 0
 
-        self.handler_id = self.scrolled_window.connect("edge-overshot", self.on_edge_overshot)
-        self.signals.append(
-            (self.scrolled_window, self.handler_id)
-        )
+        self.handler_id = self.scrolled_window.connect(
+            "edge-overshot", self.on_edge_overshot)
+        self.signals.append((self.scrolled_window, self.handler_id))
 
     def set_function(self, function):
         self.function = function
@@ -88,7 +73,8 @@ class fromFunctionPage(Page):
     def th_load_items(self):
         new_items = []
         if self.function:
-            new_items = self.function(limit=self.items_limit, offset=(self.items_n))
+            new_items = self.function(
+                limit=self.items_limit, offset=(self.items_n))
             self.items.extend(new_items)
             if new_items == []:
                 self.scrolled_window.disconnect(self.handler_id)
@@ -107,12 +93,18 @@ class fromFunctionPage(Page):
         self.items_n += self.items_limit
 
     def add_tracks(self, new_items):
-        if self.parent == None:
-            self.parent = Gtk.ListBox(css_classes=["boxed-list"], margin_bottom=12, margin_start=12, margin_end=12, margin_top=12)
-            GLib.idle_add(self.page_content.append,self.parent)
-            self.signals.append(
-                (self.parent, self.parent.connect("row-activated", self.on_tracks_row_selected))
-            )
+        if self.parent is None:
+            self.parent = Gtk.ListBox(
+                css_classes=["boxed-list"],
+                margin_bottom=12,
+                margin_start=12,
+                margin_end=12,
+                margin_top=12)
+            GLib.idle_add(self.page_content.append, self.parent)
+            self.signals.append((
+                self.parent,
+                self.parent.connect(
+                    "row-activated", self.on_tracks_row_selected)))
 
         for index, track in enumerate(new_items):
             listing = self.get_track_listing(track)
@@ -120,7 +112,7 @@ class fromFunctionPage(Page):
             GLib.idle_add(self.parent.append, listing)
 
     def add_cards(self, new_items):
-        if self.parent == None:
+        if self.parent is None:
             self.parent = Gtk.FlowBox(selection_mode=0)
             self.page_content.append(self.parent)
 
@@ -130,7 +122,5 @@ class fromFunctionPage(Page):
 
     def on_tracks_row_selected(self, list_box, row):
         index = int(row.get_name())
-
-        print(index, row, list_box)
 
         variables.player_object.play_this(self.items, index)

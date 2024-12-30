@@ -52,7 +52,6 @@ from gettext import gettext as _
 class HighTideWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'HighTideWindow'
 
-    # homepage_box = Gtk.Template.Child()
     split_view = Gtk.Template.Child()
     progress_bar = Gtk.Template.Child()
     sidebar_list = Gtk.Template.Child()
@@ -61,7 +60,6 @@ class HighTideWindow(Adw.ApplicationWindow):
     shuffle_button = Gtk.Template.Child()
     navigation_view = Gtk.Template.Child()
     play_button = Gtk.Template.Child()
-    # search_entry = Gtk.Template.Child()
     small_progress_bar = Gtk.Template.Child()
     song_title_label = Gtk.Template.Child()
     playing_track_image = Gtk.Template.Child()
@@ -74,10 +72,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     explicit_label = Gtk.Template.Child()
     main_view_stack = Gtk.Template.Child()
     playbar_main_box = Gtk.Template.Child()
-    # navigation_carousel = Gtk.Template.Child()
-    # previous_carousel_picture = Gtk.Template.Child()
     current_carousel_picture = Gtk.Template.Child()
-    # next_carousel_picture = Gtk.Template.Child()
     queue_widget = Gtk.Template.Child()
     mobile_stack = Gtk.Template.Child()
     lyrics_label = Gtk.Template.Child()
@@ -97,7 +92,6 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.player_object = playerObject()
         variables.player_object = self.player_object
-        # variables.search_entry = self.search_entry
 
         self.volume_button.get_adjustment().set_value(
             self.settings.get_int("last-volume")/10)
@@ -159,11 +153,11 @@ class HighTideWindow(Adw.ApplicationWindow):
         page.load()
         self.navigation_view.push(page)
 
-        th = threading.Thread(target=self.th_login, args=())
-        th.deamon = True
-        th.start()
+        threading.Thread(target=self.th_login, args=()).start()
 
         MPRIS(self.player_object)
+
+        self.create_action('show-sidebar', self.on_show_sidebar_action)
 
     def on_logged_in(self):
         print("on logged in")
@@ -540,10 +534,6 @@ class HighTideWindow(Adw.ApplicationWindow):
             page.load()
             self.navigation_view.push(page)
 
-    @Gtk.Template.Callback("show_sidebar")
-    def show_sidebar_func(self, btn):
-        self.split_view.set_show_sidebar(True)
-
     @Gtk.Template.Callback("on_mobile_view_button_clicked")
     def toggle_mobile_view(self, *args):
         if self.main_view_stack.get_visible_child_name() == "normal_view":
@@ -583,3 +573,26 @@ class HighTideWindow(Adw.ApplicationWindow):
         if not self.queue_widget_updated:
             self.queue_widget.update_all(self.player_object)
             self.queue_widget_updated = True
+
+    def on_show_sidebar_action(self, *args):
+        self.split_view.set_show_sidebar(True)
+
+    #
+    #   CREATE ACTIONS WITH OR WITHOUT TARGETS
+    #
+
+    def create_action(self, name, callback):
+        """Used to create a new action without target"""
+
+        action = Gio.SimpleAction.new(name, None)
+        action.connect("activate", callback)
+        self.add_action(action)
+        return action
+
+    def create_action_with_target(self, name, target_type, callback):
+        """Used to create a new action with a target"""
+
+        action = Gio.SimpleAction.new(name, target_type)
+        action.connect("activate", callback)
+        self.add_action(action)
+        return action

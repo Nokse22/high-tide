@@ -17,25 +17,13 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
 from gi.repository import Gtk
-from gi.repository import GLib
-from gi.repository import Gio
-from gi.repository import Gdk
 
-import tidalapi
 from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix, MixType
 from tidalapi.artist import Artist
 from tidalapi.album import Album
-from tidalapi.media import Track
+from tidalapi.mix import Mix
 from tidalapi.playlist import Playlist
-
-from ..lib import utils
-
-import threading
-import requests
-import random
 
 from .page import Page
 from .search_page import searchPage
@@ -51,19 +39,17 @@ class explorePage(Page):
     def _th_load_page(self):
         explore = variables.session.explore()
 
-        # print(explore.categories)
-
-        builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/search_entry.ui")
+        builder = Gtk.Builder.new_from_resource(
+            "/io/github/nokse22/HighTide/ui/search_entry.ui")
         search_entry = builder.get_object("search_entry")
         search_entry.connect("activate", self.on_search_activated)
 
         self.page_content.append(search_entry)
 
         for index, category in enumerate(explore.categories):
-            items = []
-
             if isinstance(category.items[0], PageLink):
-                carousel, flow_box_box = self.get_link_carousel(category.title if category.title else "More")
+                carousel, flow_box_box = self.get_link_carousel(
+                    category.title if category.title else "More")
 
                 flow_box = Gtk.FlowBox(homogeneous=True, height_request=100)
                 flow_box_box.append(flow_box)
@@ -75,18 +61,20 @@ class explorePage(Page):
             buttons_for_page = 0
 
             for index, item in enumerate(category.items):
-                if isinstance(item, PageItem): # Featured
+                if isinstance(item, PageItem):  # Featured
                     button = self.get_page_item_card(item)
                     cards_box.append(button)
-                elif isinstance(item, PageLink): # Generes and moods
+                elif isinstance(item, PageLink):  # Generes and moods
                     if buttons_for_page == 4:
-                        flow_box = Gtk.FlowBox(homogeneous=True, height_request=100)
+                        flow_box = Gtk.FlowBox(
+                            homogeneous=True,
+                            height_request=100)
                         flow_box_box.append(flow_box)
                         buttons_for_page = 0
                     button = self.get_page_link_card(item)
                     flow_box.append(button)
                     buttons_for_page += 1
-                elif isinstance(item, Mix): # Mixes and for you
+                elif isinstance(item, Mix):  # Mixes and for you
                     button = self.get_mix_card(item)
                     cards_box.append(button)
                 elif isinstance(item, Album):

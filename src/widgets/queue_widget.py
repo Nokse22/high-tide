@@ -63,8 +63,7 @@ class HTQueueWidget(Gtk.Box):
         self.playing_track_title_label.set_label(track.name)
         threading.Thread(
             target=utils.add_image,
-            args=(self.playing_track_image, track.album)
-        ).start()
+            args=(self.playing_track_image, track.album)).start()
 
     def update_played_songs(self, player):
         child = self.played_songs_list.get_row_at_index(0)

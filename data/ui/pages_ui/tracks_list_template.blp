@@ -14,188 +14,184 @@ Box _main {
       condition ("max-width: 400px")
 
       setters {
-        _vertical_layout_box.visible: true;
-        _horizontal_layout_box.visible: false;
+        multi_layout_view.layout-name: "vertical";
         _bin.height-request: 360;
+        _image.pixel-size: 200;
       }
     }
 
-    child: Box {
-      Box _horizontal_layout_box {
-        valign: center;
-        vexpand: true;
-        hexpand: true;
-
-        Image _image {
-          icon-name: "emblem-music-symbolic";
-
-          styles [
-            "small-image",
-          ]
-
-          overflow: hidden;
+    child: Adw.MultiLayoutView multi_layout_view {
+      Adw.Layout {
+        name: "horizontal";
+        content: Box _horizontal_layout_box {
+          valign: center;
+          vexpand: true;
+          hexpand: true;
           margin-bottom: 12;
           margin-end: 12;
           margin-start: 12;
           margin-top: 12;
-          pixel-size: 120;
-        }
+          spacing: 12;
 
-        Box {
-          hexpand: true;
-          margin-top: 12;
-          margin-bottom: 12;
-          orientation: vertical;
-
-          Label _title_label {
-            styles [
-              "title-1",
-            ]
-
-            ellipsize: end;
-            vexpand: true;
-            xalign: 0.0;
+          Adw.LayoutSlot {
+            id: "image";
           }
 
-          Label _first_subtitle_label {
-            styles [
-              "dim-label",
-            ]
+          Box {
+            hexpand: true;
+            margin-top: 12;
+            orientation: vertical;
 
-            ellipsize: end;
-            vexpand: true;
-            xalign: 0.0;
-            lines: 2;
+            Adw.LayoutSlot {
+              id: "title-label";
+            }
+            Adw.LayoutSlot {
+              id: "first-subtitle-label";
+            }
+            Adw.LayoutSlot {
+              id: "artist-button";
+            }
           }
 
-          Label _second_subtitle_label {
-            styles [
-              "dim-label",
-            ]
+          Box {
+            halign: end;
+            margin-end: 12;
+            spacing: 6;
+            valign: center;
 
-            ellipsize: end;
-            vexpand: true;
-            xalign: 0.0;
+            Adw.LayoutSlot {
+              id: "in-my-collection-button";
+            }
+            Adw.LayoutSlot {
+              id: "shuffle-button";
+            }
+            Adw.LayoutSlot {
+              id: "play-button";
+            }
           }
-
-          Button _artist_button {
-            visible: false;
-          }
-        }
-
-        Box {
-          halign: end;
-          margin-end: 12;
-          spacing: 6;
-          valign: center;
-
-          Button _in_my_collection_button {
-            icon-name: "heart-outline-thick-symbolic";
-
-            styles [
-              "flat",
-            ]
-          }
-
-          Button _shuffle_button {
-            icon-name: "media-playlist-shuffle-symbolic";
-
-            styles [
-              "flat",
-            ]
-          }
-
-          Button _play_button {
-            styles [
-              "suggested-action",
-            ]
-
-            icon-name: "media-playback-start-symbolic";
-          }
-        }
+        };
       }
 
-      Box _vertical_layout_box {
-        valign: center;
-        halign: center;
-        vexpand: true;
-        hexpand: true;
-        height-request: 200;
-        orientation: vertical;
-        spacing: 12;
-        visible: false;
-        margin-top: 12;
-        margin-bottom: 12;
-        margin-start: 12;
-        margin-end: 12;
-
-        Image {
-          styles [
-            "small-image",
-          ]
-
-          halign: center;
-          icon-name: "emblem-music-symbolic";
-          pixel-size: 160;
-          overflow: hidden;
-          file: bind _image.file no-sync-create;
-        }
-
-        Label _title_label2 {
-          styles [
-            "title-1",
-          ]
-
-          valign: start;
-          ellipsize: end;
-          label: bind _title_label.label no-sync-create;
-        }
-
-        Label _first_subtitle_label2 {
-          styles [
-            "dim-label",
-          ]
-
-          valign: start;
-          ellipsize: end;
-          lines: 2;
-          wrap: true;
-          justify: center;
-          label: bind _first_subtitle_label.label no-sync-create;
-        }
-
-        Box {
-          halign: center;
-          spacing: 12;
+      Adw.Layout {
+        name: "vertical";
+        content: Box _vertical_layout_box {
           valign: center;
+          halign: center;
+          vexpand: true;
+          hexpand: true;
+          orientation: vertical;
+          spacing: 12;
+          margin-top: 12;
+          margin-bottom: 12;
+          margin-start: 12;
+          margin-end: 12;
 
-          Button _play_button_2 {
-            styles [
-              "pill",
-              "suggested-action",
-            ]
-
-            icon-name: "media-playback-start-symbolic";
+          Adw.LayoutSlot {
+            id: "image";
           }
 
-          Button _shuffle_button_2 {
-            styles [
-              "pill",
-            ]
-
-            icon-name: "media-playlist-shuffle-symbolic";
+          Adw.LayoutSlot {
+            id: "title-label";
+          }
+          Adw.LayoutSlot {
+            id: "first-subtitle-label";
           }
 
-          Button _in_my_collection_button_2 {
-            styles [
-              "circular",
-              "flat",
-            ]
-
-            icon-name: bind _in_my_collection_button.icon-name no-sync-create;
+          Box {
+            halign: center;
+            spacing: 12;
             valign: center;
+
+            Adw.LayoutSlot {
+              id: "play-button";
+            }
+            Adw.LayoutSlot {
+              id: "shuffle-button";
+            }
+            Adw.LayoutSlot {
+              id: "in-my-collection-button";
+            }
           }
-        }
+        };
+      }
+
+      [image]
+      Image _image {
+        icon-name: "emblem-music-symbolic";
+
+        styles [
+          "small-image",
+        ]
+
+        overflow: hidden;
+        pixel-size: 120;
+        halign: center;
+      }
+
+      [title-label]
+      Label _title_label {
+        styles [
+          "title-1",
+        ]
+
+        ellipsize: end;
+        vexpand: true;
+        xalign: 0.0;
+      }
+
+      [first-subtitle-label]
+      Label _first_subtitle_label {
+        styles [
+          "dim-label",
+        ]
+
+        ellipsize: end;
+        vexpand: true;
+        lines: 2;
+        xalign: 0.0;
+      }
+
+      [second-subtitle-label]
+      Label _second_subtitle_label {
+        styles [
+          "dim-label",
+        ]
+
+        ellipsize: end;
+        vexpand: true;
+        xalign: 0.0;
+      }
+
+      [artist-button]
+      Button _artist_button {
+        visible: false;
+      }
+
+      [in-my-collection-button]
+      Button _in_my_collection_button {
+        icon-name: "heart-outline-thick-symbolic";
+
+        styles [
+          "flat",
+        ]
+      }
+
+      [shuffle-button]
+      Button _shuffle_button {
+        icon-name: "media-playlist-shuffle-symbolic";
+
+        styles [
+          "flat",
+        ]
+      }
+
+      [play-button]
+      Button _play_button {
+        styles [
+          "suggested-action",
+        ]
+
+        icon-name: "media-playback-start-symbolic";
       }
     };
   }
