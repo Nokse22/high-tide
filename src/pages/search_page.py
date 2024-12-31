@@ -83,6 +83,6 @@ class searchPage(Page):
             self.page_content.append(carousel)
             carousel.set_items(tracks, "track")
 
-        scrolled_window = Gtk.ScrolledWindow(vexpand=True, hscrollbar_policy=Gtk.PolicyType.NEVER)
+        # scrolled_window = Gtk.ScrolledWindow(vexpand=True, hscrollbar_policy=Gtk.PolicyType.NEVER)
 
         self._page_loaded()

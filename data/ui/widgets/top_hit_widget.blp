@@ -16,84 +16,87 @@ template $HTTopHitWidget: Box {
     ]
 
     label: 'Top Hit';
+    margin-start: 6;
     xalign: 0.0;
   }
 
-  Stack {
+  Adw.Bin {
+    styles [
+      "card",
+      "activatable",
+    ]
+
     valign: start;
 
-    StackPage {
-      child: Adw.Bin {
-        styles [
-          "cart",
-          "activatable",
-        ]
+    Box {
+      margin-bottom: 12;
+      margin-end: 12;
+      margin-start: 12;
+      margin-top: 12;
+      orientation: vertical;
+      spacing: 12;
 
-        valign: start;
+      Box {
+        spacing: 12;
+
+        Image image {
+          pixel-size: 100;
+          overflow: hidden;
+
+          styles [
+            "small-image",
+          ]
+        }
 
         Box {
-          margin-bottom: 12;
-          margin-end: 12;
-          margin-start: 12;
-          margin-top: 12;
           orientation: vertical;
-          spacing: 12;
+          spacing: 6;
 
-          Box {
-            spacing: 12;
+          Label primary_label {
+            styles [
+              "title-1",
+            ]
 
-            Adw.Avatar artist_avatar {
-              size: 80;
-            }
-
-            Box {
-              orientation: vertical;
-              spacing: 6;
-
-              Label artist_label {
-                styles [
-                  "title-1",
-                ]
-
-                ellipsize: end;
-                vexpand: true;
-                xalign: 0.0;
-              }
-
-              Label {
-                label: 'Artist';
-                vexpand: true;
-                xalign: 0.0;
-              }
-            }
+            ellipsize: end;
+            vexpand: true;
+            xalign: 0.0;
           }
 
-          Box {
-            spacing: 12;
+          Label secondary_label{
+            vexpand: true;
+            xalign: 0.0;
+          }
 
-            Button play_button {
-              styles [
-                "pill",
-                "suggested-action",
-              ]
-
-              hexpand: true;
-              icon-name: 'media-playback-start-symbolic';
-            }
-
-            Button shuffle_button {
-              styles [
-                "pill",
-              ]
-
-              hexpand: true;
-              icon-name: 'media-playlist-shuffle-symbolic';
-            }
+          $HTLinkLabelWidget artist_label {
+            ellipsize: "end";
+            visible: false;
           }
         }
-      };
+      }
 
-      name: 'artist';
+      Box {
+        spacing: 12;
+        halign: end;
+
+        Button play_button {
+          styles [
+            "pill",
+            "suggested-action",
+          ]
+
+          hexpand: true;
+          icon-name: 'media-playback-start-symbolic';
+        }
+
+        Button shuffle_button {
+          styles [
+            "pill",
+          ]
+
+          hexpand: true;
+          icon-name: 'media-playlist-shuffle-symbolic';
+        }
+      }
     }
   }
 }

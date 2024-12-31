@@ -8,7 +8,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
   height-request: 290;
   title: "High Tide";
   Adw.Breakpoint {
-    condition ("max-width: 620sp")
+    condition ("max-width: 680sp")
 
     setters {
       multilayout_view.layout-name: "mobile";
@@ -242,7 +242,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
           orientation: vertical;
 
           Image {
-            icon-name: "bookmark-new-symbolic";
+            icon-name: "library-symbolic";
           }
 
           Label {
@@ -466,7 +466,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
         Adw.ViewStackPage {
           child: $HTQueueWidget queue_widget {};
 
-          icon-name: "library-symbolic";
+          icon-name: "view-list-ordered-symbolic";
           name: "queue_page";
           title: "Queue";
         }

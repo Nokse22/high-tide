@@ -180,9 +180,7 @@ class playerObject(GObject.GObject):
             self.play()
 
     def play_track(self, track):
-        th = threading.Thread(target=self.th_play_track, args=(track,))
-        th.deamon = True
-        th.start()
+        threading.Thread(target=self.th_play_track, args=(track,)).start()
 
     def th_play_track(self, track):
         print(f"""play track: {track.name} by {track.artist.name}""" +
