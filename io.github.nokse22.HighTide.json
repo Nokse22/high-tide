@@ -62,6 +62,7 @@
             ]
         },
         "python3-tidalapi.json",
+        "blueprint-compiler.json",
         {
             "name": "HighTide",
             "builddir": true,
