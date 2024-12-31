@@ -43,7 +43,7 @@ class albumPage(Page):
         builder.get_object("_first_subtitle_label").set_label(
             "{} - {}".format(
                 self.item.artist.name,
-                self.item.release_date.strftime('%d-%m-%Y')))
+                self.item.release_date.strftime('%d-%m-%Y') if self.item.release_date else "Unknown"))
         builder.get_object("_second_subtitle_label").set_label(
             "{} tracks ({})".format(
                 self.item.num_tracks,

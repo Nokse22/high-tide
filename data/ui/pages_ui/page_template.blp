@@ -3,7 +3,13 @@ using Adw 1;
 
 Adw.ToolbarView _main {
   [top]
-  Adw.HeaderBar {}
+  Adw.HeaderBar {
+    [end]
+    MenuButton {
+      icon-name: "open-menu-symbolic";
+      menu-model: primary_menu;
+    }
+  }
 
   content: Stack _content_stack {
     StackPage {
@@ -47,4 +53,30 @@ Adw.ToolbarView _main {
 
     visible-child-name: 'loading';
   };
+}
+
+menu primary_menu {
+  section {
+    item {
+      label: _("Logout");
+      action: "app.log-out";
+    }
+  }
+
+  section {
+    item {
+      label: _("_Preferences");
+      action: "app.preferences";
+    }
+
+    item {
+      label: _("_Keyboard Shortcuts");
+      action: "win.show-help-overlay";
+    }
+
+    item {
+      label: _("_About High Tide");
+      action: "app.about";
+    }
+  }
 }

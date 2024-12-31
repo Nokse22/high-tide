@@ -66,9 +66,8 @@ class mixPage(Page):
             in_my_collection_btn.set_icon_name("heart-filled-symbolic")
 
         image = builder.get_object("_image")
-        th = threading.Thread(target=utils.add_image, args=(image, self.item))
-        th.deamon = True
-        th.start()
+        threading.Thread(
+            target=utils.add_image, args=(image, self.item)).start()
 
         if isinstance(self.item, MixV2):
             self.item = variables.session.mix(self.item.id)

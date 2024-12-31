@@ -12,6 +12,10 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
     setters {
       multilayout_view.layout-name: "mobile";
+      playing_track_picture.height-request: 200;
+      playing_track_picture.width-request: 200;
+      player_headerbar.show-start-title-buttons: false;
+      player_headerbar.show-end-title-buttons: false;
     }
   }
 
@@ -48,7 +52,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
       content: Box {
         orientation: vertical;
 
-        Adw.BottomSheet {
+        Adw.BottomSheet bottom_sheet{
           show-drag-handle: false;
 
           bottom-bar: Box {
@@ -65,13 +69,18 @@ template $HighTideWindow: Adw.ApplicationWindow {
             Box {
               AspectFrame {
                 height-request: 70;
-                Picture {
+                Image {
+                  overflow: hidden;
                   margin-bottom: 6;
                   margin-end: 6;
                   margin-start: 6;
                   margin-top: 6;
-                  // pixel-size: 60;
+                  pixel-size: 60;
                   file: bind playing_track_picture.file;
+
+                  styles [
+                    "small-image",
+                  ]
                 }
               }
 
@@ -81,22 +90,35 @@ template $HighTideWindow: Adw.ApplicationWindow {
                 orientation: vertical;
                 spacing: 6;
 
-                Label {
-                  label: "Go Your Own Way";
-                  xalign: 0;
+                Box {
+                  Label {
+                    label: bind song_title_label.label;
+                    ellipsize: end;
+                    xalign: 0;
 
-                  styles [
-                    "title-4",
-                  ]
+                    styles [
+                      "title-4",
+                    ]
+                  }
+                  Label {
+				            label: "E";
+
+				            styles [
+                      "explicit-label",
+                    ]
+
+                    visible: bind explicit_label.visible;
+                    valign: end;
+                    margin-start: 6;
+			            }
                 }
 
-                Label {
-                  label: "Fleetwood Mac";
-                  xalign: 0;
 
-                  styles [
-                    "dim-label",
-                  ]
+                Label miniplayer_artist_label {
+                  label: bind artist_label.label;
+                  use-markup: true;
+                  ellipsize: end;
+                  xalign: 0;
                 }
               }
               Box {
@@ -129,6 +151,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
           content: Adw.LayoutSlot {
             id: "content-navigation-view";
+            margin-bottom: bind bottom_sheet.sheet-height;
           };
 
           sheet: Adw.LayoutSlot {
@@ -146,6 +169,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
     [content-navigation-view]
     Adw.NavigationView navigation_view{
+      popped => on_navigation_view_page_popped();
       Adw.NavigationPage {
         child: Adw.ToolbarView {
           [top]
@@ -167,6 +191,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
       spacing: 6;
 
       Button {
+        clicked => $on_home_button_clicked();
         Box {
           orientation: vertical;
 
@@ -189,6 +214,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
       }
 
       Button {
+        clicked => $on_explore_button_clicked();
         Box {
           orientation: vertical;
 
@@ -211,6 +237,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
       }
 
       Button {
+        clicked => $on_collection_button_clicked();
         Box {
           orientation: vertical;
 
@@ -240,7 +267,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
           child: ScrolledWindow {
             hscrollbar-policy: never;
             propagate-natural-height: true;
-            max-content-height: 600;
+            // max-content-height: 600;
             Box {
               margin-bottom: 12;
               margin-end: 12;
@@ -249,23 +276,22 @@ template $HighTideWindow: Adw.ApplicationWindow {
               orientation: vertical;
               spacing: 12;
 
-              AspectFrame {
+              Image playing_track_picture {
+                overflow: hidden;
                 width-request: 300;
                 height-request: 300;
-                Picture playing_track_picture {
-                  halign: center;
-                  hexpand: true;
-                  margin-bottom: 12;
-                  margin-end: 12;
-                  margin-start: 12;
-                  margin-top: 12;
-                  valign: center;
-                  vexpand: true;
+                halign: center;
+                hexpand: true;
+                margin-bottom: 12;
+                margin-end: 12;
+                margin-start: 12;
+                margin-top: 12;
+                valign: center;
+                vexpand: true;
 
-                  styles [
-                    "track-picture"
-                  ]
-                }
+                styles [
+                  "track-picture"
+                ]
               }
 
               Box {
@@ -275,8 +301,6 @@ template $HighTideWindow: Adw.ApplicationWindow {
 		          		Box {
 		          		halign: center;
 					  Label song_title_label {
-				        label: "Go Your Own Way";
-				        // xalign: 0;
 				        ellipsize: end;
 
 				        styles [
@@ -288,20 +312,19 @@ template $HighTideWindow: Adw.ApplicationWindow {
 				        label: "E";
 
 				        styles [
-		                    "explicit-label",
-		                  ]
+                  "explicit-label",
+                ]
 
-		                  visible: false;
-		                  valign: end;
-		                  margin-start: 6;
-				      }
+                visible: false;
+                valign: end;
+                margin-start: 6;
+			        }
 
 				      }
 
 				      $HTLinkLabelWidget artist_label {
-		                // xalign: "0";
-		                ellipsize: "end";
-		              }
+	                ellipsize: "end";
+	              }
 		          }
 
               Box {
@@ -316,31 +339,31 @@ template $HighTideWindow: Adw.ApplicationWindow {
                 }
 
                 VolumeButton volume_button {
-		            styles [
-		              "flat",
-		            ]
+		              styles [
+		                "flat",
+		              ]
 
-		            valign: center;
-		            halign: end;
-		            hexpand: true;
-		            margin-bottom: 6;
-		            margin-start: 6;
-		            margin-top: 6;
-		            value-changed => $on_volume_changed();
+		              valign: center;
+		              halign: end;
+		              hexpand: true;
+		              margin-bottom: 6;
+		              margin-start: 6;
+		              margin-top: 6;
+		              value-changed => $on_volume_changed();
+		            }
 		          }
-		          }
-              }
+            }
 
-				Box {
+				    Box {
 				Label time_played_label{
 		            label: "00:00";
 		          }
 
 		          Scale progress_bar{
 		            hexpand: true;
+		            change-value => $on_slider_seek();
 		            adjustment: Adjustment {
-		              upper: 0.6;
-		              value: 0.2;
+		              upper: 1;
 		            };
 		          }
 
@@ -414,7 +437,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
           };
 
           icon-name: "emblem-music-symbolic";
-          name: "player";
+          name: "player_page";
           title: "Player";
         }
 
@@ -426,6 +449,8 @@ template $HighTideWindow: Adw.ApplicationWindow {
               opacity: 0.6;
               margin-start: 12;
               margin-end: 12;
+              margin-top: 12;
+              margin-bottom: 12;
 
               styles [
                 "lyrics",
@@ -434,7 +459,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
           };
 
           icon-name: "chat-bubble-text-symbolic";
-          name: "lyrics";
+          name: "lyrics_page";
           title: "Lyrics";
         }
 
@@ -442,13 +467,13 @@ template $HighTideWindow: Adw.ApplicationWindow {
           child: $HTQueueWidget queue_widget {};
 
           icon-name: "library-symbolic";
-          name: "queue";
+          name: "queue_page";
           title: "Queue";
         }
       };
 
       [top]
-      Adw.HeaderBar {
+      Adw.HeaderBar player_headerbar{
         title-widget: Adw.ViewSwitcher {
           stack: sidebar_stack;
         };

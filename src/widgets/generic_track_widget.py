@@ -22,12 +22,13 @@ from gi.repository import Gtk
 from gi.repository import Gio
 from ..lib import utils
 from ..lib import variables
+from ..disconnectable_iface import IDisconnectable
 import threading
 
 
 @Gtk.Template(
     resource_path='/io/github/nokse22/HighTide/ui/widgets/generic_track_widget.ui')
-class HTGenericTrackWidget(Gtk.ListBoxRow):
+class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     __gtype_name__ = 'HTGenericTrackWidget'
 
     """It is used to display a single track"""
@@ -44,14 +45,10 @@ class HTGenericTrackWidget(Gtk.ListBoxRow):
     track_album_label = Gtk.Template.Child()
 
     def __init__(self, _track=None, is_album=False):
+        IDisconnectable.__init__(self)
         super().__init__()
         if not _track:
             return
-
-        self.signals = []
-
-        self.signals.append((
-            self, self.connect("unrealize", self.__on_unrealized)))
 
         self.set_track(_track, is_album)
 
@@ -164,15 +161,3 @@ class HTGenericTrackWidget(Gtk.ListBoxRow):
 
     def __repr__(self, *args):
         return "<TrackWidget>"
-
-    def __on_unrealized(self, *args):
-        disconnected_signals = 0
-        for obj, signal_id in self.signals:
-            disconnected_signals += 1
-            obj.disconnect(signal_id)
-
-            self.signals = []
-        print(f"disconnected {disconnected_signals} signals from {self}")
-
-    def __del__(self, *args):
-        print(f"DELETING {self}")

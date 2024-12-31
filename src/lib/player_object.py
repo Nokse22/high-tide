@@ -356,7 +356,6 @@ class playerObject(GObject.GObject):
     def query_duration(self):
         success, duration = self._player.query_duration(Gst.Format.TIME)
         if success:
-            print(duration)
             return duration
         else:
             return 0
@@ -368,5 +367,8 @@ class playerObject(GObject.GObject):
         else:
             return 0
 
-    def seek(self, time_format, something, seek_time):
-        self._player.seek_simple(time_format, something, seek_time)
+    def seek(self, seek_fraction):
+        self._player.seek_simple(
+            Gst.Format.TIME,
+            Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
+            seek_fraction * self.query_duration())

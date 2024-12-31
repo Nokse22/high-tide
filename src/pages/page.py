@@ -28,20 +28,18 @@ from ..widgets import HTCardWidget
 
 from ..lib import variables
 
+from ..disconnectable_iface import IDisconnectable
 
-class Page(Adw.NavigationPage):
+
+class Page(Adw.NavigationPage, IDisconnectable):
     __gtype_name__ = 'Page'
 
     """It's the base class for all types of pages,
     it contains all the shared functions"""
 
     def __init__(self, _item=None, _name=None):
+        IDisconnectable.__init__(self)
         super().__init__()
-
-        self.signals = []
-
-        self.signals.append((
-            self, self.connect("unrealize", self.__on_unrealized)))
 
         if _name:
             self.set_title(_name)
@@ -79,22 +77,27 @@ class Page(Adw.NavigationPage):
 
     def get_album_card(self, item):
         card = HTCardWidget(item)
+        self.disconnectables.append(card)
         return card
 
     def get_track_listing(self, track):
         track_listing = HTGenericTrackWidget(track, False)
+        self.disconnectables.append(track_listing)
         return track_listing
 
     def get_mix_card(self, item):
         card = HTCardWidget(item)
+        self.disconnectables.append(card)
         return card
 
     def get_album_track_listing(self, track):
         track_listing = HTGenericTrackWidget(track, True)
+        self.disconnectables.append(track_listing)
         return track_listing
 
     def get_playlist_card(self, playlist):
         card = HTCardWidget(playlist)
+        self.disconnectables.append(card)
         return card
 
     def on_mix_button_clicked(self, btn, mix):
@@ -205,10 +208,12 @@ class Page(Adw.NavigationPage):
 
     def get_artist_card(self, item):
         card = HTCardWidget(item)
+        self.disconnectables.append(card)
         return card
 
     def get_page_item_card(self, page_item):
         card = HTCardWidget(page_item)
+        self.disconnectables.append(card)
         return card
 
     def get_page_link_card(self, page_link):
@@ -231,18 +236,3 @@ class Page(Adw.NavigationPage):
         page = genericPage(page_link, page_link.title)
         page.load()
         variables.navigation_view.push(page)
-
-    def delete_signals(self):
-        disconnected_signals = 0
-        for obj, signal_id in self.signals:
-            disconnected_signals += 1
-            obj.disconnect(signal_id)
-
-            self.signals = []
-        print(f"disconnected {disconnected_signals} signals from {self}")
-
-    def __on_unrealized(self, *args):
-        self.delete_signals()
-
-    def __del__(self, *args):
-        print(f"DELETING {self}")

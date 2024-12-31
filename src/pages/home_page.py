@@ -53,6 +53,7 @@ class homePage(Page):
                 self.page_content.append(tracks_list_widget)
             else:
                 carousel = HTCarouselWidget(category.title)
+                self.disconnectables.append(carousel)
                 self.page_content.append(carousel)
 
                 if isinstance(category.items[0], Mix):

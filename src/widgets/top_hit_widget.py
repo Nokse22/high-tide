@@ -28,15 +28,17 @@ from tidalapi.playlist import Playlist
 
 from ..lib import utils
 from ..lib import variables
+from ..disconnectable_iface import IDisconnectable
 import threading
 
 
 @Gtk.Template(
     resource_path='/io/github/nokse22/HighTide/ui/widgets/top_hit_widget.ui')
-class HTTopHitWidget(Gtk.Box):
+class HTTopHitWidget(Gtk.Box, IDisconnectable):
     __gtype_name__ = 'HTTopHitWidget'
 
-    """It is used to display the top hit when searching regardless of the type"""
+    """It is used to display the top hit when searching regardless
+    of the type"""
 
     artist_avatar = Gtk.Template.Child()
     artist_label = Gtk.Template.Child()
@@ -46,13 +48,12 @@ class HTTopHitWidget(Gtk.Box):
     # track_artist_button = Gtk.Template.Child()
 
     def __init__(self, _item):
+        IDisconnectable.__init__(self)
         super().__init__()
 
-        self.signals = []
-
-        self.signals.append(
-            (self, self.connect("unrealize", self.__on_unrealized))
-        )
+        self.signals.append((
+            self,
+            self.connect("unrealize", self.__on_unrealized)))
 
         self.item = _item
 
@@ -169,21 +170,5 @@ class HTTopHitWidget(Gtk.Box):
             page.load()
             variables.navigation_view.push(page)
 
-    def delete_signals(self):
-        disconnected_signals = 0
-        for obj, signal_id in self.signals:
-            disconnected_signals += 1
-            obj.disconnect(signal_id)
-
-            self.signals = []
-        # print(f"disconnected {disconnected_signals} signals from {self}")
-
     def __repr__(self, *args):
         return "<HTCardWidget>"
-
-    def __on_unrealized(self, *args):
-        self.delete_signals()
-
-    def __del__(self, *args):
-        # print(f"DELETING {self}")
-        pass

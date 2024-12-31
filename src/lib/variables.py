@@ -37,6 +37,7 @@ def init():
 
 
 def get_favourites():
+    global favourite_mixes
     global favourite_tracks
     global favourite_artists
     global favourite_albums
@@ -46,9 +47,11 @@ def get_favourites():
     favourite_tracks = session.user.favorites.tracks()
     favourite_albums = session.user.favorites.albums()
     favourite_playlists = session.user.favorites.playlists()
+    favourite_mixes = session.user.favorites.mixes()
 
 
 def is_favourited(item):
+    global favourite_mixes
     global favourite_tracks
     global favourite_artists
     global favourite_albums

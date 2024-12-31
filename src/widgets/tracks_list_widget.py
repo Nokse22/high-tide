@@ -18,15 +18,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk
-
 from . import HTGenericTrackWidget
-
 from ..lib import variables
+from ..disconnectable_iface import IDisconnectable
 
 
 @Gtk.Template(
     resource_path='/io/github/nokse22/HighTide/ui/widgets/tracks_list_widget.ui')
-class HTTracksListWidget(Gtk.Box):
+class HTTracksListWidget(Gtk.Box, IDisconnectable):
     __gtype_name__ = 'HTTracksListWidget'
 
     """It is used to display multiple elements side by side
@@ -37,13 +36,8 @@ class HTTracksListWidget(Gtk.Box):
     title_label = Gtk.Template.Child()
 
     def __init__(self, _title):
+        IDisconnectable.__init__(self)
         super().__init__()
-
-        self.signals = []
-
-        self.signals.append((
-            self,
-            self.connect("unrealize", self.__on_unrealized)))
 
         self.signals.append((
             self.more_button,
@@ -78,6 +72,7 @@ class HTTracksListWidget(Gtk.Box):
     def _add_tracks(self):
         for index, track in enumerate(self.tracks):
             listing = HTGenericTrackWidget(track, False)
+            self.disconnectables.append(listing)
             listing.set_name(str(index))
             self.tracks_list_box.append(listing)
 
@@ -94,20 +89,5 @@ class HTTracksListWidget(Gtk.Box):
 
         variables.player_object.play_this(self.tracks, index)
 
-    def delete_signals(self):
-        disconnected_signals = 0
-        for obj, signal_id in self.signals:
-            disconnected_signals += 1
-            obj.disconnect(signal_id)
-
-            self.signals = []
-        print(f"disconnected {disconnected_signals} signals from {self}")
-
     def __repr__(self, *args):
         return "<HTTracksListWidget>"
-
-    def __on_unrealized(self, *args):
-        self.delete_signals()
-
-    def __del__(self, *args):
-        print(f"DELETING {self}")

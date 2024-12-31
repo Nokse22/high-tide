@@ -42,7 +42,9 @@ class explorePage(Page):
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/HighTide/ui/search_entry.ui")
         search_entry = builder.get_object("search_entry")
-        search_entry.connect("activate", self.on_search_activated)
+        self.signals.append((
+            search_entry,
+            search_entry.connect("activate", self.on_search_activated)))
 
         self.page_content.append(search_entry)
 

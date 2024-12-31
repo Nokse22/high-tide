@@ -17,15 +17,17 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
+from gi.repository import Gtk, Gio
 
 from ..widgets import HTCardWidget
 from ..lib import variables
 
+from ..disconnectable_iface import IDisconnectable
+
 
 @Gtk.Template(
     resource_path='/io/github/nokse22/HighTide/ui/widgets/carousel_widget.ui')
-class HTCarouselWidget(Gtk.Box):
+class HTCarouselWidget(Gtk.Box, IDisconnectable):
     __gtype_name__ = 'HTCarouselWidget'
 
     """It is used to display multiple elements side by side with
@@ -38,13 +40,10 @@ class HTCarouselWidget(Gtk.Box):
     more_button = Gtk.Template.Child()
 
     def __init__(self, _title=""):
+        IDisconnectable.__init__(self)
         super().__init__()
 
         self.signals = []
-
-        self.signals.append((
-            self,
-            self.connect("unrealize", self.__on_unrealized)))
 
         self.signals.append((
             self.next_button,
@@ -88,7 +87,7 @@ class HTCarouselWidget(Gtk.Box):
         self.type = items_type
 
         for index, item in enumerate(self.items):
-            if index > 8:
+            if index >= 8:
                 self.more_button.set_visible(True)
                 break
             self.append_card(HTCardWidget(item))
@@ -138,20 +137,5 @@ class HTCarouselWidget(Gtk.Box):
         if pos - 2 <= 0:
             self.prev_button.set_sensitive(False)
 
-    def delete_signals(self):
-        disconnected_signals = 0
-        for obj, signal_id in self.signals:
-            disconnected_signals += 1
-            obj.disconnect(signal_id)
-
-            self.signals = []
-        print(f"disconnected {disconnected_signals} signals from {self}")
-
     def __repr__(self, *args):
         return "<HTCarouselWidget>"
-
-    def __on_unrealized(self, *args):
-        self.delete_signals()
-
-    def __del__(self, *args):
-        print(f"DELETING {self}")

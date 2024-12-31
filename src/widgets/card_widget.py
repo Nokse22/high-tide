@@ -33,10 +33,12 @@ from tidalapi.playlist import Playlist
 
 from ..lib import variables
 
+from ..disconnectable_iface import IDisconnectable
+
 
 @Gtk.Template(
     resource_path='/io/github/nokse22/HighTide/ui/widgets/card_widget.ui')
-class HTCardWidget(Adw.BreakpointBin):
+class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
     __gtype_name__ = 'HTCardWidget'
 
     """It is card that adapts to the content it needs to display,
@@ -50,13 +52,8 @@ class HTCardWidget(Adw.BreakpointBin):
     track_artist_label = Gtk.Template.Child()
 
     def __init__(self, _item):
+        IDisconnectable.__init__(self)
         super().__init__()
-
-        self.signals = []
-
-        self.signals.append((
-            self,
-            self.connect("unrealize", self.__on_unrealized)))
 
         self.signals.append((
             self.track_artist_label,
@@ -178,20 +175,5 @@ class HTCardWidget(Adw.BreakpointBin):
             page.load()
             variables.navigation_view.push(page)
 
-    def delete_signals(self):
-        disconnected_signals = 0
-        for obj, signal_id in self.signals:
-            disconnected_signals += 1
-            obj.disconnect(signal_id)
-
-            self.signals = []
-        print(f"disconnected {disconnected_signals} signals from {self}")
-
     def __repr__(self, *args):
         return "<CardWidget>"
-
-    def __on_unrealized(self, *args):
-        self.delete_signals()
-
-    def __del__(self, *args):
-        print(f"DELETING {self}")

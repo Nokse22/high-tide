@@ -91,6 +91,7 @@ class artistPage(Page):
         content_box.append(tracks_list_widget)
 
         carousel = HTCarouselWidget("Albums")
+        self.disconnectables.append(carousel)
         try:
             albums = self.artist.get_albums(limit=10)
             carousel.set_more_function("album", self.artist.get_albums)
@@ -102,6 +103,7 @@ class artistPage(Page):
                 carousel.set_items(albums, "album")
 
         carousel = HTCarouselWidget("EP & Singles")
+        self.disconnectables.append(carousel)
         try:
             albums = self.artist.get_albums_ep_singles(limit=10)
             carousel.set_more_function(
@@ -114,6 +116,7 @@ class artistPage(Page):
                 carousel.set_items(albums, "album")
 
         carousel = HTCarouselWidget("Appears On")
+        self.disconnectables.append(carousel)
         try:
             albums = self.artist.get_albums_other(limit=10)
             carousel.set_more_function("album", self.artist.get_albums_other)
@@ -125,6 +128,7 @@ class artistPage(Page):
                 carousel.set_items(albums, "album")
 
         carousel = HTCarouselWidget("Similar Artists")
+        self.disconnectables.append(carousel)
         try:
             artists = self.artist.get_similar()
         except Exception as e:

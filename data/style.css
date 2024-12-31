@@ -3,6 +3,10 @@
     transition: opacity 0.5s ease-in-out;
 }
 
+.rounded {
+  border-radius: 20px;
+}
+
 .hover-show:hover{
     opacity:100;
 }
