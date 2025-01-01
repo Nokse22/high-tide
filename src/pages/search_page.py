@@ -59,30 +59,28 @@ class searchPage(Page):
 
         # Adds a carousel with artists, albums and playlists if in the search results
 
-        carousel = HTCarouselWidget("Artists")
+        carousel = self.get_carousel("Artists")
         artists = results["artists"]
         if len(artists) > 0:
             self.page_content.append(carousel)
             carousel.set_items(artists, "artist")
 
-        carousel = HTCarouselWidget("Albums")
+        carousel = self.get_carousel("Albums")
         albums = results["albums"]
         if len(albums) > 0:
             self.page_content.append(carousel)
             carousel.set_items(albums, "album")
 
-        carousel = HTCarouselWidget("Playlists")
+        carousel = self.get_carousel("Playlists")
         playlists = results["playlists"]
         if len(playlists) > 0:
             self.page_content.append(carousel)
             carousel.set_items(playlists, "playlist")
 
-        carousel = HTCarouselWidget("Tracks")
+        carousel = self.get_carousel("Tracks")
         tracks = results["tracks"]
         if len(tracks) > 0:
             self.page_content.append(carousel)
             carousel.set_items(tracks, "track")
-
-        # scrolled_window = Gtk.ScrolledWindow(vexpand=True, hscrollbar_policy=Gtk.PolicyType.NEVER)
 
         self._page_loaded()

@@ -24,6 +24,7 @@ from gi.repository import GLib
 import threading
 
 from ..widgets import HTGenericTrackWidget
+from ..widgets import HTCarouselWidget
 from ..widgets import HTCardWidget
 
 from ..lib import variables
@@ -179,6 +180,11 @@ class Page(Adw.NavigationPage, IDisconnectable):
             next_page = carousel.get_nth_page(pos - jump)
 
         carousel.scroll_to(next_page, True)
+
+    def get_carousel(self, carousel_title):
+        carousel = HTCarouselWidget(carousel_title)
+        self.disconnectables.append(carousel)
+        return carousel
 
     def on_playlist_button_clicked(self, btn, playlist):
         variables.sidebar_list.select_row(None)

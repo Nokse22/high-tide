@@ -45,11 +45,11 @@ class genericPage(Page):
 
             if isinstance(category.items[0], Track):
                 tracks_list_widget = HTTracksListWidget(category.title)
+                self.disconnectables.append(tracks_list_widget)
                 tracks_list_widget.set_tracks_list(category.items)
                 self.page_content.append(tracks_list_widget)
             else:
-                carousel = HTCarouselWidget(category.title)
-                self.disconnectables.append(carousel)
+                carousel = self.get_carousel(category.title)
                 self.page_content.append(carousel)
 
                 for item in category.items:

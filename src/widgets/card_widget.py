@@ -62,8 +62,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         self.signals.append((
             self.card_button,
-            self.card_button.connect(
-                "clicked", self.on_button_clicked)))
+            self.card_button.connect("clicked", self.on_button_clicked)))
 
         self.item = _item
 

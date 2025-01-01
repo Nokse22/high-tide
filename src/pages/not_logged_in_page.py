@@ -38,7 +38,7 @@ class notLoggedInPage(Page):
         status_page = Adw.StatusPage(
             title="Login first",
             description="To be able to use this app you need to login with your TIDAL account.",
-            icon_name="face-wink-symbolic",
+            icon_name="key-login-symbolic",
             child=login_button,
             valign=Gtk.Align.CENTER,
             vexpand=True

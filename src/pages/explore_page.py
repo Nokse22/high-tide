@@ -37,6 +37,9 @@ class explorePage(Page):
     """It is used to display the explore page"""
 
     def _th_load_page(self):
+        self.set_tag("explore")
+        self.set_title("Explore")
+
         explore = variables.session.explore()
 
         builder = Gtk.Builder.new_from_resource(

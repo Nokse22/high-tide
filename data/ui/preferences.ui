@@ -21,6 +21,24 @@ Hi-res Lossless</property>
             </child>
           </object>
         </child>
+        <child>
+          <object class="AdwPreferencesGroup">
+            <child>
+              <object class="AdwComboRow" id="_sink_row">
+                <property name="model">
+                  <object class="GtkStringList">
+                    <property name="strings">Automatic
+PulseAudio
+ALSA
+Jack
+OSS</property>
+                  </object>
+                </property>
+                <property name="title">Preferred Audio Sink</property>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
   </object>

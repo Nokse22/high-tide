@@ -30,7 +30,7 @@ from .mpris import MPRIS
 
 from tidalapi.media import Quality
 
-from .lib import playerObject, RepeatType
+from .lib import PlayerObject, RepeatType
 from .lib import utils
 
 from .login import LoginDialog
@@ -70,6 +70,11 @@ class HighTideWindow(Adw.ApplicationWindow):
     queue_widget = Gtk.Template.Child()
     lyrics_label = Gtk.Template.Child()
     repeat_button = Gtk.Template.Child()
+    home_button = Gtk.Template.Child()
+    explore_button = Gtk.Template.Child()
+    collection_button = Gtk.Template.Child()
+    player_lyrics_queue = Gtk.Template.Child()
+    navigation_buttons = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -83,7 +88,8 @@ class HighTideWindow(Adw.ApplicationWindow):
             "window-height", self,
             "default-height", Gio.SettingsBindFlags.DEFAULT)
 
-        self.player_object = playerObject()
+        self.player_object = PlayerObject(
+            self.settings.get_string('preferred-sink'))
         variables.player_object = self.player_object
 
         self.volume_button.get_adjustment().set_value(
@@ -143,6 +149,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         page.load()
         self.navigation_view.push(page)
 
+        self.navigation_view.connect(
+            "notify::visible-page", self.on_visible_page_changed)
+
         threading.Thread(target=self.th_login, args=()).start()
 
         MPRIS(self.player_object)
@@ -155,6 +164,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         page = homePage(self)
         page.load()
         self.navigation_view.replace([page])
+
+        self.player_lyrics_queue.set_sensitive(True)
+        self.navigation_buttons.set_sensitive(True)
 
         threading.Thread(target=self.th_set_last_playing_song, args=()).start()
 
@@ -345,6 +357,17 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.settings.set_int("quality", pos)
 
+    def change_audio_sink(self, sink):
+        self.player_object.change_audio_sink(sink)
+        self.settings.set_int("preferred-sink")
+
+    @Gtk.Template.Callback("on_track_radio_button_clicked")
+    def on_track_radio_button_clicked_func(self, widget):
+        track = self.player_object.playing_track
+        page = trackRadioPage(track, f"{track.name} Radio")
+        page.load()
+        self.navigation_view.push(page)
+
     @Gtk.Template.Callback("on_in_my_collection_button_clicked")
     def on_in_my_collection_button_clicked(self, btn):
         if self.in_my_collection_button.get_icon_name() == "heart-outline-thick-symbolic":
@@ -402,12 +425,20 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_explore_button_clicked")
     def on_explore_button_clicked_func(self, widget):
+        if self.navigation_view.find_page("explore"):
+            self.navigation_view.pop_to_tag("explore")
+            return
+
         page = explorePage(None, "Explore")
         page.load()
         self.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_collection_button_clicked")
     def on_collection_button_clicked_func(self, widget):
+        if self.navigation_view.find_page("collection"):
+            self.navigation_view.pop_to_tag("collection")
+            return
+
         page = collectionPage(None, "Collection")
         page.load()
         self.navigation_view.push(page)
@@ -445,3 +476,12 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_navigation_view_page_popped")
     def on_navigation_view_page_popped_func(self, nav_view, nav_page):
         nav_page.disconnect_all()
+
+    def on_visible_page_changed(self, nav_view, *args):
+        match self.navigation_view.get_visible_page().get_tag():
+            case "home":
+                self.home_button.set_active(True)
+            case "explore":
+                self.explore_button.set_active(True)
+            case "collection":
+                self.collection_button.set_active(True)

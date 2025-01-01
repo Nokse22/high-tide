@@ -76,6 +76,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
                   margin-start: 6;
                   margin-top: 6;
                   pixel-size: 60;
+                  icon-name: "emblem-music-symbolic";
                   file: bind playing_track_picture.file;
 
                   styles [
@@ -128,6 +129,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
                 Button {
                   icon-name: bind play_button.icon-name;
                   valign: center;
+                  tooltip-text: "Play/Pause";
 
                   styles [
                     "flat",
@@ -137,6 +139,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
                 }
                 Button {
                   icon-name: "media-skip-forward-symbolic";
+                  tooltip-text: "Skip Forward";
                   valign: center;
 
                   styles [
@@ -151,7 +154,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
           content: Adw.LayoutSlot {
             id: "content-navigation-view";
-            margin-bottom: bind bottom_sheet.sheet-height;
+            margin-bottom: 74;
           };
 
           sheet: Adw.LayoutSlot {
@@ -169,7 +172,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
     [content-navigation-view]
     Adw.NavigationView navigation_view{
-      popped => on_navigation_view_page_popped();
+      popped => $on_navigation_view_page_popped();
       Adw.NavigationPage {
         child: Adw.ToolbarView {
           [top]
@@ -181,7 +184,8 @@ template $HighTideWindow: Adw.ApplicationWindow {
     }
 
     [content-navigator]
-    Box {
+    Box navigation_buttons {
+      sensitive: false;
       halign: center;
       homogeneous: true;
       margin-bottom: 6;
@@ -190,7 +194,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
       margin-top: 6;
       spacing: 6;
 
-      Button {
+      ToggleButton home_button{
         clicked => $on_home_button_clicked();
         Box {
           orientation: vertical;
@@ -213,7 +217,8 @@ template $HighTideWindow: Adw.ApplicationWindow {
         ]
       }
 
-      Button {
+      ToggleButton explore_button {
+        group: home_button;
         clicked => $on_explore_button_clicked();
         Box {
           orientation: vertical;
@@ -236,7 +241,8 @@ template $HighTideWindow: Adw.ApplicationWindow {
         ]
       }
 
-      Button {
+      ToggleButton collection_button {
+        group: home_button;
         clicked => $on_collection_button_clicked();
         Box {
           orientation: vertical;
@@ -261,7 +267,8 @@ template $HighTideWindow: Adw.ApplicationWindow {
     }
 
     [player-lyrics-queue]
-    Adw.ToolbarView {
+    Adw.ToolbarView player_lyrics_queue{
+      sensitive: false;
       content: Adw.ViewStack sidebar_stack {
         Adw.ViewStackPage {
           child: ScrolledWindow {
@@ -278,8 +285,8 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
               Image playing_track_picture {
                 overflow: hidden;
-                width-request: 300;
-                height-request: 300;
+                width-request: 280;
+                height-request: 280;
                 halign: center;
                 hexpand: true;
                 margin-bottom: 12;
@@ -288,6 +295,8 @@ template $HighTideWindow: Adw.ApplicationWindow {
                 margin-top: 12;
                 valign: center;
                 vexpand: true;
+                pixel-size: 200;
+                icon-name: "emblem-music-symbolic";
 
                 styles [
                   "track-picture"
@@ -296,11 +305,13 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
               Box {
                 orientation: vertical;
+                spacing: 6;
 		          Box {
 		            orientation: vertical;
 		          		Box {
 		          		halign: center;
 					  Label song_title_label {
+					    label: "No Song";
 				        ellipsize: end;
 
 				        styles [
@@ -323,21 +334,14 @@ template $HighTideWindow: Adw.ApplicationWindow {
 				      }
 
 				      $HTLinkLabelWidget artist_label {
+				          label: "Nobody";
 	                ellipsize: "end";
 	              }
 		          }
 
               Box {
+                spacing: 6;
                 halign: center;
-		          Button in_my_collection_button {
-                  icon-name: "heart-outline-thick-symbolic";
-                  valign: center;
-                  styles [
-                    "flat",
-                  ]
-                  clicked => $on_in_my_collection_button_clicked();
-                }
-
                 VolumeButton volume_button {
 		              styles [
 		                "flat",
@@ -351,6 +355,24 @@ template $HighTideWindow: Adw.ApplicationWindow {
 		              margin-top: 6;
 		              value-changed => $on_volume_changed();
 		            }
+		          Button in_my_collection_button {
+                  icon-name: "heart-outline-thick-symbolic";
+                  tooltip-text: "Add/Remove from favorites";
+                  valign: center;
+                  styles [
+                    "flat",
+                  ]
+                  clicked => $on_in_my_collection_button_clicked();
+                }
+                Button track_radio_button {
+                  icon-name: "navigate-symbolic";
+                  tooltip-text: "Go to track radio";
+                  valign: center;
+                  styles [
+                    "flat",
+                  ]
+                  clicked => $on_track_radio_button_clicked();
+                }
 		          }
             }
 
@@ -378,7 +400,8 @@ template $HighTideWindow: Adw.ApplicationWindow {
                 spacing: 6;
 
                 ToggleButton shuffle_button {
-                  icon-name: "media-skip-backward-symbolic";
+                  icon-name: "playlist-shuffle-symbolic";
+                  tooltip-text: "Toggle Shuffle";
                   valign: center;
 
                   styles [
@@ -389,6 +412,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
                 Button {
                   icon-name: "media-skip-backward-symbolic";
+                  tooltip-text: "Skip Backward";
                   valign: center;
 
                   styles [
@@ -400,6 +424,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
                 Button play_button {
                   icon-name: "media-playback-start-symbolic";
+                  tooltip-text: "Play/Pause";
                   valign: center;
 
                   styles [
@@ -412,6 +437,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
                 Button {
                   icon-name: "media-skip-forward-symbolic";
+                  tooltip-text: "Skip Forward";
                   valign: center;
 
                   styles [

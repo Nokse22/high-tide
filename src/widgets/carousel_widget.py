@@ -43,8 +43,6 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         IDisconnectable.__init__(self)
         super().__init__()
 
-        self.signals = []
-
         self.signals.append((
             self.next_button,
             self.next_button.connect("clicked", self.carousel_go_next)))
@@ -67,15 +65,13 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
 
         self.items = []
 
-        # self.card_width = 0
-        # self.connect("notify::width", self._width_changed)
-
     def set_more_function(self, _type, _function):
         self.more_button.set_visible(True)
         self.more_function = _function
         self.type = _type
 
     def append_card(self, card):
+        self.disconnectables.append(card)
         self.carousel.append(card)
         self.n_pages = self.carousel.get_n_pages()
 
@@ -102,40 +98,41 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
             page = fromFunctionPage(self.type, self.title)
             page.set_function(self.more_function)
 
-        print(f"clicked more, items len:{len(self.items)}")
-
         page.load()
         variables.navigation_view.push(page)
 
     def carousel_go_next(self, btn):
         pos = self.carousel.get_position()
-        if pos + 2 >= self.carousel.get_n_pages():
-            if pos + 1 == self.carousel.get_n_pages():
-                return
-            else:
-                next_page = self.carousel.get_nth_page(pos + 1)
-        else:
-            next_page = self.carousel.get_nth_page(pos + 2)
+        total_pages = self.carousel.get_n_pages()
 
+        if pos + 3 >= total_pages:
+            next_pos = max(0, total_pages - 2)
+        else:
+            next_pos = pos + 2
+
+        next_page = self.carousel.get_nth_page(next_pos)
         if next_page is not None:
             self.carousel.scroll_to(next_page, True)
 
-        self.prev_button.set_sensitive(True)
+        self.prev_button.set_sensitive(next_pos > 0)
+        self.next_button.set_sensitive(next_pos < total_pages - 2)
 
     def carousel_go_prev(self, btn):
         pos = self.carousel.get_position()
+        total_pages = self.carousel.get_n_pages()
+
         if pos - 2 < 0:
-            if pos - 1 < 0:
-                return
-            else:
-                next_page = self.carousel.get_nth_page(0)
+            next_pos = 0
         else:
-            next_page = self.carousel.get_nth_page(pos - 2)
+            next_pos = pos - 2
 
-        self.carousel.scroll_to(next_page, True)
+        next_page = self.carousel.get_nth_page(next_pos)
+        if next_page is not None:
+            self.carousel.scroll_to(next_page, True)
 
-        if pos - 2 <= 0:
-            self.prev_button.set_sensitive(False)
+        # Update button sensitivity
+        self.prev_button.set_sensitive(next_pos > 0)
+        self.next_button.set_sensitive(next_pos < total_pages - 2)
 
     def __repr__(self, *args):
         return "<HTCarouselWidget>"

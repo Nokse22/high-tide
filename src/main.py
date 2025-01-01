@@ -95,12 +95,20 @@ class TidalApplication(Adw.Application):
             builder.get_object("_quality_row").set_selected(
                 self.win.settings.get_int("quality"))
 
+            builder.get_object("_sink_row").connect(
+                "notify::selected", self.on_sink_changed)
+            builder.get_object("_sink_row").set_selected(
+                self.win.settings.get_int("preferred-sink"))
+
             self.preferences = builder.get_object("_preference_window")
 
         self.preferences.present(self.win)
 
     def on_quality_changed(self, widget, *args):
         self.win.select_quality(widget.get_selected())
+
+    def on_sink_changed(self, widget, *args):
+        self.win.change_audio_sink(widget.get_selected())
 
     def create_action(self, name, callback, shortcuts=None):
         """Add an application action.

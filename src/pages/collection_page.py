@@ -60,8 +60,7 @@ class collectionPage(Page):
         if len(carousel_content) == 0:
             return
 
-        carousel = HTCarouselWidget(carousel_title)
-        self.disconnectables.append(carousel)
+        carousel = self.get_carousel(carousel_title)
         self.page_content.append(carousel)
 
         if isinstance(carousel_content[0], Mix):
