@@ -18,6 +18,7 @@ from gi.repository import Gio, GLib, Gdk
 from random import randint
 from .lib import variables
 
+
 class Server:
     def __init__(self, con, path):
         method_outargs = {}
@@ -164,7 +165,7 @@ class MPRIS(Server):
         self.player.connect("song-changed", self._on_preset_changed)
         self.player.connect("duration-changed", self._on_preset_changed)
         self.player.connect("play-changed", self._on_playing_changed)
-        # MainPlayer.get().connect("notify::volume", self._on_volume_changed)
+        self.player.connect("volume-changed", self._on_volume_changed)
 
     def Raise(self):
         variables.window.present_with_time(Gdk.CURRENT_TIME)
@@ -289,11 +290,8 @@ class MPRIS(Server):
     def _on_volume_changed(self, _player, volume):
         self.PropertiesChanged(
             self.__MPRIS_PLAYER_IFACE,
-            {
-                "Volume": GLib.Variant("d", self.player.volume),
-            },
-            [],
-        )
+            {"Volume": GLib.Variant("d", volume)},
+            [])
 
     def _on_playing_changed(self, *args):
         properties = {"PlaybackStatus": GLib.Variant("s", self._get_status())}

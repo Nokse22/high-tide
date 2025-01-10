@@ -93,5 +93,4 @@ class playlistPage(Page):
 
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
-
         variables.player_object.play_this(self.item, index)

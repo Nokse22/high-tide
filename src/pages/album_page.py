@@ -51,8 +51,8 @@ class albumPage(Page):
 
         play_btn = builder.get_object("_play_button")
         self.signals.append((
-            play_btn, play_btn.connect(
-                "clicked", self.on_play_button_clicked)))
+            play_btn,
+            play_btn.connect("clicked", self.on_play_button_clicked)))
 
         shuffle_btn = builder.get_object("_shuffle_button")
         self.signals.append((

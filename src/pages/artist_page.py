@@ -45,6 +45,8 @@ class artistPage(Page):
         self.top_tracks = []
         self.artist = _artist
 
+        # TODO get the arist ID not the artist so it shows the page faster
+
     def _th_load_page(self):
         print(f"artist: {self.artist.name}, id: {self.artist.id}, {self.artist.picture}")
 
@@ -167,24 +169,13 @@ class artistPage(Page):
 
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
-
-        variables.player_object.current_mix_album_list = self.top_tracks
-        track = variables.player_object.current_mix_album_list[index]
-        variables.player_object.current_mix_album = track.album
-        variables.player_object.play_track(track)
-        variables.player_object.current_song_index = index
+        variables.player_object.play_this(self.item, index)
 
     def on_play_button_clicked(self, btn):
-        variables.player_object.current_mix_album = self.artist
-        variables.player_object.current_mix_album_list = self.top_tracks
-        track = variables.player_object.current_mix_album_list[0]
-        variables.player_object.play_track(track)
-        variables.player_object.current_song_index = 0
+        variables.player_object.play_this(self.top_tracks, 0)
 
     def on_shuffle_button_clicked(self, btn):
-        variables.player_object.current_mix_album = None
-        variables.player_object.current_mix_album_list = self.top_tracks
-        variables.player_object.play_shuffle()
+        variables.player_object.play_this(self.shuffle_this, 0)
 
     def on_artist_radio_button_clicked(self, btn):
         from .track_radio_page import trackRadioPage

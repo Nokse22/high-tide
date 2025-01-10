@@ -89,7 +89,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             "default-height", Gio.SettingsBindFlags.DEFAULT)
 
         self.player_object = PlayerObject(
-            self.settings.get_string('preferred-sink'))
+            self.settings.get_int('preferred-sink'))
         variables.player_object = self.player_object
 
         self.volume_button.get_adjustment().set_value(

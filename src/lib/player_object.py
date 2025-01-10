@@ -58,8 +58,11 @@ class PlayerObject(GObject.GObject):
         'song-added-to-queue': (GObject.SignalFlags.RUN_FIRST, None, ()),
         'play-changed': (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
         'duration-changed': (GObject.SignalFlags.RUN_FIRST, None, ()),
-        'shuffle-changed': (GObject.SignalFlags.RUN_FIRST, None, (bool,))
+        'shuffle-changed': (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
+        'volume-changed': (GObject.SignalFlags.RUN_FIRST, None, (float,))
     }
+
+    # TODO add add_to_queue and play_next back!!!
 
     def __init__(self, preferred_sink=AudioSink.AUTO, sink_device=None):
         GObject.GObject.__init__(self)
@@ -164,6 +167,12 @@ class PlayerObject(GObject.GObject):
         self.play_track(track)
         self.play()
         self.emit("song-changed")
+
+    def shuffle_this(self, thing):
+        """Same as play_this, but on shuffle"""
+        tracks = self.get_track_list(thing)
+        self.play_this(tracks, random.randint(0, len(tracks)))
+        self.shuffle(True)
 
     def get_track_list(self, thing):
         """Convert various sources into a list of tracks."""
@@ -282,8 +291,17 @@ class PlayerObject(GObject.GObject):
 
         self.emit("song-changed")
 
+    def add_to_queue(self, track):
+        self.queue.append(track)
+        self.emit("song-added-to-queue")
+
+    def add_next(self, track):
+        self.queue.insert(0, track)
+        self.emit("song-added-to-queue")
+
     def change_volume(self, value):
         self._player.set_property("volume", value)
+        self.emit("volume-changed", value)
 
     def _update_slider_callback(self):
         """Update playback slider and duration."""
