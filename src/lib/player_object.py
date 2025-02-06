@@ -66,12 +66,20 @@ class PlayerObject(GObject.GObject):
 
     def __init__(self, preferred_sink=AudioSink.AUTO, sink_device=None):
         GObject.GObject.__init__(self)
-        Gst.init(None)
+        Gst.init()
 
         # Initialize player
         self._player = Gst.ElementFactory.make('playbin3', 'player')
         if not self._player:
             raise RuntimeError("Could not create playbin3 element")
+
+        self._player.set_property('buffer-size', 2097152)
+        self._player.set_property('buffer-duration', 3 * Gst.SECOND)
+        self._player.set_property('low-percent', 10)
+        self._player.set_property('high-percent', 99)
+        self._player.set_property('max-size-buffers', 0)
+        self._player.set_property('max-size-time', 0)
+        self._player.set_property('max-size-bytes', 0)
 
         # Configure audio sink
         self._setup_audio_sink(preferred_sink, sink_device)
@@ -81,6 +89,7 @@ class PlayerObject(GObject.GObject):
         self._bus.add_signal_watch()
         self._bus.connect('message::eos', self._on_bus_eos)
         self._bus.connect('message::error', self._on_bus_error)
+        self._bus.connect('message', self._on_bus_message)
 
         # Initialize state variables
         self.queue = []
@@ -146,6 +155,112 @@ class PlayerObject(GObject.GObject):
         err, debug = message.parse_error()
         print(f"Error: {err.message}")
         print(f"Debug info: {debug}")
+
+    def _on_bus_message(self, bus, message):
+        msg_type = message.type
+        msg_src = message.src.get_name()
+        print(f"Got message {msg_type} from {msg_src}")
+
+        if msg_type == Gst.MessageType.ERROR:
+            err, debug = message.parse_error()
+            print(f"Error: {err}, Debug: {debug}")
+        elif msg_type == Gst.MessageType.WARNING:
+            warn, debug = message.parse_warning()
+            print(f"Warning: {warn}, Debug: {debug}")
+        elif msg_type == Gst.MessageType.INFO:
+            info, debug = message.parse_info()
+            print(f"Info: {info}, Debug: {debug}")
+        elif msg_type == Gst.MessageType.STATE_CHANGED:
+            old, new, pending = message.parse_state_changed()
+            print(f"State changed from {old} to {new}, Pending: {pending}")
+        elif msg_type == Gst.MessageType.EOS:
+            print("End of stream")
+        elif msg_type == Gst.MessageType.SEGMENT_START:
+            pos = message.parse_segment_start()
+            print(f"Segment start: {pos}")
+        elif msg_type == Gst.MessageType.SEGMENT_DONE:
+            print("Segment done")
+        elif msg_type == Gst.MessageType.DURATION_CHANGED:
+            print("Duration changed")
+        elif msg_type == Gst.MessageType.TAG:
+            taglist = message.parse_tag()
+            print(f"Tags: {taglist.to_string()}")
+        elif msg_type == Gst.MessageType.STREAM_START:
+            print("Stream started")
+        elif msg_type == Gst.MessageType.ASYNC_DONE:
+            print("Async operation done")
+        elif msg_type == Gst.MessageType.STREAM_STATUS:
+            status, owner = message.parse_stream_status()
+            print(f"Stream status: {status}, Owner: {owner.get_name()}")
+        elif msg_type == Gst.MessageType.APPLICATION:
+            struct = message.get_structure()
+            print(f"Application message: {struct.to_string()}")
+        elif msg_type == Gst.MessageType.ELEMENT:
+            struct = message.get_structure()
+            print(f"Element message: {struct.to_string()}")
+        elif msg_type == Gst.MessageType.QOS:
+            live, running_time, stream_time, timestamp, duration = message.parse_qos()
+            print(f"QOS: live={live}, running_time={running_time}, stream_time={stream_time}")
+        elif msg_type == Gst.MessageType.PROGRESS:
+            type_, code, text = message.parse_progress()
+            print(f"Progress: type={type_}, code={code}, text={text}")
+        elif msg_type == Gst.MessageType.TOC:
+            toc, updated = message.parse_toc()
+            print(f"TOC updated: {updated}")
+        elif msg_type == Gst.MessageType.RESET_TIME:
+            running_time = message.parse_reset_time()
+            print(f"Reset time: {running_time}")
+        elif msg_type == Gst.MessageType.STREAM_COLLECTION:
+            collection = message.parse_stream_collection()
+            print(f"Stream collection updated: {collection.get_size()} streams")
+        elif msg_type == Gst.MessageType.STREAMS_SELECTED:
+            collection = message.parse_streams_selected()
+            print(f"Streams selected from collection: {collection.get_size()} streams")
+        elif msg_type == Gst.MessageType.REDIRECT:
+            location = message.get_structure().get_string("new-location")
+            print(f"Redirect to: {location}")
+        elif msg_type == Gst.MessageType.DEVICE_ADDED:
+            device = message.parse_device_added()
+            print(f"Device added: {device.get_display_name()}")
+        elif msg_type == Gst.MessageType.DEVICE_REMOVED:
+            device = message.parse_device_removed()
+            print(f"Device removed: {device.get_display_name()}")
+        elif msg_type == Gst.MessageType.PROPERTY_NOTIFY:
+            obj, prop_name, val = message.parse_property_notify()
+            print(f"Property notify: object={obj.get_name()}, property={prop_name}, value={val}")
+        elif msg_type == Gst.MessageType.BUFFERING:
+            percent = message.parse_buffering()
+            print(f"Buffering: {percent}%")
+        elif msg_type == Gst.MessageType.STATE_DIRTY:
+            print("State dirty")
+        elif msg_type == Gst.MessageType.CLOCK_LOST:
+            print("Clock lost")
+        elif msg_type == Gst.MessageType.CLOCK_PROVIDE:
+            clock, ready = message.parse_clock_provide()
+            print(f"Clock provided: {clock.get_name()}, ready: {ready}")
+        elif msg_type == Gst.MessageType.NEW_CLOCK:
+            clock = message.parse_new_clock()
+            print(f"New clock: {clock.get_name()}")
+        elif msg_type == Gst.MessageType.STRUCTURE_CHANGE:
+            type_, owner, busy = message.parse_structure_change()
+            print(f"Structure change: type={type_}, owner={owner.get_name()}, busy={busy}")
+        elif msg_type == Gst.MessageType.REQUEST_STATE:
+            state = message.parse_request_state()
+            print(f"State requested: {state}")
+        elif msg_type == Gst.MessageType.STEP_START:
+            active, amount, rate, flush, intermediate = message.parse_step_start()
+            print(f"Step start: active={active}, amount={amount}, rate={rate}")
+        elif msg_type == Gst.MessageType.STEP_DONE:
+            amount, rate, flush, intermediate, duration, eos = message.parse_step_done()
+            print(f"Step done: amount={amount}, rate={rate}, duration={duration}")
+        elif msg_type == Gst.MessageType.LATENCY:
+            print("Latency changed")
+        elif msg_type == Gst.MessageType.HAVE_CONTEXT:
+            context = message.parse_have_context()
+            print(f"Have context: {context.get_context_type()}")
+        elif msg_type == Gst.MessageType.NEED_CONTEXT:
+            context_type = message.parse_context_type()
+            print(f"Need context: {context_type}")
 
     def play_this(self, thing, index=0):
         """Play tracks from a mix, album, playlist, or artist."""
