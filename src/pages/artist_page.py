@@ -88,6 +88,8 @@ class artistPage(Page):
 
         builder.get_object("_first_subtitle_label").set_label("Artist")
 
+        self.top_tracks = self.artist.get_top_tracks()
+
         tracks_list_widget = HTTracksListWidget("Top Tracks")
         self.disconnectables.append(tracks_list_widget)
         tracks_list_widget.set_function(self.artist.get_top_tracks)
@@ -175,7 +177,7 @@ class artistPage(Page):
         variables.player_object.play_this(self.top_tracks, 0)
 
     def on_shuffle_button_clicked(self, btn):
-        variables.player_object.play_this(self.shuffle_this, 0)
+        variables.player_object.shuffle_this(self.top_tracks, 0)
 
     def on_artist_radio_button_clicked(self, btn):
         from .track_radio_page import trackRadioPage
