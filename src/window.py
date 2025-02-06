@@ -225,7 +225,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.settings.set_int("last-playing-song-id", track.id)
 
         threading.Thread(
-            target=utils.add_image,
+            target=utils.add_picture,
             args=(self.playing_track_picture, album)).start()
 
         if self.player_object.is_playing:
