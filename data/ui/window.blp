@@ -24,7 +24,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
       content: Adw.OverlaySplitView {
         max-sidebar-width: 480;
         min-sidebar-width: 300;
-        sidebar-width-fraction: 0.4;
+        sidebar-width-fraction: 0.35;
 
         content: Adw.ToolbarView {
           content: Adw.LayoutSlot {
@@ -68,14 +68,14 @@ template $HighTideWindow: Adw.ApplicationWindow {
               Box {
                 AspectFrame {
                   height-request: 70;
-                  Image {
+                  Picture {
                     overflow: hidden;
                     margin-bottom: 6;
                     margin-end: 6;
                     margin-start: 6;
                     margin-top: 6;
-                    pixel-size: 60;
-                    icon-name: "emblem-music-symbolic";
+                    // pixel-size: 60;
+                    // icon-name: "emblem-music-symbolic";
                     file: bind playing_track_picture.file;
 
                     styles [
@@ -273,9 +273,8 @@ template $HighTideWindow: Adw.ApplicationWindow {
           child: ScrolledWindow {
             hscrollbar-policy: never;
             propagate-natural-height: true;
-            // max-content-height: 600;
             Box {
-              margin-bottom: 12;
+              margin-bottom: 24;
               margin-end: 12;
               margin-start: 12;
               margin-top: 12;
