@@ -75,6 +75,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     collection_button = Gtk.Template.Child()
     player_lyrics_queue = Gtk.Template.Child()
     navigation_buttons = Gtk.Template.Child()
+    buffer_spinner = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -105,7 +106,10 @@ class HighTideWindow(Adw.ApplicationWindow):
             "song-changed", self.on_song_changed)
         self.player_object.connect(
             "song-added-to-queue", self.on_song_added_to_queue)
-        self.player_object.connect("play-changed", self.update_controls)
+        self.player_object.connect(
+            "play-changed", self.update_controls)
+        self.player_object.connect(
+            "buffering", self.on_song_buffering)
 
         self.player_object.repeat = self.settings.get_int("repeat")
         if self.player_object.repeat == RepeatType.NONE:
@@ -244,13 +248,19 @@ class HighTideWindow(Adw.ApplicationWindow):
         else:
             self.queue_widget_updated = False
 
-    def update_controls(self, is_playing, *arg):
+    def update_controls(self, is_playing, *args):
         if not is_playing:
             self.play_button.set_icon_name("media-playback-pause-symbolic")
             print("pause")
         else:
             self.play_button.set_icon_name("media-playback-start-symbolic")
             print("play")
+
+    def on_song_buffering(self, player, percentage):
+        if percentage != 100:
+            self.buffer_spinner.set_visible(True)
+        else:
+            self.buffer_spinner.set_visible(False)
 
     def new_login(self):
         """Opens a LoginDialog"""
@@ -359,7 +369,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def change_audio_sink(self, sink):
         self.player_object.change_audio_sink(sink)
-        self.settings.set_int("preferred-sink")
+        self.settings.set_int("preferred-sink", sink)
 
     @Gtk.Template.Callback("on_track_radio_button_clicked")
     def on_track_radio_button_clicked_func(self, widget):
@@ -401,10 +411,11 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_slider_seek")
     def on_slider_seek(self, *args):
         seek_fraction = self.progress_bar.get_value()
-        print("seeking: ", abs(seek_fraction - self.previous_fraction))
 
         if abs(seek_fraction - self.previous_fraction) == 0.0:
             return
+
+        print("seeking: ", abs(seek_fraction - self.previous_fraction))
 
         self.player_object.seek(seek_fraction)
         self.previous_fraction = seek_fraction

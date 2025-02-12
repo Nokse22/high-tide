@@ -63,9 +63,7 @@ class PlayerObject(GObject.GObject):
         'buffering': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
     }
 
-    # TODO add add_to_queue and play_next back!!!
-
-    def __init__(self, preferred_sink=AudioSink.AUTO, sink_device=None):
+    def __init__(self, preferred_sink=AudioSink.AUTO):
         GObject.GObject.__init__(self)
         Gst.init()
 
@@ -74,18 +72,15 @@ class PlayerObject(GObject.GObject):
         if not self._player:
             raise RuntimeError("Could not create playbin3 element")
 
-        self._player.set_property('buffer-size', 5 << 20)
-        self._player.set_property('buffer-duration', 10 * Gst.SECOND)
-
         # Configure audio sink
-        self._setup_audio_sink(preferred_sink, sink_device)
+        self._setup_audio_sink(preferred_sink)
 
         # Set up message bus
         self._bus = self._player.get_bus()
         self._bus.add_signal_watch()
         self._bus.connect('message::eos', self._on_bus_eos)
         self._bus.connect('message::error', self._on_bus_error)
-        self._bus.connect('message', self._on_bus_message)
+        self._bus.connect('message::buffering', self._on_buffering_message)
 
         # Initialize state variables
         self.queue = []
@@ -94,7 +89,6 @@ class PlayerObject(GObject.GObject):
         self.tracks_to_play = []
         self._shuffled_tracks_to_play = []
         self.played_songs = []
-
         self.shuffle_mode = False
         self.is_playing = False
         self.playing_track = None
@@ -104,8 +98,8 @@ class PlayerObject(GObject.GObject):
         self.can_next = False
         self.can_prev = False
 
-    def _setup_audio_sink(self, sink_type, device):
-        """Configure the audio sink based on preferences."""
+    def _setup_audio_sink(self, sink_type):
+        """Configure the audio sink using parse_launch for simplicity."""
         sink_map = {
             AudioSink.AUTO: 'autoaudiosink',
             AudioSink.PULSE: 'pulsesink',
@@ -115,28 +109,28 @@ class PlayerObject(GObject.GObject):
         }
 
         sink_name = sink_map.get(sink_type, 'autoaudiosink')
-        sink_element = Gst.ElementFactory.make(sink_name, 'audio_sink')
 
-        if not sink_element:
-            print(f"Could not create {sink_name}, falling back to auto")
-            sink_element = Gst.ElementFactory.make(
-                'autoaudiosink', 'audio_sink')
-            if not sink_element:
-                raise RuntimeError("Could not create audio sink")
+        pipeline_str = f"queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! audioconvert ! audioresample ! {sink_name}"
 
-        if device and sink_type != AudioSink.AUTO:
-            sink_element.set_property('device', device)
+        try:
+            audio_bin = Gst.parse_bin_from_description(pipeline_str, True)
+            if not audio_bin:
+                raise RuntimeError("Failed to create audio bin")
 
-        self._player.set_property('audio-sink', sink_element)
+            self._player.set_property('audio-sink', audio_bin)
+        except GLib.Error as e:
+            print(f"Error creating pipeline: {e}")
+            self._player.set_property(
+                'audio-sink', Gst.ElementFactory.make('autoaudiosink', None))
 
-    def change_audio_sink(self, sink_type, device=None):
+    def change_audio_sink(self, sink_type):
         """Change the audio sink while maintaining playback state."""
         was_playing = self.is_playing
         position = self.query_position()
         duration = self.query_duration()
 
         self._player.set_state(Gst.State.NULL)
-        self._setup_audio_sink(sink_type, device)
+        self._setup_audio_sink(sink_type)
 
         if was_playing and duration != 0:
             self._player.set_state(Gst.State.PLAYING)
@@ -152,18 +146,11 @@ class PlayerObject(GObject.GObject):
         print(f"Error: {err.message}")
         print(f"Debug info: {debug}")
 
-    def _on_bus_message(self, bus, message):
-        msg_type = message.type
-        msg_src = message.src.get_name()
-        print(f"Got message {msg_type} from {msg_src}")
+    def _on_buffering_message(self, bus, message):
+        buffer_per = message.parse_buffering()
+        mode, avg_in, avg_out, buff_left = message.parse_buffering_stats()
 
-        if msg_type == Gst.MessageType.BUFFERING:
-            percent = message.parse_buffering()
-            mode, avg_in, avg_out, buff_left = message.parse_buffering_stats()
-            if (percent == 1):
-                position = self.query_position()
-                duration = self.query_duration()
-                self.seek(position / duration)
+        self.emit("buffering", buffer_per)
 
     def play_this(self, thing, index=0):
         """Play tracks from a mix, album, playlist, or artist."""
@@ -194,7 +181,6 @@ class PlayerObject(GObject.GObject):
 
     def get_track_list(self, thing):
         """Convert various sources into a list of tracks."""
-        print(thing)
         if isinstance(thing, Mix):
             return thing.items()
         elif isinstance(thing, Album):
@@ -237,6 +223,7 @@ class PlayerObject(GObject.GObject):
         """Thread for loading and playing a track."""
         try:
             music_url = track.get_url()
+            print(music_url)
             GLib.idle_add(self._play_track_url, track, music_url)
         except Exception as e:
             print(f"Error getting track URL: {e}")
@@ -246,8 +233,6 @@ class PlayerObject(GObject.GObject):
         self._player.set_state(Gst.State.NULL)
         self._player.set_property("uri", music_url)
         self.duration = self.query_duration()
-
-        print(music_url)
 
         if self.is_playing:
             self.play()

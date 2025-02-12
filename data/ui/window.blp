@@ -283,19 +283,28 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
               AspectFrame {
                 height-request: 280;
-                child: Picture playing_track_picture {
-                  overflow: hidden;
-                  halign: center;
-                  hexpand: true;
-                  margin-bottom: 12;
-                  margin-end: 12;
-                  margin-start: 12;
-                  margin-top: 12;
-                  valign: center;
-                  vexpand: true;
-                  styles [
-                    "track-picture"
-                  ]
+                child: Overlay {
+                  child: Picture playing_track_picture {
+                    overflow: hidden;
+                    halign: center;
+                    hexpand: true;
+                    margin-bottom: 12;
+                    margin-end: 12;
+                    margin-start: 12;
+                    margin-top: 12;
+                    valign: center;
+                    vexpand: true;
+                    styles [
+                      "track-picture"
+                    ]
+                  };
+
+                  [overlay]
+                  Adw.Spinner buffer_spinner{
+                    visible: false;
+                    hexpand: true;
+                    vexpand: true;
+                  }
                 };
               }
 

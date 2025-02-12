@@ -114,7 +114,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
             creator = creator.name
         else:
             creator = "TIDAL"
-        self.detail_label.set_label(f"by {creator}")
+        # self.detail_label.set_label(f"by {creator}")
 
         threading.Thread(
             target=utils.add_image,
