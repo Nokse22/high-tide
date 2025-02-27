@@ -271,6 +271,11 @@ class PlayerObject(GObject.GObject):
 
     def play_previous(self):
         """Play the previous track."""
+        # if not in the first 2 seconds of the track restart song
+        if self.query_position() > 2 * Gst.SECOND:
+            self.seek(0)
+            return
+
         if not self.played_songs:
             return
 
