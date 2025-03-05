@@ -28,6 +28,7 @@ import threading
 from .page import Page
 
 from ..lib import variables
+from ..disconnectable_iface import IDisconnectable
 
 from gettext import gettext as _
 
@@ -40,6 +41,7 @@ class artistPage(Page):
     # TODO Add missing features: influences, appears on, credits and so on
 
     def __init__(self, _artist, _name):
+        IDisconnectable.__init__(self)
         super().__init__(_artist, _name)
 
         self.top_tracks = []

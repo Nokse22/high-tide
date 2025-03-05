@@ -45,7 +45,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
     it is used when listing artists, albums, mixes and so on"""
 
     image = Gtk.Template.Child()
-    card_button = Gtk.Template.Child()
+    click_gesture = Gtk.Template.Child()
     title_label = Gtk.Template.Child()
     detail_label = Gtk.Template.Child()
 
@@ -61,8 +61,8 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
                 "activate-link", variables.open_uri)))
 
         self.signals.append((
-            self.card_button,
-            self.card_button.connect("clicked", self.on_button_clicked)))
+            self.click_gesture,
+            self.click_gesture.connect("released", self.on_click)))
 
         self.item = _item
 
@@ -149,7 +149,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             target=utils.add_image,
             args=(self.image, self.item)).start()
 
-    def on_button_clicked(self, *args):
+    def on_click(self, *args):
         if isinstance(self.item, Mix) or isinstance(self.item, MixV2):
             from ..pages import mixPage
             page = mixPage(self.item, f"{self.item.title}")

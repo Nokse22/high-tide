@@ -1,14 +1,5 @@
-.hover-show{
-    opacity:0;
-    transition: opacity 0.5s ease-in-out;
-}
-
 .rounded {
   border-radius: 20px;
-}
-
-.hover-show:hover{
-  opacity:100;
 }
 
 .small-pill{
@@ -17,11 +8,6 @@
 
 .card-image{
   border-radius:10px;
-  transition: opacity 0.1s ease-in-out;
-}
-
-.card-image:hover{
-  opacity: 0.8;
 }
 
 .small-image{
@@ -35,7 +21,7 @@
 }
 
 .card-bg:hover{
-  background-color:var(--card-bg-color);
+  background-color:alpha(var(--window-fg-color), 0.1);
 }
 
 .artist-link{
@@ -56,12 +42,6 @@
 
 .card-label{
   padding:6px;
-}
-
-.card-button{
-  padding:0px;
-  border-radius:10px;
-  background-color:black;
 }
 
 .artist-button{
