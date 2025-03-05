@@ -65,7 +65,7 @@ template $HTGenericTrackWidget: ListBoxRow {
             ]
 
             ellipsize: end;
-            label: "Title";
+            label: _("Title");
             vexpand: true;
             xalign: 0.0;
           }
@@ -157,21 +157,21 @@ template $HTGenericTrackWidget: ListBoxRow {
 menu track_menu {
   item {
     action: "trackwidget.radio";
-    label: "Go to track radio";
+    label: _("Go to track radio");
   }
 
   item {
     action: "trackwidget.play-next";
-    label: "Play next";
+    label: _("Play next");
   }
 
   item {
     action: "trackwidget.add-to-queue";
-    label: "Add to queue";
+    label: _("Add to queue");
   }
 
   item {
     action: "trackwidget.add-to-my-collection";
-    label: "Add to my collection";
+    label: _("Add to my collection");
   }
 }

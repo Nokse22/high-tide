@@ -43,7 +43,7 @@ ListBoxRow _main {
 
         Label _track_album_label {
           ellipsize: end;
-          label: "Album";
+          label: _("Album");
           xalign: 0.0;
 
           layout {
@@ -59,7 +59,7 @@ ListBoxRow _main {
           ]
 
           ellipsize: end;
-          label: "Title";
+          label: _("Title");
           vexpand: true;
           xalign: 0.0;
 
@@ -90,7 +90,7 @@ ListBoxRow _main {
           ]
 
           ellipsize: end;
-          label: "Title";
+          label: _("Title");
           vexpand: true;
           xalign: 0.0;
         }
@@ -134,17 +134,17 @@ ListBoxRow _main {
             selection-mode: none;
 
             Label {
-              label: "Go to track radio";
+              label: _("Go to track radio");
               xalign: 0.0;
             }
 
             Label {
-              label: "Play next";
+              label: _("Play next");
               xalign: 0.0;
             }
 
             Label {
-              label: "Add to my collection";
+              label: _("Add to my collection");
               xalign: 0.0;
             }
           }
@@ -159,21 +159,21 @@ ListBoxRow _main {
 menu track_menu {
   item {
     action: "app.radio";
-    label: "Go to track radio";
+    label: _("Go to track radio");
   }
 
   item {
     action: "track-radio";
-    label: "Play next";
+    label: _("Play next");
   }
 
   item {
     action: "track-radio";
-    label: "Add to queue";
+    label: _("Add to queue");
   }
 
   item {
     action: "track-radio";
-    label: "Add to my collection";
+    label: _("Add to my collection");
   }
 }
