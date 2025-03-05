@@ -18,16 +18,14 @@ favourite_playlists = []
 
 
 def init():
-    global DATA_DIR
-    DATA_DIR = os.environ.get('XDG_DATA_HOME')
     CACHE_DIR = os.environ.get('XDG_CACHE_HOME')
+    if CACHE_DIR == "" or CACHE_DIR is None:
+        CACHE_DIR = f"{os.environ.get('HOME')}/.cache/high-tide"
     global IMG_DIR
     IMG_DIR = f"{CACHE_DIR}/images"
 
     if not os.path.exists(IMG_DIR):
         os.makedirs(IMG_DIR)
-
-    print(DATA_DIR)
 
     global session
     global navigation_view
