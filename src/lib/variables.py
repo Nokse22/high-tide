@@ -19,7 +19,7 @@ favourite_playlists = []
 
 def init():
     CACHE_DIR = os.environ.get('XDG_CACHE_HOME')
-    if CACHE_DIR == "" or CACHE_DIR is None:
+    if CACHE_DIR == "" or CACHE_DIR is None or "HighTide" not in CACHE_DIR:
         CACHE_DIR = f"{os.environ.get('HOME')}/.cache/high-tide"
     global IMG_DIR
     IMG_DIR = f"{CACHE_DIR}/images"
