@@ -22,6 +22,7 @@ from gi.repository import Gio
 from gi.repository import Gdk
 
 import requests
+import uuid
 import re
 import html
 
@@ -45,63 +46,49 @@ def pretty_duration(secs):
     return "00:00"
 
 
-def add_picture(picture_widget, item):
-
-    """Retrieves and adds an picture"""
-
-    file_path = Path(f"{variables.IMG_DIR}/{item.id}.jpg")
+def get_image_url(item):
+    if hasattr(item, "id"):
+        file_path = Path(f"{variables.IMG_DIR}/{item.id}.jpg")
+    else:
+        file_path = Path(f"{variables.IMG_DIR}/{uuid.uuid4()}.jpg")
 
     if file_path.is_file():
-        GLib.idle_add(_add_picture, picture_widget, str(file_path))
+        return str(file_path)
 
     try:
         picture_url = item.image()
         response = requests.get(picture_url)
     except Exception as e:
-        print(str(e))
-        return
+        print(e)
+        return None
     if response.status_code == 200:
         picture_data = response.content
 
         with open(file_path, "wb") as file:
             file.write(picture_data)
 
-        GLib.idle_add(_add_picture, picture_widget, str(file_path))
+    return str(file_path)
 
 
-def _add_picture(picture_widget, file_path):
-    picture_widget.set_filename(file_path)
+def add_picture(picture_widget, item):
+    """Retrieves and adds an picture"""
+
+    def _add_picture(picture_widget, file_path):
+        picture_widget.set_filename(file_path)
+
+    GLib.idle_add(_add_picture, picture_widget, get_image_url(item))
 
 
 def add_image(image_widget, item):
     """Retrieves and adds an image"""
 
-    file_path = Path(f"{variables.IMG_DIR}/{item.id}.jpg")
+    def _add_image(image_widget, file_path):
+        image_widget.set_from_file(file_path)
 
-    if file_path.is_file():
-        GLib.idle_add(_add_image, image_widget, str(file_path))
-
-    try:
-        image_url = item.image()
-        response = requests.get(image_url)
-    except Exception as e:
-        print(str(e))
-        return
-    if response.status_code == 200:
-        image_data = response.content
-
-        with open(file_path, "wb") as file:
-            file.write(image_data)
-
-        GLib.idle_add(_add_image, image_widget, str(file_path))
-
-
-def _add_image(image_widget, file_path):
-    image_widget.set_from_file(file_path)
+    GLib.idle_add(_add_image, image_widget, get_image_url(item))
 
 
 def add_image_to_avatar(avatar_widget, item):
-
     """Same ad the previous function, but for Adwaita's avatar widgets"""
 
     def _add_image_to_avatar(avatar_widget, file_path):
@@ -109,25 +96,7 @@ def add_image_to_avatar(avatar_widget, item):
         image = Gdk.Texture.new_from_file(file)
         avatar_widget.set_custom_image(image)
 
-    file_path = Path(f"{variables.IMG_DIR}/{item.id}.jpg")
-
-    if file_path.is_file():
-        GLib.idle_add(_add_image_to_avatar, avatar_widget, str(file_path))
-
-    try:
-        image_url = item.image()
-        response = requests.get(image_url)
-    except Exception as e:
-        print(str(e))
-        avatar_widget.set_icon_name("emblem-music-symbolic")
-        return
-    if response.status_code == 200:
-        image_data = response.content
-
-        with open(file_path, "wb") as file:
-            file.write(image_data)
-
-        GLib.idle_add(_add_image_to_avatar, avatar_widget, str(file_path))
+    GLib.idle_add(_add_image_to_avatar, avatar_widget, get_image_url(item))
 
 
 def replace_links(text):

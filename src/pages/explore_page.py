@@ -67,8 +67,7 @@ class explorePage(Page):
 
             for index, item in enumerate(category.items):
                 if isinstance(item, PageItem):  # Featured
-                    button = self.get_page_item_card(item)
-                    cards_box.append(button)
+                    cards_box.append(self.get_card(item.get()))
                 elif isinstance(item, PageLink):  # Generes and moods
                     if buttons_for_page == 4:
                         flow_box = Gtk.FlowBox(
@@ -80,17 +79,13 @@ class explorePage(Page):
                     flow_box.append(button)
                     buttons_for_page += 1
                 elif isinstance(item, Mix):  # Mixes and for you
-                    button = self.get_mix_card(item)
-                    cards_box.append(button)
+                    cards_box.append(self.get_card(item))
                 elif isinstance(item, Album):
-                    album_card = self.get_album_card(item)
-                    cards_box.append(album_card)
+                    cards_box.append(self.get_card(item))
                 elif isinstance(item, Artist):
-                    button = self.get_artist_card(item)
-                    cards_box.append(button)
+                    cards_box.append(self.get_card(item))
                 elif isinstance(item, Playlist):
-                    button = self.get_playlist_card(item)
-                    cards_box.append(button)
+                    cards_box.append(self.get_card(item))
 
         self._page_loaded()
 

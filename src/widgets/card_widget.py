@@ -74,8 +74,6 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             self.make_playlist_card()
         elif isinstance(_item, Artist):
             self.make_artist_card()
-        elif isinstance(_item, PageItem):
-            self.make_page_item_card()
         elif isinstance(_item, Track):
             self.make_track_card()
 
@@ -133,16 +131,6 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
         self.detail_label.set_label("Artist")
-        self.track_artist_label.set_visible(False)
-
-        threading.Thread(
-            target=utils.add_image,
-            args=(self.image, self.item)).start()
-
-    def make_page_item_card(self):
-        self.title_label.set_label(self.item.short_header)
-        self.title_label.set_tooltip_text(self.item.short_header)
-        self.detail_label.set_label(self.item.short_sub_header)
         self.track_artist_label.set_visible(False)
 
         threading.Thread(

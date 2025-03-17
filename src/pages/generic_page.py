@@ -26,7 +26,6 @@ from tidalapi.media import Track
 from tidalapi.playlist import Playlist
 
 from .page import Page
-from ..widgets import HTCarouselWidget
 from ..widgets import HTTracksListWidget
 
 
@@ -54,23 +53,18 @@ class genericPage(Page):
 
                 for item in category.items:
                     if isinstance(item, PageItem):  # Featured
-                        button = self.get_page_item_card(item)
-                        carousel.append_card(button)
+                        carousel.append_card(self.get_card(item.get()))
                     elif isinstance(item, PageLink):  # Generes and moods
                         items.append("\t" + item.title)
                         button = self.get_page_link_card(item)
                         carousel.append_card(button)
                     elif isinstance(item, Mix):  # Mixes and for you
-                        button = self.get_mix_card(item)
-                        carousel.append_card(button)
+                        carousel.append_card(self.get_card(item))
                     elif isinstance(item, Album):
-                        album_card = self.get_album_card(item)
-                        carousel.append_card(album_card)
+                        carousel.append_card(self.get_card(item))
                     elif isinstance(item, Artist):
-                        button = self.get_artist_card(item)
-                        carousel.append_card(button)
+                        carousel.append_card(self.get_card(item))
                     elif isinstance(item, Playlist):
-                        button = self.get_playlist_card(item)
-                        carousel.append_card(button)
+                        carousel.append_card(self.get_card(item))
 
         self._page_loaded()

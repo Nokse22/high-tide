@@ -76,7 +76,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
 
         GLib.idle_add(_add_content_to_page)
 
-    def get_album_card(self, item):
+    def get_card(self, item):
         card = HTCardWidget(item)
         self.disconnectables.append(card)
         return card
@@ -86,20 +86,10 @@ class Page(Adw.NavigationPage, IDisconnectable):
         self.disconnectables.append(track_listing)
         return track_listing
 
-    def get_mix_card(self, item):
-        card = HTCardWidget(item)
-        self.disconnectables.append(card)
-        return card
-
     def get_album_track_listing(self, track):
         track_listing = HTGenericTrackWidget(track, True)
         self.disconnectables.append(track_listing)
         return track_listing
-
-    def get_playlist_card(self, playlist):
-        card = HTCardWidget(playlist)
-        self.disconnectables.append(card)
-        return card
 
     def on_mix_button_clicked(self, btn, mix):
         variables.sidebar_list.select_row(None)
@@ -211,16 +201,6 @@ class Page(Adw.NavigationPage, IDisconnectable):
         page = artistPage(artist, artist.name)
         page.load()
         variables.navigation_view.push(page)
-
-    def get_artist_card(self, item):
-        card = HTCardWidget(item)
-        self.disconnectables.append(card)
-        return card
-
-    def get_page_item_card(self, page_item):
-        card = HTCardWidget(page_item)
-        self.disconnectables.append(card)
-        return card
 
     def get_page_link_card(self, page_link):
         button = Gtk.Button(
