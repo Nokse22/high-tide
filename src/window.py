@@ -62,6 +62,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     small_progress_bar = Gtk.Template.Child()
     song_title_label = Gtk.Template.Child()
     playing_track_picture = Gtk.Template.Child()
+    playing_track_image = Gtk.Template.Child()
     artist_label = Gtk.Template.Child()
     miniplayer_artist_label = Gtk.Template.Child()
     volume_button = Gtk.Template.Child()
@@ -144,6 +145,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.previous_fraction = 0
         self.favourite_playlists = []
         self.my_playlists = []
+
+        self.image_canc = None
 
         self.queue_widget_updated = False
 
@@ -228,9 +231,17 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.settings.set_int("last-playing-song-id", track.id)
 
+        if self.image_canc:
+            self.image_canc.cancel()
+            self.image_canc = Gio.Cancellable.new()
+
         threading.Thread(
             target=utils.add_picture,
-            args=(self.playing_track_picture, album)).start()
+            args=(self.playing_track_picture, album, self.image_canc)).start()
+
+        threading.Thread(
+            target=utils.add_image,
+            args=(self.playing_track_image, album)).start()
 
         if self.player_object.is_playing:
             self.play_button.set_icon_name("media-playback-pause-symbolic")

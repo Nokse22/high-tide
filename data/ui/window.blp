@@ -66,22 +66,20 @@ template $HighTideWindow: Adw.ApplicationWindow {
               }
 
               Box {
-                AspectFrame {
+                Image playing_track_image {
                   height-request: 70;
-                  Picture {
-                    overflow: hidden;
-                    margin-bottom: 6;
-                    margin-end: 6;
-                    margin-start: 6;
-                    margin-top: 6;
-                    // pixel-size: 60;
-                    // icon-name: "emblem-music-symbolic";
-                    file: bind playing_track_picture.file;
+                  width-request: 70;
+                  overflow: hidden;
+                  margin-bottom: 6;
+                  margin-end: 6;
+                  margin-start: 6;
+                  margin-top: 6;
+                  pixel-size: 60;
+                  icon-name: "emblem-music-symbolic";
 
-                    styles [
-                      "small-image",
-                    ]
-                  }
+                  styles [
+                    "small-image",
+                  ]
                 }
 
                 Box {
@@ -157,7 +155,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
           content: Adw.LayoutSlot {
             id: "content-navigation-view";
-            margin-bottom: 74;
+            margin-bottom: 136;
           };
 
           sheet: Adw.LayoutSlot {
