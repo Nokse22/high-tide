@@ -67,7 +67,12 @@ class explorePage(Page):
 
             for index, item in enumerate(category.items):
                 if isinstance(item, PageItem):  # Featured
-                    cards_box.append(self.get_card(item.get()))
+                    try:
+                        new_item = item.get()
+                    except Exception as e:
+                        print(e)
+                        continue
+                    cards_box.append(self.get_card(new_item))
                 elif isinstance(item, PageLink):  # Generes and moods
                     if buttons_for_page == 4:
                         flow_box = Gtk.FlowBox(
