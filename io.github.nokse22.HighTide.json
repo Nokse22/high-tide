@@ -1,7 +1,7 @@
 {
     "app-id" : "io.github.nokse22.HighTide",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "47",
+    "runtime-version" : "48",
     "sdk" : "org.gnome.Sdk",
     "command" : "HighTide",
     "finish-args" : [
