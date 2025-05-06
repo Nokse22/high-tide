@@ -18,6 +18,7 @@ favourite_playlists = []
 
 
 def init():
+    global CACHE_DIR
     CACHE_DIR = os.environ.get('XDG_CACHE_HOME')
     if CACHE_DIR == "" or CACHE_DIR is None or "HighTide" not in CACHE_DIR:
         CACHE_DIR = f"{os.environ.get('HOME')}/.cache/high-tide"
@@ -40,12 +41,14 @@ def get_favourites():
     global favourite_artists
     global favourite_albums
     global favourite_playlists
+    global playlist_and_favorite_playlists
 
     favourite_artists = session.user.favorites.artists()
     favourite_tracks = session.user.favorites.tracks()
     favourite_albums = session.user.favorites.albums()
     favourite_playlists = session.user.favorites.playlists()
     favourite_mixes = session.user.favorites.mixes()
+    playlist_and_favorite_playlists = session.user.playlist_and_favorite_playlists()
 
 
 def is_favourited(item):

@@ -45,7 +45,7 @@ class collectionPage(Page):
         self.new_carousel_for(
             "My Mixes and Radios", variables.favourite_mixes)
         self.new_carousel_for(
-            "Playlists", variables.favourite_playlists)
+            "Playlists", variables.playlist_and_favorite_playlists)
         self.new_carousel_for(
             "Albums", variables.favourite_albums)
         self.new_carousel_for(
