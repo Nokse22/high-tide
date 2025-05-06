@@ -148,7 +148,7 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         if isinstance(selected_playlist, UserPlaylist):
             selected_playlist.add([self.track.id])
 
-            print(f"Added to playlist: {selected_playlist.name}, Index: {playlist_index}")
+            print(f"Added to playlist: {selected_playlist.name}")
 
     def on_open_uri(self, label, uri, *args):
         variables.open_uri(label, uri)

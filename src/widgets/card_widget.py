@@ -24,7 +24,6 @@ import threading
 
 from ..lib import utils
 
-from tidalapi.page import PageItem
 from tidalapi.mix import MixV2, Mix
 from tidalapi.artist import Artist
 from tidalapi.album import Album
