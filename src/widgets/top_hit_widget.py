@@ -99,7 +99,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         self.secondary_label.set_label("Album")
 
         self.artist_label.set_visible(True)
-        self.artist_label.set_artists(self.item.artist.name)
+        self.artist_label.set_artists([self.item.artist])
 
         threading.Thread(
             target=utils.add_image,
