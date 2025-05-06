@@ -21,7 +21,7 @@ from gi.repository import Gtk
 
 from tidalapi.page import PageItem, PageLink
 from tidalapi.artist import Artist
-from tidalapi.mix import Mix
+from tidalapi.mix import Mix, MixV2
 from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
@@ -63,11 +63,11 @@ class collectionPage(Page):
         carousel = self.get_carousel(carousel_title)
         self.page_content.append(carousel)
 
-        if isinstance(carousel_content[0], Mix):
+        if isinstance(carousel_content[0], MixV2):
             carousel.set_items(carousel_content, "mix")
         elif isinstance(carousel_content[0], Album):
             carousel.set_items(carousel_content, "album")
-        elif isinstance(carousel_content, Artist):
+        elif isinstance(carousel_content[0], Artist):
             carousel.set_items(carousel_content, "artist")
         elif isinstance(carousel_content[0], Playlist):
             carousel.set_items(carousel_content, "playlist")
