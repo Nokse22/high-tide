@@ -20,14 +20,18 @@
 import random
 import threading
 from enum import IntEnum
+from pathlib import Path
 
 from tidalapi.mix import Mix
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.playlist import Playlist
+from tidalapi.media import ManifestMimeType
 
 from gi.repository import GObject
 from gi.repository import Gst, GLib
+
+from . import variables
 
 
 class RepeatType(IntEnum):
@@ -65,18 +69,27 @@ class PlayerObject(GObject.GObject):
 
     def __init__(self, preferred_sink=AudioSink.AUTO):
         GObject.GObject.__init__(self)
-        Gst.init()
 
-        # Initialize player
-        self._player = Gst.ElementFactory.make('playbin3', 'player')
-        if not self._player:
-            raise RuntimeError("Could not create playbin3 element")
+        Gst.init(None)
+
+        version_str = Gst.version_string()
+        print(f"GStreamer version string: {version_str}")
+
+        self.pipeline = Gst.Pipeline.new("dash-player")
+
+        # Create a playbin element instead - much simpler approach
+        self.playbin = Gst.ElementFactory.make("playbin3", "playbin")
+        if not self.playbin:
+            print("Could not create playbin3 element, trying playbin...")
+            self.playbin = Gst.ElementFactory.make("playbin", "playbin")
+
+        self.pipeline.add(self.playbin)
 
         # Configure audio sink
         self._setup_audio_sink(preferred_sink)
 
         # Set up message bus
-        self._bus = self._player.get_bus()
+        self._bus = self.pipeline.get_bus()
         self._bus.add_signal_watch()
         self._bus.connect('message::eos', self._on_bus_eos)
         self._bus.connect('message::error', self._on_bus_error)
@@ -117,10 +130,10 @@ class PlayerObject(GObject.GObject):
             if not audio_bin:
                 raise RuntimeError("Failed to create audio bin")
 
-            self._player.set_property('audio-sink', audio_bin)
+            self.playbin.set_property('audio-sink', audio_bin)
         except GLib.Error as e:
             print(f"Error creating pipeline: {e}")
-            self._player.set_property(
+            self.playbin.set_property(
                 'audio-sink', Gst.ElementFactory.make('autoaudiosink', None))
 
     def change_audio_sink(self, sink_type):
@@ -129,11 +142,11 @@ class PlayerObject(GObject.GObject):
         position = self.query_position()
         duration = self.query_duration()
 
-        self._player.set_state(Gst.State.NULL)
+        self.pipeline.set_state(Gst.State.NULL)
         self._setup_audio_sink(sink_type)
 
         if was_playing and duration != 0:
-            self._player.set_state(Gst.State.PLAYING)
+            self.pipeline.set_state(Gst.State.PLAYING)
             self.seek(position / duration)
 
     def _on_bus_eos(self, *args):
@@ -198,7 +211,7 @@ class PlayerObject(GObject.GObject):
         self.is_playing = True
         self.notify("is_playing")
         self.emit("play-changed", self.is_playing)
-        self._player.set_state(Gst.State.PLAYING)
+        self.pipeline.set_state(Gst.State.PLAYING)
         GLib.timeout_add(1000, self._update_slider_callback)
 
     def pause(self):
@@ -206,7 +219,7 @@ class PlayerObject(GObject.GObject):
         self.is_playing = False
         self.notify("is_playing")
         self.emit("play-changed", self.is_playing)
-        self._player.set_state(Gst.State.PAUSED)
+        self.pipeline.set_state(Gst.State.PAUSED)
 
     def play_pause(self):
         """Toggle between play and pause states."""
@@ -222,17 +235,38 @@ class PlayerObject(GObject.GObject):
     def _play_track_thread(self, track):
         """Thread for loading and playing a track."""
         try:
-            music_url = track.get_url()
-            print(music_url)
+            stream = track.get_stream()
+            manifest = stream.get_stream_manifest()
+            urls = manifest.get_urls()
+
+            if stream.manifest_mime_type == ManifestMimeType.MPD:
+                data = stream.get_manifest_data()
+                if data:
+                    mpd_path = Path(variables.CACHE_DIR, "manifest.mpd")
+                    with open(mpd_path, "w") as file:
+                        file.write(data)
+
+                    music_url = "file://{}".format(mpd_path)
+                else:
+                    raise AttributeError("No MPD manifest available!")
+            elif stream.manifest_mime_type == ManifestMimeType.BTS:
+                urls = manifest.get_urls()
+                if isinstance(urls, list):
+                    music_url = urls[0]
+                else:
+                    music_url = urls
+
             GLib.idle_add(self._play_track_url, track, music_url)
         except Exception as e:
             print(f"Error getting track URL: {e}")
 
     def _play_track_url(self, track, music_url):
         """Set up and play track from URL."""
-        self._player.set_state(Gst.State.NULL)
-        self._player.set_property("uri", music_url)
+        self.pipeline.set_state(Gst.State.NULL)
+        self.playbin.set_property("uri", music_url)
         self.duration = self.query_duration()
+
+        print(music_url)
 
         if self.is_playing:
             self.play()
@@ -311,7 +345,7 @@ class PlayerObject(GObject.GObject):
         self.emit("song-added-to-queue")
 
     def change_volume(self, value):
-        self._player.set_property("volume", value)
+        self.playbin.set_property("volume", value)
         self.emit("volume-changed", value)
 
     def _update_slider_callback(self):
@@ -324,17 +358,17 @@ class PlayerObject(GObject.GObject):
 
     def query_duration(self):
         """Get the duration of the current track."""
-        success, duration = self._player.query_duration(Gst.Format.TIME)
+        success, duration = self.playbin.query_duration(Gst.Format.TIME)
         return duration if success else 0
 
     def query_position(self):
         """Get the current playback position."""
-        success, position = self._player.query_position(Gst.Format.TIME)
+        success, position = self.playbin.query_position(Gst.Format.TIME)
         return position if success else 0
 
     def seek(self, seek_fraction):
         """Seek to a position in the current track."""
-        self._player.seek_simple(
+        self.playbin.seek_simple(
             Gst.Format.TIME,
             Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
             int(seek_fraction * self.query_duration()))
