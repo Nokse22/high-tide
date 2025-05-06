@@ -11,10 +11,13 @@ from ..pages import albumPage
 
 import threading
 
+favourite_mixes = []
 favourite_tracks = []
 favourite_artists = []
 favourite_albums = []
 favourite_playlists = []
+playlist_and_favorite_playlists = []
+user_playlists = []
 
 
 def init():
@@ -42,13 +45,18 @@ def get_favourites():
     global favourite_albums
     global favourite_playlists
     global playlist_and_favorite_playlists
+    global user_playlists
 
-    favourite_artists = session.user.favorites.artists()
-    favourite_tracks = session.user.favorites.tracks()
-    favourite_albums = session.user.favorites.albums()
-    favourite_playlists = session.user.favorites.playlists()
-    favourite_mixes = session.user.favorites.mixes()
-    playlist_and_favorite_playlists = session.user.playlist_and_favorite_playlists()
+    try:
+        favourite_artists = session.user.favorites.artists()
+        favourite_tracks = session.user.favorites.tracks()
+        favourite_albums = session.user.favorites.albums()
+        favourite_playlists = session.user.favorites.playlists()
+        # favourite_mixes = session.user.favorites.mixes()
+        playlist_and_favorite_playlists = session.user.playlist_and_favorite_playlists()
+        user_playlists = session.user.playlists()
+    except Exception as e:
+        print(e)
 
 
 def is_favourited(item):

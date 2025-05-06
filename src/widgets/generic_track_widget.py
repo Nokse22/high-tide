@@ -19,10 +19,13 @@
 
 
 from gi.repository import Gtk
-from gi.repository import Gio
+from gi.repository import Gio, GLib
 from ..lib import utils
 from ..lib import variables
 from ..disconnectable_iface import IDisconnectable
+
+from tidalapi.playlist import UserPlaylist
+
 import threading
 
 
@@ -36,7 +39,7 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     image = Gtk.Template.Child()
     track_title_label = Gtk.Template.Child()
     track_duration_label = Gtk.Template.Child()
-    # playlists_submenu = Gtk.Template.Child()
+    playlists_submenu = Gtk.Template.Child()
     _grid = Gtk.Template.Child()
     explicit_label = Gtk.Template.Child()
 
@@ -82,35 +85,25 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             ("add-to-my-collection", self._th_add_to_my_collection)
         ]
 
-        # action = Gio.SimpleAction.new("add-to-playlist", GLib.Variant("s"))
-        # action.connect("activate", self.add_to_playlist)
-        # action_group.add_action(action)
+        action = Gio.SimpleAction.new(
+            "add-to-playlist", GLib.VariantType.new("n"))
+        action.connect("activate", self._add_to_playlist)
+        action_group.add_action(action)
 
-        # for index, playlist in enumerate(variables.favourite_playlists):
-        #     if index > 10:
-        #         break
-        #     item = Gio.MenuItem.new()
-        #     item.set_label(playlist.name)
-        #     item.set_action_and_target_value("trackwidget.add-to-playlist", GLib.Variant.new_string(playlist.id))
-        #     self.playlists_submenu.insert_item(index, item)
-
-        # for index, playlist in enumerate(variables.favourite_playlists):
-        #     if index > 10:
-        #         break
-        #     item = Gio.MenuItem.new()
-        #     item.set_label(playlist.name)
-        #     action_name = f"add-to-playlist-{index}"  # Unique action name for each playlist
-        #     action = Gio.SimpleAction.new(action_name, None)
-        #     action.connect("activate", self._add_to_playlist, index)
-        #     action_group.add_action(action)
-        #     item.set_action_and_target_value(action_name, GLib.Variant.new_string(playlist.id))
-        #     self.playlists_submenu.insert_item(index, item)
+        for index, playlist in enumerate(variables.user_playlists):
+            if index > 10:
+                break
+            item = Gio.MenuItem.new()
+            item.set_label(playlist.name)
+            item.set_action_and_target_value(
+                "trackwidget.add-to-playlist",
+                GLib.Variant.new_int16(index))
+            self.playlists_submenu.insert_item(index, item)
 
         for name, callback in action_entries:
             action = Gio.SimpleAction.new(name, None)
             self.signals.append(
-                (action, action.connect("activate", callback))
-            )
+                (action, action.connect("activate", callback)))
             action_group.add_action(action)
 
         self.insert_action_group("trackwidget", action_group)
@@ -148,12 +141,14 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     def th_add_to_my_collection(self):
         variables.session.user.favorites.add_track(self.track.id)
 
-    def _add_to_playlist(self, action, parameter, playlist_index):
-        playlist_id = parameter.get_string()
-        selected_playlist = variables.favourite_playlists[playlist_index]
+    def _add_to_playlist(self, action, parameter):
+        playlist_index = parameter.get_int16()
+        selected_playlist = variables.user_playlists[playlist_index]
 
-        print(
-            f"Added to playlist: {selected_playlist.name}, ID: {playlist_id}")
+        if isinstance(selected_playlist, UserPlaylist):
+            selected_playlist.add([self.track.id])
+
+            print(f"Added to playlist: {selected_playlist.name}, Index: {playlist_index}")
 
     def on_open_uri(self, label, uri, *args):
         variables.open_uri(label, uri)
