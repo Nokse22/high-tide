@@ -394,7 +394,9 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_in_my_collection_button_clicked")
     def on_in_my_collection_button_clicked(self, btn):
-        if self.in_my_collection_button.get_icon_name() == "heart-outline-thick-symbolic":
+        icon_name = self.in_my_collection_button.get_icon_name()
+
+        if icon_name == "heart-outline-thick-symbolic":
             threading.Thread(
                 target=self.th_add_track_to_my_collection,
                 args=(self.player_object.playing_track.id,)).start()
