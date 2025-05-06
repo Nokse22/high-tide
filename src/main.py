@@ -128,11 +128,17 @@ class TidalApplication(Adw.Application):
     def on_shutdown(self, *args):
         # track = self.win.player_object.playing_track
         list_ = self.win.player_object.current_mix_album_playlist
+
+        if list_ is None:
+            return
+
         list_id = list_.id
         # self.win.settings.set_int("last-playing-song-id", track_id)
         self.win.settings.set_string("last-playing-list-id", list_id)
         self.win.settings.set_string(
             "last-playing-list-type", variables.get_type(list_))
+
+        self.quit()
 
 
 def main(version):

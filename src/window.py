@@ -191,12 +191,15 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         album_mix_playlist = None
 
-        if list_type == "mix":
-            album_mix_playlist = self.session.mix(list_id)
-        elif list_type == "album":
-            album_mix_playlist = self.session.album(track_id)
-        elif list_type == "playlist":
-            album_mix_playlist = self.session.playlist(track_id)
+        try:
+            if list_type == "mix":
+                album_mix_playlist = self.session.mix(list_id)
+            elif list_type == "album":
+                album_mix_playlist = self.session.album(track_id)
+            elif list_type == "playlist":
+                album_mix_playlist = self.session.playlist(track_id)
+        except Exception as e:
+            print(e)
 
         if track_id == -1:
             return
