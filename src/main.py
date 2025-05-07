@@ -112,9 +112,8 @@ class TidalApplication(Adw.Application):
     def on_sink_changed(self, widget, *args):
         self.win.change_audio_sink(widget.get_selected())
 
-    def create_action(self, name, callback, shortcuts=None):
-        """Add an application action.
 
+    def create_action(self, name, callback, shortcuts=None):
         action = Gio.SimpleAction.new(name, None)
         action.connect("activate", callback)
         self.add_action(action)
