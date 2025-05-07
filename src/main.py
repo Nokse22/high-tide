@@ -73,14 +73,16 @@ class TidalApplication(Adw.Application):
         self.win.connect("close-request", self.on_shutdown)
 
     def on_about_action(self, widget, _):
-        """Callback for the app.about action."""
         about = Adw.AboutDialog(
             application_name='High Tide',
             application_icon='io.github.nokse22.HighTide',
             developer_name='Nokse',
             version='0.1.0',
             developers=['Nokse'],
-            copyright='© 2023 Nokse')
+            copyright='© 2023 Nokse',
+            license_type="GTK_LICENSE_GPL_3_0",
+            issue_url='https://github.com/Nokse22/high-tide/issues',
+            website='https://github.com/Nokse22/high-tide')
         about.present(self.props.active_window)
 
     def on_preferences_action(self, widget, _):
@@ -113,12 +115,6 @@ class TidalApplication(Adw.Application):
     def create_action(self, name, callback, shortcuts=None):
         """Add an application action.
 
-        Args:
-            name: the name of the action
-            callback: the function to be called when the action is
-              activated
-            shortcuts: an optional list of accelerators
-        """
         action = Gio.SimpleAction.new(name, None)
         action.connect("activate", callback)
         self.add_action(action)
@@ -134,7 +130,7 @@ class TidalApplication(Adw.Application):
 
         list_id = list_.id
         # self.win.settings.set_int("last-playing-song-id", track_id)
-        self.win.settings.set_string("last-playing-list-id", list_id)
+        self.win.settings.set_string("last-playing-list-id", str(list_id))
         self.win.settings.set_string(
             "last-playing-list-type", variables.get_type(list_))
 
