@@ -102,6 +102,11 @@ class TidalApplication(Adw.Application):
             builder.get_object("_sink_row").set_selected(
                 self.win.settings.get_int("preferred-sink"))
 
+            builder.get_object("_background_row").connect(
+                "notify::active", self.on_background_changed)
+            builder.get_object("_background_row").set_active(
+                self.win.settings.get_boolean("run-background"))
+
             self.preferences = builder.get_object("_preference_window")
 
         self.preferences.present(self.win)
@@ -112,6 +117,8 @@ class TidalApplication(Adw.Application):
     def on_sink_changed(self, widget, *args):
         self.win.change_audio_sink(widget.get_selected())
 
+    def on_background_changed(self, widget, *args):
+        self.win.set_hide_on_close(widget.get_active())
 
     def create_action(self, name, callback, shortcuts=None):
         action = Gio.SimpleAction.new(name, None)
