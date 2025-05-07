@@ -18,6 +18,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk
+
+from tidalapi import Artist
+
 import html
 
 
@@ -33,6 +36,9 @@ class HTLinkLabelWidget(Gtk.Label):
         self.add_css_class("artist-link")
 
     def set_artists(self, artists):
+        if not isinstance(artists, list) or not isinstance(artists[0], Artist):
+            return
+
         label = ""
 
         for index, artist in enumerate(artists):
