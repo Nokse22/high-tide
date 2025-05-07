@@ -39,6 +39,6 @@ jobs:
     - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
       with:
         bundle: io.github.nokse22.HighTide.flatpak
-        manifest-path: io.github.nokse22.HighTide.json
+        manifest-path: build-aux/io.github.nokse22.HighTide.json
         cache-key: flatpak-builder-${{ github.sha }}
         arch: ${{ matrix.arch }}
