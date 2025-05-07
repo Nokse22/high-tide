@@ -1,0 +1,18 @@
+using Gtk 4.0;
+
+template $HTLyricsWidget: Box {
+  orientation: vertical;
+  overflow: hidden;
+
+  ScrolledWindow {
+    hscrollbar-policy: never;
+
+    ListView list_view {
+      vexpand: true;
+
+      styles [
+        "lyrics-widget",
+      ]
+    }
+  }
+}

@@ -45,6 +45,7 @@ from .lib import variables
 from .widgets import HTGenericTrackWidget
 from .widgets import HTLinkLabelWidget
 from .widgets import HTQueueWidget
+from .widgets import HTLyricsWidget
 
 from gettext import gettext as _
 
@@ -69,7 +70,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     in_my_collection_button = Gtk.Template.Child()
     explicit_label = Gtk.Template.Child()
     queue_widget = Gtk.Template.Child()
-    lyrics_label = Gtk.Template.Child()
+    lyrics_widget = Gtk.Template.Child()
     repeat_button = Gtk.Template.Child()
     home_button = Gtk.Template.Child()
     explore_button = Gtk.Template.Child()
@@ -325,31 +326,29 @@ class HighTideWindow(Adw.ApplicationWindow):
     def update_slider(self, *args):
         """Called on a timer, it updates the progress bar and
             adds the song duration and position."""
-        if not self.player_object.is_playing:
-            return False  # cancel timeout
-        else:
-            self.duration = self.player_object.query_duration()
+        self.duration = self.player_object.query_duration()
 
-            end_value = self.duration / Gst.SECOND
-            position = self.player_object.query_position() / Gst.SECOND
-            fraction = 0
+        end_value = self.duration / Gst.SECOND
+        position = self.player_object.query_position() / Gst.SECOND
+        fraction = 0
 
-            self.duration_label.set_label(utils.pretty_duration(end_value))
+        self.lyrics_widget.set_current_line(position)
 
-            if end_value != 0:
-                fraction = position/end_value
-            self.small_progress_bar.set_fraction(fraction)
-            self.progress_bar.get_adjustment().set_value(fraction)
+        self.duration_label.set_label(utils.pretty_duration(end_value))
 
-            self.previous_fraction = fraction
+        if end_value != 0:
+            fraction = position/end_value
+        self.small_progress_bar.set_fraction(fraction)
+        self.progress_bar.get_adjustment().set_value(fraction)
 
-            self.time_played_label.set_label(utils.pretty_duration(position))
-        return True
+        self.previous_fraction = fraction
+
+        self.time_played_label.set_label(utils.pretty_duration(position))
 
     def th_add_lyrics_to_page(self):
         try:
             lyrics = self.player_object.playing_track.lyrics()
-            GLib.idle_add(self.lyrics_label.set_label, lyrics.text)
+            GLib.idle_add(self.lyrics_widget.set_lyrics, lyrics.subtitles)
         except Exception:
             return
 
@@ -376,7 +375,7 @@ class HighTideWindow(Adw.ApplicationWindow):
                 self.session.audio_quality = Quality.low_320k
             case 2:
                 self.session.audio_quality = Quality.high_lossless
-            case 4:
+            case 3:
                 self.session.audio_quality = Quality.hi_res_lossless
 
         self.settings.set_int("quality", pos)
@@ -435,6 +434,14 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.player_object.seek(seek_fraction)
         self.previous_fraction = seek_fraction
+
+    @Gtk.Template.Callback("on_seek_from_lyrics")
+    def on_seek_from_lyrics(self, lyrics_widget, time_ms):
+        end_value = self.duration / Gst.SECOND
+
+        position = time_ms / 1000
+
+        self.player_object.seek(position/end_value)
 
     @Gtk.Template.Callback("on_skip_forward_button_clicked")
     def on_skip_forward_button_clicked_func(self, widget):

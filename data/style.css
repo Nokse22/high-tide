@@ -63,16 +63,30 @@
   border-radius:12px;
 }
 
-.lyrics{
-  font-weight:bold;
-  font-size:16pt;
-  color:var(--theme-text-color);
-}
-
 .explicit-label{
   padding:0px;
   padding-left:3px;
   padding-right:3px;
   background-color:var(--popover-shade-color);
   border-radius:4px;
+}
+
+.lyrics-widget{
+  background-color: transparent;
+}
+
+.lyrics-widget > row{
+  background-color: transparent;
+  border-radius: 6px;
+  font-weight:bold;
+  font-size:14pt;
+  color:alpha(var(--view-fg-color), 0.5);
+  padding:3px;
+}
+
+.lyrics-widget > row:selected{
+  font-weight:bold;
+  font-size:18pt;
+  color:alpha(var(--accent-color), 0.9);
+  padding:24px;
 }

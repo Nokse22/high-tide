@@ -471,22 +471,9 @@ template $HighTideWindow: Adw.ApplicationWindow {
         }
 
         Adw.ViewStackPage {
-          child: ScrolledWindow {
-            child: Label lyrics_label {
-              wrap: true;
-              justify: center;
-              opacity: 0.6;
-              margin-start: 12;
-              margin-end: 12;
-              margin-top: 12;
-              margin-bottom: 12;
-
-              styles [
-                "lyrics",
-              ]
-            };
+          child: $HTLyricsWidget lyrics_widget {
+            seek => $on_seek_from_lyrics();
           };
-
           icon-name: "chat-bubble-text-symbolic";
           name: "lyrics_page";
           title: "Lyrics";
