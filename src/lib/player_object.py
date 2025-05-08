@@ -255,10 +255,8 @@ class PlayerObject(GObject.GObject):
                 rgtags = audio_sink.get_by_name("rgtags")
 
             tags = (
-                f"replaygain-track-gain={stream.track_replay_gain},"
-                f"replaygain-track-peak={stream.track_peak_amplitude},"
                 f"replaygain-album-gain={stream.album_replay_gain},"
-                f"replaygain-album-peak={stream.album_peak_amplitude},"
+                f"replaygain-album-peak={stream.album_peak_amplitude}"
             )
             if rgtags:
                 rgtags.set_property("tags", tags)
