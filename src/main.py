@@ -107,6 +107,11 @@ class TidalApplication(Adw.Application):
             builder.get_object("_background_row").set_active(
                 self.win.settings.get_boolean("run-background"))
 
+            builder.get_object("_normalize_row").connect(
+                "notify::active", self.on_normalize_changed)
+            builder.get_object("_normalize_row").set_active(
+                self.win.settings.get_boolean("normalize"))
+
             self.preferences = builder.get_object("_preference_window")
 
         self.preferences.present(self.win)
@@ -119,6 +124,9 @@ class TidalApplication(Adw.Application):
 
     def on_background_changed(self, widget, *args):
         self.win.set_hide_on_close(widget.get_active())
+
+    def on_normalize_changed(self, widget, *args):
+        self.win.change_normalization(widget.get_active())
 
     def create_action(self, name, callback, shortcuts=None):
         action = Gio.SimpleAction.new(name, None)

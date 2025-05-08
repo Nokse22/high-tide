@@ -32,5 +32,8 @@
 	  <key name="run-background" type="b">
       <default>false</default>
     </key>
+	  <key name="normalize" type="b">
+      <default>false</default>
+    </key>
 	</schema>
 </schemalist>
