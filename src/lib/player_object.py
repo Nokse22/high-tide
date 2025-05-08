@@ -86,6 +86,7 @@ class PlayerObject(GObject.GObject):
         self.pipeline.add(self.playbin)
 
         self.normalize = normalize
+        self.most_recent_rg_tags = ""
 
         # Configure audio sink
         self._setup_audio_sink(preferred_sink)
@@ -129,7 +130,7 @@ class PlayerObject(GObject.GObject):
         normalization = ""
         if self.normalize:
             # the pre-amp value is set to match tidal webs volume
-            normalization =  "taginject name=rgtags ! rgvolume name=rgvol pre-amp=4.0 headroom=6.0 ! rglimiter ! audioconvert !"
+            normalization =  f"taginject name=rgtags {self.most_recent_rg_tags} ! rgvolume name=rgvol pre-amp=4.0 headroom=6.0 ! rglimiter ! audioconvert !"
 
         pipeline_str = f"queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! {normalization} audioconvert ! audioresample ! {sink_name}"
 
@@ -248,20 +249,23 @@ class PlayerObject(GObject.GObject):
             manifest = stream.get_stream_manifest()
             urls = manifest.get_urls()
 
-            if self.normalize:
-                audio_sink = self.playbin.get_property("audio-sink")
+            audio_sink = self.playbin.get_property("audio-sink")
 
-                if audio_sink:
-                    rgtags = audio_sink.get_by_name("rgtags")
-                if rgtags:
-                    tags = (
-                        f"replaygain-track-gain={stream.track_replay_gain},"
-                        f"replaygain-track-peak={stream.track_peak_amplitude},"
-                        f"replaygain-album-gain={stream.album_replay_gain},"
-                        f"replaygain-album-peak={stream.album_peak_amplitude},"
-                    )
-                    rgtags.set_property("tags", tags)
-                    print(f"Applied RG Tags: {tags}")
+            if audio_sink:
+                rgtags = audio_sink.get_by_name("rgtags")
+
+            tags = (
+                f"replaygain-track-gain={stream.track_replay_gain},"
+                f"replaygain-track-peak={stream.track_peak_amplitude},"
+                f"replaygain-album-gain={stream.album_replay_gain},"
+                f"replaygain-album-peak={stream.album_peak_amplitude},"
+            )
+            if rgtags:
+                rgtags.set_property("tags", tags)
+                print(f"Applied RG Tags: {tags}")
+            # Save replaygain tags for every song to avoid missing tags when
+            # toggling the option
+            self.most_recent_rg_tags = f"tags={tags}"
 
             if stream.manifest_mime_type == ManifestMimeType.MPD:
                 data = stream.get_manifest_data()
