@@ -128,7 +128,8 @@ class PlayerObject(GObject.GObject):
         # add normalization to pipeline if set by settings
         normalization = ""
         if self.normalize:
-            normalization =  "taginject name=rgtags ! rgvolume name=rgvol ! rglimiter ! audioconvert !"
+            # the pre-amp value is set to match tidal webs volume
+            normalization =  "taginject name=rgtags ! rgvolume name=rgvol pre-amp=4.0 headroom=6.0 ! rglimiter ! audioconvert !"
 
         pipeline_str = f"queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! {normalization} audioconvert ! audioresample ! {sink_name}"
 
@@ -180,15 +181,6 @@ class PlayerObject(GObject.GObject):
         if not tracks:
             print("No tracks found to play")
             return
-
-        if self.normalize:
-            audio_sink = self.playbin.get_property("audio-sink")
-            if audio_sink:
-                rgvol = audio_sink.get_by_name("rgvol")
-            if rgvol:
-                is_album = isinstance(thing, Album)
-                rgvol.set_property("album-mode", is_album)
-                print(f"RG Album-Mode: {is_album}")
 
 
         self._tracks_to_play = tracks[index:] + tracks[:index]
