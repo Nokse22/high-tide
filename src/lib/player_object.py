@@ -113,6 +113,8 @@ class PlayerObject(GObject.GObject):
         self.duration = self.query_duration()
         self.can_next = False
         self.can_prev = False
+        self.manifest = None
+        self.stream = None
 
     def _setup_audio_sink(self, sink_type):
         """Configure the audio sink using parse_launch for simplicity."""
@@ -244,10 +246,14 @@ class PlayerObject(GObject.GObject):
 
     def _play_track_thread(self, track):
         """Thread for loading and playing a track."""
+
+        self.stream = None
+        self.manifest = None
+
         try:
-            stream = track.get_stream()
-            manifest = stream.get_stream_manifest()
-            urls = manifest.get_urls()
+            self.stream = track.get_stream()
+            self.manifest = self.stream.get_stream_manifest()
+            urls = self.manifest.get_urls()
 
             audio_sink = self.playbin.get_property("audio-sink")
 
@@ -255,8 +261,8 @@ class PlayerObject(GObject.GObject):
                 rgtags = audio_sink.get_by_name("rgtags")
 
             tags = (
-                f"replaygain-album-gain={stream.album_replay_gain},"
-                f"replaygain-album-peak={stream.album_peak_amplitude}"
+                f"replaygain-album-gain={self.stream.album_replay_gain},"
+                f"replaygain-album-peak={self.stream.album_peak_amplitude}"
             )
             if rgtags:
                 rgtags.set_property("tags", tags)
@@ -265,8 +271,8 @@ class PlayerObject(GObject.GObject):
             # toggling the option
             self.most_recent_rg_tags = f"tags={tags}"
 
-            if stream.manifest_mime_type == ManifestMimeType.MPD:
-                data = stream.get_manifest_data()
+            if self.stream.manifest_mime_type == ManifestMimeType.MPD:
+                data = self.stream.get_manifest_data()
                 if data:
                     mpd_path = Path(variables.CACHE_DIR, "manifest.mpd")
                     with open(mpd_path, "w") as file:
@@ -275,8 +281,8 @@ class PlayerObject(GObject.GObject):
                     music_url = "file://{}".format(mpd_path)
                 else:
                     raise AttributeError("No MPD manifest available!")
-            elif stream.manifest_mime_type == ManifestMimeType.BTS:
-                urls = manifest.get_urls()
+            elif self.stream.manifest_mime_type == ManifestMimeType.BTS:
+                urls = self.manifest.get_urls()
                 if isinstance(urls, list):
                     music_url = urls[0]
                 else:

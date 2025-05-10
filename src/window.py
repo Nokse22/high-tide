@@ -78,6 +78,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     player_lyrics_queue = Gtk.Template.Child()
     navigation_buttons = Gtk.Template.Child()
     buffer_spinner = Gtk.Template.Child()
+    quality_label = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -229,6 +230,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.artist_label.set_artists(track.artists)
         self.explicit_label.set_visible(track.explicit)
 
+        self.set_quality_label()
+
         if variables.is_favourited(track):
             self.in_my_collection_button.set_icon_name(
                 "heart-filled-symbolic")
@@ -265,6 +268,39 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.queue_widget_updated = True
         else:
             self.queue_widget_updated = False
+
+    def set_quality_label(self):
+        codec = None
+        bit_depth = None
+        sample_rate = None
+
+        stream = self.player_object.stream
+        if stream:
+            if stream.bit_depth:
+                bit_depth = f"{stream.bit_depth}-bit"
+            if stream.sample_rate:
+                sample_rate = f"{stream.sample_rate / 1000:.1f} kHz"
+
+        manifest = self.player_object.manifest
+        if manifest:
+            if manifest.codecs:
+                codec = manifest.codecs
+                self.quality_label.set_visible(False)
+
+        quality_text = f"{codec}"
+
+        if bit_depth or sample_rate:
+            quality_details = []
+            if bit_depth:
+                quality_details.append(bit_depth)
+            if sample_rate:
+                quality_details.append(sample_rate)
+
+            if quality_details:
+                quality_text += f" ({' / '.join(quality_details)})"
+
+        self.quality_label.set_label(quality_text)
+        self.quality_label.set_visible(True)
 
     def update_controls(self, is_playing, *args):
         if not is_playing:

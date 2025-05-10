@@ -109,3 +109,11 @@
 .tracks-list-box row:hover {
   background-color: alpha(var(--window-fg-color), 0.1);
 }
+
+.quality-label {
+  background-color:var(--popover-shade-color);
+  border-radius:4px;
+  padding:3px;
+  padding-left:6px;
+  padding-right:6px;
+}

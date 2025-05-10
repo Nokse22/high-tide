@@ -7,6 +7,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
   width-request: 360;
   height-request: 290;
   title: "High Tide";
+
   Adw.Breakpoint {
     condition ("max-width: 700sp")
 
@@ -49,11 +50,12 @@ template $HighTideWindow: Adw.ApplicationWindow {
       content: Box {
         orientation: vertical;
 
-        Adw.BottomSheet bottom_sheet{
+        Adw.BottomSheet bottom_sheet {
           show-drag-handle: false;
 
           bottom-bar: Box {
             orientation: vertical;
+
             Box {
               orientation: vertical;
 
@@ -98,19 +100,19 @@ template $HighTideWindow: Adw.ApplicationWindow {
                         "title-4",
                       ]
                     }
-                    Label {
-				              label: "E";
 
-				              styles [
+                    Label {
+                      label: "E";
+
+                      styles [
                         "explicit-label",
                       ]
 
                       visible: bind explicit_label.visible;
                       valign: end;
                       margin-start: 6;
-			              }
+                    }
                   }
-
 
                   Label miniplayer_artist_label {
                     label: bind artist_label.label;
@@ -119,10 +121,12 @@ template $HighTideWindow: Adw.ApplicationWindow {
                     xalign: 0;
                   }
                 }
+
                 Box {
                   margin-end: 12;
                   valign: center;
                   spacing: 6;
+
                   Button {
                     icon-name: bind play_button.icon-name;
                     valign: center;
@@ -134,6 +138,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
                     clicked => $on_play_button_clicked();
                   }
+
                   Button {
                     icon-name: "media-skip-forward-symbolic";
                     tooltip-text: "Skip Forward";
@@ -148,6 +153,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
                 }
               }
             }
+
             Adw.LayoutSlot {
               id: "content-navigator";
             }
@@ -168,8 +174,9 @@ template $HighTideWindow: Adw.ApplicationWindow {
     }
 
     [content-navigation-view]
-    Adw.NavigationView navigation_view{
+    Adw.NavigationView navigation_view {
       popped => $on_navigation_view_page_popped();
+
       Adw.NavigationPage {
         child: Adw.ToolbarView {
           [top]
@@ -191,8 +198,9 @@ template $HighTideWindow: Adw.ApplicationWindow {
       margin-top: 6;
       spacing: 6;
 
-      ToggleButton home_button{
+      ToggleButton home_button {
         clicked => $on_home_button_clicked();
+
         Box {
           orientation: vertical;
 
@@ -217,6 +225,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
       ToggleButton explore_button {
         group: home_button;
         clicked => $on_explore_button_clicked();
+
         Box {
           orientation: vertical;
 
@@ -241,6 +250,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
       ToggleButton collection_button {
         group: home_button;
         clicked => $on_collection_button_clicked();
+
         Box {
           orientation: vertical;
 
@@ -264,13 +274,15 @@ template $HighTideWindow: Adw.ApplicationWindow {
     }
 
     [player-lyrics-queue]
-    Adw.ToolbarView player_lyrics_queue{
+    Adw.ToolbarView player_lyrics_queue {
       sensitive: false;
+
       content: Adw.ViewStack sidebar_stack {
         Adw.ViewStackPage {
           child: ScrolledWindow {
             hscrollbar-policy: never;
             propagate-natural-height: true;
+
             Box {
               margin-bottom: 24;
               margin-end: 12;
@@ -281,6 +293,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
               AspectFrame {
                 height-request: 280;
+
                 child: Overlay {
                   child: Picture playing_track_picture {
                     overflow: hidden;
@@ -290,14 +303,15 @@ template $HighTideWindow: Adw.ApplicationWindow {
                     margin-start: 24;
                     margin-top: 24;
                     vexpand: true;
+
                     styles [
                       "track-picture",
-                      "card"
+                      "card",
                     ]
                   };
 
                   [overlay]
-                  Adw.Spinner buffer_spinner{
+                  Adw.Spinner buffer_spinner {
                     visible: false;
                     hexpand: true;
                     vexpand: true;
@@ -308,93 +322,112 @@ template $HighTideWindow: Adw.ApplicationWindow {
               Box {
                 orientation: vertical;
                 spacing: 12;
-		          		Box {
-		          		halign: center;
-		          		spacing: 6;
-					  Label song_title_label {
-					    label: _("No Song");
-				        ellipsize: end;
 
-				        styles [
-				          "title-1",
-				        ]
-				      }
+                Box {
+                  halign: center;
+                  spacing: 6;
 
-				      Label explicit_label {
-				        label: "E";
+                  Label song_title_label {
+                    label: _("No Song");
+                    ellipsize: end;
 
-				        styles [
-                  "explicit-label",
-                  "title-1"
-                ]
+                    styles [
+                      "title-1",
+                    ]
+                  }
 
+                  Label explicit_label {
+                    label: "E";
+
+                    styles [
+                      "explicit-label",
+                      "title-1",
+                    ]
+
+                    visible: false;
+                    margin-start: 6;
+                  }
+                }
+
+                $HTLinkLabelWidget artist_label {
+                  label: _("Nobody");
+                  ellipsize: "end";
+
+                  styles [
+                    "title-3",
+                  ]
+                }
+
+                Box {
+                  spacing: 6;
+                  halign: center;
+
+                  VolumeButton volume_button {
+                    styles [
+                      "flat",
+                    ]
+
+                    valign: center;
+                    halign: end;
+                    hexpand: true;
+                    margin-bottom: 6;
+                    margin-start: 6;
+                    margin-top: 6;
+                    value-changed => $on_volume_changed();
+                  }
+
+                  Button in_my_collection_button {
+                    icon-name: "heart-outline-thick-symbolic";
+                    tooltip-text: "Add/Remove from favorites";
+                    valign: center;
+
+                    styles [
+                      "flat",
+                    ]
+
+                    clicked => $on_in_my_collection_button_clicked();
+                  }
+
+                  Button track_radio_button {
+                    icon-name: "navigate-symbolic";
+                    tooltip-text: "Go to track radio";
+                    valign: center;
+
+                    styles [
+                      "flat",
+                    ]
+
+                    clicked => $on_track_radio_button_clicked();
+                  }
+                }
+              }
+
+              Label quality_label {
+                halign: center;
                 visible: false;
-                margin-start: 6;
-			        }
-
-				      }
-
-				      $HTLinkLabelWidget artist_label {
-				          label: _("Nobody");
-	                ellipsize: "end";
-	                styles [
-		                "title-3",
-		              ]
-	              }
+                styles [
+                    "quality-label",
+                    "caption-heading"
+                  ]
+              }
 
               Box {
-                spacing: 6;
-                halign: center;
-                VolumeButton volume_button {
-		              styles [
-		                "flat",
-		              ]
-
-		              valign: center;
-		              halign: end;
-		              hexpand: true;
-		              margin-bottom: 6;
-		              margin-start: 6;
-		              margin-top: 6;
-		              value-changed => $on_volume_changed();
-		            }
-		          Button in_my_collection_button {
-                  icon-name: "heart-outline-thick-symbolic";
-                  tooltip-text: "Add/Remove from favorites";
-                  valign: center;
-                  styles [
-                    "flat",
-                  ]
-                  clicked => $on_in_my_collection_button_clicked();
+                Label time_played_label {
+                  label: "00:00";
                 }
-                Button track_radio_button {
-                  icon-name: "navigate-symbolic";
-                  tooltip-text: "Go to track radio";
-                  valign: center;
-                  styles [
-                    "flat",
-                  ]
-                  clicked => $on_track_radio_button_clicked();
+
+                Scale progress_bar {
+                  hexpand: true;
+                  change-value => $on_slider_seek();
+
+                  adjustment: Adjustment {
+                    upper: 1;
+                  };
                 }
-		          }
-            }
 
-				    Box {
-				Label time_played_label{
-		            label: "00:00";
-		          }
-
-		          Scale progress_bar{
-		            hexpand: true;
-		            change-value => $on_slider_seek();
-		            adjustment: Adjustment {
-		              upper: 1;
-		            };
-		          }
-
-		          Label duration_label{
-		            label: "00:00";
-		          }
+                Label duration_label {
+                  label: "00:00";
+                }
               }
 
               Box {
@@ -409,7 +442,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
                   styles [
                     "circular",
-                    "flat"
+                    "flat",
                   ]
                 }
 
@@ -450,7 +483,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
                   clicked => $on_skip_forward_button_clicked();
                 }
 
-                Button repeat_button{
+                Button repeat_button {
                   icon-name: "media-playlist-repeat-symbolic";
                   valign: center;
 
@@ -474,6 +507,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
           child: $HTLyricsWidget lyrics_widget {
             seek => $on_seek_from_lyrics();
           };
+
           icon-name: "chat-bubble-text-symbolic";
           name: "lyrics_page";
           title: "Lyrics";
@@ -489,7 +523,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
       };
 
       [top]
-      Adw.HeaderBar player_headerbar{
+      Adw.HeaderBar player_headerbar {
         title-widget: Adw.ViewSwitcher {
           stack: sidebar_stack;
         };
