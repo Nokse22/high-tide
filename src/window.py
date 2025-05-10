@@ -392,7 +392,10 @@ class HighTideWindow(Adw.ApplicationWindow):
     def th_add_lyrics_to_page(self):
         try:
             lyrics = self.player_object.playing_track.lyrics()
-            GLib.idle_add(self.lyrics_widget.set_lyrics, lyrics.subtitles)
+            if lyrics and lyrics.subtitles:
+                GLib.idle_add(self.lyrics_widget.set_lyrics, lyrics.subtitles)
+            else:
+                self.lyrics_widget.clear()
         except Exception:
             self.lyrics_widget.clear()
 
