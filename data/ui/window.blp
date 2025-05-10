@@ -414,6 +414,8 @@ template $HighTideWindow: Adw.ApplicationWindow {
               Box {
                 Label time_played_label {
                   label: "00:00";
+                  width-chars: 5;
+                  xalign: 0;
                 }
 
                 Scale progress_bar {
@@ -427,6 +429,8 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
                 Label duration_label {
                   label: "00:00";
+                  width-chars: 5;
+                  xalign: 1;
                 }
               }
 
