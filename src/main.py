@@ -37,7 +37,8 @@ class TidalApplication(Adw.Application):
     def __init__(self):
         super().__init__(application_id='io.github.nokse22.HighTide',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
-        self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
+        self.create_action(
+            'quit', lambda *_: self.quit(), ['<primary>q', '<primary>w'])
         self.create_action('about', self.on_about_action)
         self.create_action('preferences', self.on_preferences_action)
         self.create_action('log-in', self.on_login_action)
