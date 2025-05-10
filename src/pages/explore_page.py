@@ -29,12 +29,17 @@ from .page import Page
 from .search_page import searchPage
 
 from ..lib import variables
+from ..disconnectable_iface import IDisconnectable
 
 
 class explorePage(Page):
     __gtype_name__ = 'explorePage'
 
     """It is used to display the explore page"""
+
+    def __init__(self, _item=None, _name=None):
+        IDisconnectable.__init__(self)
+        super().__init__()
 
     def _th_load_page(self):
         self.set_tag("explore")
