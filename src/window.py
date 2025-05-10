@@ -155,7 +155,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.secret_store = SecretStore(self.session)
 
-        page = startUpPage(None, "Loading")
+        page = startUpPage(None, _("Loading"))
         page.load()
         self.navigation_view.push(page)
 
