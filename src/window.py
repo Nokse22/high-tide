@@ -25,7 +25,7 @@ from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import Gst, GLib
-from gi.repository import Xdp
+from gi.repository import Xdp, Gdk
 
 from .mpris import MPRIS
 
@@ -575,3 +575,10 @@ class HighTideWindow(Adw.ApplicationWindow):
                 self.explore_button.set_active(True)
             case "collection":
                 self.collection_button.set_active(True)
+
+    @Gtk.Template.Callback("on_share_clicked")
+    def on_share_clicked(self, *args):
+        track = self.player_object.playing_track
+        if track:
+            clipboard = Gdk.Display().get_default().get_clipboard()
+            clipboard.set(track.share_url)

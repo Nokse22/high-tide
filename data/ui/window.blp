@@ -399,6 +399,18 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
                     clicked => $on_track_radio_button_clicked();
                   }
+
+                  Button copy_share_link {
+                    icon-name: "share-alt-symbolic";
+                    tooltip-text: "Copy Share Link";
+                    valign: center;
+
+                    styles [
+                      "flat",
+                    ]
+
+                    clicked => $on_share_clicked();
+                  }
                 }
               }
 
