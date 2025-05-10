@@ -26,6 +26,7 @@ Box _main {
     child: Adw.MultiLayoutView multi_layout_view {
       Adw.Layout {
         name: "horizontal";
+
         content: Box _horizontal_layout_box {
           valign: center;
           vexpand: true;
@@ -48,9 +49,11 @@ Box _main {
             Adw.LayoutSlot {
               id: "title-label";
             }
+
             Adw.LayoutSlot {
               id: "first-subtitle-label";
             }
+
             Adw.LayoutSlot {
               id: "artist-button";
             }
@@ -65,9 +68,11 @@ Box _main {
             Adw.LayoutSlot {
               id: "in-my-collection-button";
             }
+
             Adw.LayoutSlot {
               id: "shuffle-button";
             }
+
             Adw.LayoutSlot {
               id: "play-button";
             }
@@ -77,6 +82,7 @@ Box _main {
 
       Adw.Layout {
         name: "vertical";
+
         content: Box _vertical_layout_box {
           valign: center;
           halign: center;
@@ -96,6 +102,7 @@ Box _main {
           Adw.LayoutSlot {
             id: "title-label";
           }
+
           Adw.LayoutSlot {
             id: "first-subtitle-label";
           }
@@ -108,9 +115,11 @@ Box _main {
             Adw.LayoutSlot {
               id: "play-button";
             }
+
             Adw.LayoutSlot {
               id: "shuffle-button";
             }
+
             Adw.LayoutSlot {
               id: "in-my-collection-button";
             }
@@ -177,7 +186,7 @@ Box _main {
 
         styles [
           "flat",
-          "circular"
+          "circular",
         ]
       }
 
@@ -187,7 +196,7 @@ Box _main {
 
         styles [
           "flat",
-          "pill"
+          "pill",
         ]
       }
 
@@ -195,7 +204,7 @@ Box _main {
       Button _play_button {
         styles [
           "suggested-action",
-          "pill"
+          "pill",
         ]
 
         icon-name: "media-playback-start-symbolic";
