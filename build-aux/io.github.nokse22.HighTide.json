@@ -30,7 +30,7 @@
         "requests.json",
         "python3-tidalapi.json",
         "blueprint-compiler.json",
-        "gstreamer-1.0/gstreamer.json",
+        "gstreamer.json",
         "libportal.json",
         {
             "name" : "HighTide",
@@ -47,8 +47,5 @@
                 "--libdir=lib"
             ]
         }
-    ],
-    "build-options" : {
-        "env" : {        }
-    }
+    ]
 }
