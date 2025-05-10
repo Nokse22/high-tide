@@ -95,7 +95,7 @@ class fromFunctionPage(Page):
     def add_tracks(self, new_items):
         if self.parent is None:
             self.parent = Gtk.ListBox(
-                css_classes=["boxed-list"],
+                css_classes=["tracks-list-box"],
                 margin_bottom=12,
                 margin_start=12,
                 margin_end=12,

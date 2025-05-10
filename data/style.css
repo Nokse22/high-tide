@@ -90,3 +90,22 @@
   color:alpha(var(--accent-color), 0.9);
   padding:24px;
 }
+
+.tracks-list-box {
+  border-radius: 12px;
+  background-color: transparent;
+}
+
+.tracks-list-box row {
+  border-radius: 12px;
+  background-color: transparent;
+  transition: background-color 0.1s ease-in-out;
+}
+
+.tracks-list-box row:nth-child(odd) {
+  background-color: alpha(var(--window-fg-color), 0.05);
+}
+
+.tracks-list-box row:hover {
+  background-color: alpha(var(--window-fg-color), 0.1);
+}
