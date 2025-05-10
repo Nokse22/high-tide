@@ -20,7 +20,7 @@
 from gi.repository import Gtk
 
 from tidalapi.page import PageItem
-from tidalapi.mix import Mix
+from tidalapi.mix import Mix, MixV2
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.media import Track
@@ -46,6 +46,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
     play_button = Gtk.Template.Child()
     shuffle_button = Gtk.Template.Child()
     artist_label = Gtk.Template.Child()
+    click_gesture = Gtk.Template.Child()
 
     def __init__(self, _item):
         IDisconnectable.__init__(self)
@@ -63,6 +64,35 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
             self.make_artist()
         elif isinstance(_item, Track):
             self.make_track()
+
+        self.signals.append((
+            self.click_gesture,
+            self.click_gesture.connect("released", self.on_click)))
+
+    def on_click(self, *args):
+        if isinstance(self.item, Mix) or isinstance(self.item, MixV2):
+            from ..pages import mixPage
+            page = mixPage(self.item, f"{self.item.title}")
+            page.load()
+            variables.navigation_view.push(page)
+
+        elif isinstance(self.item, Album):
+            from ..pages import albumPage
+            page = albumPage(self.item, f"{self.item.name}")
+            page.load()
+            variables.navigation_view.push(page)
+
+        elif isinstance(self.item, Playlist):
+            from ..pages import playlistPage
+            page = playlistPage(self.item, f"{self.item.name}")
+            page.load()
+            variables.navigation_view.push(page)
+
+        elif isinstance(self.item, Artist):
+            from ..pages import artistPage
+            page = artistPage(self.item, f"{self.item.name}")
+            page.load()
+            variables.navigation_view.push(page)
 
     def make_track(self):
         self.primary_label.set_label(self.item.name)
@@ -123,6 +153,9 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
     def make_artist(self):
         self.primary_label.set_label(self.item.name)
         self.secondary_label.set_label("Artist")
+
+        self.play_button.set_visible(False)
+        self.shuffle_button.set_visible(False)
 
         threading.Thread(
             target=utils.add_image,
