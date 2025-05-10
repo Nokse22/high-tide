@@ -580,5 +580,4 @@ class HighTideWindow(Adw.ApplicationWindow):
     def on_share_clicked(self, *args):
         track = self.player_object.playing_track
         if track:
-            clipboard = Gdk.Display().get_default().get_clipboard()
-            clipboard.set(track.share_url)
+            variables.share_this(track)

@@ -50,14 +50,12 @@ class artistPage(Page):
         # TODO get the arist ID not the artist so it shows the page faster
 
     def _th_load_page(self):
-        print(f"artist: {self.artist.name}, id: {self.artist.id}, {self.artist.picture}")
-
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/HighTide/ui/pages_ui/artist_page_template.ui")
 
         page_content = builder.get_object("_main")
         # top_tracks_list_box = builder.get_object("_top_tracks_list_box")
-        content_box = builder.get_object("_content_box")
+        self.content_box = builder.get_object("_content_box")
 
         builder.get_object("_name_label").set_label(self.artist.name)
 
@@ -79,6 +77,13 @@ class artistPage(Page):
                 variables.on_in_to_my_collection_button_clicked,
                 self.artist)))
 
+        share_button = builder.get_object("_share_button")
+        self.signals.append((
+            share_button,
+            share_button.connect(
+                "clicked",
+                lambda *_: variables.share_this(self.artist))))
+
         if (variables.is_favourited(self.artist)):
             follow_button.set_icon_name("heart-filled-symbolic")
 
@@ -95,8 +100,15 @@ class artistPage(Page):
         tracks_list_widget = HTTracksListWidget("Top Tracks")
         self.disconnectables.append(tracks_list_widget)
         tracks_list_widget.set_function(self.artist.get_top_tracks)
-        content_box.append(tracks_list_widget)
+        self.content_box.append(tracks_list_widget)
 
+        self.make_content()
+        self.make_bio()
+
+        self.page_content.append(page_content)
+        self._page_loaded()
+
+    def make_content(self):
         carousel = self.get_carousel("Albums")
         try:
             albums = self.artist.get_albums(limit=10)
@@ -105,7 +117,7 @@ class artistPage(Page):
             print(e)
         else:
             if len(albums) != 0:
-                content_box.append(carousel)
+                self.content_box.append(carousel)
                 carousel.set_items(albums, "album")
 
         carousel = self.get_carousel("EP & Singles")
@@ -117,7 +129,7 @@ class artistPage(Page):
             print(e)
         else:
             if len(albums) != 0:
-                content_box.append(carousel)
+                self.content_box.append(carousel)
                 carousel.set_items(albums, "album")
 
         carousel = self.get_carousel("Appears On")
@@ -128,7 +140,7 @@ class artistPage(Page):
             print(e)
         else:
             if len(albums) != 0:
-                content_box.append(carousel)
+                self.content_box.append(carousel)
                 carousel.set_items(albums, "album")
 
         carousel = self.get_carousel("Similar Artists")
@@ -138,9 +150,10 @@ class artistPage(Page):
             print("could not find similar artists", e)
         else:
             if len(artists) != 0:
-                content_box.append(carousel)
+                self.content_box.append(carousel)
                 carousel.set_items(artists, "artist")
 
+    def make_bio(self):
         try:
             bio = self.artist.get_bio()
         except Exception as e:
@@ -154,7 +167,7 @@ class artistPage(Page):
                 margin_end=12,
                 margin_bottom=24)
             label.set_markup(bio)
-            content_box.append(
+            self.content_box.append(
                 Gtk.Label(
                     wrap=True,
                     css_classes=["title-3"],
@@ -163,13 +176,10 @@ class artistPage(Page):
                     xalign=0,
                     margin_top=12,
                     margin_bottom=12))
-            content_box.append(label)
+            self.content_box.append(label)
             self.signals.append(
                 (label, label.connect("activate-link", variables.open_uri))
             )
-
-        self.page_content.append(page_content)
-        self._page_loaded()
 
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())

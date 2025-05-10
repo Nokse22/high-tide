@@ -82,7 +82,8 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             ("radio", self._get_radio),
             ("play-next", self._play_next),
             ("add-to-queue", self._add_to_queue),
-            ("add-to-my-collection", self._th_add_to_my_collection)
+            ("add-to-my-collection", self._th_add_to_my_collection),
+            ("copy-share-url", self._copy_share_url)
         ]
 
         action = Gio.SimpleAction.new(
@@ -149,6 +150,9 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             selected_playlist.add([self.track.id])
 
             print(f"Added to playlist: {selected_playlist.name}")
+
+    def _copy_share_url(self, *args):
+        variables.share_this(self.track)
 
     def on_open_uri(self, label, uri, *args):
         variables.open_uri(label, uri)

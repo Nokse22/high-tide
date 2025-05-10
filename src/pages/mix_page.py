@@ -62,6 +62,8 @@ class mixPage(Page):
             in_my_collection_btn.connect(
                 "clicked", self.th_add_to_my_collection)))
 
+        builder.get_object("_share_button").set_visible(False)
+
         if (variables.is_favourited(self.item)):
             in_my_collection_btn.set_icon_name("heart-filled-symbolic")
 

@@ -66,6 +66,10 @@ Box _main {
             valign: center;
 
             Adw.LayoutSlot {
+              id: "share-button";
+            }
+
+            Adw.LayoutSlot {
               id: "in-my-collection-button";
             }
 
@@ -123,6 +127,10 @@ Box _main {
             Adw.LayoutSlot {
               id: "in-my-collection-button";
             }
+
+            Adw.LayoutSlot {
+              id: "share-button";
+            }
           }
         };
       }
@@ -177,6 +185,18 @@ Box _main {
       [artist-button]
       Button _artist_button {
         visible: false;
+      }
+
+      [share-button]
+      Button _share_button {
+        icon-name: "share-alt-symbolic";
+        tooltip-text: _("Copy Share URL");
+        valign: center;
+
+        styles [
+          "flat",
+          "circular",
+        ]
       }
 
       [in-my-collection-button]

@@ -1,10 +1,12 @@
+from gi.repository import Gdk
+
 import os
 
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
-from tidalapi.mix import Mix
+from tidalapi.mix import Mix, MixV2
 
 from ..pages import artistPage
 from ..pages import albumPage
@@ -156,6 +158,19 @@ def on_in_to_my_collection_button_clicked(btn, item):
             target=remove_from_my_collection,
             args=(btn, item,),
         ).start()
+
+
+def share_this(item):
+    clipboard = Gdk.Display().get_default().get_clipboard()
+
+    if isinstance(item, Track):
+        clipboard.set(item.share_url)
+    elif isinstance(item, Album):
+        clipboard.set(item.share_url)
+    elif isinstance(item, Artist):
+        clipboard.set(item.share_url)
+    elif isinstance(item, Playlist):
+        clipboard.set(item.share_url)
 
 
 def get_type(item):

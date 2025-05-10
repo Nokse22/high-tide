@@ -75,6 +75,13 @@ class playlistPage(Page):
                     variables.on_in_to_my_collection_button_clicked,
                     self.item)))
 
+        share_button = builder.get_object("_share_button")
+        self.signals.append((
+            share_button,
+            share_button.connect(
+                "clicked",
+                lambda *_: variables.share_this(self.item))))
+
         if (variables.is_favourited(self.item)):
             in_my_collection_btn.set_icon_name("heart-filled-symbolic")
 
