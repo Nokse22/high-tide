@@ -27,6 +27,8 @@ from .page import Page
 
 from ..lib import variables
 
+from gettext import gettext as _
+
 
 class collectionPage(Page):
     __gtype_name__ = 'collectionPage'
@@ -37,21 +39,22 @@ class collectionPage(Page):
         self.set_tag("collection")
         self.set_title("Collection")
 
+        variables.get_favourites()
+
         self.new_carousel_for(
-            "My Mixes and Radios", variables.favourite_mixes)
+            _("My Mixes and Radios"), variables.favourite_mixes)
         self.new_carousel_for(
-            "Playlists", variables.playlist_and_favorite_playlists)
+            _("Playlists"), variables.playlist_and_favorite_playlists)
         self.new_carousel_for(
-            "Albums", variables.favourite_albums)
+            _("Albums"), variables.favourite_albums)
         self.new_carousel_for(
-            "Tracks", variables.favourite_tracks)
+            _("Tracks"), variables.favourite_tracks)
         self.new_carousel_for(
-            "Artists", variables.favourite_artists)
+            _("Artists"), variables.favourite_artists)
 
         self._page_loaded()
 
     def new_carousel_for(self, carousel_title, carousel_content):
-        print(carousel_title, len(carousel_content))
         if len(carousel_content) == 0:
             return
 
