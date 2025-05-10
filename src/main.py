@@ -46,6 +46,8 @@ class TidalApplication(Adw.Application):
 
         variables.init()
 
+        self.settings = Gio.Settings.new('io.github.nokse22.HighTide')
+
         self.preferences = None
 
     def on_download(self, *args):
@@ -60,17 +62,15 @@ class TidalApplication(Adw.Application):
         self.win.logout()
 
     def do_activate(self):
-        """Called when the application is activated.
-
-        We raise the application's main window, creating it if
-        necessary.
-        """
         self.win = self.props.active_window
         if not self.win:
             self.win = HighTideWindow(application=self)
-        self.win.present()
+            self.win.connect(
+                "close-request", self.on_close_request)
+            self.win.set_hide_on_close(
+                self.settings.get_boolean("run-background"))
 
-        self.win.connect("close-request", self.on_close_request)
+        self.win.present()
 
     def on_about_action(self, widget, _):
         about = Adw.AboutDialog(
@@ -79,7 +79,7 @@ class TidalApplication(Adw.Application):
             developer_name='Nokse',
             version='0.1.0',
             developers=['Nokse'],
-            copyright='© 2023 Nokse',
+            copyright='© 2023-2025 Nokse',
             license_type="GTK_LICENSE_GPL_3_0",
             issue_url='https://github.com/Nokse22/high-tide/issues',
             website='https://github.com/Nokse22/high-tide')
@@ -93,22 +93,22 @@ class TidalApplication(Adw.Application):
                 "/io/github/nokse22/HighTide/ui/preferences.ui")
 
             builder.get_object("_quality_row").set_selected(
-                self.win.settings.get_int("quality"))
+                self.settings.get_int("quality"))
             builder.get_object("_quality_row").connect(
                 "notify::selected", self.on_quality_changed)
 
             builder.get_object("_sink_row").set_selected(
-                self.win.settings.get_int("preferred-sink"))
+                self.settings.get_int("preferred-sink"))
             builder.get_object("_sink_row").connect(
                 "notify::selected", self.on_sink_changed)
 
             builder.get_object("_background_row").set_active(
-                self.win.settings.get_boolean("run-background"))
+                self.settings.get_boolean("run-background"))
             builder.get_object("_background_row").connect(
                 "notify::active", self.on_background_changed)
 
             builder.get_object("_normalize_row").set_active(
-                self.win.settings.get_boolean("normalize"))
+                self.settings.get_boolean("normalize"))
             builder.get_object("_normalize_row").connect(
                 "notify::active", self.on_normalize_changed)
 
@@ -123,6 +123,7 @@ class TidalApplication(Adw.Application):
         self.win.change_audio_sink(widget.get_selected())
 
     def on_background_changed(self, widget, *args):
+        self.settings.set_boolean("run-background", widget.get_active())
         self.win.set_hide_on_close(widget.get_active())
 
     def on_normalize_changed(self, widget, *args):
@@ -139,20 +140,19 @@ class TidalApplication(Adw.Application):
         track = self.win.player_object.playing_track
         mix_album_playlist = self.win.player_object.current_mix_album_playlist
 
+        print("close request")
+
         if mix_album_playlist is not None:
-            self.win.settings.set_string(
+            self.settings.set_string(
                 "last-playing-list-id",
                 str(mix_album_playlist.id))
-            self.win.settings.set_string(
+            self.settings.set_string(
                 "last-playing-list-type",
                 variables.get_type(mix_album_playlist))
         if track is not None:
-            self.win.settings.set_string(
+            self.settings.set_string(
                 "last-playing-song-id",
                 str(track.id))
-
-        # if self.win.settings.get_bool
-        #     self.quit()
 
 
 def main(version):
