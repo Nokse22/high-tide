@@ -92,7 +92,8 @@ class HighTideWindow(Adw.ApplicationWindow):
             "default-height", Gio.SettingsBindFlags.DEFAULT)
 
         self.player_object = PlayerObject(
-            self.settings.get_int('preferred-sink'))
+            self.settings.get_int('preferred-sink'),
+            self.settings.get_boolean('normalize'))
         variables.player_object = self.player_object
 
         self.volume_button.get_adjustment().set_value(
@@ -383,6 +384,14 @@ class HighTideWindow(Adw.ApplicationWindow):
     def change_audio_sink(self, sink):
         self.player_object.change_audio_sink(sink)
         self.settings.set_int("preferred-sink", sink)
+
+    def change_normalization(self, state):
+        if self.player_object.normalize != state:
+            self.player_object.normalize = state
+            self.settings.set_boolean("normalize", state)
+            # recreate audio pipeline, kinda dirty ngl
+            self.player_object.change_audio_sink(
+                self.settings.get_int("preferred-sink"))
 
     @Gtk.Template.Callback("on_track_radio_button_clicked")
     def on_track_radio_button_clicked_func(self, widget):

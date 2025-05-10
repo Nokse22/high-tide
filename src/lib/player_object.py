@@ -67,7 +67,7 @@ class PlayerObject(GObject.GObject):
         'buffering': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
     }
 
-    def __init__(self, preferred_sink=AudioSink.AUTO):
+    def __init__(self, preferred_sink=AudioSink.AUTO, normalize = False):
         GObject.GObject.__init__(self)
 
         Gst.init(None)
@@ -84,6 +84,9 @@ class PlayerObject(GObject.GObject):
             self.playbin = Gst.ElementFactory.make("playbin", "playbin")
 
         self.pipeline.add(self.playbin)
+
+        self.normalize = normalize
+        self.most_recent_rg_tags = ""
 
         # Configure audio sink
         self._setup_audio_sink(preferred_sink)
@@ -123,7 +126,13 @@ class PlayerObject(GObject.GObject):
 
         sink_name = sink_map.get(sink_type, 'autoaudiosink')
 
-        pipeline_str = f"queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! audioconvert ! audioresample ! {sink_name}"
+        # add normalization to pipeline if set by settings
+        normalization = ""
+        if self.normalize:
+            # the pre-amp value is set to match tidal webs volume
+            normalization =  f"taginject name=rgtags {self.most_recent_rg_tags} ! rgvolume name=rgvol pre-amp=4.0 headroom=6.0 ! rglimiter ! audioconvert !"
+
+        pipeline_str = f"queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! audioconvert ! {normalization} audioresample ! {sink_name}"
 
         try:
             audio_bin = Gst.parse_bin_from_description(pipeline_str, True)
@@ -173,6 +182,7 @@ class PlayerObject(GObject.GObject):
         if not tracks:
             print("No tracks found to play")
             return
+
 
         self._tracks_to_play = tracks[index:] + tracks[:index]
         if not self._tracks_to_play:
@@ -238,6 +248,22 @@ class PlayerObject(GObject.GObject):
             stream = track.get_stream()
             manifest = stream.get_stream_manifest()
             urls = manifest.get_urls()
+
+            audio_sink = self.playbin.get_property("audio-sink")
+
+            if audio_sink:
+                rgtags = audio_sink.get_by_name("rgtags")
+
+            tags = (
+                f"replaygain-album-gain={stream.album_replay_gain},"
+                f"replaygain-album-peak={stream.album_peak_amplitude}"
+            )
+            if rgtags:
+                rgtags.set_property("tags", tags)
+                print(f"Applied RG Tags: {tags}")
+            # Save replaygain tags for every song to avoid missing tags when
+            # toggling the option
+            self.most_recent_rg_tags = f"tags={tags}"
 
             if stream.manifest_mime_type == ManifestMimeType.MPD:
                 data = stream.get_manifest_data()
