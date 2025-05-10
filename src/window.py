@@ -285,21 +285,34 @@ class HighTideWindow(Adw.ApplicationWindow):
                 bit_depth = f"{stream.bit_depth}-bit"
             if stream.sample_rate:
                 sample_rate = f"{stream.sample_rate / 1000:.1f} kHz"
+            if stream.audio_quality:
+                match stream.audio_quality:
+                    case "LOW":
+                        bitrate = "96 kbps"
+                    case "HIGH":
+                        bitrate = "320 kbps"
+                    case _:
+                        bitrate = "Lossless"
 
         manifest = self.player_object.manifest
         if manifest:
             if manifest.codecs:
                 codec = manifest.codecs
+                if codec == "MP4A":
+                    codec = "AAC"
                 self.quality_label.set_visible(False)
 
         quality_text = f"{codec}"
 
         if bit_depth or sample_rate:
             quality_details = []
-            if bit_depth:
+            if bit_depth and codec != "AAC":
                 quality_details.append(bit_depth)
-            if sample_rate:
+            if sample_rate and codec != "AAC":
                 quality_details.append(sample_rate)
+            if bitrate and codec == "AAC":
+                quality_details.append(bitrate)
+
 
             if quality_details:
                 quality_text += f" ({' / '.join(quality_details)})"
