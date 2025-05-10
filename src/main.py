@@ -70,7 +70,7 @@ class TidalApplication(Adw.Application):
             self.win = HighTideWindow(application=self)
         self.win.present()
 
-        self.win.connect("close-request", self.on_shutdown)
+        self.win.connect("close-request", self.on_close_request)
 
     def on_about_action(self, widget, _):
         about = Adw.AboutDialog(
@@ -135,20 +135,24 @@ class TidalApplication(Adw.Application):
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
 
-    def on_shutdown(self, *args):
-        # track = self.win.player_object.playing_track
-        list_ = self.win.player_object.current_mix_album_playlist
+    def on_close_request(self, *args):
+        track = self.win.player_object.playing_track
+        mix_album_playlist = self.win.player_object.current_mix_album_playlist
 
-        if list_ is None:
-            return
+        if mix_album_playlist is not None:
+            self.win.settings.set_string(
+                "last-playing-list-id",
+                str(mix_album_playlist.id))
+            self.win.settings.set_string(
+                "last-playing-list-type",
+                variables.get_type(mix_album_playlist))
+        if track is not None:
+            self.win.settings.set_string(
+                "last-playing-song-id",
+                str(track.id))
 
-        list_id = list_.id
-        # self.win.settings.set_int("last-playing-song-id", track_id)
-        self.win.settings.set_string("last-playing-list-id", str(list_id))
-        self.win.settings.set_string(
-            "last-playing-list-type", variables.get_type(list_))
-
-        self.quit()
+        # if self.win.settings.get_bool
+        #     self.quit()
 
 
 def main(version):

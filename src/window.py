@@ -187,9 +187,11 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.navigation_view.replace([page])
 
     def th_set_last_playing_song(self):
-        track_id = self.settings.get_int("last-playing-song-id")
+        track_id = self.settings.get_string("last-playing-song-id")
         list_id = self.settings.get_string("last-playing-list-id")
         list_type = self.settings.get_string("last-playing-list-type")
+
+        print(f"Last playing: {track_id} from {list_id} of type {list_type}")
 
         album_mix_playlist = None
 
@@ -197,9 +199,9 @@ class HighTideWindow(Adw.ApplicationWindow):
             if list_type == "mix":
                 album_mix_playlist = self.session.mix(list_id)
             elif list_type == "album":
-                album_mix_playlist = self.session.album(track_id)
+                album_mix_playlist = self.session.album(list_id)
             elif list_type == "playlist":
-                album_mix_playlist = self.session.playlist(track_id)
+                album_mix_playlist = self.session.playlist(list_id)
         except Exception as e:
             print(e)
 
@@ -234,7 +236,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.in_my_collection_button.set_icon_name(
                 "heart-outline-thick-symbolic")
 
-        self.settings.set_int("last-playing-song-id", track.id)
+        self.settings.set_string("last-playing-song-id", str(track.id))
 
         if self.image_canc:
             self.image_canc.cancel()

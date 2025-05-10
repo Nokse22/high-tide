@@ -10,8 +10,8 @@
 	  <key name="quality" type="i">
       <default>2</default>
     </key>
-	  <key name="last-playing-song-id" type="i">
-      <default>-1</default>
+	  <key name="last-playing-song-id" type="s">
+      <default>''</default>
     </key>
 	  <key name="last-playing-list-id" type="s">
       <default>''</default>
