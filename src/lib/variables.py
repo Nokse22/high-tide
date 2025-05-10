@@ -47,16 +47,26 @@ def get_favourites():
     global playlist_and_favorite_playlists
     global user_playlists
 
+    user = session.user
+
     try:
-        favourite_artists = session.user.favorites.artists()
-        favourite_tracks = session.user.favorites.tracks()
-        favourite_albums = session.user.favorites.albums()
-        favourite_playlists = session.user.favorites.playlists()
-        favourite_mixes = session.user.favorites.mixes()
-        playlist_and_favorite_playlists = session.user.playlist_and_favorite_playlists()
-        user_playlists = session.user.playlists()
+        favourite_artists = user.favorites.artists()
+        favourite_tracks = user.favorites.tracks()
+        favourite_albums = user.favorites.albums()
+        favourite_playlists = user.favorites.playlists()
+        favourite_mixes = user.favorites.mixes()
+        playlist_and_favorite_playlists = user.playlist_and_favorite_playlists()
+        user_playlists = user.playlists()
     except Exception as e:
         print(e)
+
+    print(f"Favorite Artists: {len(favourite_artists)}")
+    print(f"Favorite Tracks: {len(favourite_tracks)}")
+    print(f"Favorite Albums: {len(favourite_albums)}")
+    print(f"Favorite Playlists: {len(favourite_playlists)}")
+    print(f"Favorite Mixes: {len(favourite_mixes)}")
+    print(f"Playlist and Favorite Playlists: {len(playlist_and_favorite_playlists)}")
+    print(f"User Playlists: {len(user_playlists)}")
 
 
 def is_favourited(item):
