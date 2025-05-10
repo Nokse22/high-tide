@@ -54,6 +54,11 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
         self.item = _item
 
+        self.signals.append((
+            self.track_artist_label,
+            self.track_artist_label.connect(
+                "activate-link", variables.open_uri)))
+
         if isinstance(_item, Mix):
             self.make_mix()
         elif isinstance(_item, Album):
@@ -120,6 +125,18 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         self.artist_label.set_visible(True)
         self.artist_label.set_label(self.item.sub_title)
 
+        self.signals.append((
+            self.play_button,
+            self.play_button.connect(
+                "clicked",
+                lambda *_: variables.player_object.play_this(self.item))))
+
+        self.signals.append((
+            self.play_button,
+            self.play_button.connect(
+                "clicked",
+                lambda *_: variables.player_object.shuffle_this(self.item))))
+
         threading.Thread(
             target=utils.add_image,
             args=(self.image, self.item)).start()
@@ -130,6 +147,18 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
         self.artist_label.set_visible(True)
         self.artist_label.set_artists([self.item.artist])
+
+        self.signals.append((
+            self.play_button,
+            self.play_button.connect(
+                "clicked",
+                lambda *_: variables.player_object.play_this(self.item))))
+
+        self.signals.append((
+            self.play_button,
+            self.play_button.connect(
+                "clicked",
+                lambda *_: variables.player_object.shuffle_this(self.item))))
 
         threading.Thread(
             target=utils.add_image,
@@ -145,6 +174,18 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         else:
             creator = "TIDAL"
         # self.detail_label.set_label(f"by {creator}")
+
+        self.signals.append((
+            self.play_button,
+            self.play_button.connect(
+                "clicked",
+                lambda *_: variables.player_object.play_this(self.item))))
+
+        self.signals.append((
+            self.play_button,
+            self.play_button.connect(
+                "clicked",
+                lambda *_: variables.player_object.shuffle_this(self.item))))
 
         threading.Thread(
             target=utils.add_image,
