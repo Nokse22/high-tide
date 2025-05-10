@@ -3,7 +3,7 @@
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "48",
     "sdk" : "org.gnome.Sdk",
-    "command" : "HighTide",
+    "command" : "high-tide",
     "finish-args" : [
         "--share=network",
         "--share=ipc",
@@ -33,7 +33,7 @@
         "gstreamer.json",
         "libportal.json",
         {
-            "name" : "HighTide",
+            "name" : "high-tide",
             "builddir" : true,
             "buildsystem" : "meson",
             "sources" : [
