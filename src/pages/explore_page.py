@@ -41,11 +41,20 @@ class explorePage(Page):
         IDisconnectable.__init__(self)
         super().__init__()
 
+        self.tries = 0
+
     def _th_load_page(self):
         self.set_tag("explore")
         self.set_title("Explore")
 
-        explore = variables.session.explore()
+        try:
+            explore = variables.session.explore()
+        except Exception as e:
+            print(e)
+            self.tries += 1
+            if self.tries < 5:
+                self._th_load_page()
+            return
 
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/HighTide/ui/search_entry.ui")
@@ -57,47 +66,50 @@ class explorePage(Page):
         self.page_content.append(search_entry)
 
         for index, category in enumerate(explore.categories):
-            if isinstance(category.items[0], PageLink):
-                carousel, flow_box_box = self.get_link_carousel(
-                    category.title if category.title else "More")
-
-                flow_box = Gtk.FlowBox(homogeneous=True, height_request=100)
-                flow_box_box.append(flow_box)
-                self.page_content.append(carousel)
-            else:
-                carousel, cards_box = self.get_link_carousel(category.title)
-                self.page_content.append(carousel)
-
-            buttons_for_page = 0
-
-            for index, item in enumerate(category.items):
-                if isinstance(item, PageItem):  # Featured
-                    try:
-                        new_item = item.get()
-                    except Exception as e:
-                        print(e)
-                        continue
-                    cards_box.append(self.get_card(new_item))
-                elif isinstance(item, PageLink):  # Generes and moods
-                    if buttons_for_page == 4:
-                        flow_box = Gtk.FlowBox(
-                            homogeneous=True,
-                            height_request=100)
-                        flow_box_box.append(flow_box)
-                        buttons_for_page = 0
-                    button = self.get_page_link_card(item)
-                    flow_box.append(button)
-                    buttons_for_page += 1
-                elif isinstance(item, Mix):  # Mixes and for you
-                    cards_box.append(self.get_card(item))
-                elif isinstance(item, Album):
-                    cards_box.append(self.get_card(item))
-                elif isinstance(item, Artist):
-                    cards_box.append(self.get_card(item))
-                elif isinstance(item, Playlist):
-                    cards_box.append(self.get_card(item))
+            self._make_category(category)
 
         self._page_loaded()
+
+    def _make_category(self, category):
+        if isinstance(category.items[0], PageLink):
+            carousel, flow_box_box = self.get_link_carousel(
+                category.title if category.title else "More")
+
+            flow_box = Gtk.FlowBox(homogeneous=True, height_request=100)
+            flow_box_box.append(flow_box)
+            self.page_content.append(carousel)
+        else:
+            carousel, cards_box = self.get_link_carousel(category.title)
+            self.page_content.append(carousel)
+
+        buttons_for_page = 0
+
+        for index, item in enumerate(category.items):
+            if isinstance(item, PageItem):  # Featured
+                try:
+                    new_item = item.get()
+                except Exception as e:
+                    print(e)
+                    continue
+                cards_box.append(self.get_card(new_item))
+            elif isinstance(item, PageLink):  # Generes and moods
+                if buttons_for_page == 4:
+                    flow_box = Gtk.FlowBox(
+                        homogeneous=True,
+                        height_request=100)
+                    flow_box_box.append(flow_box)
+                    buttons_for_page = 0
+                button = self.get_page_link_card(item)
+                flow_box.append(button)
+                buttons_for_page += 1
+            elif isinstance(item, Mix):  # Mixes and for you
+                cards_box.append(self.get_card(item))
+            elif isinstance(item, Album):
+                cards_box.append(self.get_card(item))
+            elif isinstance(item, Artist):
+                cards_box.append(self.get_card(item))
+            elif isinstance(item, Playlist):
+                cards_box.append(self.get_card(item))
 
     def on_search_activated(self, entry):
         query = entry.get_text()
