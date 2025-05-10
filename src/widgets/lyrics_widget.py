@@ -63,6 +63,7 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
     __gtype_name__ = 'HTLyricsWidget'
 
     list_view = Gtk.Template.Child()
+    stack = Gtk.Template.Child()
 
     __gsignals__ = {
         'seek': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
@@ -84,6 +85,7 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
             "selection-changed", self._on_selection_changed)
 
     def set_lyrics(self, lyrics_text):
+        self.stack.set_visible_child_name("lyrics_page")
         self.list_store.remove_all()
 
         lines = lyrics_text.splitlines()
@@ -101,6 +103,7 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
                 self.list_store.append(HTLine("", 0))
 
     def clear(self):
+        self.stack.set_visible_child_name("status_page")
         self.list_store.remove_all()
 
     def set_current_line(self, time_seconds):
