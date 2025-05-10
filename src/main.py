@@ -92,25 +92,25 @@ class TidalApplication(Adw.Application):
             builder = Gtk.Builder.new_from_resource(
                 "/io/github/nokse22/HighTide/ui/preferences.ui")
 
-            builder.get_object("_quality_row").connect(
-                "notify::selected", self.on_quality_changed)
             builder.get_object("_quality_row").set_selected(
                 self.win.settings.get_int("quality"))
+            builder.get_object("_quality_row").connect(
+                "notify::selected", self.on_quality_changed)
 
-            builder.get_object("_sink_row").connect(
-                "notify::selected", self.on_sink_changed)
             builder.get_object("_sink_row").set_selected(
                 self.win.settings.get_int("preferred-sink"))
+            builder.get_object("_sink_row").connect(
+                "notify::selected", self.on_sink_changed)
 
-            builder.get_object("_background_row").connect(
-                "notify::active", self.on_background_changed)
             builder.get_object("_background_row").set_active(
                 self.win.settings.get_boolean("run-background"))
+            builder.get_object("_background_row").connect(
+                "notify::active", self.on_background_changed)
 
-            builder.get_object("_normalize_row").connect(
-                "notify::active", self.on_normalize_changed)
             builder.get_object("_normalize_row").set_active(
                 self.win.settings.get_boolean("normalize"))
+            builder.get_object("_normalize_row").connect(
+                "notify::active", self.on_normalize_changed)
 
             self.preferences = builder.get_object("_preference_window")
 

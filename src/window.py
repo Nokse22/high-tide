@@ -382,8 +382,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.settings.set_int("quality", pos)
 
     def change_audio_sink(self, sink):
-        self.player_object.change_audio_sink(sink)
-        self.settings.set_int("preferred-sink", sink)
+        if self.settings.get_int("preferred-sink") != sink:
+            self.player_object.change_audio_sink(sink)
+            self.settings.set_int("preferred-sink", sink)
 
     def change_normalization(self, state):
         if self.player_object.normalize != state:
