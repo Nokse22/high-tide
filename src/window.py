@@ -25,6 +25,7 @@ from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import Gst, GLib
+from gi.repository import Xdp
 
 from .mpris import MPRIS
 
@@ -165,6 +166,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         threading.Thread(target=self.th_login, args=()).start()
 
         MPRIS(self.player_object)
+
+        self.portal = Xdp.Portal()
+
+        self.portal.set_background_status(_("Playing Music"))
 
     def on_logged_in(self):
         print("on logged in")
