@@ -351,7 +351,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             lyrics = self.player_object.playing_track.lyrics()
             GLib.idle_add(self.lyrics_widget.set_lyrics, lyrics.subtitles)
         except Exception:
-            return
+            self.lyrics_widget.clear()
 
     def th_download_song(self):
         """Added to check the streamed song quality, triggered with ctrl+d"""

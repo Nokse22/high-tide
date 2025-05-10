@@ -100,7 +100,13 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
             else:
                 self.list_store.append(HTLine("", 0))
 
+    def clear(self):
+        self.list_store.remove_all()
+
     def set_current_line(self, time_seconds):
+        if self.list_store.get_n_items() == 0:
+            return
+
         time_ms = time_seconds * 1000
 
         current_index = 0
@@ -113,7 +119,8 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
 
         self.selection_model.handler_block(self.handler_id)
 
-        self.selection_model.set_selected(current_index)
+        self.list_view.scroll_to(
+            current_index, Gtk.ListScrollFlags.SELECT, None)
 
         self.selection_model.handler_unblock(self.handler_id)
 
