@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=High Tide
-Exec=HighTide
+Exec=high-tide
 Icon=io.github.nokse22.HighTide
 Terminal=false
 Type=Application
