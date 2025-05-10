@@ -17,18 +17,13 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
-
-from tidalapi.page import PageItem, PageLink
 from tidalapi.artist import Artist
-from tidalapi.mix import Mix, MixV2
+from tidalapi.mix import MixV2
 from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
 
 from .page import Page
-from ..widgets import HTCarouselWidget
-from ..widgets import HTTracksListWidget
 
 from ..lib import variables
 
