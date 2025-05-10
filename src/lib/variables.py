@@ -52,7 +52,7 @@ def get_favourites():
         favourite_tracks = session.user.favorites.tracks()
         favourite_albums = session.user.favorites.albums()
         favourite_playlists = session.user.favorites.playlists()
-        # favourite_mixes = session.user.favorites.mixes()
+        favourite_mixes = session.user.favorites.mixes()
         playlist_and_favorite_playlists = session.user.playlist_and_favorite_playlists()
         user_playlists = session.user.playlists()
     except Exception as e:
