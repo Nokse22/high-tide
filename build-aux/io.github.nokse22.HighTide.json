@@ -11,6 +11,7 @@
         "--device=dri",
         "--socket=wayland",
         "--socket=pulseaudio",
+        "--filesystem=xdg-run/pipewire-0:ro",
         "--talk-name=org.freedesktop.secrets",
         "--own-name=org.mpris.MediaPlayer2.HighTide",
         "--env=GOBJECT_DEBUG=instance-count"
