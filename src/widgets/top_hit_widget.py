@@ -55,8 +55,8 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         self.item = _item
 
         self.signals.append((
-            self.track_artist_label,
-            self.track_artist_label.connect(
+            self.artist_label,
+            self.artist_label.connect(
                 "activate-link", variables.open_uri)))
 
         if isinstance(_item, Mix):
