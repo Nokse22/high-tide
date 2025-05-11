@@ -17,8 +17,9 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from gi.repository import Gtk
 
-from tidalapi.page import PageItem, PageLink
+from tidalapi.page import PageItem, PageLink, TextBlock
 from tidalapi.artist import Artist
 from tidalapi.mix import Mix
 from tidalapi.album import Album
@@ -47,6 +48,17 @@ class genericPage(Page):
                 self.disconnectables.append(tracks_list_widget)
                 tracks_list_widget.set_tracks_list(category.items)
                 self.page_content.append(tracks_list_widget)
+            elif isinstance(category, TextBlock):
+                label = Gtk.Label(
+                    justify=0,
+                    xalign=0,
+                    wrap=True,
+                    margin_start=12,
+                    margin_top=12,
+                    margin_bottom=12,
+                    margin_end=12,
+                    label=category.text)
+                self.page_content.append(label)
             else:
                 carousel = self.get_carousel(category.title)
                 self.page_content.append(carousel)
