@@ -30,22 +30,19 @@ class IDisconnectable:
             for obj, signal_id in self.signals:
                 obj.disconnect(signal_id)
             del self.signals
-        except Exception as e:
-            print(e)
+        except Exception:
+            pass
 
         try:
             for binding in self.bindings:
                 binding.unbind()
             del self.bindings
-        except Exception as e:
-            print(e)
+        except Exception:
+            pass
 
         try:
             for widget in self.disconnectables:
                 widget.disconnect_all()
             del self.disconnectables
-        except Exception as e:
-            print(e)
-
-    def __del__(self, *args):
-        print(f"DELETING {self}")
+        except Exception:
+            pass
