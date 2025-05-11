@@ -88,7 +88,9 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
 
         action = Gio.SimpleAction.new(
             "add-to-playlist", GLib.VariantType.new("n"))
-        action.connect("activate", self._add_to_playlist)
+        self.signals.append((
+                action,
+                action.connect("activate", self._add_to_playlist)))
         action_group.add_action(action)
 
         for index, playlist in enumerate(variables.user_playlists):
@@ -103,8 +105,9 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
 
         for name, callback in action_entries:
             action = Gio.SimpleAction.new(name, None)
-            self.signals.append(
-                (action, action.connect("activate", callback)))
+            self.signals.append((
+                action,
+                action.connect("activate", callback)))
             action_group.add_action(action)
 
         self.insert_action_group("trackwidget", action_group)
