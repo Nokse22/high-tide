@@ -255,21 +255,7 @@ class PlayerObject(GObject.GObject):
             self.manifest = self.stream.get_stream_manifest()
             urls = self.manifest.get_urls()
 
-            audio_sink = self.playbin.get_property("audio-sink")
-
-            if audio_sink:
-                rgtags = audio_sink.get_by_name("rgtags")
-
-            tags = (
-                f"replaygain-album-gain={self.stream.album_replay_gain},"
-                f"replaygain-album-peak={self.stream.album_peak_amplitude}"
-            )
-            if rgtags:
-                rgtags.set_property("tags", tags)
-                print(f"Applied RG Tags: {tags}")
-            # Save replaygain tags for every song to avoid missing tags when
-            # toggling the option
-            self.most_recent_rg_tags = f"tags={tags}"
+            self.apply_replaygain_tags()
 
             if self.stream.manifest_mime_type == ManifestMimeType.MPD:
                 data = self.stream.get_manifest_data()
@@ -292,6 +278,25 @@ class PlayerObject(GObject.GObject):
         except Exception as e:
             print(f"Error getting track URL: {e}")
 
+
+    def apply_replaygain_tags(self):
+        audio_sink = self.playbin.get_property("audio-sink")
+
+        if audio_sink:
+            rgtags = audio_sink.get_by_name("rgtags")
+
+        tags = (
+            f"replaygain-album-gain={self.stream.album_replay_gain},"
+            f"replaygain-album-peak={self.stream.album_peak_amplitude}"
+        )
+        if rgtags:
+            rgtags.set_property("tags", tags)
+            print(f"Applied RG Tags: {tags}")
+        # Save replaygain tags for every song to avoid missing tags when
+        # toggling the option
+        self.most_recent_rg_tags = f"tags={tags}"
+
+
     def _play_track_url(self, track, music_url):
         """Set up and play track from URL."""
         self.pipeline.set_state(Gst.State.NULL)
@@ -313,6 +318,7 @@ class PlayerObject(GObject.GObject):
         """Play the next track."""
         if self.repeat == RepeatType.SONG:
             self.seek(0)
+            self.apply_replaygain_tags()
             return
 
         if self.playing_track:
