@@ -82,6 +82,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     navigation_buttons = Gtk.Template.Child()
     buffer_spinner = Gtk.Template.Child()
     quality_label = Gtk.Template.Child()
+    toast_overlay = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -166,6 +167,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         variables.session = self.session
         variables.navigation_view = self.navigation_view
+        variables.toast_overlay = self.toast_overlay
 
         self.user = self.session.user
 
@@ -464,6 +466,11 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.settings.set_int("repeat", self.player_object.repeat)
 
+    @Gtk.Template.Callback("on_in_my_collection_button_clicked")
+    def on_in_my_collection_button_clicked(self, btn):
+        variables.on_in_to_my_collection_button_clicked(
+            btn, self.player_object.playing_track)
+
     def on_shuffle_button_toggled(self, btn):
         state = btn.get_active()
         self.player_object.shuffle(state)
@@ -637,3 +644,4 @@ class HighTideWindow(Adw.ApplicationWindow):
         action.connect("activate", callback)
         self.add_action(action)
         return action
+

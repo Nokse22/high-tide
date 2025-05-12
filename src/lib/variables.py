@@ -1,4 +1,4 @@
-from gi.repository import Gdk
+from gi.repository import Gdk, Adw
 
 import os
 
@@ -12,6 +12,8 @@ from ..pages import artistPage
 from ..pages import albumPage
 
 import threading
+
+from gettext import gettext as _
 
 favourite_mixes = []
 favourite_tracks = []
@@ -36,8 +38,7 @@ def init():
     global session
     global navigation_view
     global player_object
-    global sidebar_list
-    global search_entry
+    global toast_overlay
 
 
 def get_favourites():
@@ -120,11 +121,17 @@ def th_add_to_my_collection(btn, item):
         result = False
 
     if result:
-        print("item successfully added to my collection")
         btn.set_icon_name("heart-filled-symbolic")
+        toast_overlay.add_toast(
+            Adw.Toast(
+                title=_("Successfully added to my collection"),
+                timeout=2))
         get_favourites()
     else:
-        print("failed to add item to my collection")
+        toast_overlay.add_toast(
+            Adw.Toast(
+                title=_("Failed to add item to my collection"),
+                timeout=2))
 
 
 def remove_from_my_collection(btn, item):
@@ -143,21 +150,28 @@ def remove_from_my_collection(btn, item):
         result = False
 
     if result:
-        print("item successfully removed from my collection")
         btn.set_icon_name("heart-outline-thick-symbolic")
+
+        toast_overlay.add_toast(
+            Adw.Toast(
+                title=_("Successfully removed from my collection"),
+                timeout=2))
+    else:
+        toast_overlay.add_toast(
+            Adw.Toast(
+                title=_("Failed to remove item from my collection"),
+                timeout=2))
 
 
 def on_in_to_my_collection_button_clicked(btn, item):
     if btn.get_icon_name() == "heart-outline-thick-symbolic":
         threading.Thread(
             target=th_add_to_my_collection,
-            args=(btn, item,),
-        ).start()
+            args=(btn, item,)).start()
     else:
         threading.Thread(
             target=remove_from_my_collection,
-            args=(btn, item,),
-        ).start()
+            args=(btn, item,)).start()
 
 
 def share_this(item):
