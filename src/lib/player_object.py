@@ -67,17 +67,16 @@ class PlayerObject(GObject.GObject):
         'buffering': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
     }
 
-    def __init__(self, preferred_sink=AudioSink.AUTO, normalize = False):
+    def __init__(self, preferred_sink=AudioSink.AUTO, normalize=False):
         GObject.GObject.__init__(self)
 
         Gst.init(None)
 
         version_str = Gst.version_string()
-        print(f"GStreamer version string: {version_str}")
+        print(f"GStreamer version: {version_str}")
 
         self.pipeline = Gst.Pipeline.new("dash-player")
 
-        # Create a playbin element instead - much simpler approach
         self.playbin = Gst.ElementFactory.make("playbin3", "playbin")
         if not self.playbin:
             print("Could not create playbin3 element, trying playbin...")
@@ -185,7 +184,6 @@ class PlayerObject(GObject.GObject):
             print("No tracks found to play")
             return
 
-
         self._tracks_to_play = tracks[index:] + tracks[:index]
         if not self._tracks_to_play:
             return
@@ -278,7 +276,6 @@ class PlayerObject(GObject.GObject):
         except Exception as e:
             print(f"Error getting track URL: {e}")
 
-
     def apply_replaygain_tags(self):
         audio_sink = self.playbin.get_property("audio-sink")
 
@@ -295,7 +292,6 @@ class PlayerObject(GObject.GObject):
         # Save replaygain tags for every song to avoid missing tags when
         # toggling the option
         self.most_recent_rg_tags = f"tags={tags}"
-
 
     def _play_track_url(self, track, music_url):
         """Set up and play track from URL."""
