@@ -22,6 +22,8 @@ from ..lib import utils
 import threading
 from .page import Page
 from ..lib import variables
+from ..disconnectable_iface import IDisconnectable
+from tidalapi.playlist import Playlist
 
 
 class playlistPage(Page):
@@ -33,7 +35,17 @@ class playlistPage(Page):
     # FIXME Fix the favorite hearth
     # FIXME After playing shuffle the next track is not found
 
+    def __init__(self, _id):
+        IDisconnectable.__init__(self)
+        super().__init__()
+
+        self.id = _id
+
     def _th_load_page(self):
+        self.item = Playlist(variables.session, self.id)
+
+        self.set_title(self.item.name)
+
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/HighTide/ui/pages_ui/tracks_list_template.ui")
 

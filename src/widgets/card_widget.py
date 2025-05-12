@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Adw
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 
 import threading
 
@@ -138,28 +138,20 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
     def on_click(self, *args):
         if isinstance(self.item, Mix) or isinstance(self.item, MixV2):
-            from ..pages import mixPage
-            page = mixPage(self.item, f"{self.item.title}")
-            page.load()
-            variables.navigation_view.push(page)
+            self.activate_action(
+                "win.push-mix-page", GLib.Variant("s", str(self.item.id)))
 
         elif isinstance(self.item, Album):
-            from ..pages import albumPage
-            page = albumPage(self.item, f"{self.item.name}")
-            page.load()
-            variables.navigation_view.push(page)
+            self.activate_action(
+                "win.push-album-page", GLib.Variant("s", str(self.item.id)))
 
         elif isinstance(self.item, Playlist):
-            from ..pages import playlistPage
-            page = playlistPage(self.item, f"{self.item.name}")
-            page.load()
-            variables.navigation_view.push(page)
+            self.activate_action(
+                "win.push-playlist-page", GLib.Variant("s", str(self.item.id)))
 
         elif isinstance(self.item, Artist):
-            from ..pages import artistPage
-            page = artistPage(self.item, f"{self.item.name}")
-            page.load()
-            variables.navigation_view.push(page)
+            self.activate_action(
+                "win.push-artist-page", GLib.Variant("s", str(self.item.id)))
 
     def __repr__(self, *args):
         return "<CardWidget>"

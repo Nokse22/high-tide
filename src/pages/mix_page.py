@@ -19,7 +19,7 @@
 
 from gi.repository import Gtk
 
-from tidalapi.mix import MixV2
+from tidalapi.mix import MixV2, Mix
 
 from ..lib import utils
 
@@ -28,11 +28,23 @@ from .page import Page
 
 from ..lib import variables
 
+from ..disconnectable_iface import IDisconnectable
+
 
 class mixPage(Page):
     __gtype_name__ = 'mixPage'
 
+    def __init__(self, _id):
+        IDisconnectable.__init__(self)
+        super().__init__()
+
+        self.id = _id
+
     def _th_load_page(self):
+        self.item = Mix(variables.session, self.id)
+
+        self.set_title(self.item.title)
+
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/HighTide/ui/pages_ui/tracks_list_template.ui")
 

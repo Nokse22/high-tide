@@ -25,7 +25,7 @@ from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import Gst, GLib
-from gi.repository import Xdp, Gdk
+from gi.repository import Xdp
 
 from .mpris import MPRIS
 
@@ -35,10 +35,12 @@ from .lib import PlayerObject, RepeatType
 from .lib import utils
 
 from .login import LoginDialog
-from .new_playlist import NewPlaylistWindow
+# from .new_playlist import NewPlaylistWindow
 
 from .pages import homePage, explorePage, notLoggedInPage, collectionPage
-from .pages import trackRadioPage, playlistPage, startUpPage, fromFunctionPage
+from .pages import trackRadioPage, playlistPage, startUpPage
+from .pages import artistPage, mixPage
+from .pages import albumPage
 
 from .lib import SecretStore
 from .lib import variables
@@ -93,6 +95,26 @@ class HighTideWindow(Adw.ApplicationWindow):
             "window-height", self,
             "default-height", Gio.SettingsBindFlags.DEFAULT)
 
+        self.create_action_with_target(
+            'push-artist-page',
+            GLib.VariantType.new("s"),
+            self.on_push_artist_page)
+
+        self.create_action_with_target(
+            'push-album-page',
+            GLib.VariantType.new("s"),
+            self.on_push_album_page)
+
+        self.create_action_with_target(
+            'push-playlist-page',
+            GLib.VariantType.new("s"),
+            self.on_push_playlist_page)
+
+        self.create_action_with_target(
+            'push-mix-page',
+            GLib.VariantType.new("s"),
+            self.on_push_mix_page)
+
         self.player_object = PlayerObject(
             self.settings.get_int('preferred-sink'),
             self.settings.get_boolean('normalize'))
@@ -102,6 +124,11 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.settings.get_int("last-volume")/10)
 
         self.shuffle_button.connect("toggled", self.on_shuffle_button_toggled)
+
+        self.in_my_collection_button.connect(
+            "clicked",
+            variables.on_in_to_my_collection_button_clicked,
+            self.player_object.playing_track)
 
         self.player_object.connect(
             "shuffle-changed", self.on_shuffle_changed)
@@ -156,8 +183,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.secret_store = SecretStore(self.session)
 
-        page = startUpPage(None, _("Loading"))
-        page.load()
+        page = startUpPage().load()
         self.navigation_view.push(page)
 
         self.navigation_view.connect(
@@ -171,13 +197,43 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.portal.set_background_status(_("Playing Music"))
 
+    #
+    #   LOGIN
+    #
+
+    def new_login(self):
+        """Opens a LoginDialog"""
+
+        login_dialog = LoginDialog(self, self.session)
+        login_dialog.present(self)
+
+    def th_login(self):
+        """Logs the user in, if it doesn't work it calls on_login_failed()"""
+        try:
+            self.session.load_oauth_session(
+                self.secret_store.token_dictionary["token-type"],
+                self.secret_store.token_dictionary["access-token"],
+                self.secret_store.token_dictionary["refresh-token"],
+                self.secret_store.token_dictionary["expiry-time"])
+        except Exception as e:
+            print(f"error! {e}")
+            GLib.idle_add(self.on_login_failed)
+        else:
+            variables.get_favourites()
+            GLib.idle_add(self.on_logged_in)
+
+    def logout(self):
+        self.secret_store.clear()
+
+        page = notLoggedInPage(self)
+        page.load()
+        self.navigation_view.replace([page])
+
     def on_logged_in(self):
         print("on logged in")
-        variables.get_favourites()
         # FIXME if it doesn't login fast enough it doesn't let the user login
 
-        page = homePage(self)
-        page.load()
+        page = homePage().load()
         self.navigation_view.replace([page])
 
         self.player_lyrics_queue.set_sensitive(True)
@@ -217,6 +273,9 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.player_object.pause()
 
+    #
+    #   UPDATES UI
+    #
 
     def on_song_changed(self, *args):
         print("song changed")
@@ -239,7 +298,8 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.in_my_collection_button.set_icon_name(
                 "heart-outline-thick-symbolic")
 
-        self.settings.set_string("last-playing-song-id", str(track.id))
+        # FIXME actually find the correct index
+        self.settings.set_int("last-playing-index", 0)
 
         if self.image_canc:
             self.image_canc.cancel()
@@ -308,7 +368,6 @@ class HighTideWindow(Adw.ApplicationWindow):
             if bitrate and codec == "AAC":
                 quality_details.append(bitrate)
 
-
             if quality_details:
                 quality_text += f" ({' / '.join(quality_details)})"
 
@@ -329,32 +388,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         else:
             self.buffer_spinner.set_visible(False)
 
-    def new_login(self):
-        """Opens a LoginDialog"""
-
-        login_dialog = LoginDialog(self, self.session)
-        login_dialog.present(self)
-
-    def th_login(self):
-        """Logs the user in, if it doesn't work it calls on_login_failed()"""
-        try:
-            self.session.load_oauth_session(
-                self.secret_store.token_dictionary["token-type"],
-                self.secret_store.token_dictionary["access-token"],
-                self.secret_store.token_dictionary["refresh-token"],
-                self.secret_store.token_dictionary["expiry-time"])
-        except Exception as e:
-            print(f"error! {e}")
-            GLib.idle_add(self.on_login_failed)
-        else:
-            GLib.idle_add(self.on_logged_in)
-
-    def logout(self):
-        self.secret_store.clear()
-
-        page = notLoggedInPage(self)
-        page.load()
-        self.navigation_view.replace([page])
+    #
+    #   CALLBACKS
+    #
 
     @Gtk.Template.Callback("on_play_button_clicked")
     def on_play_button_clicked(self, btn):
@@ -366,6 +402,67 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.player_object.pause()
             btn.set_icon_name("media-playback-start-symbolic")
             print("play")
+
+    @Gtk.Template.Callback("on_share_clicked")
+    def on_share_clicked(self, *args):
+        track = self.player_object.playing_track
+        if track:
+            variables.share_this(track)
+
+    @Gtk.Template.Callback("on_track_radio_button_clicked")
+    def on_track_radio_button_clicked_func(self, widget):
+        track = self.player_object.playing_track
+        page = trackRadioPage(track.id).load()
+        self.navigation_view.push(page)
+
+    @Gtk.Template.Callback("on_skip_forward_button_clicked")
+    def on_skip_forward_button_clicked_func(self, widget):
+        print("skip forward")
+        self.player_object.play_next()
+
+    @Gtk.Template.Callback("on_skip_backward_button_clicked")
+    def on_skip_backward_button_clicked_func(self, widget):
+        print("skip backward")
+        self.player_object.play_previous()
+
+    @Gtk.Template.Callback("on_home_button_clicked")
+    def on_home_button_clicked_func(self, widget):
+        self.navigation_view.pop_to_tag("home")
+
+    @Gtk.Template.Callback("on_explore_button_clicked")
+    def on_explore_button_clicked_func(self, widget):
+        if self.navigation_view.find_page("explore"):
+            self.navigation_view.pop_to_tag("explore")
+            return
+
+        page = explorePage().load()
+        self.navigation_view.push(page)
+
+    @Gtk.Template.Callback("on_collection_button_clicked")
+    def on_collection_button_clicked_func(self, widget):
+        if self.navigation_view.find_page("collection"):
+            self.navigation_view.pop_to_tag("collection")
+            return
+
+        page = collectionPage().load()
+        self.navigation_view.push(page)
+
+    @Gtk.Template.Callback("on_repeat_clicked")
+    def on_repeat_clicked(self, *args):
+        if self.player_object.repeat == RepeatType.NONE:
+            self.repeat_button.set_icon_name(
+                "playlist-repeat-song-symbolic")
+            self.player_object.repeat = RepeatType.SONG
+        elif self.player_object.repeat == RepeatType.LIST:
+            self.repeat_button.set_icon_name(
+                "media-playlist-consecutive-symbolic")
+            self.player_object.repeat = RepeatType.NONE
+        elif self.player_object.repeat == RepeatType.SONG:
+            self.repeat_button.set_icon_name(
+                "media-playlist-repeat-symbolic")
+            self.player_object.repeat = RepeatType.LIST
+
+        self.settings.set_int("repeat", self.player_object.repeat)
 
     def on_shuffle_button_toggled(self, btn):
         state = btn.get_active()
@@ -448,25 +545,25 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.player_object.change_audio_sink(
                 self.settings.get_int("preferred-sink"))
 
-    @Gtk.Template.Callback("on_track_radio_button_clicked")
-    def on_track_radio_button_clicked_func(self, widget):
-        track = self.player_object.playing_track
-        page = trackRadioPage(track, f"{track.name} Radio")
-        page.load()
+    #
+    #   PAGES ACTIONS CALLBACKS
+    #
+
+    def on_push_artist_page(self, action, parameter):
+        page = artistPage(parameter.get_string()).load()
         self.navigation_view.push(page)
 
-    @Gtk.Template.Callback("on_in_my_collection_button_clicked")
-    def on_in_my_collection_button_clicked(self, btn):
-        icon_name = self.in_my_collection_button.get_icon_name()
+    def on_push_album_page(self, action, parameter):
+        page = albumPage(parameter.get_string()).load()
+        self.navigation_view.push(page)
 
-        if icon_name == "heart-outline-thick-symbolic":
-            threading.Thread(
-                target=self.th_add_track_to_my_collection,
-                args=(self.player_object.playing_track.id,)).start()
-        else:
-            threading.Thread(
-                target=self.th_remove_track_from_my_collection,
-                args=(self.player_object.playing_track.id,)).start()
+    def on_push_playlist_page(self, action, parameter):
+        page = playlistPage(parameter.get_string()).load()
+        self.navigation_view.push(page)
+
+    def on_push_mix_page(self, action, parameter):
+        page = mixPage(parameter.get_string()).load()
+        self.navigation_view.push(page)
 
     def th_add_track_to_my_collection(self, track_id):
         result = self.session.user.favorites.add_track(track_id)
@@ -507,57 +604,6 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.player_object.seek(position/end_value)
 
-    @Gtk.Template.Callback("on_skip_forward_button_clicked")
-    def on_skip_forward_button_clicked_func(self, widget):
-        print("skip forward")
-        self.player_object.play_next()
-
-    @Gtk.Template.Callback("on_skip_backward_button_clicked")
-    def on_skip_backward_button_clicked_func(self, widget):
-        print("skip backward")
-        self.player_object.play_previous()
-
-    @Gtk.Template.Callback("on_home_button_clicked")
-    def on_home_button_clicked_func(self, widget):
-        self.navigation_view.pop_to_tag("home")
-
-    @Gtk.Template.Callback("on_explore_button_clicked")
-    def on_explore_button_clicked_func(self, widget):
-        if self.navigation_view.find_page("explore"):
-            self.navigation_view.pop_to_tag("explore")
-            return
-
-        page = explorePage(None, "Explore")
-        page.load()
-        self.navigation_view.push(page)
-
-    @Gtk.Template.Callback("on_collection_button_clicked")
-    def on_collection_button_clicked_func(self, widget):
-        if self.navigation_view.find_page("collection"):
-            self.navigation_view.pop_to_tag("collection")
-            return
-
-        page = collectionPage(None, "Collection")
-        page.load()
-        self.navigation_view.push(page)
-
-    @Gtk.Template.Callback("on_repeat_clicked")
-    def on_repeat_clicked(self, *args):
-        if self.player_object.repeat == RepeatType.NONE:
-            self.repeat_button.set_icon_name(
-                "playlist-repeat-song-symbolic")
-            self.player_object.repeat = RepeatType.SONG
-        elif self.player_object.repeat == RepeatType.LIST:
-            self.repeat_button.set_icon_name(
-                "media-playlist-consecutive-symbolic")
-            self.player_object.repeat = RepeatType.NONE
-        elif self.player_object.repeat == RepeatType.SONG:
-            self.repeat_button.set_icon_name(
-                "media-playlist-repeat-symbolic")
-            self.player_object.repeat = RepeatType.LIST
-
-        self.settings.set_int("repeat", self.player_object.repeat)
-
     def on_song_added_to_queue(self, *args):
         if self.queue_widget.get_mapped():
             self.queue_widget.update_queue(self.player_object)
@@ -584,8 +630,10 @@ class HighTideWindow(Adw.ApplicationWindow):
             case "collection":
                 self.collection_button.set_active(True)
 
-    @Gtk.Template.Callback("on_share_clicked")
-    def on_share_clicked(self, *args):
-        track = self.player_object.playing_track
-        if track:
-            variables.share_this(track)
+    def create_action_with_target(self, name, target_type, callback):
+        """Used to create a new action with a target"""
+
+        action = Gio.SimpleAction.new(name, target_type)
+        action.connect("activate", callback)
+        self.add_action(action)
+        return action

@@ -20,7 +20,10 @@
 from gi.repository import Gtk
 from ..lib import utils
 from .page import Page
+from tidalapi.album import Album
 from ..lib import variables
+from ..disconnectable_iface import IDisconnectable
+
 import threading
 
 
@@ -29,7 +32,17 @@ class albumPage(Page):
 
     """It is used to display an album"""
 
+    def __init__(self, _id):
+        IDisconnectable.__init__(self)
+        super().__init__()
+
+        self.id = _id
+
     def _th_load_page(self):
+        self.item = Album(variables.session, self.id)
+
+        self.set_title(self.item.name)
+
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/HighTide/ui/pages_ui/tracks_list_template.ui")
 

@@ -27,6 +27,8 @@ import threading
 
 from .page import Page
 
+from tidalapi.artist import Artist
+
 from ..lib import variables
 from ..disconnectable_iface import IDisconnectable
 
@@ -34,22 +36,25 @@ from gettext import gettext as _
 
 
 class artistPage(Page):
-    __gtype_name__ = 'artistPage'
+    __gtype_name__ = 'HTArtistPage'
 
     """It is used to display an artist page"""
 
     # TODO Add missing features: influences, appears on, credits and so on
 
-    def __init__(self, _artist, _name):
+    def __init__(self, _id):
         IDisconnectable.__init__(self)
-        super().__init__(_artist, _name)
+        super().__init__()
 
         self.top_tracks = []
-        self.artist = _artist
-
-        # TODO get the arist ID not the artist so it shows the page faster
+        self.id = _id
+        self.artist = None
 
     def _th_load_page(self):
+        self.artist = Artist(variables.session, self.id)
+
+        self.set_title(self.artist.name)
+
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/HighTide/ui/pages_ui/artist_page_template.ui")
 

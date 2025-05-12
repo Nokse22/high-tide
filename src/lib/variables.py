@@ -187,31 +187,14 @@ def get_type(item):
 
 
 def open_uri(label, uri):
-    threading.Thread(target=_load_object, args=(uri,)).start()
+    uri_parts = uri.split(":")
+
+    match uri_parts[0]:
+        case "artist":
+            page = artistPage(uri_parts[1]).load()
+            navigation_view.push(page)
+        case "album":
+            page = albumPage(uri_parts[1]).load()
+            navigation_view.push(page)
+
     return True
-
-
-def _open_uri(uri, loaded_object):
-    uri_parts = uri.split(":")
-
-    match uri_parts[0]:
-        case "artist":
-            page = artistPage(loaded_object, loaded_object.name)
-            page.load()
-            navigation_view.push(page)
-        case "album":
-            page = albumPage(loaded_object, loaded_object.name)
-            page.load()
-            navigation_view.push(page)
-
-
-def _load_object(uri):
-    uri_parts = uri.split(":")
-
-    match uri_parts[0]:
-        case "artist":
-            loaded_object = Artist(session, uri_parts[1])
-        case "album":
-            loaded_object = Album(session, uri_parts[1])
-
-    _open_uri(uri, loaded_object)
