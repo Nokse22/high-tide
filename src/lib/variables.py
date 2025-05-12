@@ -185,6 +185,13 @@ def share_this(item):
         clipboard.set(item.share_url)
     elif isinstance(item, Playlist):
         clipboard.set(item.share_url)
+    else:
+        return
+
+    toast_overlay.add_toast(
+            Adw.Toast(
+                title=_("Copied share URL in the clipboard"),
+                timeout=2))
 
 
 def get_type(item):
