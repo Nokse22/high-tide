@@ -146,10 +146,10 @@ class TidalApplication(Adw.Application):
         if (mix_album_playlist is not None and
                 not isinstance(mix_album_playlist, list)):
             self.settings.set_string(
-                "last-playing-list-id",
+                "last-playing-thing-id",
                 str(mix_album_playlist.id))
             self.settings.set_string(
-                "last-playing-list-type",
+                "last-playing-thing-type",
                 variables.get_type(mix_album_playlist))
         if track is not None:
             self.settings.set_string(

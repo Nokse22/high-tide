@@ -193,35 +193,30 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.navigation_view.replace([page])
 
     def th_set_last_playing_song(self):
-        track_id = self.settings.get_string("last-playing-song-id")
-        list_id = self.settings.get_string("last-playing-list-id")
-        list_type = self.settings.get_string("last-playing-list-type")
+        index = self.settings.get_int("last-playing-index")
+        thing_id = self.settings.get_string("last-playing-thing-id")
+        thing_type = self.settings.get_string("last-playing-thing-type")
 
-        print(f"Last playing: {track_id} from {list_id} of type {list_type}")
+        print(f"Last playing: {thing_id} of type {thing_type}")
 
-        album_mix_playlist = None
+        thing = None
 
         try:
-            if list_type == "mix":
-                album_mix_playlist = self.session.mix(list_id)
-            elif list_type == "album":
-                album_mix_playlist = self.session.album(list_id)
-            elif list_type == "playlist":
-                album_mix_playlist = self.session.playlist(list_id)
+            if thing_type == "mix":
+                thing = self.session.mix(thing_id)
+            elif thing_type == "album":
+                thing = self.session.album(thing_id)
+            elif thing_type == "playlist":
+                thing = self.session.playlist(thing_id)
+            elif thing_type == "track":
+                thing = self.session.track(thing_id)
         except Exception as e:
             print(e)
 
-        if track_id == -1:
-            return
-
-        # track = self.session.track(track_id)
-        self.player_object.play_this(album_mix_playlist, 0)
+        self.player_object.play_this(thing, index)
 
         self.player_object.pause()
 
-        # TODO Set last playing playlist/mix/album as current playing thing
-
-        # self.player_object. = self.session.track(track_id)
 
     def on_song_changed(self, *args):
         print("song changed")
