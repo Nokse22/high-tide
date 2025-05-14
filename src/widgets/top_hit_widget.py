@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 
 from tidalapi.page import PageItem
 from tidalapi.mix import Mix, MixV2
@@ -52,52 +52,39 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         IDisconnectable.__init__(self)
         super().__init__()
 
-        self.item = _item
-
         self.signals.append((
             self.artist_label,
             self.artist_label.connect(
                 "activate-link", variables.open_uri)))
 
+        self.item = _item
+
+        self.action = None
+
         if isinstance(_item, Mix):
             self.make_mix()
+            self.action = "win.push-mix-page"
         elif isinstance(_item, Album):
             self.make_album()
+            self.action = "win.push-album-page"
         elif isinstance(_item, Playlist):
             self.make_playlist()
+            self.action = "win.push-playlist-page"
         if isinstance(_item, Artist):
             self.make_artist()
+            self.action = "win.push-artist-page"
         elif isinstance(_item, Track):
             self.make_track()
+            self.action = "win.push-album-page"
 
         self.signals.append((
             self.click_gesture,
             self.click_gesture.connect("released", self.on_click)))
 
     def on_click(self, *args):
-        if isinstance(self.item, Mix) or isinstance(self.item, MixV2):
-            from ..pages import mixPage
-            page = mixPage(self.item, f"{self.item.title}")
-            page.load()
-            variables.navigation_view.push(page)
-
-        elif isinstance(self.item, Album):
-            from ..pages import albumPage
-            page = albumPage(self.item, f"{self.item.name}")
-            page.load()
-            variables.navigation_view.push(page)
-
-        elif isinstance(self.item, Playlist):
-            from ..pages import playlistPage
-            page = playlistPage(self.item, f"{self.item.name}")
-            page.load()
-            variables.navigation_view.push(page)
-
-        elif isinstance(self.item, Artist):
-            from ..pages import artistPage
-            page = artistPage(self.item, f"{self.item.name}")
-            page.load()
-            variables.navigation_view.push(page)
+        if self.action:
+            self.activate_action(
+                self.action, GLib.Variant("s", str(self.item.id)))
 
     def make_track(self):
         self.primary_label.set_label(self.item.name)

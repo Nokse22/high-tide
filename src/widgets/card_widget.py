@@ -34,6 +34,8 @@ from ..lib import variables
 
 from ..disconnectable_iface import IDisconnectable
 
+from gettext import gettext as _
+
 
 @Gtk.Template(
     resource_path='/io/github/nokse22/HighTide/ui/widgets/card_widget.ui')
@@ -65,23 +67,30 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         self.item = _item
 
-        if isinstance(_item, MixV2) or isinstance(_item, Mix):
+        self.action = None
+
+        if isinstance(self.item, MixV2) or isinstance(self.item, Mix):
             self.make_mix_card()
-        elif isinstance(_item, Album):
+            self.action = "win.push-mix-page"
+        elif isinstance(self.item, Album):
             self.make_album_card()
-        elif isinstance(_item, Playlist):
+            self.action = "win.push-album-page"
+        elif isinstance(self.item, Playlist):
             self.make_playlist_card()
-        elif isinstance(_item, Artist):
+            self.action = "win.push-playlist-page"
+        elif isinstance(self.item, Artist):
             self.make_artist_card()
-        elif isinstance(_item, Track):
+            self.action = "win.push-artist-page"
+        elif isinstance(self.item, Track):
             self.make_track_card()
+            self.action = "win.push-album-page"
 
     def make_track_card(self):
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_artists(self.item.artists)
         self.track_artist_label.set_label(
-            "Track by {}".format(self.track_artist_label.get_label()))
+            _("Track by {}").format(self.track_artist_label.get_label()))
         self.detail_label.set_visible(False)
 
         self.item = self.item.album
@@ -120,7 +129,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             creator = creator.name
         else:
             creator = "TIDAL"
-        self.detail_label.set_label(f"by {creator.title()}")
+        self.detail_label.set_label(_("By {}").format(creator.title()))
 
         threading.Thread(
             target=utils.add_image,
@@ -129,7 +138,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
     def make_artist_card(self):
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
-        self.detail_label.set_label("Artist")
+        self.detail_label.set_label(_("Artist"))
         self.track_artist_label.set_visible(False)
 
         threading.Thread(
@@ -137,21 +146,9 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             args=(self.image, self.item)).start()
 
     def on_click(self, *args):
-        if isinstance(self.item, Mix) or isinstance(self.item, MixV2):
+        if self.action:
             self.activate_action(
-                "win.push-mix-page", GLib.Variant("s", str(self.item.id)))
-
-        elif isinstance(self.item, Album):
-            self.activate_action(
-                "win.push-album-page", GLib.Variant("s", str(self.item.id)))
-
-        elif isinstance(self.item, Playlist):
-            self.activate_action(
-                "win.push-playlist-page", GLib.Variant("s", str(self.item.id)))
-
-        elif isinstance(self.item, Artist):
-            self.activate_action(
-                "win.push-artist-page", GLib.Variant("s", str(self.item.id)))
+                self.action, GLib.Variant("s", str(self.item.id)))
 
     def __repr__(self, *args):
         return "<CardWidget>"
