@@ -21,14 +21,10 @@ import sys
 
 from gi.repository import Gtk, Gio, Adw
 from .window import HighTideWindow
-# from gi.events import GLibEventLoopPolicy
 
 from .lib import variables
 
 import threading
-# import asyncio
-
-# asyncio.set_event_loop_policy(GLibEventLoopPolicy())
 
 
 class TidalApplication(Adw.Application):
@@ -138,10 +134,13 @@ class TidalApplication(Adw.Application):
             self.set_accels_for_action(f"app.{name}", shortcuts)
 
     def on_close_request(self, *args):
-        track = self.win.player_object.playing_track
-        mix_album_playlist = self.win.player_object.current_mix_album_playlist
+        self.save_last_playing_thing()
 
-        print("close request")
+    def do_shutdown(self, *args):
+        self.save_last_playing_thing()
+
+    def save_last_playing_thing(self):
+        mix_album_playlist = self.win.player_object.current_mix_album_playlist
 
         if (mix_album_playlist is not None and
                 not isinstance(mix_album_playlist, list)):
@@ -151,10 +150,10 @@ class TidalApplication(Adw.Application):
             self.settings.set_string(
                 "last-playing-thing-type",
                 variables.get_type(mix_album_playlist))
-        if track is not None:
-            self.settings.set_string(
-                "last-playing-song-id",
-                str(track.id))
+        # if track is not None:
+        #     self.settings.set_int(
+        #         "last-playing-index",
+        #         str(track.id))
 
 
 def main(version):
