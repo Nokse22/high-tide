@@ -37,10 +37,10 @@ from .lib import utils
 from .login import LoginDialog
 # from .new_playlist import NewPlaylistWindow
 
-from .pages import homePage, explorePage, notLoggedInPage, collectionPage
-from .pages import trackRadioPage, playlistPage, startUpPage
-from .pages import artistPage, mixPage
-from .pages import albumPage
+from .pages import HTHomePage, HTExplorePage, HTNotLoggedInPage
+from .pages import HTStartUpPage, HTCollectionPage
+from .pages import HTArtistPage, HTMixPage, HTHrackRadioPage, HTPlaylistPage
+from .pages import HTAlbumPage
 
 from .lib import SecretStore
 from .lib import variables
@@ -185,7 +185,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.secret_store = SecretStore(self.session)
 
-        page = startUpPage().load()
+        page = HTStartUpPage().load()
         self.navigation_view.push(page)
 
         self.navigation_view.connect(
@@ -227,15 +227,14 @@ class HighTideWindow(Adw.ApplicationWindow):
     def logout(self):
         self.secret_store.clear()
 
-        page = notLoggedInPage(self)
-        page.load()
+        page = HTNotLoggedInPage().load()
         self.navigation_view.replace([page])
 
     def on_logged_in(self):
         print("on logged in")
         # FIXME if it doesn't login fast enough it doesn't let the user login
 
-        page = homePage().load()
+        page = HTHomePage().load()
         self.navigation_view.replace([page])
 
         self.player_lyrics_queue.set_sensitive(True)
@@ -246,8 +245,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     def on_login_failed(self):
         print("login failed")
 
-        page = notLoggedInPage(self)
-        page.load()
+        page = HTNotLoggedInPage().load()
         self.navigation_view.replace([page])
 
     def th_set_last_playing_song(self):
@@ -414,7 +412,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_track_radio_button_clicked")
     def on_track_radio_button_clicked_func(self, widget):
         track = self.player_object.playing_track
-        page = trackRadioPage(track.id).load()
+        page = HTHrackRadioPage(track.id).load()
         self.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_skip_forward_button_clicked")
@@ -437,7 +435,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.navigation_view.pop_to_tag("explore")
             return
 
-        page = explorePage().load()
+        page = HTExplorePage().load()
         self.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_collection_button_clicked")
@@ -446,7 +444,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.navigation_view.pop_to_tag("collection")
             return
 
-        page = collectionPage().load()
+        page = HTCollectionPage().load()
         self.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_repeat_clicked")
@@ -557,19 +555,19 @@ class HighTideWindow(Adw.ApplicationWindow):
     #
 
     def on_push_artist_page(self, action, parameter):
-        page = artistPage(parameter.get_string()).load()
+        page = HTArtistPage(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_album_page(self, action, parameter):
-        page = albumPage(parameter.get_string()).load()
+        page = HTAlbumPage(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_playlist_page(self, action, parameter):
-        page = playlistPage(parameter.get_string()).load()
+        page = HTPlaylistPage(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_mix_page(self, action, parameter):
-        page = mixPage(parameter.get_string()).load()
+        page = HTMixPage(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def th_add_track_to_my_collection(self, track_id):
@@ -644,4 +642,3 @@ class HighTideWindow(Adw.ApplicationWindow):
         action.connect("activate", callback)
         self.add_action(action)
         return action
-

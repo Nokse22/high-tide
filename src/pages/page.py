@@ -31,6 +31,8 @@ from ..lib import variables
 
 from ..disconnectable_iface import IDisconnectable
 
+from gettext import gettext as _
+
 
 class Page(Adw.NavigationPage, IDisconnectable):
     __gtype_name__ = 'Page'
@@ -41,6 +43,8 @@ class Page(Adw.NavigationPage, IDisconnectable):
     def __init__(self):
         IDisconnectable.__init__(self)
         super().__init__()
+
+        self.set_title(_("Loading..."))
 
         self.page_content = Gtk.Box(vexpand=True, hexpand=True, orientation=1)
 
@@ -180,9 +184,9 @@ class Page(Adw.NavigationPage, IDisconnectable):
     def on_playlist_button_clicked(self, btn, playlist):
         variables.sidebar_list.select_row(None)
 
-        from .playlist_page import playlistPage
+        from .playlist_page import HTPlaylistPage
 
-        page = playlistPage(playlist, playlist.name).load()
+        page = HTPlaylistPage(playlist, playlist.name).load()
         variables.navigation_view.push(page)
 
     def get_page_link_card(self, page_link):

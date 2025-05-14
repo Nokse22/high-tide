@@ -35,7 +35,7 @@ from ..disconnectable_iface import IDisconnectable
 from gettext import gettext as _
 
 
-class artistPage(Page):
+class HTArtistPage(Page):
     __gtype_name__ = 'HTArtistPage'
 
     """It is used to display an artist page"""
@@ -197,7 +197,7 @@ class artistPage(Page):
         variables.player_object.shuffle_this(self.top_tracks, 0)
 
     def on_artist_radio_button_clicked(self, btn):
-        from .track_radio_page import trackRadioPage
-        page = trackRadioPage(self.artist, f"Radio of {self.artist.name}")
+        from .track_radio_page import HTHrackRadioPage
+        page = HTHrackRadioPage(self.artist, f"Radio of {self.artist.name}")
         page.load()
         variables.navigation_view.push(page)

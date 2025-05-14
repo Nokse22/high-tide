@@ -30,8 +30,8 @@ from ..lib import variables
 from gettext import gettext as _
 
 
-class collectionPage(Page):
-    __gtype_name__ = 'collectionPage'
+class HTCollectionPage(Page):
+    __gtype_name__ = 'HTCollectionPage'
 
     """It is used for the collection"""
 

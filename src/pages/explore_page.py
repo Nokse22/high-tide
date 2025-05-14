@@ -31,9 +31,11 @@ from .search_page import searchPage
 from ..lib import variables
 from ..disconnectable_iface import IDisconnectable
 
+from gettext import gettext as _
 
-class explorePage(Page):
-    __gtype_name__ = 'explorePage'
+
+class HTExplorePage(Page):
+    __gtype_name__ = 'HTExplorePage'
 
     """It is used to display the explore page"""
 
@@ -113,6 +115,5 @@ class explorePage(Page):
 
     def on_search_activated(self, entry):
         query = entry.get_text()
-        page = searchPage(query, "Search")
-        page.load()
+        page = searchPage(query).load()
         variables.navigation_view.push(page)

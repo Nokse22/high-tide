@@ -22,8 +22,8 @@ from .page import Page
 from gettext import gettext as _
 
 
-class startUpPage(Page):
-    __gtype_name__ = 'startUpPage'
+class HTStartUpPage(Page):
+    __gtype_name__ = 'HTStartUpPage'
 
     def _th_load_page(self):
         self.set_tag("loading-page")

@@ -23,8 +23,8 @@ from gi.repository import Gtk
 from .page import Page
 
 
-class notLoggedInPage(Page):
-    __gtype_name__ = 'notLoggedInPage'
+class HTNotLoggedInPage(Page):
+    __gtype_name__ = 'HTNotLoggedInPage'
 
     def _th_load_page(self):
         self.set_title("Not Logged In")

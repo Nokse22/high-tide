@@ -27,8 +27,8 @@ from ..disconnectable_iface import IDisconnectable
 import threading
 
 
-class albumPage(Page):
-    __gtype_name__ = 'albumPage'
+class HTAlbumPage(Page):
+    __gtype_name__ = 'HTAlbumPage'
 
     """It is used to display an album"""
 

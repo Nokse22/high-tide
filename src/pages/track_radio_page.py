@@ -25,19 +25,22 @@ from .page import Page
 import threading
 
 
-class trackRadioPage(Page):
-    __gtype_name__ = 'trackRadioPage'
+class HTHrackRadioPage(Page):
+    __gtype_name__ = 'HTHrackRadioPage'
 
     """It is used to display a radio from a track"""
 
     # FIXME Fix the favourite hearth (Probably impossible because tidalapi doesn't store a radio as a mix, but maybe possible with some ID)
 
-    def __init__(self, _item, _name):
-        super().__init__(_item, _name)
+    def __init__(self, _id):
+        super().__init__()
 
+        self.id = _id
         self.radio_tracks = []
 
     def _th_load_page(self):
+        self.item = Track(variables.session, self.id)
+
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/HighTide/ui/pages_ui/tracks_list_template.ui")
 
@@ -48,8 +51,10 @@ class trackRadioPage(Page):
                 tracks_list_box.connect(
                     "row-activated", self.on_row_selected)))
 
-        builder.get_object("_title_label").set_label(
-            "Radio of {}".format(self.item.name))
+        page_title = "Radio of {}".format(self.item.name)
+
+        builder.get_object("_title_label").set_label(page_title)
+        self.set_title(page_title)
 
         if isinstance(self.item, Track):
             builder.get_object("_first_subtitle_label").set_label(

@@ -26,8 +26,8 @@ from ..disconnectable_iface import IDisconnectable
 from tidalapi.playlist import Playlist
 
 
-class playlistPage(Page):
-    __gtype_name__ = 'playlistPage'
+class HTPlaylistPage(Page):
+    __gtype_name__ = 'HTPlaylistPage'
 
     """It is used to display a playlist with author,
     number of tracks and duration"""

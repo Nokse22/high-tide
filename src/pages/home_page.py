@@ -29,13 +29,15 @@ from ..widgets import HTTracksListWidget
 
 from ..lib import variables
 
+from gettext import gettext as _
 
-class homePage(Page):
-    __gtype_name__ = 'homePage'
+
+class HTHomePage(Page):
+    __gtype_name__ = 'HTHomePage'
 
     def _th_load_page(self):
         self.set_tag("home")
-        self.set_title("Home")
+        self.set_title(_("Home"))
 
         home = variables.session.home()
 

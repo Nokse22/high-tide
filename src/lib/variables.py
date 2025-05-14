@@ -8,8 +8,8 @@ from tidalapi.media import Track
 from tidalapi.playlist import Playlist
 from tidalapi.mix import Mix, MixV2
 
-from ..pages import artistPage
-from ..pages import albumPage
+from ..pages import HTArtistPage
+from ..pages import HTAlbumPage
 
 import threading
 
@@ -212,10 +212,10 @@ def open_uri(label, uri):
 
     match uri_parts[0]:
         case "artist":
-            page = artistPage(uri_parts[1]).load()
+            page = HTArtistPage(uri_parts[1]).load()
             navigation_view.push(page)
         case "album":
-            page = albumPage(uri_parts[1]).load()
+            page = HTAlbumPage(uri_parts[1]).load()
             navigation_view.push(page)
 
     return True

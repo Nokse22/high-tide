@@ -31,8 +31,8 @@ from ..lib import variables
 from ..disconnectable_iface import IDisconnectable
 
 
-class mixPage(Page):
-    __gtype_name__ = 'mixPage'
+class HTMixPage(Page):
+    __gtype_name__ = 'HTMixPage'
 
     def __init__(self, _id):
         IDisconnectable.__init__(self)

@@ -127,8 +127,8 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         self.track_title_label.set_margin_start(12)
 
     def _get_radio(self, *args):
-        from ..pages.track_radio_page import trackRadioPage
-        page = trackRadioPage(self.track, f"{self.track.name} Radio")
+        from ..pages.track_radio_page import HTHrackRadioPage
+        page = HTHrackRadioPage(self.track, f"{self.track.name} Radio")
         page.load()
         variables.navigation_view.push(page)
 
