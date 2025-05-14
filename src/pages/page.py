@@ -202,5 +202,5 @@ class Page(Adw.NavigationPage, IDisconnectable):
     def on_page_link_clicked(self, btn, page_link):
         from .generic_page import genericPage
 
-        page = genericPage(page_link, page_link.title).load()
+        page = genericPage(page_link).load()
         variables.navigation_view.push(page)

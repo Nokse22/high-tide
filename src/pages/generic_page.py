@@ -29,13 +29,22 @@ from tidalapi.playlist import Playlist
 from .page import Page
 from ..widgets import HTTracksListWidget
 
+from ..disconnectable_iface import IDisconnectable
+
 
 class genericPage(Page):
     __gtype_name__ = 'genericPage'
 
     """It is used for explore page categories page"""
 
+    def __init__(self, _page_link):
+        IDisconnectable.__init__(self)
+        super().__init__()
+
+        self.item = _page_link
+
     def _th_load_page(self):
+        self.set_title(self.item.title)
         generic_content = self.item.get()
 
         for index, category in enumerate(generic_content.categories):
