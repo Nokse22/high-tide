@@ -25,7 +25,7 @@
     <file preprocess="xml-stripblanks">icons/16x16/actions/chat-bubble-text-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/heart-filled-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/heart-outline-thick-symbolic.svg</file>
-    <file preprocess="xml-stripblanks">icons/16x16/actions/navigate-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/16x16/actions/radio-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/music-artist-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/explore2-large-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/library-music-symbolic.svg</file>
