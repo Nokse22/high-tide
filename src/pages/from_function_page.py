@@ -27,6 +27,8 @@ from ..widgets import HTCardWidget
 
 from ..lib import variables
 
+from ..disconnectable_iface import IDisconnectable
+
 
 class fromFunctionPage(Page):
     __gtype_name__ = 'fromFunctionPage'
@@ -35,6 +37,7 @@ class fromFunctionPage(Page):
     from a request function"""
 
     def __init__(self, _type, _title=""):
+        IDisconnectable.__init__(self)
         super().__init__()
 
         self.function = None
