@@ -37,7 +37,7 @@ class collectionPage(Page):
 
     def _th_load_page(self):
         self.set_tag("collection")
-        self.set_title("Collection")
+        self.set_title(_("Collection"))
 
         variables.get_favourites()
 

@@ -45,7 +45,7 @@ class explorePage(Page):
 
     def _th_load_page(self):
         self.set_tag("explore")
-        self.set_title("Explore")
+        self.set_title(_("Explore"))
 
         try:
             explore = variables.session.explore()
