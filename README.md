@@ -11,10 +11,12 @@
 > [!IMPORTANT] 
 > Not affiliated in any way with TIDAL, this is a third-party unofficial client
 
-  <div align="center">
-  <img src="data/resources/screenshot 1.png" max-height="400"/>
-  <img src="data/resources/screenshot 2.png" max-height="400"/>
-  </div>
+<table>
+  <tr>
+    <th><img src="data/resources/screenshot 1.png"/></th>
+    <th><img src="data/resources/screenshot 2.png"/></th>
+  </tr>
+</table>
 
 ## Contributing
 
