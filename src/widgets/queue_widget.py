@@ -41,29 +41,13 @@ class HTQueueWidget(Gtk.Box):
     queued_songs_box = Gtk.Template.Child()
     next_songs_box = Gtk.Template.Child()
 
-    playing_track_widget = Gtk.Template.Child()
-
-    playing_track_image = Gtk.Template.Child()
-    playing_track_title_label = Gtk.Template.Child()
-
     def __init__(self):
         super().__init__()
 
     def update_all(self, player):
-        self.update_playing_song(player)
         self.update_played_songs(player)
         self.update_queue(player)
         self.update_next_songs(player)
-
-    def update_playing_song(self, player):
-        track = player.playing_track
-        if track is None:
-            return
-
-        self.playing_track_title_label.set_label(track.name)
-        threading.Thread(
-            target=utils.add_image,
-            args=(self.playing_track_image, track.album)).start()
 
     def update_played_songs(self, player):
         child = self.played_songs_list.get_row_at_index(0)
