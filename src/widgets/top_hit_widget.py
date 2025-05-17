@@ -75,7 +75,6 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
             self.action = "win.push-artist-page"
         elif isinstance(_item, Track):
             self.make_track()
-            self.action = "win.push-album-page"
 
         self.signals.append((
             self.click_gesture,
