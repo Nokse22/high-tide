@@ -31,19 +31,15 @@ from .mpris import MPRIS
 
 from tidalapi.media import Quality
 
-from .lib import PlayerObject, RepeatType
-from .lib import utils
+from .lib import PlayerObject, RepeatType, SecretStore, utils
 
 from .login import LoginDialog
 # from .new_playlist import NewPlaylistWindow
 
 from .pages import HTHomePage, HTExplorePage, HTNotLoggedInPage
-from .pages import HTStartUpPage, HTCollectionPage
+from .pages import HTCollectionPage
 from .pages import HTArtistPage, HTMixPage, HTHrackRadioPage, HTPlaylistPage
 from .pages import HTAlbumPage
-
-from .lib import SecretStore
-from .lib import variables
 
 from .widgets import HTGenericTrackWidget
 from .widgets import HTLinkLabelWidget
@@ -83,6 +79,8 @@ class HighTideWindow(Adw.ApplicationWindow):
     buffer_spinner = Gtk.Template.Child()
     quality_label = Gtk.Template.Child()
     toast_overlay = Gtk.Template.Child()
+    playing_track_widget = Gtk.Template.Child()
+    sidebar_stack = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -119,20 +117,13 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object = PlayerObject(
             self.settings.get_int('preferred-sink'),
             self.settings.get_boolean('normalize'))
-        variables.player_object = self.player_object
+        utils.player_object = self.player_object
 
         self.volume_button.get_adjustment().set_value(
             self.settings.get_int("last-volume")/10)
 
-        self.shuffle_button.connect("toggled", self.on_shuffle_button_toggled)
-
-        self.in_my_collection_button.connect(
-            "clicked",
-            variables.on_in_to_my_collection_button_clicked,
-            self.player_object.playing_track)
-
         self.player_object.connect(
-            "shuffle-changed", self.on_shuffle_changed)
+            "notify::shuffle", self.on_shuffle_changed)
         self.player_object.connect(
             "update-slider", self.update_slider)
         self.player_object.connect(
@@ -140,34 +131,33 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.connect(
             "song-added-to-queue", self.on_song_added_to_queue)
         self.player_object.connect(
-            "play-changed", self.update_controls)
+            "notify::playing", self.update_controls)
         self.player_object.connect(
             "buffering", self.on_song_buffering)
+        self.player_object.connect(
+            "notify::repeat-type", self.update_repeat_button)
 
-        self.player_object.repeat = self.settings.get_int("repeat")
-        if self.player_object.repeat == RepeatType.NONE:
+        self.player_object.repeat_type = self.settings.get_int("repeat")
+        if self.player_object.repeat_type == RepeatType.NONE:
             self.repeat_button.set_icon_name(
                 "media-playlist-consecutive-symbolic")
-        elif self.player_object.repeat == RepeatType.LIST:
+        elif self.player_object.repeat_type == RepeatType.LIST:
             self.repeat_button.set_icon_name(
                 "media-playlist-repeat-symbolic")
-        elif self.player_object.repeat == RepeatType.SONG:
+        elif self.player_object.repeat_type == RepeatType.SONG:
             self.repeat_button.set_icon_name(
                 "playlist-repeat-song-symbolic")
 
-        self.queue_widget.connect(
-            "map", self.on_queue_widget_mapped)
-
         self.artist_label.connect(
-            "activate-link", variables.open_uri)
+            "activate-link", utils.open_uri)
         self.miniplayer_artist_label.connect(
-            "activate-link", variables.open_uri)
+            "activate-link", utils.open_uri)
 
         self.session = tidalapi.Session()
 
-        variables.session = self.session
-        variables.navigation_view = self.navigation_view
-        variables.toast_overlay = self.toast_overlay
+        utils.session = self.session
+        utils.navigation_view = self.navigation_view
+        utils.toast_overlay = self.toast_overlay
 
         self.user = self.session.user
 
@@ -184,12 +174,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.queue_widget_updated = False
 
         self.secret_store = SecretStore(self.session)
-
-        page = HTStartUpPage().load()
-        self.navigation_view.push(page)
-
-        self.navigation_view.connect(
-            "notify::visible-page", self.on_visible_page_changed)
 
         threading.Thread(target=self.th_login, args=()).start()
 
@@ -221,7 +205,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             print(f"error! {e}")
             GLib.idle_add(self.on_login_failed)
         else:
-            variables.get_favourites()
+            utils.get_favourites()
             GLib.idle_add(self.on_logged_in)
 
     def logout(self):
@@ -231,8 +215,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.navigation_view.replace([page])
 
     def on_logged_in(self):
-        print("on logged in")
-        # FIXME if it doesn't login fast enough it doesn't let the user login
+        print("logged in")
 
         page = HTHomePage().load()
         self.navigation_view.replace([page])
@@ -291,7 +274,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.set_quality_label()
 
-        if variables.is_favourited(track):
+        if utils.is_favourited(track):
             self.in_my_collection_button.set_icon_name(
                 "heart-filled-symbolic")
         else:
@@ -312,11 +295,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         threading.Thread(
             target=utils.add_image,
             args=(self.playing_track_image, album)).start()
-
-        if self.player_object.is_playing:
-            self.play_button.set_icon_name("media-playback-pause-symbolic")
-        else:
-            self.play_button.set_icon_name("media-playback-start-symbolic")
 
         threading.Thread(target=self.th_add_lyrics_to_page, args=()).start()
 
@@ -374,13 +352,22 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.quality_label.set_label(quality_text)
         self.quality_label.set_visible(True)
 
-    def update_controls(self, is_playing, *args):
-        if not is_playing:
+    def update_controls(self, player, *args):
+        if player.playing:
             self.play_button.set_icon_name("media-playback-pause-symbolic")
-            print("pause")
         else:
             self.play_button.set_icon_name("media-playback-start-symbolic")
-            print("play")
+
+    def update_repeat_button(self, player, repeat_type):
+        if player.repeat_type == RepeatType.NONE:
+            self.repeat_button.set_icon_name(
+                "media-playlist-consecutive-symbolic")
+        elif player.repeat_type == RepeatType.LIST:
+            self.repeat_button.set_icon_name(
+                "media-playlist-repeat-symbolic")
+        elif player.repeat_type == RepeatType.SONG:
+            self.repeat_button.set_icon_name(
+                "playlist-repeat-song-symbolic")
 
     def on_song_buffering(self, player, percentage):
         if percentage != 100:
@@ -394,20 +381,13 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_play_button_clicked")
     def on_play_button_clicked(self, btn):
-        if not self.player_object.is_playing:
-            self.player_object.play()
-            btn.set_icon_name("media-playback-pause-symbolic")
-            print("pause")
-        else:
-            self.player_object.pause()
-            btn.set_icon_name("media-playback-start-symbolic")
-            print("play")
+        self.player_object.play_pause()
 
     @Gtk.Template.Callback("on_share_clicked")
     def on_share_clicked(self, *args):
         track = self.player_object.playing_track
         if track:
-            variables.share_this(track)
+            utils.share_this(track)
 
     @Gtk.Template.Callback("on_track_radio_button_clicked")
     def on_track_radio_button_clicked_func(self, widget):
@@ -417,12 +397,10 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_skip_forward_button_clicked")
     def on_skip_forward_button_clicked_func(self, widget):
-        print("skip forward")
         self.player_object.play_next()
 
     @Gtk.Template.Callback("on_skip_backward_button_clicked")
     def on_skip_backward_button_clicked_func(self, widget):
-        print("skip backward")
         self.player_object.play_previous()
 
     @Gtk.Template.Callback("on_home_button_clicked")
@@ -449,33 +427,85 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_repeat_clicked")
     def on_repeat_clicked(self, *args):
-        if self.player_object.repeat == RepeatType.NONE:
-            self.repeat_button.set_icon_name(
-                "playlist-repeat-song-symbolic")
-            self.player_object.repeat = RepeatType.SONG
-        elif self.player_object.repeat == RepeatType.LIST:
-            self.repeat_button.set_icon_name(
-                "media-playlist-consecutive-symbolic")
-            self.player_object.repeat = RepeatType.NONE
-        elif self.player_object.repeat == RepeatType.SONG:
-            self.repeat_button.set_icon_name(
-                "media-playlist-repeat-symbolic")
-            self.player_object.repeat = RepeatType.LIST
+        if self.player_object.repeat_type == RepeatType.NONE:
+            self.player_object.repeat_type = RepeatType.SONG
+        elif self.player_object.repeat_type == RepeatType.LIST:
+            self.player_object.repeat_type = RepeatType.NONE
+        elif self.player_object.repeat_type == RepeatType.SONG:
+            self.player_object.repeat_type = RepeatType.LIST
 
-        self.settings.set_int("repeat", self.player_object.repeat)
+        self.settings.set_int("repeat", self.player_object.repeat_type)
 
     @Gtk.Template.Callback("on_in_my_collection_button_clicked")
     def on_in_my_collection_button_clicked(self, btn):
-        variables.on_in_to_my_collection_button_clicked(
+        utils.on_in_to_my_collection_button_clicked(
             btn, self.player_object.playing_track)
 
+    @Gtk.Template.Callback("on_shuffle_button_toggled")
     def on_shuffle_button_toggled(self, btn):
-        state = btn.get_active()
-        self.player_object.shuffle(state)
+        self.player_object.shuffle = btn.get_active()
 
-    def on_shuffle_changed(self, player, state):
-        print("SHUFFLE CHANGED")
-        self.shuffle_button.set_active(state)
+    @Gtk.Template.Callback("on_volume_changed")
+    def on_volume_changed_func(self, widget, value):
+        self.player_object.change_volume(value)
+        self.settings.set_int("last-volume", int(value*10))
+
+    @Gtk.Template.Callback("on_slider_seek")
+    def on_slider_seek(self, *args):
+        seek_fraction = self.progress_bar.get_value()
+
+        if abs(seek_fraction - self.previous_fraction) == 0.0:
+            return
+
+        print("seeking: ", abs(seek_fraction - self.previous_fraction))
+
+        self.player_object.seek(seek_fraction)
+        self.previous_fraction = seek_fraction
+
+    @Gtk.Template.Callback("on_seek_from_lyrics")
+    def on_seek_from_lyrics(self, lyrics_widget, time_ms):
+        end_value = self.duration / Gst.SECOND
+
+        position = time_ms / 1000
+
+        self.player_object.seek(position/end_value)
+
+    def on_song_added_to_queue(self, *args):
+        if self.queue_widget.get_mapped():
+            self.queue_widget.update_queue(self.player_object)
+            self.queue_widget_updated = True
+        else:
+            self.queue_widget_updated = False
+
+    @Gtk.Template.Callback("on_queue_widget_mapped")
+    def on_queue_widget_mapped(self, *args):
+        if not self.queue_widget_updated:
+            self.queue_widget.update_all(self.player_object)
+            self.queue_widget_updated = True
+
+    @Gtk.Template.Callback("on_navigation_view_page_popped")
+    def on_navigation_view_page_popped_func(self, nav_view, nav_page):
+        nav_page.disconnect_all()
+
+    @Gtk.Template.Callback("on_visible_page_changed")
+    def on_visible_page_changed(self, nav_view, *args):
+        match self.navigation_view.get_visible_page().get_tag():
+            case "home":
+                self.home_button.set_active(True)
+            case "explore":
+                self.explore_button.set_active(True)
+            case "collection":
+                self.collection_button.set_active(True)
+
+    @Gtk.Template.Callback("on_sidebar_page_changed")
+    def on_sidebar_page_changed(self, *args):
+        if self.sidebar_stack.get_visible_child_name() == "player":
+            self.playing_track_widget.set_visible(False)
+        else:
+            self.playing_track_widget.set_visible(True)
+
+    def on_shuffle_changed(self, *args):
+        self.shuffle_button.set_active(self.player_object.shuffle)
 
     def update_slider(self, *args):
         """Called on a timer, it updates the progress bar and
@@ -570,70 +600,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         page = HTMixPage(parameter.get_string()).load()
         self.navigation_view.push(page)
 
-    def th_add_track_to_my_collection(self, track_id):
-        result = self.session.user.favorites.add_track(track_id)
-        if result:
-            self.in_my_collection_button.set_icon_name(
-                "heart-filled-symbolic")
-            print("successfully added to my collection")
-
-    def th_remove_track_from_my_collection(self, track_id):
-        result = self.session.user.favorites.remove_track(track_id)
-        if result:
-            self.in_my_collection_button.set_icon_name(
-                "heart-outline-thick-symbolic")
-            print("successfully removed from my collection")
-
-    @Gtk.Template.Callback("on_volume_changed")
-    def on_volume_changed_func(self, widget, value):
-        self.player_object.change_volume(value)
-        self.settings.set_int("last-volume", int(value*10))
-
-    @Gtk.Template.Callback("on_slider_seek")
-    def on_slider_seek(self, *args):
-        seek_fraction = self.progress_bar.get_value()
-
-        if abs(seek_fraction - self.previous_fraction) == 0.0:
-            return
-
-        print("seeking: ", abs(seek_fraction - self.previous_fraction))
-
-        self.player_object.seek(seek_fraction)
-        self.previous_fraction = seek_fraction
-
-    @Gtk.Template.Callback("on_seek_from_lyrics")
-    def on_seek_from_lyrics(self, lyrics_widget, time_ms):
-        end_value = self.duration / Gst.SECOND
-
-        position = time_ms / 1000
-
-        self.player_object.seek(position/end_value)
-
-    def on_song_added_to_queue(self, *args):
-        if self.queue_widget.get_mapped():
-            self.queue_widget.update_queue(self.player_object)
-            self.queue_widget_updated = True
-        else:
-            self.queue_widget_updated = False
-
-    def on_queue_widget_mapped(self, *args):
-        print("queue mapped")
-        if not self.queue_widget_updated:
-            self.queue_widget.update_all(self.player_object)
-            self.queue_widget_updated = True
-
-    @Gtk.Template.Callback("on_navigation_view_page_popped")
-    def on_navigation_view_page_popped_func(self, nav_view, nav_page):
-        nav_page.disconnect_all()
-
-    def on_visible_page_changed(self, nav_view, *args):
-        match self.navigation_view.get_visible_page().get_tag():
-            case "home":
-                self.home_button.set_active(True)
-            case "explore":
-                self.explore_button.set_active(True)
-            case "collection":
-                self.collection_button.set_active(True)
+    #
+    #
+    #
 
     def create_action_with_target(self, name, target_type, callback):
         """Used to create a new action with a target"""

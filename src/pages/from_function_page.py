@@ -25,7 +25,7 @@ import threading
 from .page import Page
 from ..widgets import HTCardWidget
 
-from ..lib import variables
+from ..lib import utils
 
 from ..disconnectable_iface import IDisconnectable
 
@@ -86,8 +86,6 @@ class fromFunctionPage(Page):
             new_items = self.items
             self.scrolled_window.disconnect(self.handler_id)
 
-        print(f"loading {self.items_n} of type {self.type}")
-
         if self.type == "track":
             self.add_tracks(new_items)
         else:
@@ -126,4 +124,4 @@ class fromFunctionPage(Page):
     def on_tracks_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        variables.player_object.play_this(self.items, index)
+        utils.player_object.play_this(self.items, index)

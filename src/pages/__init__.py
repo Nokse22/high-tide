@@ -2,10 +2,9 @@ from .home_page import HTHomePage
 from .from_function_page import fromFunctionPage
 from .explore_page import HTExplorePage
 from .artist_page import HTArtistPage
-from .search_page import searchPage
+from .search_page import HTSearchPage
 from .track_radio_page import HTHrackRadioPage
 from .playlist_page import HTPlaylistPage
-from .start_up_page import HTStartUpPage
 from .not_logged_in_page import HTNotLoggedInPage
 from .mix_page import HTMixPage
 from .album_page import HTAlbumPage

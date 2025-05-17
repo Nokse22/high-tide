@@ -21,7 +21,7 @@ from gi.repository import Gtk
 from ..lib import utils
 from .page import Page
 from tidalapi.album import Album
-from ..lib import variables
+from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 
 import threading
@@ -39,7 +39,7 @@ class HTAlbumPage(Page):
         self.id = _id
 
     def _th_load_page(self):
-        self.item = Album(variables.session, self.id)
+        self.item = Album(utils.session, self.id)
 
         self.set_title(self.item.name)
 
@@ -77,16 +77,16 @@ class HTAlbumPage(Page):
             in_my_collection_btn,
             in_my_collection_btn.connect(
                 "clicked",
-                variables.on_in_to_my_collection_button_clicked, self.item)))
+                utils.on_in_to_my_collection_button_clicked, self.item)))
 
         share_button = builder.get_object("_share_button")
         self.signals.append((
             share_button,
             share_button.connect(
                 "clicked",
-                lambda *_: variables.share_this(self.item))))
+                lambda *_: utils.share_this(self.item))))
 
-        if (variables.is_favourited(self.item)):
+        if (utils.is_favourited(self.item)):
             in_my_collection_btn.set_icon_name("heart-filled-symbolic")
 
         image = builder.get_object("_image")
@@ -105,4 +105,4 @@ class HTAlbumPage(Page):
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        variables.player_object.play_this(self.item, index)
+        utils.player_object.play_this(self.item, index)

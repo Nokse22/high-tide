@@ -26,9 +26,9 @@ from tidalapi.mix import Mix
 from tidalapi.playlist import Playlist
 
 from .page import Page
-from .search_page import searchPage
+from .search_page import HTSearchPage
 
-from ..lib import variables
+from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 
 from gettext import gettext as _
@@ -50,7 +50,7 @@ class HTExplorePage(Page):
         self.set_title(_("Explore"))
 
         try:
-            explore = variables.session.explore()
+            explore = utils.session.explore()
         except Exception as e:
             print(e)
             self.tries += 1
@@ -115,5 +115,5 @@ class HTExplorePage(Page):
 
     def on_search_activated(self, entry):
         query = entry.get_text()
-        page = searchPage(query).load()
-        variables.navigation_view.push(page)
+        page = HTSearchPage(query).load()
+        utils.navigation_view.push(page)

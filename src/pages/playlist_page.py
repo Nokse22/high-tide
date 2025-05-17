@@ -21,7 +21,7 @@ from gi.repository import Gtk
 from ..lib import utils
 import threading
 from .page import Page
-from ..lib import variables
+from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 from tidalapi.playlist import Playlist
 
@@ -42,7 +42,7 @@ class HTPlaylistPage(Page):
         self.id = _id
 
     def _th_load_page(self):
-        self.item = Playlist(variables.session, self.id)
+        self.item = Playlist(utils.session, self.id)
 
         self.set_title(self.item.name)
 
@@ -84,7 +84,7 @@ class HTPlaylistPage(Page):
                 in_my_collection_btn,
                 in_my_collection_btn.connect(
                     "clicked",
-                    variables.on_in_to_my_collection_button_clicked,
+                    utils.on_in_to_my_collection_button_clicked,
                     self.item)))
 
         share_button = builder.get_object("_share_button")
@@ -92,9 +92,9 @@ class HTPlaylistPage(Page):
             share_button,
             share_button.connect(
                 "clicked",
-                lambda *_: variables.share_this(self.item))))
+                lambda *_: utils.share_this(self.item))))
 
-        if (variables.is_favourited(self.item)):
+        if (utils.is_favourited(self.item)):
             in_my_collection_btn.set_icon_name("heart-filled-symbolic")
 
         image = builder.get_object("_image")
@@ -112,4 +112,4 @@ class HTPlaylistPage(Page):
 
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
-        variables.player_object.play_this(self.item, index)
+        utils.player_object.play_this(self.item, index)

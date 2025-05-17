@@ -26,7 +26,7 @@ from ..lib import utils
 import threading
 from .page import Page
 
-from ..lib import variables
+from ..lib import utils
 
 from ..disconnectable_iface import IDisconnectable
 
@@ -41,7 +41,7 @@ class HTMixPage(Page):
         self.id = _id
 
     def _th_load_page(self):
-        self.item = Mix(variables.session, self.id)
+        self.item = Mix(utils.session, self.id)
 
         self.set_title(self.item.title)
 
@@ -76,7 +76,7 @@ class HTMixPage(Page):
 
         builder.get_object("_share_button").set_visible(False)
 
-        if (variables.is_favourited(self.item)):
+        if (utils.is_favourited(self.item)):
             in_my_collection_btn.set_icon_name("heart-filled-symbolic")
 
         image = builder.get_object("_image")
@@ -84,7 +84,7 @@ class HTMixPage(Page):
             target=utils.add_image, args=(image, self.item)).start()
 
         if isinstance(self.item, MixV2):
-            self.item = variables.session.mix(self.item.id)
+            self.item = utils.session.mix(self.item.id)
 
         for index, track in enumerate(self.item.items()):
             listing = self.get_track_listing(track)
@@ -96,7 +96,7 @@ class HTMixPage(Page):
 
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
-        variables.player_object.play_this(self.item, index)
+        utils.player_object.play_this(self.item, index)
 
     def th_add_to_my_collection(self, btn):
-        variables.on_in_to_my_collection_button_clicked(btn, self.item)
+        utils.on_in_to_my_collection_button_clicked(btn, self.item)

@@ -22,9 +22,11 @@ import sys
 from gi.repository import Gtk, Gio, Adw
 from .window import HighTideWindow
 
-from .lib import variables
+from .lib import utils
 
 import threading
+
+from gettext import gettext as _
 
 
 class TidalApplication(Adw.Application):
@@ -32,7 +34,7 @@ class TidalApplication(Adw.Application):
 
     def __init__(self):
         super().__init__(application_id='io.github.nokse22.HighTide',
-                         flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
+                         flags=Gio.ApplicationFlags.HANDLES_OPEN)
         self.create_action(
             'quit', lambda *_: self.quit(), ['<primary>q', '<primary>w'])
         self.create_action('about', self.on_about_action)
@@ -41,16 +43,14 @@ class TidalApplication(Adw.Application):
         self.create_action('log-out', self.on_logout_action)
         self.create_action('download', self.on_download, ['<primary>d'])
 
-        variables.init()
+        utils.init()
 
         self.settings = Gio.Settings.new('io.github.nokse22.HighTide')
 
         self.preferences = None
 
     def on_download(self, *args):
-        th = threading.Thread(target=self.win.th_download_song)
-        th.deamon = True
-        th.start()
+        threading.Thread(target=self.win.th_download_song).start()
 
     def on_login_action(self, *args):
         self.win.new_login()
@@ -69,12 +69,12 @@ class TidalApplication(Adw.Application):
 
         self.win.present()
 
-    def on_about_action(self, widget, _):
+    def on_about_action(self, widget, *args):
         about = Adw.AboutDialog(
             application_name='High Tide',
             application_icon='io.github.nokse22.HighTide',
             developer_name='Nokse',
-            version='0.1.3',
+            version='0.1.4',
             developers=['Nokse'],
             copyright='© 2023-2025 Nokse',
             license_type="GTK_LICENSE_GPL_3_0",
@@ -149,7 +149,7 @@ class TidalApplication(Adw.Application):
                 str(mix_album_playlist.id))
             self.settings.set_string(
                 "last-playing-thing-type",
-                variables.get_type(mix_album_playlist))
+                utils.get_type(mix_album_playlist))
         # if track is not None:
         #     self.settings.set_int(
         #         "last-playing-index",

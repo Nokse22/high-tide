@@ -29,7 +29,7 @@ from .page import Page
 
 from tidalapi.artist import Artist
 
-from ..lib import variables
+from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 
 from gettext import gettext as _
@@ -51,7 +51,7 @@ class HTArtistPage(Page):
         self.artist = None
 
     def _th_load_page(self):
-        self.artist = Artist(variables.session, self.id)
+        self.artist = Artist(utils.session, self.id)
 
         self.set_title(self.artist.name)
 
@@ -79,7 +79,7 @@ class HTArtistPage(Page):
             follow_button,
             follow_button.connect(
                 "clicked",
-                variables.on_in_to_my_collection_button_clicked,
+                utils.on_in_to_my_collection_button_clicked,
                 self.artist)))
 
         share_button = builder.get_object("_share_button")
@@ -87,9 +87,9 @@ class HTArtistPage(Page):
             share_button,
             share_button.connect(
                 "clicked",
-                lambda *_: variables.share_this(self.artist))))
+                lambda *_: utils.share_this(self.artist))))
 
-        if (variables.is_favourited(self.artist)):
+        if (utils.is_favourited(self.artist)):
             follow_button.set_icon_name("heart-filled-symbolic")
 
         artist_picture = builder.get_object("_avatar")
@@ -183,21 +183,21 @@ class HTArtistPage(Page):
                     margin_bottom=12))
             self.content_box.append(label)
             self.signals.append(
-                (label, label.connect("activate-link", variables.open_uri))
+                (label, label.connect("activate-link", utils.open_uri))
             )
 
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
-        variables.player_object.play_this(self.item, index)
+        utils.player_object.play_this(self.item, index)
 
     def on_play_button_clicked(self, btn):
-        variables.player_object.play_this(self.top_tracks, 0)
+        utils.player_object.play_this(self.top_tracks, 0)
 
     def on_shuffle_button_clicked(self, btn):
-        variables.player_object.shuffle_this(self.top_tracks, 0)
+        utils.player_object.shuffle_this(self.top_tracks, 0)
 
     def on_artist_radio_button_clicked(self, btn):
         from .track_radio_page import HTHrackRadioPage
         page = HTHrackRadioPage(self.artist, f"Radio of {self.artist.name}")
         page.load()
-        variables.navigation_view.push(page)
+        utils.navigation_view.push(page)

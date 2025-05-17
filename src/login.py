@@ -24,7 +24,7 @@ from gi.repository import Gdk
 
 import tidalapi
 
-from .lib import variables
+from .lib import utils
 
 @Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/login.ui')
 class LoginDialog(Adw.Dialog):

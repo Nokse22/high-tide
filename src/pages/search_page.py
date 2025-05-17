@@ -29,13 +29,13 @@ from ..widgets.top_hit_widget import HTTopHitWidget
 
 from .page import Page
 
-from ..lib import variables
+from ..lib import utils
 
 from ..disconnectable_iface import IDisconnectable
 
 
-class searchPage(Page):
-    __gtype_name__ = 'searchPage'
+class HTSearchPage(Page):
+    __gtype_name__ = 'HTSearchPage'
 
     """It is used to display the search results"""
 
@@ -46,7 +46,7 @@ class searchPage(Page):
         self.search = _search
 
     def _th_load_page(self):
-        results = variables.session.search(
+        results = utils.session.search(
             self.search, [Artist, Album, Playlist, Track], 10)
 
         top_hit = results["top_hit"]

@@ -27,7 +27,7 @@ from tidalapi.playlist import Playlist
 from .page import Page
 from ..widgets import HTTracksListWidget
 
-from ..lib import variables
+from ..lib import utils
 
 from gettext import gettext as _
 
@@ -39,7 +39,7 @@ class HTHomePage(Page):
         self.set_tag("home")
         self.set_title(_("Home"))
 
-        home = variables.session.home()
+        home = utils.session.home()
 
         for index, category in enumerate(home.categories):
             try:

@@ -27,7 +27,7 @@ from ..widgets import HTGenericTrackWidget
 from ..widgets import HTCarouselWidget
 from ..widgets import HTCardWidget
 
-from ..lib import variables
+from ..lib import utils
 
 from ..disconnectable_iface import IDisconnectable
 
@@ -94,10 +94,10 @@ class Page(Adw.NavigationPage, IDisconnectable):
         return track_listing
 
     def on_play_button_clicked(self, btn):
-        variables.player_object.play_this(self.item)
+        utils.player_object.play_this(self.item)
 
     def on_shuffle_button_clicked(self, btn):
-        variables.player_object.shuffle_this(self.item)
+        utils.player_object.shuffle_this(self.item)
 
     def get_link_carousel(self, title):
         """Similar to the last function but used to display links to other
@@ -182,12 +182,12 @@ class Page(Adw.NavigationPage, IDisconnectable):
         return carousel
 
     def on_playlist_button_clicked(self, btn, playlist):
-        variables.sidebar_list.select_row(None)
+        utils.sidebar_list.select_row(None)
 
         from .playlist_page import HTPlaylistPage
 
         page = HTPlaylistPage(playlist, playlist.name).load()
-        variables.navigation_view.push(page)
+        utils.navigation_view.push(page)
 
     def get_page_link_card(self, page_link):
         button = Gtk.Button(
@@ -207,4 +207,4 @@ class Page(Adw.NavigationPage, IDisconnectable):
         from .generic_page import genericPage
 
         page = genericPage(page_link).load()
-        variables.navigation_view.push(page)
+        utils.navigation_view.push(page)

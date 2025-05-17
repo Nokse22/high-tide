@@ -19,7 +19,7 @@
 
 from gi.repository import Gtk
 from . import HTGenericTrackWidget
-from ..lib import variables
+from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 
 
@@ -82,12 +82,12 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
         page = fromFunctionPage("track", self.title_name)
         page.set_function(self.get_function)
         page.load()
-        variables.navigation_view.push(page)
+        utils.navigation_view.push(page)
 
     def on_tracks_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        variables.player_object.play_this(self.tracks, index)
+        utils.player_object.play_this(self.tracks, index)
 
     def __repr__(self, *args):
         return "<HTTracksListWidget>"

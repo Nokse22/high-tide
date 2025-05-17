@@ -20,7 +20,7 @@
 from gi.repository import Gtk, Gio
 
 from ..widgets import HTCardWidget
-from ..lib import variables
+from ..lib import utils
 
 from ..disconnectable_iface import IDisconnectable
 
@@ -99,7 +99,7 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
             page.set_function(self.more_function)
 
         page.load()
-        variables.navigation_view.push(page)
+        utils.navigation_view.push(page)
 
     def carousel_go_next(self, btn):
         pos = self.carousel.get_position()

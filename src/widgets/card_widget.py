@@ -30,7 +30,7 @@ from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
 
-from ..lib import variables
+from ..lib import utils
 
 from ..disconnectable_iface import IDisconnectable
 
@@ -59,7 +59,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.signals.append((
             self.track_artist_label,
             self.track_artist_label.connect(
-                "activate-link", variables.open_uri)))
+                "activate-link", utils.open_uri)))
 
         self.signals.append((
             self.click_gesture,

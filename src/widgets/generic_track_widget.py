@@ -21,7 +21,7 @@
 from gi.repository import Gtk
 from gi.repository import Gio, GLib
 from ..lib import utils
-from ..lib import variables
+from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 
 from tidalapi.playlist import UserPlaylist
@@ -93,7 +93,7 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
                 action.connect("activate", self._add_to_playlist)))
         action_group.add_action(action)
 
-        for index, playlist in enumerate(variables.user_playlists):
+        for index, playlist in enumerate(utils.user_playlists):
             if index > 10:
                 break
             item = Gio.MenuItem.new()
@@ -130,24 +130,24 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         from ..pages.track_radio_page import HTHrackRadioPage
         page = HTHrackRadioPage(self.track, f"{self.track.name} Radio")
         page.load()
-        variables.navigation_view.push(page)
+        utils.navigation_view.push(page)
 
     def _play_next(self, *args):
-        variables.player_object.add_next(self.track)
+        utils.player_object.add_next(self.track)
 
     def _add_to_queue(self, *args):
-        variables.player_object.add_to_queue(self.track)
+        utils.player_object.add_to_queue(self.track)
 
     def _th_add_to_my_collection(self, *args):
         threading.Thread(
             target=self.th_add_to_my_collection, args=()).start()
 
     def th_add_to_my_collection(self):
-        variables.session.user.favorites.add_track(self.track.id)
+        utils.session.user.favorites.add_track(self.track.id)
 
     def _add_to_playlist(self, action, parameter):
         playlist_index = parameter.get_int16()
-        selected_playlist = variables.user_playlists[playlist_index]
+        selected_playlist = utils.user_playlists[playlist_index]
 
         if isinstance(selected_playlist, UserPlaylist):
             selected_playlist.add([self.track.id])
@@ -155,10 +155,10 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             print(f"Added to playlist: {selected_playlist.name}")
 
     def _copy_share_url(self, *args):
-        variables.share_this(self.track)
+        utils.share_this(self.track)
 
     def on_open_uri(self, label, uri, *args):
-        variables.open_uri(label, uri)
+        utils.open_uri(label, uri)
         return True
 
     def __repr__(self, *args):

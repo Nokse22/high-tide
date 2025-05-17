@@ -25,7 +25,7 @@ from tidalapi.playlist import Playlist
 
 from .page import Page
 
-from ..lib import variables
+from ..lib import utils
 
 from gettext import gettext as _
 
@@ -39,18 +39,18 @@ class HTCollectionPage(Page):
         self.set_tag("collection")
         self.set_title(_("Collection"))
 
-        variables.get_favourites()
+        utils.get_favourites()
 
         self.new_carousel_for(
-            _("My Mixes and Radios"), variables.favourite_mixes)
+            _("My Mixes and Radios"), utils.favourite_mixes)
         self.new_carousel_for(
-            _("Playlists"), variables.playlist_and_favorite_playlists)
+            _("Playlists"), utils.playlist_and_favorite_playlists)
         self.new_carousel_for(
-            _("Albums"), variables.favourite_albums)
+            _("Albums"), utils.favourite_albums)
         self.new_carousel_for(
-            _("Tracks"), variables.favourite_tracks)
+            _("Tracks"), utils.favourite_tracks)
         self.new_carousel_for(
-            _("Artists"), variables.favourite_artists)
+            _("Artists"), utils.favourite_artists)
 
         self._page_loaded()
 

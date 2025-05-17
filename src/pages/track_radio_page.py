@@ -20,7 +20,7 @@
 from gi.repository import Gtk
 from tidalapi.media import Track
 from ..lib import utils
-from ..lib import variables
+from ..lib import utils
 from .page import Page
 import threading
 
@@ -39,7 +39,7 @@ class HTHrackRadioPage(Page):
         self.radio_tracks = []
 
     def _th_load_page(self):
-        self.item = Track(variables.session, self.id)
+        self.item = Track(utils.session, self.id)
 
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/HighTide/ui/pages_ui/tracks_list_template.ui")
@@ -100,12 +100,12 @@ class HTHrackRadioPage(Page):
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        variables.player_object.play_this(self.radio_tracks, index)
+        utils.player_object.play_this(self.radio_tracks, index)
 
     def on_play_button_clicked(self, btn):
         # overwritten to pass a list and not the Track or Artist (that is the self.item for the radio page)
-        variables.player_object.play_this(self.radio_tracks)
+        utils.player_object.play_this(self.radio_tracks)
 
     def on_shuffle_button_clicked(self, btn):
         # overwritten to pass a list and not the Track or Artist (that is the self.item for the radio page)
-        variables.player_object.shuffle_this(self.radio_tracks)
+        utils.player_object.shuffle_this(self.radio_tracks)
