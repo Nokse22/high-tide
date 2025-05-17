@@ -90,6 +90,11 @@ class TidalApplication(Adw.Application):
             issue_url='https://github.com/Nokse22/high-tide/issues',
             website='https://github.com/Nokse22/high-tide')
 
+        about.add_link(
+            _("Donate with Ko-Fi"), "https://ko-fi.com/nokse22")
+        about.add_link(
+            _("Donate with Github"), "https://github.com/sponsors/Nokse22")
+
         about.present(self.props.active_window)
 
     def on_preferences_action(self, widget, _):
