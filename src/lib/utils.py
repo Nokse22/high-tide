@@ -246,7 +246,9 @@ def open_tidal_uri(uri):
             page = HTAlbumPage(content_id).load()
             navigation_view.push(page)
         case "track":
-            pass
+            threading.Thread(
+                target=th_play_track,
+                args=(content_id,)).start()
         case "mix":
             page = HTMixPage(content_id).load()
             navigation_view.push(page)
@@ -256,6 +258,12 @@ def open_tidal_uri(uri):
         case _:
             print(f"Unsupported content type: {content_type}")
             return False
+
+
+def th_play_track(track_id):
+    track = session.track(track_id)
+
+    player_object.play_this([track])
 
 
 def pretty_duration(secs):

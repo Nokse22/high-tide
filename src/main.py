@@ -49,6 +49,15 @@ class TidalApplication(Adw.Application):
 
         self.preferences = None
 
+    def do_open(self, files, n_files, hint):
+        self.win = self.props.active_window
+        if not self.win:
+            self.do_activate()
+
+        uri = files[0].get_uri()
+        if uri:
+            utils.open_tidal_uri(uri)
+
     def on_download(self, *args):
         threading.Thread(target=self.win.th_download_song).start()
 
@@ -80,6 +89,7 @@ class TidalApplication(Adw.Application):
             license_type="GTK_LICENSE_GPL_3_0",
             issue_url='https://github.com/Nokse22/high-tide/issues',
             website='https://github.com/Nokse22/high-tide')
+
         about.present(self.props.active_window)
 
     def on_preferences_action(self, widget, _):
