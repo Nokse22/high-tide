@@ -6,57 +6,6 @@ template $HTQueueWidget: Box {
   spacing: 12;
 
   Adw.ToolbarView {
-    [top]
-    Adw.Clamp {
-      maximum-size: 1000;
-      tightening-threshold: 700;
-
-      ListBox {
-        styles [
-          "boxed-list",
-        ]
-
-        margin-start: 12;
-        margin-end: 12;
-        margin-top: 3;
-        margin-bottom: 6;
-
-        ListBoxRow playing_track_widget {
-          selectable: false;
-
-          Box {
-            margin-start: 6;
-            margin-end: 6;
-
-            Image playing_track_image {
-              height-request: 44;
-              icon-name: 'emblem-music-symbolic';
-              width-request: 44;
-              margin-end: 12;
-              margin-bottom: 6;
-              margin-top: 6;
-              overflow: hidden;
-
-              styles [
-                "small-image",
-              ]
-            }
-
-            Label playing_track_title_label {
-              styles [
-                "title-4",
-              ]
-
-              ellipsize: end;
-              label: 'Title';
-              vexpand: true;
-              xalign: 0.0;
-            }
-          }
-        }
-      }
-    }
-
     content: ScrolledWindow {
       vexpand: true;
 
@@ -64,82 +13,77 @@ template $HTQueueWidget: Box {
         "undershoot-bottom",
       ]
 
-      Adw.Clamp {
-        maximum-size: 1000;
-        tightening-threshold: 700;
+      Box {
+        orientation: vertical;
+        spacing: 12;
+        margin-bottom: 12;
+        margin-top: 12;
+        margin-start: 12;
+        margin-end: 12;
 
-        Box {
+        Box played_songs_box {
           orientation: vertical;
-          spacing: 12;
-          margin-bottom: 12;
-          margin-top: 12;
-          margin-start: 12;
-          margin-end: 12;
+          spacing: 6;
 
-          Box played_songs_box {
-            orientation: vertical;
-            spacing: 6;
+          Label {
+            styles [
+              "title-4",
+            ]
 
-            Label {
-              styles [
-                "title-4",
-              ]
-
-              ellipsize: end;
-              hexpand: true;
-              xalign: 0.0;
-              label: 'Played Songs';
-            }
-
-            ListBox played_songs_list {
-              styles [
-                "tracks-list-box",
-              ]
-            }
+            ellipsize: end;
+            hexpand: true;
+            xalign: 0.0;
+            label: 'Played Songs';
           }
 
-          Box queued_songs_box {
-            orientation: vertical;
-            spacing: 6;
+          ListBox played_songs_list {
+            styles [
+              "tracks-list-box",
+            ]
+          }
+        }
 
-            Label {
-              styles [
-                "title-4",
-              ]
+        Box queued_songs_box {
+          orientation: vertical;
+          spacing: 6;
 
-              ellipsize: end;
-              hexpand: true;
-              xalign: 0.0;
-              label: 'Queue';
-            }
+          Label {
+            styles [
+              "title-4",
+            ]
 
-            ListBox queued_songs_list {
-              styles [
-                "tracks-list-box",
-              ]
-            }
+            ellipsize: end;
+            hexpand: true;
+            xalign: 0.0;
+            label: 'Queue';
           }
 
-          Box next_songs_box {
-            orientation: vertical;
-            spacing: 6;
+          ListBox queued_songs_list {
+            styles [
+              "tracks-list-box",
+            ]
+          }
+        }
 
-            Label {
-              styles [
-                "title-4",
-              ]
+        Box next_songs_box {
+          orientation: vertical;
+          spacing: 6;
 
-              ellipsize: end;
-              hexpand: true;
-              xalign: -0.0;
-              label: 'Next Songs';
-            }
+          Label {
+            styles [
+              "title-4",
+            ]
 
-            ListBox next_songs_list {
-              styles [
-                "tracks-list-box",
-              ]
-            }
+            ellipsize: end;
+            hexpand: true;
+            xalign: -0.0;
+            label: 'Next Songs';
+          }
+
+          ListBox next_songs_list {
+            styles [
+              "tracks-list-box",
+            ]
           }
         }
       }

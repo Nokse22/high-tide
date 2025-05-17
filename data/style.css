@@ -84,11 +84,18 @@
   padding:3px;
 }
 
+.lyrics-widget > row:hover{
+  color:alpha(var(--accent-color), 0.5);
+}
+
 .lyrics-widget > row:selected{
-  font-weight:bold;
-  font-size:18pt;
-  color:alpha(var(--accent-color), 0.9);
-  padding:24px;
+  color: alpha(var(--accent-color), 0.9);
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.lyrics-widget > row:selected:hover{
+  color: alpha(var(--accent-color), 0.9);
 }
 
 .tracks-list-box {
@@ -116,4 +123,14 @@
   padding:3px;
   padding-left:6px;
   padding-right:6px;
+}
+
+.sidebar-progress-bar trough {
+  border-radius:0px;
+  background-color: transparent;
+}
+
+.sidebar-progress-bar trough > progress {
+  border-radius:0px;
+  background-color:var(--card-shade-color);
 }

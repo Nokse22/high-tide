@@ -5,34 +5,33 @@ template $HTLyricsWidget: Box {
   orientation: vertical;
   overflow: hidden;
 
-  ScrolledWindow {
-    hscrollbar-policy: never;
+  Stack stack {
 
-    Stack stack {
+    StackPage {
+      title: _("No Lyrics");
+      name: "status_page";
 
-      StackPage {
+      child: Adw.StatusPage {
         title: _("No Lyrics");
-        name: "status_page";
+        icon-name: "missing-lyrics-symbolic";
+        description: _("Lyrics are not available for this song");
+      };
+    }
 
-        child: Adw.StatusPage {
-          title: _("No Lyrics");
-          icon-name: "missing-lyrics-symbolic";
-          description: _("Lyrics are not available for this song");
-        };
-      }
+    StackPage {
+      title: _("Lyrics");
+      name: "lyrics_page";
 
-      StackPage {
-        title: _("Lyrics");
-        name: "lyrics_page";
-
-        child: ListView list_view {
+      child: ScrolledWindow {
+        hscrollbar-policy: never;
+        ListView list_view {
           vexpand: true;
 
           styles [
             "lyrics-widget",
           ]
-        };
-      }
+        }
+      };
     }
   }
 }
