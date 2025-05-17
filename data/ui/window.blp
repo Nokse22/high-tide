@@ -326,20 +326,21 @@ template $HighTideWindow: Adw.ApplicationWindow {
                 ProgressBar {
                   fraction: bind small_progress_bar.fraction;
                 }
+                ProgressBar {
+                  fraction: bind small_progress_bar.fraction;
+                }
               };
 
               [overlay]
               Box {
-                margin-start: 6;
-                margin-end: 6;
+                spacing: 12;
+                margin-end: 18;
 
                 Image {
-                  height-request: 44;
+                  pixel-size: 50;
                   icon-name: 'emblem-music-symbolic';
                   width-request: 44;
-                  margin-end: 12;
-                  margin-bottom: 6;
-                  margin-top: 6;
+                  margin-start: 8;
                   overflow: hidden;
                   file: bind playing_track_image.file;
 
@@ -360,30 +361,32 @@ template $HighTideWindow: Adw.ApplicationWindow {
                   xalign: 0.0;
                 }
 
-                Button {
-                  icon-name: bind play_button.icon-name;
-                  tooltip-text: _("Play/Pause");
-                  valign: center;
-                  margin-end: 6;
+                Box {
+                  spacing: 6;
 
-                  styles [
-                    "flat",
-                  ]
+                  Button {
+                    icon-name: bind play_button.icon-name;
+                    tooltip-text: _("Play/Pause");
+                    valign: center;
 
-                  clicked => $on_play_button_clicked();
-                }
+                    styles [
+                      "flat",
+                    ]
 
-                Button {
-                  icon-name: "media-skip-forward-symbolic";
-                  tooltip-text: _("Skip Forward");
-                  valign: center;
-                  margin-end: 6;
+                    clicked => $on_play_button_clicked();
+                  }
 
-                  styles [
-                    "flat",
-                  ]
+                  Button {
+                    icon-name: "media-skip-forward-symbolic";
+                    tooltip-text: _("Skip Forward");
+                    valign: center;
 
-                  clicked => $on_skip_forward_button_clicked();
+                    styles [
+                      "flat",
+                    ]
+
+                    clicked => $on_skip_forward_button_clicked();
+                  }
                 }
               }
             }
