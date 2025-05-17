@@ -16,7 +16,7 @@ from gettext import gettext as _
 from gi.repository import Gio, GLib, Gdk
 
 from random import randint
-from .lib import variables
+from .lib import utils
 
 
 class Server:
@@ -164,14 +164,14 @@ class MPRIS(Server):
 
         self.player.connect("song-changed", self._on_preset_changed)
         self.player.connect("duration-changed", self._on_preset_changed)
-        self.player.connect("play-changed", self._on_playing_changed)
+        self.player.connect("notify::playing", self._on_playing_changed)
         self.player.connect("volume-changed", self._on_volume_changed)
 
     def Raise(self):
-        variables.window.present_with_time(Gdk.CURRENT_TIME)
+        utils.window.present_with_time(Gdk.CURRENT_TIME)
 
     def Quit(self):
-        variables.window.quit()
+        utils.window.quit()
 
     def Next(self):
         self.player.play_next()
@@ -261,7 +261,7 @@ class MPRIS(Server):
         return self.__doc__
 
     def _get_status(self):
-        playing = self.player.is_playing
+        playing = self.player.playing
         if playing:
             return "Playing"
         else:
@@ -276,7 +276,7 @@ class MPRIS(Server):
         self.__metadata["xesam:artist"] = GLib.Variant("as", [self.player.playing_track.artist.name])
         self.__metadata["mpris:length"] = GLib.Variant("i", self.player.duration)
 
-        url = f"file://{variables.IMG_DIR}/{self.player.playing_track.album.id}.jpg"
+        url = f"file://{utils.IMG_DIR}/{self.player.playing_track.album.id}.jpg"
 
         self.__metadata["mpris:artUrl"] = GLib.Variant("s", url)
 
