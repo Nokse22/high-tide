@@ -151,8 +151,10 @@ class TidalApplication(Adw.Application):
     def on_close_request(self, *args):
         self.save_last_playing_thing()
 
-    def do_shutdown(self, *args):
-        self.save_last_playing_thing()
+    # def do_shutdown(self, *args):
+    #     self.save_last_playing_thing()
+
+    #     return False
 
     def save_last_playing_thing(self):
         mix_album_playlist = self.win.player_object.current_mix_album_playlist
