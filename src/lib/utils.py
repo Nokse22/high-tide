@@ -180,18 +180,23 @@ def on_in_to_my_collection_button_clicked(btn, item):
 def share_this(item):
     clipboard = Gdk.Display().get_default().get_clipboard()
 
+    share_url = None
+
     if isinstance(item, Track):
-        clipboard.set(item.share_url)
+        share_url = item.share_url
     elif isinstance(item, Album):
-        clipboard.set(item.share_url)
+        share_url = item.share_url
     elif isinstance(item, Artist):
-        clipboard.set(item.share_url)
+        share_url = item.share_url
     elif isinstance(item, Playlist):
-        clipboard.set(item.share_url)
+        share_url = item.share_url
     else:
         return
 
-    send_toast(_("Copied share URL in the clipboard"), 2)
+    if share_url:
+        clipboard.set(share_url + "?u")
+
+        send_toast(_("Copied share URL in the clipboard"), 2)
 
 
 def get_type(item):
