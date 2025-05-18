@@ -77,19 +77,25 @@
 
 .lyrics-widget > row{
   background-color: transparent;
-  border-radius: 6px;
+  padding:0px;
+}
+
+.lyrics-widget > row label{
+  transition: background-color 0.1s ease-in-out;
   font-weight:bold;
   font-size:14pt;
   color:alpha(var(--view-fg-color), 0.5);
-  padding:3px;
+  border-radius: 12px;
+  padding:6px;
 }
 
-.lyrics-widget > row:hover{
-  color:alpha(var(--accent-color), 0.5);
+.lyrics-widget > row label:hover{
+  background-color: alpha(var(--view-fg-color), 0.04);
 }
 
-.lyrics-widget > row:selected{
-  color: alpha(var(--accent-color), 0.9);
+.lyrics-widget > row:selected label{
+  background-color: alpha(var(--view-fg-color), 0.07);
+  color: var(--accent-color);
   padding-top: 24px;
   padding-bottom: 24px;
 }

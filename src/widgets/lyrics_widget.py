@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk, GObject, Gio
+from gi.repository import Gtk, GObject, Gio, Adw
 
 from ..disconnectable_iface import IDisconnectable
 
@@ -39,11 +39,16 @@ class LineItemFactory(Gtk.SignalListItemFactory):
 
     def _on_setup(self, factory, list_item):
         label = Gtk.Label(
-            xalign=0.0,
-            halign=Gtk.Align.CENTER,
+            xalign=0.5,
+            halign=Gtk.Align.FILL,
             hexpand=True,
+            valign=Gtk.Align.FILL,
+            vexpand=True,
             wrap=True,
-            justify=2)
+            justify=2,
+            margin_start=12,
+            margin_top=3,
+            margin_end=12)
 
         list_item.set_child(label)
 
@@ -77,9 +82,13 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
         self.factory = LineItemFactory()
         self.selection_model = Gtk.SingleSelection.new(self.list_store)
 
-        # Setup list view
         self.list_view.set_factory(self.factory)
         self.list_view.set_model(self.selection_model)
+
+        self.adjustment = self.list_view.get_vadjustment()
+
+        self.prev_index = 0
+        self.prev_value = 0
 
         self.handler_id = self.selection_model.connect(
             "selection-changed", self._on_selection_changed)
@@ -112,20 +121,46 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
 
         time_ms = time_seconds * 1000
 
-        current_index = 0
-        for i in range(self.list_store.get_n_items()):
+        lines = self.list_store.get_n_items()
+
+        new_index = 0
+        for i in range(lines):
             line = self.list_store.get_item(i)
             if line.time <= time_ms:
-                current_index = i
+                new_index = i
             else:
                 break
 
+        if self.get_mapped():
+            if self.prev_index == new_index:
+                target_position = self.prev_value
+            else:
+                view_height = self.adjustment.get_page_size()
+                max_height = self.adjustment.get_upper()
+                row_height = max_height / lines
+                position = new_index * row_height
+                target_position = position - (view_height / 2) + row_height
+
+                target_position = max(
+                    0, min(target_position, max_height - view_height))
+
+            self._scroll_to(target_position)
+
         self.selection_model.handler_block(self.handler_id)
-
-        self.list_view.scroll_to(
-            current_index, Gtk.ListScrollFlags.SELECT, None)
-
+        self.selection_model.select_item(new_index, True)
         self.selection_model.handler_unblock(self.handler_id)
+
+    def _scroll_to(self, value):
+        target = Adw.PropertyAnimationTarget.new(self.adjustment, 'value')
+        animation = Adw.TimedAnimation.new(
+            self,
+            self.adjustment.get_value(),
+            value,
+            200,
+            target)
+        animation.play()
+
+        self.prev_value = value
 
     def _on_selection_changed(self, selection_model, position, n_items):
         selected_index = selection_model.get_selected()
