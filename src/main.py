@@ -71,10 +71,6 @@ class TidalApplication(Adw.Application):
         self.win = self.props.active_window
         if not self.win:
             self.win = HighTideWindow(application=self)
-            self.win.connect(
-                "close-request", self.on_close_request)
-            self.win.set_hide_on_close(
-                self.settings.get_boolean("run-background"))
 
         self.win.present()
 
@@ -147,31 +143,6 @@ class TidalApplication(Adw.Application):
         self.add_action(action)
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
-
-    def on_close_request(self, *args):
-        self.save_last_playing_thing()
-
-    # def do_shutdown(self, *args):
-    #     self.save_last_playing_thing()
-
-    #     return False
-
-    def save_last_playing_thing(self):
-        mix_album_playlist = self.win.player_object.current_mix_album_playlist
-
-        if (mix_album_playlist is not None and
-                not isinstance(mix_album_playlist, list)):
-            self.settings.set_string(
-                "last-playing-thing-id",
-                str(mix_album_playlist.id))
-            self.settings.set_string(
-                "last-playing-thing-type",
-                utils.get_type(mix_album_playlist))
-        # if track is not None:
-        #     self.settings.set_int(
-        #         "last-playing-index",
-        #         str(track.id))
-
 
 def main(version):
     """The application's entry point."""

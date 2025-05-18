@@ -98,6 +98,8 @@ class PlayerObject(GObject.GObject):
         self._playing = False
         self._repeat_type = RepeatType.NONE
 
+        self.id_list = []
+
         self.queue = []
         self.current_mix_album_playlist = None
         self._tracks_to_play = []
@@ -236,17 +238,22 @@ class PlayerObject(GObject.GObject):
 
     def get_track_list(self, thing):
         """Convert various sources into a list of tracks."""
+        tracks_list = None
+
         if isinstance(thing, Mix):
-            return thing.items()
+            tracks_list = thing.items()
         elif isinstance(thing, Album):
-            return thing.tracks()
+            tracks_list = thing.tracks()
         elif isinstance(thing, Playlist):
-            return thing.tracks()
+            tracks_list = thing.tracks()
         elif isinstance(thing, Artist):
-            return thing.top_tracks()
+            tracks_list = thing.top_tracks()
         elif isinstance(thing, list):
-            return thing
-        return []
+            tracks_list = thing
+
+        self.id_list = [track.id for track in tracks_list]
+
+        return tracks_list
 
     def play(self):
         """Start playback."""
@@ -425,3 +432,8 @@ class PlayerObject(GObject.GObject):
             Gst.Format.TIME,
             Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
             int(seek_fraction * self.query_duration()))
+
+    def get_index(self):
+        for index, track_id in enumerate(self.id_list):
+            if track_id == self.playing_track.id:
+                return index

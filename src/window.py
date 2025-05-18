@@ -119,6 +119,14 @@ class HighTideWindow(Adw.ApplicationWindow):
             GLib.VariantType.new("s"),
             self.on_push_track_radio_page)
 
+        # self.create_action_with_target(
+        #     'play-next',
+        #     GLib.VariantType.new("s"),
+        #     self.on_play_next)
+
+        self.set_hide_on_close(
+            self.settings.get_boolean("run-background"))
+
         self.player_object = PlayerObject(
             self.settings.get_int('preferred-sink'),
             self.settings.get_boolean('normalize'))
@@ -241,7 +249,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         thing_id = self.settings.get_string("last-playing-thing-id")
         thing_type = self.settings.get_string("last-playing-thing-type")
 
-        print(f"Last playing: {thing_id} of type {thing_type}")
+        print(f"Last playing: {thing_id} of type {thing_type} index: {index}")
 
         thing = None
 
@@ -287,8 +295,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.in_my_collection_button.set_icon_name(
                 "heart-outline-thick-symbolic")
 
-        # FIXME actually find the correct index
-        self.settings.set_int("last-playing-index", 0)
+        self.save_last_playing_thing()
 
         if self.image_canc:
             self.image_canc.cancel()
@@ -312,6 +319,24 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.queue_widget_updated = True
         else:
             self.queue_widget_updated = False
+
+    def save_last_playing_thing(self):
+        mix_album_playlist = self.player_object.current_mix_album_playlist
+        track = self.player_object.playing_track
+
+        if (mix_album_playlist is not None and
+                not isinstance(mix_album_playlist, list)):
+            self.settings.set_string(
+                "last-playing-thing-id",
+                str(mix_album_playlist.id))
+            self.settings.set_string(
+                "last-playing-thing-type",
+                utils.get_type(mix_album_playlist))
+        if track is not None:
+            self.settings.set_int(
+                "last-playing-index",
+                self.player_object.get_index())
+            print(utils.get_type(mix_album_playlist), self.player_object.get_index())
 
     def set_quality_label(self):
         codec = None
