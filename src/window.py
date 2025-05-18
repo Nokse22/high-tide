@@ -114,6 +114,11 @@ class HighTideWindow(Adw.ApplicationWindow):
             GLib.VariantType.new("s"),
             self.on_push_mix_page)
 
+        self.create_action_with_target(
+            'push-track-radio-page',
+            GLib.VariantType.new("s"),
+            self.on_push_track_radio_page)
+
         self.player_object = PlayerObject(
             self.settings.get_int('preferred-sink'),
             self.settings.get_boolean('normalize'))
@@ -599,6 +604,10 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def on_push_mix_page(self, action, parameter):
         page = HTMixPage(parameter.get_string()).load()
+        self.navigation_view.push(page)
+
+    def on_push_track_radio_page(self, action, parameter):
+        page = HTHrackRadioPage(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     #

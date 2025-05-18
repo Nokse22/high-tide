@@ -141,7 +141,7 @@ template $HTGenericTrackWidget: ListBoxRow {
         vexpand: true;
       }
 
-      MenuButton {
+      MenuButton menu_button {
         icon-name: "view-more-symbolic";
         menu-model: track_menu;
         valign: center;
@@ -155,11 +155,6 @@ template $HTGenericTrackWidget: ListBoxRow {
 }
 
 menu track_menu {
-  item {
-    action: "trackwidget.radio";
-    label: _("Go to track radio");
-  }
-
   item {
     action: "trackwidget.play-next";
     label: _("Play next");

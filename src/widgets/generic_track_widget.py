@@ -21,12 +21,13 @@
 from gi.repository import Gtk
 from gi.repository import Gio, GLib
 from ..lib import utils
-from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 
 from tidalapi.playlist import UserPlaylist
 
 import threading
+
+from gettext import gettext as _
 
 
 @Gtk.Template(
@@ -47,11 +48,16 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     artist_label_2 = Gtk.Template.Child()
     track_album_label = Gtk.Template.Child()
 
+    menu_button = Gtk.Template.Child()
+    track_menu = Gtk.Template.Child()
+
     def __init__(self, _track=None, is_album=False):
         IDisconnectable.__init__(self)
         super().__init__()
         if not _track:
             return
+
+        self.menu_activated = False
 
         self.set_track(_track, is_album)
 
@@ -66,6 +72,10 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             self.track_album_label,
             self.track_album_label.connect("activate-link", self.on_open_uri)))
 
+        self.signals.append((
+            self.menu_button,
+            self.menu_button.connect("notify::active", self.on_menu_activate)))
+
         self.track = _track
 
         self.track_album_label.set_album(self.track.album)
@@ -77,9 +87,24 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         self.track_duration_label.set_label(
             utils.pretty_duration(self.track.duration))
 
-        action_group = Gio.SimpleActionGroup()
+        threading.Thread(
+            target=utils.add_image,
+            args=(self.image, self.track.album)).start()
+
+        self.action_group = Gio.SimpleActionGroup()
+        self.insert_action_group("trackwidget", self.action_group)
+
+    def on_menu_activate(self, *args):
+        if self.menu_activated:
+            return
+
+        self.menu_activated = True
+
+        self.track_menu.prepend(
+            _("Go to track radio"),
+            f"win.push-track-radio-page::{self.track.id}")
+
         action_entries = [
-            ("radio", self._get_radio),
             ("play-next", self._play_next),
             ("add-to-queue", self._add_to_queue),
             ("add-to-my-collection", self._th_add_to_my_collection),
@@ -91,7 +116,7 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         self.signals.append((
             add_to_playlist_action,
             add_to_playlist_action.connect("activate", self._add_to_playlist)))
-        action_group.add_action(add_to_playlist_action)
+        self.action_group.add_action(add_to_playlist_action)
 
         for index, playlist in enumerate(utils.user_playlists):
             if index > 10:
@@ -108,13 +133,7 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             self.signals.append((
                 action,
                 action.connect("activate", callback)))
-            action_group.add_action(action)
-
-        self.insert_action_group("trackwidget", action_group)
-
-        threading.Thread(
-            target=utils.add_image,
-            args=(self.image, self.track.album)).start()
+            self.action_group.add_action(action)
 
     def hide_album(self):
         self._grid.remove(self.track_album_label)
@@ -125,12 +144,6 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         self._grid.remove(self.track_album_label)
         self.image.set_visible(False)
         self.track_title_label.set_margin_start(12)
-
-    def _get_radio(self, *args):
-        from ..pages.track_radio_page import HTHrackRadioPage
-        page = HTHrackRadioPage(self.track, f"{self.track.name} Radio")
-        page.load()
-        utils.navigation_view.push(page)
 
     def _play_next(self, *args):
         utils.player_object.add_next(self.track)
