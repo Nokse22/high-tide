@@ -86,12 +86,12 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             ("copy-share-url", self._copy_share_url)
         ]
 
-        action = Gio.SimpleAction.new(
+        add_to_playlist_action = Gio.SimpleAction.new(
             "add-to-playlist", GLib.VariantType.new("n"))
         self.signals.append((
-                action,
-                action.connect("activate", self._add_to_playlist)))
-        action_group.add_action(action)
+            add_to_playlist_action,
+            add_to_playlist_action.connect("activate", self._add_to_playlist)))
+        action_group.add_action(add_to_playlist_action)
 
         for index, playlist in enumerate(utils.user_playlists):
             if index > 10:

@@ -26,20 +26,30 @@ class IDisconnectable:
     def disconnect_all(self, *_args):
         """Disconnects all signals so that the class can be deleted"""
 
-        try:
-            for obj, signal_id in self.signals:
+        for obj, signal_id in self.signals:
+            try:
                 obj.disconnect(signal_id)
-        except Exception:
-            pass
+            except Exception:
+                pass
+        del self.signals
 
-        try:
-            for binding in self.bindings:
+        for binding in self.bindings:
+            try:
                 binding.unbind()
-        except Exception:
-            pass
+            except Exception:
+                pass
+        del self.bindings
 
-        try:
-            for widget in self.disconnectables:
+        for widget in self.disconnectables:
+            try:
                 widget.disconnect_all()
-        except Exception:
-            pass
+            except Exception:
+                pass
+        del self.disconnectables
+
+        self.signals = []
+        self.bindings = []
+        self.disconnectables = []
+
+    # def __del__(self):
+    #     print(f"DELETING {self}")
