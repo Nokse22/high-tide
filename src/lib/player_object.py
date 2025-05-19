@@ -437,3 +437,4 @@ class PlayerObject(GObject.GObject):
         for index, track_id in enumerate(self.id_list):
             if track_id == self.playing_track.id:
                 return index
+        return 0
