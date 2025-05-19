@@ -130,10 +130,11 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
                 new_index = i
             else:
                 break
-
         if self.get_mapped():
             if self.prev_index == new_index:
                 target_position = self.prev_value
+            elif new_index == 0:
+                target_position = 0
             else:
                 view_height = self.adjustment.get_page_size()
                 max_height = self.adjustment.get_upper()
