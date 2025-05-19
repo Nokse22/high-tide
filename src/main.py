@@ -110,10 +110,11 @@ class TidalApplication(Adw.Application):
             builder.get_object("_sink_row").connect(
                 "notify::selected", self.on_sink_changed)
 
-            builder.get_object("_background_row").set_active(
-                self.settings.get_boolean("run-background"))
-            builder.get_object("_background_row").connect(
-                "notify::active", self.on_background_changed)
+            bg_row = builder.get_object("_background_row")
+            bg_row.set_active(self.settings.get_boolean("run-background"))
+            self.settings.bind(
+                "run-background", bg_row,
+                "active", Gio.SettingsBindFlags.DEFAULT)
 
             builder.get_object("_normalize_row").set_active(
                 self.settings.get_boolean("normalize"))
@@ -130,10 +131,6 @@ class TidalApplication(Adw.Application):
     def on_sink_changed(self, widget, *args):
         self.win.change_audio_sink(widget.get_selected())
 
-    def on_background_changed(self, widget, *args):
-        self.settings.set_boolean("run-background", widget.get_active())
-        self.win.set_hide_on_close(widget.get_active())
-
     def on_normalize_changed(self, widget, *args):
         self.win.change_normalization(widget.get_active())
 
@@ -143,6 +140,7 @@ class TidalApplication(Adw.Application):
         self.add_action(action)
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
+
 
 def main(version):
     """The application's entry point."""

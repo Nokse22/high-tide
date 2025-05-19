@@ -93,6 +93,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.settings.bind(
             "window-height", self,
             "default-height", Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind(
+            "run-background", self,
+            "hide-on-close", Gio.SettingsBindFlags.DEFAULT)
 
         self.create_action_with_target(
             'push-artist-page',
@@ -123,9 +126,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         #     'play-next',
         #     GLib.VariantType.new("s"),
         #     self.on_play_next)
-
-        self.set_hide_on_close(
-            self.settings.get_boolean("run-background"))
 
         self.player_object = PlayerObject(
             self.settings.get_int('preferred-sink'),
@@ -336,7 +336,6 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.settings.set_int(
                 "last-playing-index",
                 self.player_object.get_index())
-            print(utils.get_type(mix_album_playlist), self.player_object.get_index())
 
     def set_quality_label(self):
         codec = None
