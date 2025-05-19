@@ -27,10 +27,8 @@ class IDisconnectable:
         """Disconnects all signals so that the class can be deleted"""
 
         for obj, signal_id in self.signals:
-            try:
+            if obj.handler_is_connected(signal_id):
                 obj.disconnect(signal_id)
-            except Exception:
-                pass
         del self.signals
 
         for binding in self.bindings:
