@@ -40,23 +40,32 @@ OSS</property>
           </object>
         </child>
         <child>
-        <object class="AdwPreferencesGroup">
-          <child>
-            <object class="AdwSwitchRow" id="_normalize_row">
-              <property name="title">Normalize volume</property>
-            </object>
-          </child>
-        </object>
-      </child>
+          <object class="AdwPreferencesGroup">
+            <child>
+              <object class="AdwSwitchRow" id="_normalize_row">
+                <property name="title">Normalize volume</property>
+              </object>
+            </child>
+          </object>
+        </child>
         <child>
-        <object class="AdwPreferencesGroup">
-          <child>
-            <object class="AdwSwitchRow" id="_background_row">
-              <property name="title">Run in the background</property>
-            </object>
-          </child>
-        </object>
-      </child>
+          <object class="AdwPreferencesGroup">
+            <child>
+              <object class="AdwSwitchRow" id="_background_row">
+                <property name="title">Run in the background</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwPreferencesGroup">
+            <child>
+              <object class="AdwSwitchRow" id="_quadratic_volume_row">
+                <property name="title">Use quadratic volume control</property>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
   </object>

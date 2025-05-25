@@ -129,7 +129,8 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.player_object = PlayerObject(
             self.settings.get_int('preferred-sink'),
-            self.settings.get_boolean('normalize'))
+            self.settings.get_boolean('normalize'),
+            self.settings.get_boolean('quadratic-volume'))
         utils.player_object = self.player_object
 
         self.volume_button.get_adjustment().set_value(
@@ -609,6 +610,11 @@ class HighTideWindow(Adw.ApplicationWindow):
             # recreate audio pipeline, kinda dirty ngl
             self.player_object.change_audio_sink(
                 self.settings.get_int("preferred-sink"))
+
+    def change_quadratic_volume(self, state):
+        if self.settings.get_boolean("quadratic-volume") != state:
+            self.player_object.quadratic_volume = state
+            self.settings.set_boolean("quadratic-volume", state)
 
     #
     #   PAGES ACTIONS CALLBACKS

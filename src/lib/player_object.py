@@ -63,7 +63,7 @@ class PlayerObject(GObject.GObject):
         'buffering': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
     }
 
-    def __init__(self, preferred_sink=AudioSink.AUTO, normalize=False):
+    def __init__(self, preferred_sink=AudioSink.AUTO, normalize=False, quadratic_volume=False):
         GObject.GObject.__init__(self)
 
         Gst.init(None)
@@ -81,6 +81,7 @@ class PlayerObject(GObject.GObject):
         self.pipeline.add(self.playbin)
 
         self.normalize = normalize
+        self.quadratic_volume = quadratic_volume
         self.most_recent_rg_tags = ""
 
         # Configure audio sink
@@ -332,6 +333,7 @@ class PlayerObject(GObject.GObject):
         """Set up and play track from URL."""
         self.pipeline.set_state(Gst.State.NULL)
         self.playbin.set_property("uri", music_url)
+        self.playbin.set_property("volume", self.playbin.get_property("volume"))
         self.duration = self.query_duration()
 
         print(music_url)
@@ -405,7 +407,10 @@ class PlayerObject(GObject.GObject):
         self.emit("song-added-to-queue")
 
     def change_volume(self, value):
-        self.playbin.set_property("volume", value)
+        if self.quadratic_volume:
+            self.playbin.set_property("volume", value**2)
+        else:
+            self.playbin.set_property("volume", value)
         self.emit("volume-changed", value)
 
     def _update_slider_callback(self):
