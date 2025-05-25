@@ -405,7 +405,7 @@ class PlayerObject(GObject.GObject):
         self.emit("song-added-to-queue")
 
     def change_volume(self, value):
-        self.playbin.set_property("volume", value)
+        self.playbin.set_property("volume", value**2)
         self.emit("volume-changed", value)
 
     def _update_slider_callback(self):
