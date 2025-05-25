@@ -333,6 +333,7 @@ class PlayerObject(GObject.GObject):
         """Set up and play track from URL."""
         self.pipeline.set_state(Gst.State.NULL)
         self.playbin.set_property("uri", music_url)
+        self.playbin.set_property("volume", self.playbin.get_property("volume"))
         self.duration = self.query_duration()
 
         print(music_url)
