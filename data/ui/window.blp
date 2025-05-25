@@ -25,7 +25,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
         content: Adw.OverlaySplitView {
           max-sidebar-width: 480;
-          min-sidebar-width: 300;
+          min-sidebar-width: 320;
           sidebar-width-fraction: 0.35;
 
           content: Adw.ToolbarView {
@@ -668,6 +668,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
         Adw.HeaderBar player_headerbar {
           title-widget: Adw.ViewSwitcher {
             stack: sidebar_stack;
+            policy: wide;
           };
         }
       }
