@@ -121,6 +121,12 @@ class TidalApplication(Adw.Application):
             builder.get_object("_normalize_row").connect(
                 "notify::active", self.on_normalize_changed)
 
+
+            builder.get_object("_quadratic_volume_row").set_active(
+                self.settings.get_boolean("quadratic-volume"))
+            builder.get_object("_quadratic_volume_row").connect(
+                "notify::active", self.on_quadratic_volume_changed)
+
             self.preferences = builder.get_object("_preference_window")
 
         self.preferences.present(self.win)
@@ -133,6 +139,9 @@ class TidalApplication(Adw.Application):
 
     def on_normalize_changed(self, widget, *args):
         self.win.change_normalization(widget.get_active())
+
+    def on_quadratic_volume_changed(self, widget, *args):
+        self.win.change_quadratic_volume(widget.get_active())
 
     def create_action(self, name, callback, shortcuts=None):
         action = Gio.SimpleAction.new(name, None)
