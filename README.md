@@ -43,12 +43,27 @@ Extract the .flatpak file from the downloaded .zip file and install it clicking 
 
 `flatpak install HighTide.flatpak`
 
-### From source
+Beware: Locales are not available when installing from a `.flatpak` file, since flatpak locales are stored in another runtime for optimisations, and `.flatpak` files only export the app without runtimes.
 
-You just need to clone the repository
+If you want/need locales, please build from source.
+
+### From source (binary)
+
+You just need to clone the repository, and build with mason.
 
 ```sh
 git clone https://github.com/Nokse22/high-tide.git
+mason builddir
+mason compile -C builddir
+mason install -C builddir
 ```
 
-Open the project in GNOME Builder and click "Run Project".
+### From source (flatpak)
+
+You just need to clone the repository, prepare the repository location and build with mason.
+
+```sh
+git clone https://github.com/Nokse22/high-tide.git
+mkdir -p $HOME/.local/share/flatpak
+flatpak-builder builddir build-aux/io.github.nokse22.HighTide.json --force-clean --repo="$HOME/.local/share/flatpak/high-tide-local" --user --install
+```
