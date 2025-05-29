@@ -16,7 +16,7 @@ Lossless
 Hi-res Lossless</property>
                   </object>
                 </property>
-                <property name="title">Quality</property>
+                <property name="title" translatable="yes">Quality</property>
               </object>
             </child>
           </object>
@@ -34,7 +34,7 @@ Jack
 OSS</property>
                   </object>
                 </property>
-                <property name="title">Preferred Audio Sink</property>
+                <property name="title" translatable="yes">Preferred Audio Sink</property>
               </object>
             </child>
           </object>
@@ -43,7 +43,7 @@ OSS</property>
           <object class="AdwPreferencesGroup">
             <child>
               <object class="AdwSwitchRow" id="_normalize_row">
-                <property name="title">Normalize volume</property>
+                <property name="title" translatable="yes">Normalize volume</property>
               </object>
             </child>
           </object>
@@ -52,7 +52,7 @@ OSS</property>
           <object class="AdwPreferencesGroup">
             <child>
               <object class="AdwSwitchRow" id="_background_row">
-                <property name="title">Run in the background</property>
+                <property name="title" translatable="yes">Run in the background</property>
               </object>
             </child>
           </object>
@@ -61,7 +61,7 @@ OSS</property>
           <object class="AdwPreferencesGroup">
             <child>
               <object class="AdwSwitchRow" id="_quadratic_volume_row">
-                <property name="title">Use quadratic volume control</property>
+                <property name="title" translatable="yes">Use quadratic volume control</property>
               </object>
             </child>
           </object>
