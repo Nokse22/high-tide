@@ -31,9 +31,9 @@ localedir = '@localedir@'
 
 sys.path.insert(1, pkgdatadir)
 signal.signal(signal.SIGINT, signal.SIG_DFL)
-locale.bindtextdomain('tidal', localedir)
-locale.textdomain('tidal')
-gettext.install('tidal', localedir)
+locale.bindtextdomain('high-tide', localedir)
+locale.textdomain('high-tide')
+gettext.install('high-tide', localedir)
 
 if __name__ == '__main__':
     import gi
