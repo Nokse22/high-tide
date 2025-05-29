@@ -32,6 +32,7 @@ from .page import Page
 from ..lib import utils
 
 from ..disconnectable_iface import IDisconnectable
+from gettext import gettext as _
 
 
 class HTSearchPage(Page):
@@ -55,25 +56,25 @@ class HTSearchPage(Page):
 
         # Adds a carousel with artists, albums and playlists
 
-        carousel = self.get_carousel("Artists")
+        carousel = self.get_carousel(_("Artists"))
         artists = results["artists"]
         if len(artists) > 0:
             self.page_content.append(carousel)
             carousel.set_items(artists, "artist")
 
-        carousel = self.get_carousel("Albums")
+        carousel = self.get_carousel(_("Albums"))
         albums = results["albums"]
         if len(albums) > 0:
             self.page_content.append(carousel)
             carousel.set_items(albums, "album")
 
-        carousel = self.get_carousel("Playlists")
+        carousel = self.get_carousel(_("Playlists"))
         playlists = results["playlists"]
         if len(playlists) > 0:
             self.page_content.append(carousel)
             carousel.set_items(playlists, "playlist")
 
-        carousel = self.get_carousel("Tracks")
+        carousel = self.get_carousel(_("Tracks"))
         tracks = results["tracks"]
         if len(tracks) > 0:
             self.page_content.append(carousel)

@@ -26,11 +26,11 @@ template $NewPlaylistWindow: Adw.Dialog {
       ]
 
       Adw.EntryRow playlist_name_entry {
-        title: 'Playlist Name';
+        title: _("Playlist Name");
       }
 
       Adw.EntryRow playlist_description_entry {
-        title: 'Playlist Description';
+        title: _("Playlist Description");
       }
     }
 
@@ -44,7 +44,7 @@ template $NewPlaylistWindow: Adw.Dialog {
 
       halign: center;
       hexpand: true;
-      label: 'Create';
+      label: _("Create");
       valign: center;
       vexpand: true;
       clicked => $on_create_button_clicked();

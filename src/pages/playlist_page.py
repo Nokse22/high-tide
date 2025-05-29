@@ -24,6 +24,7 @@ from .page import Page
 from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 from tidalapi.playlist import Playlist
+from gettext import gettext as _
 
 
 class HTPlaylistPage(Page):
@@ -73,9 +74,9 @@ class HTPlaylistPage(Page):
             creator = creator.name
         else:
             creator = "TIDAL"
-        builder.get_object("_first_subtitle_label").set_label(f"by {creator}")
+        builder.get_object("_first_subtitle_label").set_label(_("by {}").format(creator))
         builder.get_object("_second_subtitle_label").set_label(
-            "{} tracks ({})".format(
+            _("{} tracks ({})").format(
                 self.item.num_tracks,
                 utils.pretty_duration(self.item.duration)))
 

@@ -2,7 +2,7 @@ using Gtk 4.0;
 using Adw 1;
 
 template $LoginDialog: Adw.Dialog {
-  title: 'Log In';
+  title: _("Log In");
   content-height: 220;
   content-width: 360;
 
@@ -20,7 +20,7 @@ template $LoginDialog: Adw.Dialog {
       vexpand: true;
 
       Label {
-        label: 'Go to this website and login with your account, if it asks for a code insert the code provided below.';
+        label: _("Go to this website and login with your account, if it asks for a code insert the code provided below.");
         vexpand: true;
         wrap: true;
       }

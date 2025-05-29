@@ -31,6 +31,7 @@ from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 import threading
 
+from gettext import gettext as _
 
 @Gtk.Template(
     resource_path='/io/github/nokse22/HighTide/ui/widgets/top_hit_widget.ui')
@@ -87,7 +88,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
     def make_track(self):
         self.primary_label.set_label(self.item.name)
-        self.secondary_label.set_label("Track")
+        self.secondary_label.set_label(_("Track"))
 
         self.artist_label.set_visible(True)
         self.artist_label.set_artists(self.item.artists)
@@ -106,7 +107,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
     def make_mix(self):
         self.primary_label.set_label(self.item.title)
-        self.secondary_label.set_label("Mix")
+        self.secondary_label.set_label(_("Mix"))
 
         self.artist_label.set_visible(True)
         self.artist_label.set_label(self.item.sub_title)
@@ -129,7 +130,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
     def make_album(self):
         self.primary_label.set_label(self.item.name)
-        self.secondary_label.set_label("Album")
+        self.secondary_label.set_label(_("Album"))
 
         self.artist_label.set_visible(True)
         self.artist_label.set_artists([self.item.artist])
@@ -179,7 +180,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
     def make_artist(self):
         self.primary_label.set_label(self.item.name)
-        self.secondary_label.set_label("Artist")
+        self.secondary_label.set_label(_("Artist"))
 
         self.play_button.set_visible(False)
         self.shuffle_button.set_visible(False)

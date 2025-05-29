@@ -21,6 +21,7 @@ from gi.repository import Adw
 from gi.repository import Gtk
 
 from .page import Page
+from gettext import gettext as _
 
 
 class HTNotLoggedInPage(Page):
@@ -30,14 +31,14 @@ class HTNotLoggedInPage(Page):
         self.set_title("Not Logged In")
 
         login_button = Gtk.Button(
-            label="Login",
+            label=_("Login"),
             css_classes=["pill", "suggested-action"],
             action_name="app.log-in",
             halign=Gtk.Align.CENTER
         )
         status_page = Adw.StatusPage(
-            title="Login first",
-            description="To be able to use this app you need to login with your TIDAL account.",
+            title=_("Login first"),
+            description=_("To be able to use this app you need to login with your TIDAL account."),
             icon_name="key-login-symbolic",
             child=login_button,
             valign=Gtk.Align.CENTER,
