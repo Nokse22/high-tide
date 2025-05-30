@@ -426,6 +426,12 @@ class HighTideWindow(Adw.ApplicationWindow):
         page = HTHrackRadioPage(track.id).load()
         self.navigation_view.push(page)
 
+    @Gtk.Template.Callback("on_album_button_clicked")
+    def on_album_button_clicked_func(self, widget):
+        track = self.player_object.playing_track
+        page = HTAlbumPage(track.album.id).load()
+        self.navigation_view.push(page)
+
     @Gtk.Template.Callback("on_skip_forward_button_clicked")
     def on_skip_forward_button_clicked_func(self, widget):
         self.player_object.play_next()

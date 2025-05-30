@@ -510,6 +510,18 @@ template $HighTideWindow: Adw.ApplicationWindow {
                       clicked => $on_track_radio_button_clicked();
                     }
 
+                    Button album_button {
+                      icon-name: "library-music-symbolic";
+                      tooltip-text: _("Go to album");
+                      valign: center;
+
+                      styles [
+                        "flat",
+                      ]
+
+                      clicked => $on_album_button_clicked();
+                    }
+
                     Button copy_share_link {
                       icon-name: "share-alt-symbolic";
                       tooltip-text: _("Copy Share Link");
