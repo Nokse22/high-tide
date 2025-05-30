@@ -39,9 +39,8 @@
             "buildsystem" : "meson",
             "sources" : [
                 {
-                    "type" : "git",
-                    "url" : "https://github.com/Nokse22/high-tide.git",
-                    "branch" : "master"
+                    "type" : "dir",
+		    "path": "../."
                 }
             ],
             "config-opts" : [

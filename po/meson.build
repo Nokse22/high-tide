@@ -1,1 +1,1 @@
-i18n.gettext('tidal', preset: 'glib')
+i18n.gettext('high-tide', preset: 'glib')
