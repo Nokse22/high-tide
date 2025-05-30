@@ -76,7 +76,7 @@ The `--delete-data` flag should get rid of all the "junk" directories (i.e. cach
 
 ## 🤝 Contributing
 
-Read [CONTRIBUTING](CONTRIBUTING) for all information about how to contribute to High Tide, you can also contact us on Matrix [#high-tide:matrix.org](https://matrix.to/#/%23high-tide:matrix.org).
+Read [CONTRIBUTING](CONTRIBUTING.md) for all information about how to contribute to High Tide, you can also contact us on Matrix [#high-tide:matrix.org](https://matrix.to/#/%23high-tide:matrix.org).
 
 ## 📄 License
 
