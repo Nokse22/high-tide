@@ -43,12 +43,35 @@ Extract the .flatpak file from the downloaded .zip file and install it clicking 
 
 `flatpak install HighTide.flatpak`
 
-### From source
+Beware: Locales are not available when installing from a `.flatpak` file, since flatpak locales are stored in another runtime for optimisations, and `.flatpak` files only export the app without runtimes.
 
-You just need to clone the repository
+If you want/need locales, please build from source.
+
+### From source (binary)
+
+You just need to clone the repository, and build with mason.
 
 ```sh
 git clone https://github.com/Nokse22/high-tide.git
+mason builddir
+mason compile -C builddir
+mason install -C builddir
 ```
 
-Open the project in GNOME Builder and click "Run Project".
+Or open the project in GNOME Builder and click "Run Project".
+
+## Uninstallation
+We're sorry to see you go! If you want to remove the High Tide flatpak package from your system, here's how to do so:
+
+First, terminate all High Tide processes. Keep in mind that "Run in background" is an option, usually pressing ^Q should be enough to terminate it. Otherwise, you can run `killall high-tide` to make sure that everything is killed.
+
+You can then remove the package using flatpak :
+```sh
+# When installed system-wide (default)
+flatpak uninstall --delete-data io.github.nokse22.HighTide
+
+# When installed for the current user (-u flag at installation)
+flatpak uninstall --delete-data -u io.github.nokse22.HighTide
+```
+
+The `--delete-data` flag should get rid of all the "junk" directories (i.e. cache, configs, etc.) on your system, and you don't need to do anything else.
