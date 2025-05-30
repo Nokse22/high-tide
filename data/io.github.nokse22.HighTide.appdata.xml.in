@@ -4,11 +4,17 @@
 	<metadata_license>CC0-1.0</metadata_license>
 	<project_license>GPL-3.0-or-later</project_license>
 	<name>High Tide</name>
-  <summary>Music client</summary>
+  <summary>TIDAL client</summary>
 	<description>
-	  <p>Third party unofficial TIDAL music client made for GNOME</p>
+	  <p>Third party unofficial TIDAL music client. Listen to your favorite music from your desktop or mobile Linux device at the highest quality.</p>
 	</description>
-	<content_rating type="oars-1.0"></content_rating>
+	<content_rating type="oars-1.1">
+    <content_attribute id="language-profanity">intense</content_attribute>
+    <content_attribute id="language-humor">moderate</content_attribute>
+    <content_attribute id="sex-themes">moderate</content_attribute>
+    <content_attribute id="drugs-alcohol">moderate</content_attribute>
+    <content_attribute id="violence-realistic">mild</content_attribute>
+  </content_rating>
 
   <developer id="io.github.nokse22">
     <name translate="no">Nokse</name>
@@ -23,6 +29,11 @@
 
   <url type="homepage">https://github.com/Nokse22/high-tide</url>
   <url type="bugtracker">https://github.com/Nokse22/high-tide/issues</url>
+  <url type="vcs-browser">https://github.com/Nokse22/high-tide</url>
+  <url type="translate">https://github.com/Nokse22/high-tide/tree/master/po</url>
+  <url type="donation">https://ko-fi.com/nokse22</url>
+
+  <translation type="gettext">high-tide</translation>
   
   <recommends>
     <control>keyboard</control>
@@ -46,14 +57,15 @@
   </screenshots>
 
   <releases>
-    <release version="0.1.4" date="2025-05-20">
+    <release version="0.1.5" date="2025-05-30">
       <description translate="no">
-        <p>First Release</p>
+        <p>First public release! 🎉</p>
       </description>
     </release>
   </releases>
 
   <categories>
+    <category>Audio</category>
     <category>Music</category>
   </categories>
 

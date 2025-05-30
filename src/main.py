@@ -79,7 +79,7 @@ class TidalApplication(Adw.Application):
             application_name='High Tide',
             application_icon='io.github.nokse22.HighTide',
             developer_name='Nokse',
-            version='0.1.4',
+            version='0.1.5',
             developers=['Nokse'],
             copyright='© 2023-2025 Nokse',
             license_type="GTK_LICENSE_GPL_3_0",
@@ -120,7 +120,6 @@ class TidalApplication(Adw.Application):
                 self.settings.get_boolean("normalize"))
             builder.get_object("_normalize_row").connect(
                 "notify::active", self.on_normalize_changed)
-
 
             builder.get_object("_quadratic_volume_row").set_active(
                 self.settings.get_boolean("quadratic-volume"))
