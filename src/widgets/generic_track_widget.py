@@ -104,6 +104,10 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             _("Go to track radio"),
             f"win.push-track-radio-page::{self.track.id}")
 
+        self.track_menu.prepend(
+            _("Go to album"),
+            f"win.push-album-page::{self.track.album.id}")
+
         action_entries = [
             ("play-next", self._play_next),
             ("add-to-queue", self._add_to_queue),
