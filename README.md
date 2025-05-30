@@ -43,15 +43,22 @@ Extract the .flatpak file from the downloaded .zip file and install it clicking 
 
 `flatpak install HighTide.flatpak`
 
-### From source
+Beware: Locales are not available when installing from a `.flatpak` file, since flatpak locales are stored in another runtime for optimisations, and `.flatpak` files only export the app without runtimes.
 
-You just need to clone the repository
+If you want/need locales, please build from source.
+
+### From source (binary)
+
+You just need to clone the repository, and build with mason.
 
 ```sh
 git clone https://github.com/Nokse22/high-tide.git
+mason builddir
+mason compile -C builddir
+mason install -C builddir
 ```
 
-Open the project in GNOME Builder and click "Run Project".
+Or open the project in GNOME Builder and click "Run Project".
 
 ## Uninstallation
 We're sorry to see you go! If you want to remove the High Tide flatpak package from your system, here's how to do so:
