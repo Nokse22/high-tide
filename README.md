@@ -21,7 +21,7 @@
 ## Contributing
 
 ### Coding
-There are some TODOs and FIXMEs in the code, you can start there. I'm trying to comment the code, but if needed you can contact me on Matrix (@nokse22:matrix.org) or on Github.
+There are some TODOs and FIXMEs in the code, you can start there. We're trying to comment the code, but if needed you can contact us on Matrix (#high-tide:matrix.org) or open an issue.
 
 The application is made with GNOME Builder so it should just work if you clone the project and open it with Builder.
 
