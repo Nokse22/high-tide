@@ -122,3 +122,5 @@ Use comment blocks to separate major sections of functionality for long files li
 ### Commit messages and pull requests
 
 For commit messages be descriptive. Once you have made a contribution open a pull request.
+
+Feel free to add yourself among the contributors in `main.py` -> `on_about_action` -> `developers`
