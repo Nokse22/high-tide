@@ -30,8 +30,6 @@ from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
 
-from ..lib import utils
-
 from ..disconnectable_iface import IDisconnectable
 
 from gettext import gettext as _
