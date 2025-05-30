@@ -58,12 +58,20 @@ mason compile -C builddir
 mason install -C builddir
 ```
 
-### From source (flatpak)
+Or open the project in GNOME Builder and click "Run Project".
 
-You just need to clone the repository, prepare the repository location and build with mason.
+## Uninstallation
+We're sorry to see you go! If you want to remove the High Tide flatpak package from your system, here's how to do so:
 
+First, terminate all High Tide processes. Keep in mind that "Run in background" is an option, usually pressing ^Q should be enough to terminate it. Otherwise, you can run `killall high-tide` to make sure that everything is killed.
+
+You can then remove the package using flatpak :
 ```sh
-git clone https://github.com/Nokse22/high-tide.git
-mkdir -p $HOME/.local/share/flatpak
-flatpak-builder builddir build-aux/io.github.nokse22.HighTide.json --force-clean --repo="$HOME/.local/share/flatpak/high-tide-local" --user --install
+# When installed system-wide (default)
+flatpak uninstall --delete-data io.github.nokse22.HighTide
+
+# When installed for the current user (-u flag at installation)
+flatpak uninstall --delete-data -u io.github.nokse22.HighTide
 ```
+
+The `--delete-data` flag should get rid of all the "junk" directories (i.e. cache, configs, etc.) on your system, and you don't need to do anything else.
