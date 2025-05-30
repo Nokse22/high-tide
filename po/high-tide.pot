@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the high-tide package.
+# This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: high-tide\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-29 04:07+0200\n"
+"POT-Creation-Date: 2025-05-30 21:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,25 +17,27 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: data/io.github.nokse22.HighTide.desktop.in:3
+#: data/io.github.nokse22.HighTide.desktop.in:2
 #: data/io.github.nokse22.HighTide.appdata.xml.in:6
 msgid "High Tide"
 msgstr ""
 
 #: data/io.github.nokse22.HighTide.appdata.xml.in:7
-msgid "Music client"
+msgid "TIDAL client"
 msgstr ""
 
 #: data/io.github.nokse22.HighTide.appdata.xml.in:9
-msgid "Third party unofficial TIDAL music client made for GNOME"
+msgid ""
+"Third party unofficial TIDAL music client. Listen to your favorite music "
+"from your desktop or mobile Linux device at the highest quality."
 msgstr ""
 
-#: data/io.github.nokse22.HighTide.appdata.xml.in:39
+#: data/io.github.nokse22.HighTide.appdata.xml.in:50
 msgid ""
 "High Tide in a large window format playing the album Dreams by Fleetwood Mac"
 msgstr ""
 
-#: data/io.github.nokse22.HighTide.appdata.xml.in:44
+#: data/io.github.nokse22.HighTide.appdata.xml.in:55
 msgid "High Tide in a small window format playing Let It Happen by Tame Impala"
 msgstr ""
 
@@ -239,11 +241,11 @@ msgstr ""
 msgid "Search..."
 msgstr ""
 
-#: data/ui/window.blp:134 data/ui/window.blp:370 data/ui/window.blp:602
+#: data/ui/window.blp:134 data/ui/window.blp:370 data/ui/window.blp:614
 msgid "Play/Pause"
 msgstr ""
 
-#: data/ui/window.blp:145 data/ui/window.blp:382 data/ui/window.blp:615
+#: data/ui/window.blp:145 data/ui/window.blp:382 data/ui/window.blp:627
 msgid "Skip Forward"
 msgstr ""
 
@@ -260,26 +262,30 @@ msgid "Add/Remove from favorites"
 msgstr ""
 
 #: data/ui/window.blp:515
+msgid "Go to album"
+msgstr ""
+
+#: data/ui/window.blp:527
 msgid "Copy Share Link"
 msgstr ""
 
-#: data/ui/window.blp:577
+#: data/ui/window.blp:589
 msgid "Toggle Shuffle"
 msgstr ""
 
-#: data/ui/window.blp:590
+#: data/ui/window.blp:602
 msgid "Skip Backward"
 msgstr ""
 
-#: data/ui/window.blp:642
+#: data/ui/window.blp:654
 msgid "Player"
 msgstr ""
 
-#: data/ui/window.blp:652 data/ui/widgets/lyrics_widget.blp:22
+#: data/ui/window.blp:664 data/ui/widgets/lyrics_widget.blp:22
 msgid "Lyrics"
 msgstr ""
 
-#: data/ui/window.blp:662 data/ui/widgets/queue_widget.blp:58
+#: data/ui/window.blp:674 data/ui/widgets/queue_widget.blp:58
 msgid "Queue"
 msgstr ""
 
