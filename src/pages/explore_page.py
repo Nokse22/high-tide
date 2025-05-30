@@ -75,7 +75,7 @@ class HTExplorePage(Page):
     def _make_category(self, category):
         if isinstance(category.items[0], PageLink):
             carousel, flow_box_box = self.get_link_carousel(
-                category.title if category.title else "More")
+                category.title if category.title else _("More"))
 
             flow_box = Gtk.FlowBox(homogeneous=True, height_request=100)
             flow_box_box.append(flow_box)

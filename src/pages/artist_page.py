@@ -98,11 +98,11 @@ class HTArtistPage(Page):
             target=utils.add_image_to_avatar,
             args=(artist_picture, self.artist)).start()
 
-        builder.get_object("_first_subtitle_label").set_label("Artist")
+        builder.get_object("_first_subtitle_label").set_label(_("Artist"))
 
         self.top_tracks = self.artist.get_top_tracks()
 
-        tracks_list_widget = HTTracksListWidget("Top Tracks")
+        tracks_list_widget = HTTracksListWidget(_("Top Tracks"))
         self.disconnectables.append(tracks_list_widget)
         tracks_list_widget.set_function(self.artist.get_top_tracks)
         self.content_box.append(tracks_list_widget)
@@ -114,7 +114,7 @@ class HTArtistPage(Page):
         self._page_loaded()
 
     def make_content(self):
-        carousel = self.get_carousel("Albums")
+        carousel = self.get_carousel(_("Albums"))
         try:
             albums = self.artist.get_albums(limit=10)
             carousel.set_more_function("album", self.artist.get_albums)
@@ -125,7 +125,7 @@ class HTArtistPage(Page):
                 self.content_box.append(carousel)
                 carousel.set_items(albums, "album")
 
-        carousel = self.get_carousel("EP & Singles")
+        carousel = self.get_carousel(_("EP & Singles"))
         try:
             albums = self.artist.get_albums_ep_singles(limit=10)
             carousel.set_more_function(
@@ -137,7 +137,7 @@ class HTArtistPage(Page):
                 self.content_box.append(carousel)
                 carousel.set_items(albums, "album")
 
-        carousel = self.get_carousel("Appears On")
+        carousel = self.get_carousel(_("Appears On"))
         try:
             albums = self.artist.get_albums_other(limit=10)
             carousel.set_more_function("album", self.artist.get_albums_other)
@@ -148,7 +148,7 @@ class HTArtistPage(Page):
                 self.content_box.append(carousel)
                 carousel.set_items(albums, "album")
 
-        carousel = self.get_carousel("Similar Artists")
+        carousel = self.get_carousel(_("Similar Artists"))
         try:
             artists = self.artist.get_similar()
         except Exception as e:
@@ -198,6 +198,6 @@ class HTArtistPage(Page):
 
     def on_artist_radio_button_clicked(self, btn):
         from .track_radio_page import HTHrackRadioPage
-        page = HTHrackRadioPage(self.artist, f"Radio of {self.artist.name}")
+        page = HTHrackRadioPage(self.artist, _("Radio of {}").format(self.artist.name))
         page.load()
         utils.navigation_view.push(page)

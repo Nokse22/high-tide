@@ -33,6 +33,8 @@ sys.path.insert(1, pkgdatadir)
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 locale.bindtextdomain('high-tide', localedir)
 locale.textdomain('high-tide')
+gettext.bindtextdomain('high-tide', localedir)
+gettext.textdomain('high-tide')
 gettext.install('high-tide', localedir)
 
 if __name__ == '__main__':

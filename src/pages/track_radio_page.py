@@ -23,6 +23,7 @@ from ..lib import utils
 from ..lib import utils
 from .page import Page
 import threading
+from gettext import gettext as _
 
 
 class HTHrackRadioPage(Page):
@@ -51,14 +52,14 @@ class HTHrackRadioPage(Page):
                 tracks_list_box.connect(
                     "row-activated", self.on_row_selected)))
 
-        page_title = "Radio of {}".format(self.item.name)
+        page_title = _("Radio of {}").format(self.item.name)
 
         builder.get_object("_title_label").set_label(page_title)
         self.set_title(page_title)
 
         if isinstance(self.item, Track):
             builder.get_object("_first_subtitle_label").set_label(
-                "by {}".format(self.item.artist.name))
+                _("by {}").format(self.item.artist.name))
 
         play_btn = builder.get_object("_play_button")
         self.signals.append((

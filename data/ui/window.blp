@@ -24,7 +24,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
         name: "desktop";
 
         content: Adw.OverlaySplitView {
-          max-sidebar-width: 480;
+          max-sidebar-width: 500;
           min-sidebar-width: 320;
           sidebar-width-fraction: 0.35;
 
@@ -639,7 +639,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
               icon-name: "emblem-music-symbolic";
               name: "player";
-              title: "Player";
+              title: _("Player");
             }
 
             Adw.ViewStackPage {
@@ -649,7 +649,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
               icon-name: "chat-bubble-text-symbolic";
               name: "lyrics";
-              title: "Lyrics";
+              title: _("Lyrics");
             }
 
             Adw.ViewStackPage {
@@ -659,7 +659,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
               icon-name: "view-list-ordered-symbolic";
               name: "queue";
-              title: "Queue";
+              title: _("Queue");
             }
           }
         };
