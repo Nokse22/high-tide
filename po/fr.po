@@ -246,7 +246,7 @@ msgstr "Exécuter en arrière-plan"
 
 #: data/ui/preferences.ui:64
 msgid "Use quadratic volume control"
-msgstr "Utiliser le controle de volume quadratique"
+msgstr "Utiliser le contrôle de volume quadratique"
 
 #: data/ui/search_entry.blp:4
 msgid "Search..."
