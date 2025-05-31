@@ -331,7 +331,7 @@ msgstr "_Quitter"
 
 #: data/ui/widgets/generic_track_widget.blp:175
 msgid "Copy share url"
-msgstr "Coper l'URL de partage"
+msgstr "Copier l'URL de partage"
 
 #: data/ui/widgets/generic_track_widget.blp:179
 msgid "Add to a playlist"
