@@ -426,10 +426,11 @@ class PlayerObject(GObject.GObject):
         success, duration = self.playbin.query_duration(Gst.Format.TIME)
         return duration if success else 0
 
-    def query_position(self):
+    def query_position(self) -> int | None:
         """Get the current playback position."""
         success, position = self.playbin.query_position(Gst.Format.TIME)
-        return position if success else 0
+        print(f"Position: {position}, Success: {success}")
+        return position if success else None
 
     def seek(self, seek_fraction):
         """Seek to a position in the current track."""
