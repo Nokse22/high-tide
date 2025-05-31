@@ -114,6 +114,7 @@ class PlayerObject(GObject.GObject):
         self.can_prev = False
         self.manifest = None
         self.stream = None
+        self.update_timer = None
 
     @GObject.Property(type=bool, default=False)
     def playing(self):
@@ -260,7 +261,9 @@ class PlayerObject(GObject.GObject):
         """Start playback."""
         self.playing = True
         self.pipeline.set_state(Gst.State.PLAYING)
-        GLib.timeout_add(1000, self._update_slider_callback)
+        if self.update_timer:
+            GLib.source_remove(self.update_timer)
+        self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
 
     def pause(self):
         """Pause playback."""
@@ -429,7 +432,6 @@ class PlayerObject(GObject.GObject):
     def query_position(self) -> int | None:
         """Get the current playback position."""
         success, position = self.playbin.query_position(Gst.Format.TIME)
-        print(f"Position: {position}, Success: {success}")
         return position if success else None
 
     def seek(self, seek_fraction):
