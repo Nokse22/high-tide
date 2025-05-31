@@ -548,9 +548,12 @@ class HighTideWindow(Adw.ApplicationWindow):
         """Called on a timer, it updates the progress bar and
             adds the song duration and position."""
         self.duration = self.player_object.query_duration()
-
         end_value = self.duration / Gst.SECOND
-        position = self.player_object.query_position() / Gst.SECOND
+
+        position = self.player_object.query_position()
+        if position is None:
+            return
+        position = position / Gst.SECOND
         fraction = 0
 
         self.lyrics_widget.set_current_line(position)
