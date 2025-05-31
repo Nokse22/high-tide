@@ -79,7 +79,7 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         self.track = _track
 
         self.track_album_label.set_album(self.track.album)
-        self.track_title_label.set_label(self.track.name)
+        self.track_title_label.set_label(self.track.full_name if hasattr(self.track, 'full_name') else self.track.name)
         self.artist_label.set_artists(self.track.artists)
 
         self.explicit_label.set_visible(self.track.explicit)
