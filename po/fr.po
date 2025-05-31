@@ -54,7 +54,7 @@ msgstr "Faire un don avec Ko-Fi"
 
 #: src/main.py:92
 msgid "Donate with Github"
-msgstr "Faire un don avec Github"
+msgstr "Faire un don avec GitHub"
 
 #: src/pages/album_page.py:61
 msgid "Unknown"
