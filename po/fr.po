@@ -351,7 +351,7 @@ msgstr "Musiques jouées"
 
 #: data/ui/widgets/queue_widget.blp:80
 msgid "Next Songs"
-msgstr "Musiques suivants"
+msgstr "Musiques suivantes"
 
 #: data/ui/widgets/top_hit_widget.blp:18
 msgid "Top Hit"
