@@ -144,7 +144,7 @@ msgstr ""
 
 #: src/pages/page.py:47 data/ui/window.blp:190
 msgid "Loading..."
-msgstr "Lade...."
+msgstr "Lade..."
 
 #: src/pages/playlist_page.py:77 src/pages/track_radio_page.py:62
 msgid "by {}"
