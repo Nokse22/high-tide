@@ -550,7 +550,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.duration = self.player_object.query_duration()
         end_value = self.duration / Gst.SECOND
 
-        position = self.player_object.query_position()
+        position = self.player_object.query_position(default=None)
         if position is None:
             return
         position = position / Gst.SECOND
