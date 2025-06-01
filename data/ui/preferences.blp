@@ -1,0 +1,55 @@
+using Gtk 4.0;
+using Adw 1;
+
+Adw.PreferencesDialog _preference_window {
+  Adw.PreferencesPage {
+    Adw.PreferencesGroup {
+      Adw.ComboRow _quality_row {
+        model: StringList {
+          strings [
+            _("Low 96k"),
+            _("High 320k"),
+            _("Lossless"),
+            _("Hi-res Lossless"),
+          ]
+        };
+
+        title: _("Quality");
+      }
+    }
+
+    Adw.PreferencesGroup {
+      Adw.ComboRow _sink_row {
+        model: StringList {
+          strings [
+            _("Automatic"),
+            "PulseAudio",
+            "ALSA",
+            "Jack",
+            "OSS",
+          ]
+        };
+
+        title: _("Preferred Audio Sink");
+      }
+    }
+
+    Adw.PreferencesGroup {
+      Adw.SwitchRow _normalize_row {
+        title: _("Normalize volume");
+      }
+    }
+
+    Adw.PreferencesGroup {
+      Adw.SwitchRow _background_row {
+        title: _("Run in the background");
+      }
+    }
+
+    Adw.PreferencesGroup {
+      Adw.SwitchRow _quadratic_volume_row {
+        title: _("Use quadratic volume control");
+      }
+    }
+  }
+}
