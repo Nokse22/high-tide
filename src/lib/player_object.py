@@ -409,6 +409,13 @@ class PlayerObject(GObject.GObject):
         self.queue.insert(0, track)
         self.emit("song-added-to-queue")
 
+    def query_volume(self):
+        volume = self.playbin.get_property("volume")
+        if self.quadratic_volume:
+            return volume ** (1/2)
+        else:
+            return volume
+
     def change_volume(self, value):
         if self.quadratic_volume:
             self.playbin.set_property("volume", value**2)
@@ -421,6 +428,7 @@ class PlayerObject(GObject.GObject):
         self.emit("update-slider")
         duration = self.query_duration()
         if duration != self.duration:
+            self.duration = duration
             self.emit("duration-changed")
         return self.playing
 

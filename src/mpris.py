@@ -123,6 +123,7 @@ class MPRIS(Server):
             <property name="PlaybackStatus" type="s" access="read"/>
             <property name="Metadata" type="a{sv}" access="read">
             </property>
+            <property name="Position" type="x" access="read"/>
             <property name="Volume" type="d" access="readwrite"/>
             <property name="CanGoNext" type="b" access="read"/>
             <property name="CanGoPrevious" type="b" access="read"/>
@@ -154,7 +155,7 @@ class MPRIS(Server):
             self.__metadata["xesam:title"] = GLib.Variant("s", track.name)
             self.__metadata["xesam:album"] = GLib.Variant("s", track.album)
             self.__metadata["xesam:artist"] = GLib.Variant("as", [track.artist])
-            self.__metadata["mpris:length"] = GLib.Variant("i", self.player.query_duration())
+            self.__metadata["mpris:length"] = GLib.Variant("x", self.player.query_duration() / 1000)
 
         self.__bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
         Gio.bus_own_name_on_connection(
@@ -214,8 +215,10 @@ class MPRIS(Server):
             return GLib.Variant("s", self._get_status())
         elif property_name == "Metadata":
             return GLib.Variant("a{sv}", self.__metadata)
+        elif property_name == "Position":
+            return GLib.Variant("x", self.player.query_position() / 1000)
         elif property_name == "Volume":
-            return GLib.Variant("d", 1.0)
+            return GLib.Variant("d", self.player.query_volume())
         else:
             return GLib.Variant("b", False)
 
@@ -228,6 +231,7 @@ class MPRIS(Server):
             for property_name in [
                 "PlaybackStatus",
                 "Metadata",
+                "Position",
                 "Volume",
                 "CanGoNext",
                 "CanGoPrevious",
@@ -240,7 +244,7 @@ class MPRIS(Server):
 
     def Set(self, interface, property_name, new_value):
         if property_name == "Volume":
-            self.player.volume = new_value
+            self.player.change_volume(new_value)
 
     def PropertiesChanged(
         self, interface_name, changed_properties, invalidated_properties
@@ -274,7 +278,7 @@ class MPRIS(Server):
         self.__metadata["xesam:title"] = GLib.Variant("s", self.player.playing_track.name)
         self.__metadata["xesam:album"] = GLib.Variant("s", self.player.playing_track.album.name)
         self.__metadata["xesam:artist"] = GLib.Variant("as", [self.player.playing_track.artist.name])
-        self.__metadata["mpris:length"] = GLib.Variant("i", self.player.duration)
+        self.__metadata["mpris:length"] = GLib.Variant("x", self.player.query_duration() / 1000)
 
         url = f"file://{utils.IMG_DIR}/{self.player.playing_track.album.id}.jpg"
 
@@ -282,6 +286,7 @@ class MPRIS(Server):
 
         changed_properties = {
             "Metadata": GLib.Variant("a{sv}", self.__metadata),
+            "Position": GLib.Variant("x", self.player.query_position() / 1000),
             "CanGoNext": GLib.Variant("b", self.player.can_next),
             "CanGoPrevious": GLib.Variant("b", self.player.can_prev),
         }
