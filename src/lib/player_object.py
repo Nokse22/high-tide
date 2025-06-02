@@ -26,12 +26,14 @@ from tidalapi.mix import Mix
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.playlist import Playlist
-from tidalapi.media import ManifestMimeType
+from tidalapi.media import ManifestMimeType, Track
 
 from gi.repository import GObject
 from gi.repository import Gst, GLib
 
 from . import utils
+from . import discord_rpc
+
 
 
 class RepeatType(IntEnum):
@@ -107,7 +109,7 @@ class PlayerObject(GObject.GObject):
         self.tracks_to_play = []
         self._shuffled_tracks_to_play = []
         self.played_songs = []
-        self.playing_track = None
+        self.playing_track: Track | None = None
         self.song_album = None
         self.duration = self.query_duration()
         self.can_next = False
@@ -265,10 +267,15 @@ class PlayerObject(GObject.GObject):
             GLib.source_remove(self.update_timer)
         self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
 
+        if self.playing_track:
+            discord_rpc.set_activity(self.playing_track, self.query_position() / 1_000_000)
+
     def pause(self):
         """Pause playback."""
         self.playing = False
         self.pipeline.set_state(Gst.State.PAUSED)
+
+        discord_rpc.set_activity()
 
     def play_pause(self):
         """Toggle between play and pause states."""
@@ -341,11 +348,12 @@ class PlayerObject(GObject.GObject):
 
         print(music_url)
 
+        self.playing_track = track
+        self.song_album = track.album
+
         if self.playing:
             self.play()
 
-        self.playing_track = track
-        self.song_album = track.album
         self.can_next = bool(self._tracks_to_play)
         self.can_prev = bool(self.played_songs)
         self.emit("song-changed")
@@ -444,10 +452,15 @@ class PlayerObject(GObject.GObject):
 
     def seek(self, seek_fraction):
         """Seek to a position in the current track."""
+
+        position = int(seek_fraction * self.query_duration())
         self.playbin.seek_simple(
             Gst.Format.TIME,
             Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
-            int(seek_fraction * self.query_duration()))
+            position
+        )
+
+        discord_rpc.set_activity(self.playing_track, position / 1_000_000)
 
     def get_index(self):
         for index, track_id in enumerate(self.id_list):
