@@ -1,10 +1,19 @@
-import discordrpc
 from tidalapi.media import Track
 import time
+try:
+    import discordrpc
+except ImportError:
+    print("discordrpc not found, skipping")
+    discordrpc = None
 
-rpc = discordrpc.RPC(app_id=1379096506065223680)
+if discordrpc:
+    rpc = discordrpc.RPC(app_id=1379096506065223680)
 
 def set_activity(track: Track = None, offset_ms: int = 0):
+    if not discordrpc:
+        print("[discordrpc] library not installed, skipping")
+        return
+
     if track is None:
         rpc.set_activity(
             act_type=2,
