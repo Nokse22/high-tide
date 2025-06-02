@@ -30,6 +30,7 @@
     "modules" : [
         "requests.json",
         "python3-tidalapi.json",
+        "python3-discord-rpc.json",
         "blueprint-compiler.json",
         "gstreamer.json",
         "libportal.json",
