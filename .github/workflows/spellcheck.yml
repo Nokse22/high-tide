@@ -1,0 +1,16 @@
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+name: Spell Check
+jobs:
+  codespell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: codespell-project/actions-codespell@master
+        with:
+          check_filenames: true
+          skip: cargo-sources.json,.git,*.svg,*.html,*.js,*.po,*.pot,*.page,*.patch
+          ignore_words_list: gir
