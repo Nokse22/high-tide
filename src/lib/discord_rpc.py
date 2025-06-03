@@ -21,10 +21,12 @@ def set_activity(track: Track = None, offset_ms: int = 0):
             state="TIDAL gnome client",
             large_image="hightide_x1024",
             large_text="High Tide",
-            buttons=discordrpc.Button(
-                    "Get High Tide",
-                    "https://github.com/nokse22/high-tide"
-                ),
+            buttons=[
+                {
+                    "label": "Get High Tide",
+                    "url": "https://github.com/nokse22/high-tide"
+                }
+            ]
         )
     else:
         rpc.set_activity(
