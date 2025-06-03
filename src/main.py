@@ -80,7 +80,7 @@ class TidalApplication(Adw.Application):
             application_name='High Tide',
             application_icon='io.github.nokse22.HighTide',
             developer_name='Nokse',
-            version='0.1.5',
+            version='0.1.6',
             developers=['Nokse', 'Nila The Dragon', 'Dråfølin'],
             copyright='© 2023-2025 Nokse',
             license_type="GTK_LICENSE_GPL_3_0",

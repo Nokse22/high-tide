@@ -47,16 +47,27 @@
   <screenshots>
     <screenshot type="default">
       <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%201.png</image>
-      <caption>High Tide in a large window format playing the album Dreams by Fleetwood Mac</caption>
+      <caption>High Tide in a large window format playing the album `Dreams` by Fleetwood Mac</caption>
     </screenshot>
 
 	  <screenshot>
 	    <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%202.png</image>
-	    <caption>High Tide in a small window format playing Let It Happen by Tame Impala</caption>
+	    <caption>High Tide in a small window format playing `Let It Happen` by Tame Impala</caption>
 	  </screenshot>
   </screenshots>
 
   <releases>
+    <release version="0.1.6" date="2025-06-03">
+      <description translate="no">
+        <p>Use full_name of track if available</p>
+        <p>Swiss German translation</p>
+        <p>French translation</p>
+        <p>Dutch translation</p>
+        <p>Allow Turntable support</p>
+        <p>Add Discord Rich Presence integration</p>
+        <p>Improved flatpak permissions</p>
+      </description>
+    </release>
     <release version="0.1.5" date="2025-05-30">
       <description translate="no">
         <p>First public release! 🎉</p>
