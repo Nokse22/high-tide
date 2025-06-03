@@ -35,7 +35,6 @@ from . import utils
 from . import discord_rpc
 
 
-
 class RepeatType(IntEnum):
     NONE = 0
     SONG = 1
@@ -54,6 +53,8 @@ class PlayerObject(GObject.GObject):
     """Handles player logic, queue, and shuffle functionality."""
 
     current_song_index = GObject.Property(type=int, default=-1)
+    can_go_next = GObject.Property(type=bool, default=True)
+    can_go_prev = GObject.Property(type=bool, default=True)
 
     __gsignals__ = {
         'songs-list-changed': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
@@ -112,8 +113,6 @@ class PlayerObject(GObject.GObject):
         self.playing_track: Track | None = None
         self.song_album = None
         self.duration = self.query_duration()
-        self.can_next = False
-        self.can_prev = False
         self.manifest = None
         self.stream = None
         self.update_timer = None
@@ -354,8 +353,11 @@ class PlayerObject(GObject.GObject):
         if self.playing:
             self.play()
 
-        self.can_next = bool(self._tracks_to_play)
-        self.can_prev = bool(self.played_songs)
+        self.can_go_next = len(self._tracks_to_play) > 0
+        self.can_go_prev = len(self.played_songs) > 0
+        self.notify("can-go-prev")
+        self.notify("can-go-next")
+
         self.emit("song-changed")
 
     def play_next(self):

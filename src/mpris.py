@@ -204,9 +204,9 @@ class MPRIS(Server):
         ]:
             return GLib.Variant("b", True)
         elif property_name == "CanGoNext":
-            return GLib.Variant("b", self.player.can_next)
+            return GLib.Variant("b", self.player.can_go_next)
         elif property_name == "CanGoPrevious":
-            return GLib.Variant("b", self.player.can_prev)
+            return GLib.Variant("b", self.player.can_go_prev)
         elif property_name == "Identity":
             return GLib.Variant("s", "High Tide")
         elif property_name == "DesktopEntry":
@@ -287,8 +287,8 @@ class MPRIS(Server):
         changed_properties = {
             "Metadata": GLib.Variant("a{sv}", self.__metadata),
             "Position": GLib.Variant("x", self.player.query_position() / 1000),
-            "CanGoNext": GLib.Variant("b", self.player.can_next),
-            "CanGoPrevious": GLib.Variant("b", self.player.can_prev),
+            "CanGoNext": GLib.Variant("b", self.player.can_go_next),
+            "CanGoPrevious": GLib.Variant("b", self.player.can_go_prev),
         }
         self.PropertiesChanged(self.__MPRIS_PLAYER_IFACE, changed_properties, [])
 

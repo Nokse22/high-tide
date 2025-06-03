@@ -81,6 +81,8 @@ class HighTideWindow(Adw.ApplicationWindow):
     toast_overlay = Gtk.Template.Child()
     playing_track_widget = Gtk.Template.Child()
     sidebar_stack = Gtk.Template.Child()
+    go_next_button = Gtk.Template.Child()
+    go_prev_button = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -150,6 +152,14 @@ class HighTideWindow(Adw.ApplicationWindow):
             "buffering", self.on_song_buffering)
         self.player_object.connect(
             "notify::repeat-type", self.update_repeat_button)
+        self.player_object.connect(
+            "notify::can-go-next",
+            lambda *_: self.go_next_button.set_sensitive(
+                self.player_object.can_go_next))
+        self.player_object.connect(
+            "notify::can-go-prev",
+            lambda *_: self.go_prev_button.set_sensitive(
+                self.player_object.can_go_prev))
 
         self.player_object.repeat_type = self.settings.get_int("repeat")
         if self.player_object.repeat_type == RepeatType.NONE:

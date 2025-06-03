@@ -140,7 +140,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
                       clicked => $on_play_button_clicked();
                     }
 
-                    Button {
+                    Button go_next_button {
                       icon-name: "media-skip-forward-symbolic";
                       tooltip-text: _("Skip Forward");
                       valign: center;
@@ -381,6 +381,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
                     icon-name: "media-skip-forward-symbolic";
                     tooltip-text: _("Skip Forward");
                     valign: center;
+                    sensitive: bind go_next_button.sensitive;
 
                     styles [
                       "flat",
@@ -597,7 +598,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
                       toggled => $on_shuffle_button_toggled();
                     }
 
-                    Button {
+                    Button go_prev_button {
                       icon-name: "media-skip-backward-symbolic";
                       tooltip-text: _("Skip Backward");
                       valign: center;
@@ -626,6 +627,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
                       icon-name: "media-skip-forward-symbolic";
                       tooltip-text: _("Skip Forward");
                       valign: center;
+                      sensitive: bind go_next_button.sensitive;
 
                       styles [
                         "circular",
