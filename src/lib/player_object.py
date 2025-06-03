@@ -384,8 +384,15 @@ class PlayerObject(GObject.GObject):
             self.pause()
             return
 
-        track = (self._shuffled_tracks_to_play if self.shuffle else self._tracks_to_play).pop(0)
-        self.play_track(track)
+        track_list = []
+        if self.shuffle:
+            track_list = self._shuffled_tracks_to_play
+        else:
+            track_list = self._tracks_to_play
+
+        if track_list and len(track_list) > 0:
+            track = track_list.pop(0)
+            self.play_track(track)
 
     def play_previous(self):
         """Play the previous track."""
