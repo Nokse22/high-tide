@@ -64,9 +64,7 @@ class fromFunctionPage(Page):
 
     def on_edge_overshot(self, scrolled_window, pos):
         if pos == Gtk.PositionType.BOTTOM:
-            th = threading.Thread(target=self.th_load_items)
-            th.deamon = True
-            th.start()
+            threading.Thread(target=self.th_load_items).start()
 
     def _th_load_page(self):
         self.th_load_items()
