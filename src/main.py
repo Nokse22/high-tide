@@ -22,7 +22,7 @@ import sys
 from gi.repository import Gtk, Gio, Adw
 from .window import HighTideWindow
 
-from .lib import utils
+from .lib import utils, discord_rpc
 
 import threading
 
@@ -44,6 +44,7 @@ class TidalApplication(Adw.Application):
         self.create_action('download', self.on_download, ['<primary>d'])
 
         utils.init()
+        # discord_rpc.init()
 
         self.settings = Gio.Settings.new('io.github.nokse22.HighTide')
 
