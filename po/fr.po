@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-30 21:32+0200\n"
-"PO-Revision-Date: 2025-05-31 22:42+0200\n"
+"POT-Creation-Date: 2025-06-04 09:31+0200\n"
+"PO-Revision-Date: 2025-06-04 09:38+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -38,21 +38,23 @@ msgstr ""
 
 #: data/io.github.nokse22.HighTide.appdata.xml.in:50
 msgid ""
-"High Tide in a large window format playing the album Dreams by Fleetwood Mac"
+"High Tide in a large window format playing the album `Dreams` by Fleetwood "
+"Mac"
 msgstr ""
-"High Tide dans un format grande fenêtre jouant l'album Dreams de Fleetwood "
+"High Tide dans un format grande fenêtre jouant l'album `Dreams` de Fleetwood "
 "Mac"
 
 #: data/io.github.nokse22.HighTide.appdata.xml.in:55
-msgid "High Tide in a small window format playing Let It Happen by Tame Impala"
+msgid ""
+"High Tide in a small window format playing `Let It Happen` by Tame Impala"
 msgstr ""
-"High Tide dans un format petite fenêtre jouant Let It Happen de Tame Impala"
+"High Tide dans un format petite fenêtre jouant `Let It Happen` de Tame Impala"
 
-#: src/main.py:90
+#: src/main.py:91
 msgid "Donate with Ko-Fi"
 msgstr "Faire un don avec Ko-Fi"
 
-#: src/main.py:92
+#: src/main.py:93
 msgid "Donate with Github"
 msgstr "Faire un don avec GitHub"
 
@@ -64,7 +66,7 @@ msgstr "Inconnu"
 msgid "{} tracks ({})"
 msgstr "{} morceaux ({})"
 
-#: src/pages/artist_page.py:101 src/widgets/card_widget.py:141
+#: src/pages/artist_page.py:101 src/widgets/card_widget.py:139
 #: src/widgets/top_hit_widget.py:183
 msgid "Artist"
 msgstr "Artiste"
@@ -153,11 +155,11 @@ msgstr "Chargement…"
 msgid "by {}"
 msgstr "par {}"
 
-#: src/widgets/card_widget.py:93
+#: src/widgets/card_widget.py:91
 msgid "Track by {}"
 msgstr "Morceau par {}"
 
-#: src/widgets/card_widget.py:132
+#: src/widgets/card_widget.py:130
 msgid "By {}"
 msgstr "Par {}"
 
@@ -173,7 +175,7 @@ msgstr "Mix"
 msgid "Album"
 msgstr "Album"
 
-#: src/window.py:198
+#: src/window.py:208
 msgid "Playing Music"
 msgstr "Joue de la Musique"
 
@@ -183,7 +185,7 @@ msgid "Title"
 msgstr "Titre"
 
 #: data/ui/detailed_track_listing.blp:137
-#: data/ui/detailed_track_listing.blp:162 data/ui/window.blp:503
+#: data/ui/detailed_track_listing.blp:162 data/ui/window.blp:504
 msgid "Go to track radio"
 msgstr "Aller à la radio du morceau"
 
@@ -228,23 +230,43 @@ msgstr "Description de la Playlist"
 msgid "Create"
 msgstr "Créer"
 
-#: data/ui/preferences.ui:19
+#: data/ui/preferences.blp:10
+msgid "Low 96k"
+msgstr "Basse 96k"
+
+#: data/ui/preferences.blp:11
+msgid "High 320k"
+msgstr "Haute 320k"
+
+#: data/ui/preferences.blp:12
+msgid "Lossless"
+msgstr "Sans perte"
+
+#: data/ui/preferences.blp:13
+msgid "Hi-res Lossless"
+msgstr "Sans perte haute résolution"
+
+#: data/ui/preferences.blp:17
 msgid "Quality"
 msgstr "Qualité"
 
-#: data/ui/preferences.ui:37
+#: data/ui/preferences.blp:25
+msgid "Automatic"
+msgstr "Automatique"
+
+#: data/ui/preferences.blp:33
 msgid "Preferred Audio Sink"
 msgstr "Pilote audio préféré"
 
-#: data/ui/preferences.ui:46
+#: data/ui/preferences.blp:39
 msgid "Normalize volume"
 msgstr "Normaliser le volume"
 
-#: data/ui/preferences.ui:55
+#: data/ui/preferences.blp:45
 msgid "Run in the background"
 msgstr "Exécuter en arrière-plan"
 
-#: data/ui/preferences.ui:64
+#: data/ui/preferences.blp:51
 msgid "Use quadratic volume control"
 msgstr "Utiliser le contrôle de volume quadratique"
 
@@ -252,51 +274,51 @@ msgstr "Utiliser le contrôle de volume quadratique"
 msgid "Search..."
 msgstr "Rechercher…"
 
-#: data/ui/window.blp:134 data/ui/window.blp:370 data/ui/window.blp:614
+#: data/ui/window.blp:134 data/ui/window.blp:370 data/ui/window.blp:615
 msgid "Play/Pause"
 msgstr "Play/Pause"
 
-#: data/ui/window.blp:145 data/ui/window.blp:382 data/ui/window.blp:627
+#: data/ui/window.blp:145 data/ui/window.blp:382 data/ui/window.blp:628
 msgid "Skip Forward"
 msgstr "Avancer"
 
-#: data/ui/window.blp:444
+#: data/ui/window.blp:445
 msgid "No Song"
 msgstr "Pas de musique"
 
-#: data/ui/window.blp:466
+#: data/ui/window.blp:467
 msgid "Nobody"
 msgstr "Personne"
 
-#: data/ui/window.blp:491
+#: data/ui/window.blp:492
 msgid "Add/Remove from favorites"
 msgstr "Ajouter/Retirer des favoris"
 
-#: data/ui/window.blp:515
+#: data/ui/window.blp:516
 msgid "Go to album"
 msgstr "Voir l'album"
 
-#: data/ui/window.blp:527
+#: data/ui/window.blp:528
 msgid "Copy Share Link"
 msgstr "Copier le lien de partage"
 
-#: data/ui/window.blp:589
+#: data/ui/window.blp:590
 msgid "Toggle Shuffle"
 msgstr "Mode Aléatoire"
 
-#: data/ui/window.blp:602
+#: data/ui/window.blp:603
 msgid "Skip Backward"
 msgstr "Reculer"
 
-#: data/ui/window.blp:654
+#: data/ui/window.blp:656
 msgid "Player"
 msgstr "Lecteur"
 
-#: data/ui/window.blp:664 data/ui/widgets/lyrics_widget.blp:22
+#: data/ui/window.blp:666 data/ui/widgets/lyrics_widget.blp:22
 msgid "Lyrics"
 msgstr "Paroles"
 
-#: data/ui/window.blp:674 data/ui/widgets/queue_widget.blp:58
+#: data/ui/window.blp:676 data/ui/widgets/queue_widget.blp:58
 msgid "Queue"
 msgstr "File d'attente"
 
