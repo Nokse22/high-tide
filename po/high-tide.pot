@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: high-tide\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-04 09:31+0200\n"
+"POT-Creation-Date: 2025-06-04 09:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,157 +17,28 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: data/io.github.nokse22.HighTide.desktop.in:2
-#: data/io.github.nokse22.HighTide.appdata.xml.in:6
-msgid "High Tide"
+#: data/gtk/help-overlay.blp:11
+msgctxt "shortcut window"
+msgid "General"
 msgstr ""
 
-#: data/io.github.nokse22.HighTide.appdata.xml.in:7
-msgid "TIDAL client"
+#: data/gtk/help-overlay.blp:14
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
 msgstr ""
 
-#: data/io.github.nokse22.HighTide.appdata.xml.in:9
-msgid ""
-"Third party unofficial TIDAL music client. Listen to your favorite music "
-"from your desktop or mobile Linux device at the highest quality."
+#: data/gtk/help-overlay.blp:19
+msgctxt "shortcut window"
+msgid "Edit preferences"
 msgstr ""
 
-#: data/io.github.nokse22.HighTide.appdata.xml.in:50
-msgid ""
-"High Tide in a large window format playing the album `Dreams` by Fleetwood "
-"Mac"
+#: data/gtk/help-overlay.blp:24
+msgctxt "shortcut window"
+msgid "Quit"
 msgstr ""
 
-#: data/io.github.nokse22.HighTide.appdata.xml.in:55
-msgid ""
-"High Tide in a small window format playing `Let It Happen` by Tame Impala"
-msgstr ""
-
-#: src/main.py:91
-msgid "Donate with Ko-Fi"
-msgstr ""
-
-#: src/main.py:93
-msgid "Donate with Github"
-msgstr ""
-
-#: src/pages/album_page.py:61
-msgid "Unknown"
-msgstr ""
-
-#: src/pages/album_page.py:63 src/pages/playlist_page.py:79
-msgid "{} tracks ({})"
-msgstr ""
-
-#: src/pages/artist_page.py:101 src/widgets/card_widget.py:139
-#: src/widgets/top_hit_widget.py:183
-msgid "Artist"
-msgstr ""
-
-#: src/pages/artist_page.py:105
-msgid "Top Tracks"
-msgstr ""
-
-#: src/pages/artist_page.py:117 src/pages/collection_page.py:49
-#: src/pages/search_page.py:65
-msgid "Albums"
-msgstr ""
-
-#: src/pages/artist_page.py:128
-msgid "EP & Singles"
-msgstr ""
-
-#: src/pages/artist_page.py:140
-msgid "Appears On"
-msgstr ""
-
-#: src/pages/artist_page.py:151
-msgid "Similar Artists"
-msgstr ""
-
-#: src/pages/artist_page.py:180
-msgid "Bio"
-msgstr ""
-
-#: src/pages/artist_page.py:201 src/pages/track_radio_page.py:55
-msgid "Radio of {}"
-msgstr ""
-
-#: src/pages/collection_page.py:40 data/ui/window.blp:266
-msgid "Collection"
-msgstr ""
-
-#: src/pages/collection_page.py:45
-msgid "My Mixes and Radios"
-msgstr ""
-
-#: src/pages/collection_page.py:47 src/pages/search_page.py:71
-msgid "Playlists"
-msgstr ""
-
-#: src/pages/collection_page.py:51 src/pages/search_page.py:77
-msgid "Tracks"
-msgstr ""
-
-#. Adds a carousel with artists, albums and playlists
-#: src/pages/collection_page.py:53 src/pages/search_page.py:59
-msgid "Artists"
-msgstr ""
-
-#: src/pages/explore_page.py:50 data/ui/window.blp:241
-msgid "Explore"
-msgstr ""
-
-#: src/pages/explore_page.py:78
-msgid "More"
-msgstr ""
-
-#: src/pages/home_page.py:40 data/ui/window.blp:216
-msgid "Home"
-msgstr ""
-
-#: src/pages/not_logged_in_page.py:34
-msgid "Login"
-msgstr ""
-
-#: src/pages/not_logged_in_page.py:40
-msgid "Login first"
-msgstr ""
-
-#: src/pages/not_logged_in_page.py:41
-msgid "To be able to use this app you need to login with your TIDAL account."
-msgstr ""
-
-#: src/pages/page.py:47 data/ui/window.blp:190
-msgid "Loading..."
-msgstr ""
-
-#: src/pages/playlist_page.py:77 src/pages/track_radio_page.py:62
-msgid "by {}"
-msgstr ""
-
-#: src/widgets/card_widget.py:91
-msgid "Track by {}"
-msgstr ""
-
-#: src/widgets/card_widget.py:130
-msgid "By {}"
-msgstr ""
-
-#: src/widgets/top_hit_widget.py:91
-msgid "Track"
-msgstr ""
-
-#: src/widgets/top_hit_widget.py:110
-msgid "Mix"
-msgstr ""
-
-#: src/widgets/top_hit_widget.py:133 data/ui/detailed_track_listing.blp:46
+#: data/ui/detailed_track_listing.blp:46 src/widgets/top_hit_widget.py:133
 msgid "Album"
-msgstr ""
-
-#: src/window.py:208
-msgid "Playing Music"
 msgstr ""
 
 #: data/ui/detailed_track_listing.blp:62 data/ui/detailed_track_listing.blp:93
@@ -271,6 +142,22 @@ msgstr ""
 msgid "Skip Forward"
 msgstr ""
 
+#: data/ui/window.blp:190 src/pages/page.py:47
+msgid "Loading..."
+msgstr ""
+
+#: data/ui/window.blp:216 src/pages/home_page.py:40
+msgid "Home"
+msgstr ""
+
+#: data/ui/window.blp:241 src/pages/explore_page.py:50
+msgid "Explore"
+msgstr ""
+
+#: data/ui/window.blp:266 src/pages/collection_page.py:40
+msgid "Collection"
+msgstr ""
+
 #: data/ui/window.blp:445
 msgid "No Song"
 msgstr ""
@@ -366,4 +253,137 @@ msgstr ""
 
 #: data/ui/widgets/top_hit_widget.blp:18
 msgid "Top Hit"
+msgstr ""
+
+#: data/io.github.nokse22.HighTide.desktop.in:2
+#: data/io.github.nokse22.HighTide.appdata.xml.in:6
+msgid "High Tide"
+msgstr ""
+
+#: data/io.github.nokse22.HighTide.appdata.xml.in:7
+msgid "TIDAL client"
+msgstr ""
+
+#: data/io.github.nokse22.HighTide.appdata.xml.in:9
+msgid ""
+"Third party unofficial TIDAL music client. Listen to your favorite music "
+"from your desktop or mobile Linux device at the highest quality."
+msgstr ""
+
+#: data/io.github.nokse22.HighTide.appdata.xml.in:50
+msgid ""
+"High Tide in a large window format playing the album `Dreams` by Fleetwood "
+"Mac"
+msgstr ""
+
+#: data/io.github.nokse22.HighTide.appdata.xml.in:55
+msgid ""
+"High Tide in a small window format playing `Let It Happen` by Tame Impala"
+msgstr ""
+
+#: src/pages/album_page.py:61
+msgid "Unknown"
+msgstr ""
+
+#: src/pages/album_page.py:63 src/pages/playlist_page.py:79
+msgid "{} tracks ({})"
+msgstr ""
+
+#: src/pages/artist_page.py:101 src/widgets/card_widget.py:139
+#: src/widgets/top_hit_widget.py:183
+msgid "Artist"
+msgstr ""
+
+#: src/pages/artist_page.py:105
+msgid "Top Tracks"
+msgstr ""
+
+#: src/pages/artist_page.py:117 src/pages/collection_page.py:49
+#: src/pages/search_page.py:65
+msgid "Albums"
+msgstr ""
+
+#: src/pages/artist_page.py:128
+msgid "EP & Singles"
+msgstr ""
+
+#: src/pages/artist_page.py:140
+msgid "Appears On"
+msgstr ""
+
+#: src/pages/artist_page.py:151
+msgid "Similar Artists"
+msgstr ""
+
+#: src/pages/artist_page.py:180
+msgid "Bio"
+msgstr ""
+
+#: src/pages/artist_page.py:201 src/pages/track_radio_page.py:55
+msgid "Radio of {}"
+msgstr ""
+
+#: src/pages/collection_page.py:45
+msgid "My Mixes and Radios"
+msgstr ""
+
+#: src/pages/collection_page.py:47 src/pages/search_page.py:71
+msgid "Playlists"
+msgstr ""
+
+#: src/pages/collection_page.py:51 src/pages/search_page.py:77
+msgid "Tracks"
+msgstr ""
+
+#. Adds a carousel with artists, albums and playlists
+#: src/pages/collection_page.py:53 src/pages/search_page.py:59
+msgid "Artists"
+msgstr ""
+
+#: src/pages/explore_page.py:78
+msgid "More"
+msgstr ""
+
+#: src/pages/not_logged_in_page.py:34
+msgid "Login"
+msgstr ""
+
+#: src/pages/not_logged_in_page.py:40
+msgid "Login first"
+msgstr ""
+
+#: src/pages/not_logged_in_page.py:41
+msgid "To be able to use this app you need to login with your TIDAL account."
+msgstr ""
+
+#: src/pages/playlist_page.py:77 src/pages/track_radio_page.py:62
+msgid "by {}"
+msgstr ""
+
+#: src/widgets/card_widget.py:91
+msgid "Track by {}"
+msgstr ""
+
+#: src/widgets/card_widget.py:130
+msgid "By {}"
+msgstr ""
+
+#: src/widgets/top_hit_widget.py:91
+msgid "Track"
+msgstr ""
+
+#: src/widgets/top_hit_widget.py:110
+msgid "Mix"
+msgstr ""
+
+#: src/main.py:91
+msgid "Donate with Ko-Fi"
+msgstr ""
+
+#: src/main.py:93
+msgid "Donate with Github"
+msgstr ""
+
+#: src/window.py:208
+msgid "Playing Music"
 msgstr ""
