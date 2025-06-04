@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the high-tide package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: high-tide\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-30 21:32+0200\n"
+"POT-Creation-Date: 2025-06-04 09:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,18 +34,20 @@ msgstr ""
 
 #: data/io.github.nokse22.HighTide.appdata.xml.in:50
 msgid ""
-"High Tide in a large window format playing the album Dreams by Fleetwood Mac"
+"High Tide in a large window format playing the album `Dreams` by Fleetwood "
+"Mac"
 msgstr ""
 
 #: data/io.github.nokse22.HighTide.appdata.xml.in:55
-msgid "High Tide in a small window format playing Let It Happen by Tame Impala"
+msgid ""
+"High Tide in a small window format playing `Let It Happen` by Tame Impala"
 msgstr ""
 
-#: src/main.py:90
+#: src/main.py:91
 msgid "Donate with Ko-Fi"
 msgstr ""
 
-#: src/main.py:92
+#: src/main.py:93
 msgid "Donate with Github"
 msgstr ""
 
@@ -57,7 +59,7 @@ msgstr ""
 msgid "{} tracks ({})"
 msgstr ""
 
-#: src/pages/artist_page.py:101 src/widgets/card_widget.py:141
+#: src/pages/artist_page.py:101 src/widgets/card_widget.py:139
 #: src/widgets/top_hit_widget.py:183
 msgid "Artist"
 msgstr ""
@@ -144,11 +146,11 @@ msgstr ""
 msgid "by {}"
 msgstr ""
 
-#: src/widgets/card_widget.py:93
+#: src/widgets/card_widget.py:91
 msgid "Track by {}"
 msgstr ""
 
-#: src/widgets/card_widget.py:132
+#: src/widgets/card_widget.py:130
 msgid "By {}"
 msgstr ""
 
@@ -164,7 +166,7 @@ msgstr ""
 msgid "Album"
 msgstr ""
 
-#: src/window.py:198
+#: src/window.py:208
 msgid "Playing Music"
 msgstr ""
 
@@ -174,7 +176,7 @@ msgid "Title"
 msgstr ""
 
 #: data/ui/detailed_track_listing.blp:137
-#: data/ui/detailed_track_listing.blp:162 data/ui/window.blp:503
+#: data/ui/detailed_track_listing.blp:162 data/ui/window.blp:504
 msgid "Go to track radio"
 msgstr ""
 
@@ -217,23 +219,43 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
-#: data/ui/preferences.ui:19
+#: data/ui/preferences.blp:10
+msgid "Low 96k"
+msgstr ""
+
+#: data/ui/preferences.blp:11
+msgid "High 320k"
+msgstr ""
+
+#: data/ui/preferences.blp:12
+msgid "Lossless"
+msgstr ""
+
+#: data/ui/preferences.blp:13
+msgid "Hi-res Lossless"
+msgstr ""
+
+#: data/ui/preferences.blp:17
 msgid "Quality"
 msgstr ""
 
-#: data/ui/preferences.ui:37
+#: data/ui/preferences.blp:25
+msgid "Automatic"
+msgstr ""
+
+#: data/ui/preferences.blp:33
 msgid "Preferred Audio Sink"
 msgstr ""
 
-#: data/ui/preferences.ui:46
+#: data/ui/preferences.blp:39
 msgid "Normalize volume"
 msgstr ""
 
-#: data/ui/preferences.ui:55
+#: data/ui/preferences.blp:45
 msgid "Run in the background"
 msgstr ""
 
-#: data/ui/preferences.ui:64
+#: data/ui/preferences.blp:51
 msgid "Use quadratic volume control"
 msgstr ""
 
@@ -241,51 +263,51 @@ msgstr ""
 msgid "Search..."
 msgstr ""
 
-#: data/ui/window.blp:134 data/ui/window.blp:370 data/ui/window.blp:614
+#: data/ui/window.blp:134 data/ui/window.blp:370 data/ui/window.blp:615
 msgid "Play/Pause"
 msgstr ""
 
-#: data/ui/window.blp:145 data/ui/window.blp:382 data/ui/window.blp:627
+#: data/ui/window.blp:145 data/ui/window.blp:382 data/ui/window.blp:628
 msgid "Skip Forward"
 msgstr ""
 
-#: data/ui/window.blp:444
+#: data/ui/window.blp:445
 msgid "No Song"
 msgstr ""
 
-#: data/ui/window.blp:466
+#: data/ui/window.blp:467
 msgid "Nobody"
 msgstr ""
 
-#: data/ui/window.blp:491
+#: data/ui/window.blp:492
 msgid "Add/Remove from favorites"
 msgstr ""
 
-#: data/ui/window.blp:515
+#: data/ui/window.blp:516
 msgid "Go to album"
 msgstr ""
 
-#: data/ui/window.blp:527
+#: data/ui/window.blp:528
 msgid "Copy Share Link"
 msgstr ""
 
-#: data/ui/window.blp:589
+#: data/ui/window.blp:590
 msgid "Toggle Shuffle"
 msgstr ""
 
-#: data/ui/window.blp:602
+#: data/ui/window.blp:603
 msgid "Skip Backward"
 msgstr ""
 
-#: data/ui/window.blp:654
+#: data/ui/window.blp:656
 msgid "Player"
 msgstr ""
 
-#: data/ui/window.blp:664 data/ui/widgets/lyrics_widget.blp:22
+#: data/ui/window.blp:666 data/ui/widgets/lyrics_widget.blp:22
 msgid "Lyrics"
 msgstr ""
 
-#: data/ui/window.blp:674 data/ui/widgets/queue_widget.blp:58
+#: data/ui/window.blp:676 data/ui/widgets/queue_widget.blp:58
 msgid "Queue"
 msgstr ""
 

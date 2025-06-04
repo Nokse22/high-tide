@@ -20,7 +20,7 @@ data/ui/card_template.blp
 data/ui/detailed_track_listing.blp
 data/ui/login.blp
 data/ui/new_playlist.blp
-data/ui/preferences.ui
+data/ui/preferences.blp
 data/ui/search_entry.blp
 data/ui/search_filter.blp
 data/ui/window.blp
