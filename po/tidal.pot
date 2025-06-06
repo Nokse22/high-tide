@@ -1,0 +1,35 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the tidal package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tidal\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-30 19:53-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: data/io.github.nokse22.HighTide.desktop.in:3
+#: data/io.github.nokse22.HighTide.appdata.xml.in:6
+msgid "High Tide"
+msgstr ""
+
+#: data/io.github.nokse22.HighTide.appdata.xml.in:8
+msgid "TIDAL client made for GNOME"
+msgstr ""
+
+#: data/io.github.nokse22.HighTide.appdata.xml.in:10
+msgid "Sail away"
+msgstr ""
+
+#: data/io.github.nokse22.HighTide.appdata.xml.in:11
+msgid "Nokse"
+msgstr ""
