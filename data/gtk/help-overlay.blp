@@ -8,15 +8,20 @@ ShortcutsWindow help_overlay {
     max-height: 10;
 
     ShortcutsGroup {
-      title: C_('shortcut window', 'General');
+      title: C_("shortcut window", "General");
 
       ShortcutsShortcut {
-        title: C_('shortcut window', 'Show Shortcuts');
+        title: C_("shortcut window", "Show Shortcuts");
         action-name: 'win.show-help-overlay';
       }
 
       ShortcutsShortcut {
-        title: C_('shortcut window', 'Quit');
+        title: C_("shortcut window", "Edit preferences");
+        action-name: 'app.preferences';
+      }
+
+      ShortcutsShortcut {
+        title: C_("shortcut window", "Quit");
         action-name: 'app.quit';
       }
     }
