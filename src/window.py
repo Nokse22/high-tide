@@ -292,8 +292,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         if track is None:
             return
 
-        self.song_title_label.set_label(track.name)
-        self.song_title_label.set_tooltip_text(track.name)
+        track_name = track.full_name if hasattr(track, 'full_name') else track.name
+        self.song_title_label.set_label(track_name)
+        self.song_title_label.set_tooltip_text(track_name)
         self.artist_label.set_artists(track.artists)
         self.explicit_label.set_visible(track.explicit)
 
