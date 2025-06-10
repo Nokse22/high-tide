@@ -33,8 +33,10 @@ def set_activity(track: Track = None, offset_ms: int = 0):
             act_type=2,
             details=track.name,
             state=f"By {track.artist.name}",
-            large_image="hightide_x1024",
-            large_text="High Tide",
+            large_image=track.album.image() if track.album else "hightide_x1024",
+            large_text=track.album.name if track.album else "High Tide",
+            small_image="hightide_x1024" if track.album else None,
+            small_text="High Tide" if track.album else None,
             ts_start=int(time.time() * 1_000 - offset_ms),
             buttons=discordrpc.Button(
                     "Listen to this song",
