@@ -23,6 +23,7 @@ from .page import Page
 from tidalapi.album import Album
 from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
+from time import strftime, gmtime
 
 import threading
 
@@ -56,9 +57,11 @@ class HTAlbumPage(Page):
 
         builder.get_object("_title_label").set_label(self.item.name)
         builder.get_object("_first_subtitle_label").set_label(
-            "{} - {}".format(
+            "{} - {}\n{}".format(
                 self.item.artist.name,
-                self.item.release_date.strftime('%d-%m-%Y') if self.item.release_date else _("Unknown")))
+                self.item.release_date.strftime('%d-%m-%Y') if self.item.release_date else _("Unknown"),
+                strftime('%-H:%M:%S', gmtime(self.item.duration)) if self.item.duration >= 3600
+                else strftime('%-M:%S', gmtime(self.item.duration))))
         builder.get_object("_second_subtitle_label").set_label(
             _("{} tracks ({})").format(
                 self.item.num_tracks,
