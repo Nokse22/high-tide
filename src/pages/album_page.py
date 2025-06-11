@@ -29,7 +29,7 @@ from gettext import gettext as _
 
 
 class HTAlbumPage(Page):
-    __gtype_name__ = "HTAlbumPage"
+    __gtype_name__ = 'HTAlbumPage'
 
     """It is used to display an album"""
 
@@ -45,69 +45,55 @@ class HTAlbumPage(Page):
         self.set_title(self.item.name)
 
         builder = Gtk.Builder.new_from_resource(
-            "/io/github/nokse22/HighTide/ui/pages_ui/tracks_list_template.ui"
-        )
+            "/io/github/nokse22/HighTide/ui/pages_ui/tracks_list_template.ui")
 
         page_content = builder.get_object("_main")
         tracks_list_box = builder.get_object("_list_box")
-        self.signals.append(
-            (
-                tracks_list_box,
-                tracks_list_box.connect("row-activated", self.on_row_selected),
-            )
-        )
+        self.signals.append((
+            tracks_list_box,
+            tracks_list_box.connect("row-activated", self.on_row_selected)))
 
         builder.get_object("_title_label").set_label(self.item.name)
         builder.get_object("_first_subtitle_label").set_label(
             "{} - {}".format(
                 self.item.artist.name,
-                self.item.release_date.strftime("%d-%m-%Y")
-                if self.item.release_date
-                else _("Unknown"),
-            )
-        )
+                self.item.release_date.strftime('%d-%m-%Y') if self.item.release_date else _("Unknown")))
         builder.get_object("_second_subtitle_label").set_label(
             _("{} tracks ({})").format(
-                self.item.num_tracks, utils.pretty_duration(self.item.duration)
-            )
-        )
+                self.item.num_tracks,
+                utils.pretty_duration(self.item.duration)))
 
         play_btn = builder.get_object("_play_button")
-        self.signals.append(
-            (play_btn, play_btn.connect("clicked", self.on_play_button_clicked))
-        )
+        self.signals.append((
+            play_btn,
+            play_btn.connect("clicked", self.on_play_button_clicked)))
 
         shuffle_btn = builder.get_object("_shuffle_button")
-        self.signals.append(
-            (
-                shuffle_btn,
-                shuffle_btn.connect("clicked", self.on_shuffle_button_clicked),
-            )
-        )
+        self.signals.append((
+            shuffle_btn,
+            shuffle_btn.connect("clicked", self.on_shuffle_button_clicked)))
 
         in_my_collection_btn = builder.get_object("_in_my_collection_button")
-        self.signals.append(
-            (
-                in_my_collection_btn,
-                in_my_collection_btn.connect(
-                    "clicked", utils.on_in_to_my_collection_button_clicked, self.item
-                ),
-            )
-        )
+        self.signals.append((
+            in_my_collection_btn,
+            in_my_collection_btn.connect(
+                "clicked",
+                utils.on_in_to_my_collection_button_clicked, self.item)))
 
         share_button = builder.get_object("_share_button")
-        self.signals.append(
-            (
-                share_button,
-                share_button.connect("clicked", lambda *_: utils.share_this(self.item)),
-            )
-        )
+        self.signals.append((
+            share_button,
+            share_button.connect(
+                "clicked",
+                lambda *_: utils.share_this(self.item))))
 
-        if utils.is_favourited(self.item):
+        if (utils.is_favourited(self.item)):
             in_my_collection_btn.set_icon_name("heart-filled-symbolic")
 
         image = builder.get_object("_image")
-        threading.Thread(target=utils.add_image, args=(image, self.item)).start()
+        threading.Thread(
+            target=utils.add_image,
+            args=(image, self.item)).start()
 
         for index, track in enumerate(self.item.items()):
             listing = self.get_album_track_listing(track)
