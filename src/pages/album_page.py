@@ -21,7 +21,6 @@ from gi.repository import Gtk
 from ..lib import utils
 from .page import Page
 from tidalapi.album import Album
-from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 
 import threading

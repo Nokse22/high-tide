@@ -20,6 +20,8 @@ Box _main {
         _title_label.xalign: 0.5;
         _first_subtitle_label.xalign: 0.5;
         _first_subtitle_label.justify: center;
+        _second_subtitle_label.xalign: 0.5;
+        _second_subtitle_label.justify: center;
       }
     }
 
@@ -52,6 +54,10 @@ Box _main {
 
             Adw.LayoutSlot {
               id: "first-subtitle-label";
+            }
+
+            Adw.LayoutSlot {
+              id: "second-subtitle-label";
             }
 
             Adw.LayoutSlot {
@@ -109,6 +115,10 @@ Box _main {
 
           Adw.LayoutSlot {
             id: "first-subtitle-label";
+          }
+
+          Adw.LayoutSlot {
+            id: "second-subtitle-label";
           }
 
           Box {
@@ -180,6 +190,7 @@ Box _main {
 
         ellipsize: end;
         vexpand: true;
+        lines: 1;
         xalign: 0.0;
       }
 

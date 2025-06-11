@@ -280,9 +280,9 @@ def pretty_duration(secs):
     seconds = secs % 60
 
     if hours > 0:
-        return f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
+        return f"{int(hours)}:{int(minutes):02}:{int(seconds):02}"
     else:
-        return f"{int(minutes):02}:{int(seconds):02}"
+        return f"{int(minutes):2}:{int(seconds):02}"
 
     return "00:00"
 
