@@ -255,28 +255,28 @@ msgstr ""
 msgid "Top Hit"
 msgstr ""
 
-#: data/io.github.nokse22.HighTide.desktop.in:2
-#: data/io.github.nokse22.HighTide.appdata.xml.in:6
+#: data/io.github.nokse22.high-tide.desktop.in:2
+#: data/io.github.nokse22.high-tide.appdata.xml.in:6
 msgid "High Tide"
 msgstr ""
 
-#: data/io.github.nokse22.HighTide.appdata.xml.in:7
+#: data/io.github.nokse22.high-tide.appdata.xml.in:7
 msgid "TIDAL client"
 msgstr ""
 
-#: data/io.github.nokse22.HighTide.appdata.xml.in:9
+#: data/io.github.nokse22.high-tide.appdata.xml.in:9
 msgid ""
 "Third party unofficial TIDAL music client. Listen to your favorite music "
 "from your desktop or mobile Linux device at the highest quality."
 msgstr ""
 
-#: data/io.github.nokse22.HighTide.appdata.xml.in:50
+#: data/io.github.nokse22.high-tide.appdata.xml.in:50
 msgid ""
 "High Tide in a large window format playing the album `Dreams` by Fleetwood "
 "Mac"
 msgstr ""
 
-#: data/io.github.nokse22.HighTide.appdata.xml.in:55
+#: data/io.github.nokse22.high-tide.appdata.xml.in:55
 msgid ""
 "High Tide in a small window format playing `Let It Happen` by Tame Impala"
 msgstr ""

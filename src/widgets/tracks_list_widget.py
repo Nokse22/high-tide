@@ -24,7 +24,7 @@ from ..disconnectable_iface import IDisconnectable
 
 
 @Gtk.Template(
-    resource_path='/io/github/nokse22/HighTide/ui/widgets/tracks_list_widget.ui')
+    resource_path='/io/github/nokse22/high-tide/ui/widgets/tracks_list_widget.ui')
 class HTTracksListWidget(Gtk.Box, IDisconnectable):
     __gtype_name__ = 'HTTracksListWidget'
 

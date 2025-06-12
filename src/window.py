@@ -49,7 +49,7 @@ from .widgets import HTLyricsWidget
 from gettext import gettext as _
 
 
-@Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/window.ui')
+@Gtk.Template(resource_path='/io/github/nokse22/high-tide/ui/window.ui')
 class HighTideWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'HighTideWindow'
 
@@ -87,7 +87,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.settings = Gio.Settings.new('io.github.nokse22.HighTide')
+        self.settings = Gio.Settings.new('io.github.nokse22.high-tide')
 
         self.settings.bind(
             "window-width", self,
