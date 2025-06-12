@@ -336,6 +336,49 @@ def add_image(widget, item, cancellable=Gio.Cancellable.new()):
         _add_image, widget, get_image_url(item), cancellable)
 
 
+def get_video_cover_url(item):
+    if hasattr(item, "id"):
+        file_path = Path(f"{IMG_DIR}/{item.id}.mp4")
+    else:
+        file_path = Path(f"{IMG_DIR}/{uuid.uuid4()}.mp4")
+
+    if file_path.is_file():
+        return str(file_path)
+
+    try:
+        video_url = item.video(dimensions=640)
+        response = requests.get(video_url)
+    except Exception as e:
+        print(e)
+        return None
+    if response.status_code == 200:
+        picture_data = response.content
+
+        with open(file_path, "wb") as file:
+            file.write(picture_data)
+
+    return str(file_path)
+
+
+def add_video_cover(widget, videoplayer, item, cancellable=Gio.Cancellable.new()):
+    """Retrieves and adds an video"""
+
+    if cancellable is None:
+        cancellable = Gio.Cancellable.new()
+
+    def _add_video_cover(widget, videoplayer, file_path, cancellable):
+        if not cancellable.is_cancelled() and file_path:
+            videoplayer.pause()
+            videoplayer.clear()
+            videoplayer.set_loop(True) 
+            videoplayer.set_filename(file_path)
+            widget.set_paintable(videoplayer)
+            videoplayer.play()
+
+    GLib.idle_add(
+        _add_video_cover, widget, videoplayer, get_video_cover_url(item), cancellable)
+
+
 def add_image_to_avatar(widget, item, cancellable=Gio.Cancellable.new()):
     """Same ad the previous function, but for Adwaita's avatar widgets"""
 

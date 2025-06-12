@@ -195,6 +195,8 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.image_canc = None
 
+        self.videoplayer = Gtk.MediaFile.new()
+
         self.queue_widget_updated = False
 
         self.secret_store = SecretStore(self.session)
@@ -313,9 +315,19 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.image_canc.cancel()
             self.image_canc = Gio.Cancellable.new()
 
-        threading.Thread(
-            target=utils.add_picture,
-            args=(self.playing_track_picture, album, self.image_canc)).start()
+        # Remove old video cover should maybe be threaded
+        self.videoplayer.pause()
+        self.videoplayer.clear()
+
+        if album.video_cover:
+            threading.Thread(
+                target=utils.add_video_cover,
+                args=(self.playing_track_picture, self.videoplayer, album, self.image_canc)).start()
+        else:
+            threading.Thread(
+                target=utils.add_picture,
+                args=(self.playing_track_picture, album, self.image_canc)).start()
+
 
         threading.Thread(
             target=utils.add_image,
