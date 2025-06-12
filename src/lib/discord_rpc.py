@@ -3,15 +3,16 @@ import time
 try:
     import pypresence
 except ImportError:
-    print("discordrpc not found, skipping")
+    print("pypresence not found, skipping")
     pypresence = None
 
 if pypresence:
     rpc = pypresence.Presence(client_id=1379096506065223680)
     rpc.connect()
+    set_activity()
 
 def set_activity(track: Track|None = None, offset_ms: int = 0):
-    if not pypresence:
+    if pypresence is None:
         print("[pypresence] library not installed, skipping")
         return
 
