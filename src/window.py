@@ -209,6 +209,8 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.portal.set_background_status(_("Playing Music"))
 
+        self.connect("notify::is-active", self.stop_video_in_background)
+
     #
     #   LOGIN
     #
@@ -360,6 +362,18 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.settings.set_int(
                 "last-playing-index",
                 self.player_object.get_index())
+
+
+    def stop_video_in_background(self, window, param):
+        album = self.player_object.song_album
+        if not album or not album.video_cover:
+            return
+
+        if self.is_active():
+            self.videoplayer.play()
+        else: 
+            self.videoplayer.pause()
+            
 
     def set_quality_label(self):
         codec = None
