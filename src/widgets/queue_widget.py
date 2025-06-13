@@ -26,7 +26,7 @@ from ..widgets import HTGenericTrackWidget
 
 
 @Gtk.Template(
-    resource_path='/io/github/nokse22/HighTide/ui/widgets/queue_widget.ui')
+    resource_path='/io/github/nokse22/high-tide/ui/widgets/queue_widget.ui')
 class HTQueueWidget(Gtk.Box):
     __gtype_name__ = 'HTQueueWidget'
 

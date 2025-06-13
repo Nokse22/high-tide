@@ -136,7 +136,7 @@ class MPRIS(Server):
 
     __MPRIS_IFACE = "org.mpris.MediaPlayer2"
     __MPRIS_PLAYER_IFACE = "org.mpris.MediaPlayer2.Player"
-    __MPRIS_HIGH_TIDE = "org.mpris.MediaPlayer2.io.github.nokse22.HighTide"
+    __MPRIS_HIGH_TIDE = "org.mpris.MediaPlayer2.io.github.nokse22.high-tide"
     __MPRIS_PATH = "/org/mpris/MediaPlayer2"
 
     def __init__(self, player):
@@ -210,7 +210,7 @@ class MPRIS(Server):
         elif property_name == "Identity":
             return GLib.Variant("s", "High Tide")
         elif property_name == "DesktopEntry":
-            return GLib.Variant("s", "io.github.nokse22.HighTide")
+            return GLib.Variant("s", "io.github.nokse22.high-tide")
         elif property_name == "PlaybackStatus":
             return GLib.Variant("s", self._get_status())
         elif property_name == "Metadata":

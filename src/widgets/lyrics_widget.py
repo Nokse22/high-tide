@@ -63,7 +63,7 @@ class LineItemFactory(Gtk.SignalListItemFactory):
 
 
 @Gtk.Template(
-    resource_path='/io/github/nokse22/HighTide/ui/widgets/lyrics_widget.ui')
+    resource_path='/io/github/nokse22/high-tide/ui/widgets/lyrics_widget.ui')
 class HTLyricsWidget(Gtk.Box, IDisconnectable):
     __gtype_name__ = 'HTLyricsWidget'
 

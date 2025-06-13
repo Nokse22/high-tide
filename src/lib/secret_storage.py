@@ -20,12 +20,12 @@ class SecretStore():
         }
 
         self.schema = Secret.Schema.new(
-            "io.github.nokse22.HighTide",
+            "io.github.nokse22.high-tide",
             Secret.SchemaFlags.NONE,
             self.attributes
         )
 
-        self.key = "HighTide-login"
+        self.key = "high-tide-login"
 
         password = Secret.password_lookup_sync(
             self.schema,
