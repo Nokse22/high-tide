@@ -31,7 +31,7 @@ from gettext import gettext as _
 
 
 @Gtk.Template(
-    resource_path='/io/github/nokse22/HighTide/ui/widgets/generic_track_widget.ui')
+    resource_path='/io/github/nokse22/high-tide/ui/widgets/generic_track_widget.ui')
 class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     __gtype_name__ = 'HTGenericTrackWidget'
 

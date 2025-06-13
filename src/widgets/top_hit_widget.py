@@ -34,7 +34,7 @@ import threading
 from gettext import gettext as _
 
 @Gtk.Template(
-    resource_path='/io/github/nokse22/HighTide/ui/widgets/top_hit_widget.ui')
+    resource_path='/io/github/nokse22/high-tide/ui/widgets/top_hit_widget.ui')
 class HTTopHitWidget(Gtk.Box, IDisconnectable):
     __gtype_name__ = 'HTTopHitWidget'
 

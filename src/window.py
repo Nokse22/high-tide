@@ -49,7 +49,7 @@ from .widgets import HTLyricsWidget
 from gettext import gettext as _
 
 
-@Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/window.ui')
+@Gtk.Template(resource_path='/io/github/nokse22/high-tide/ui/window.ui')
 class HighTideWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'HighTideWindow'
 
@@ -84,10 +84,12 @@ class HighTideWindow(Adw.ApplicationWindow):
     go_next_button = Gtk.Template.Child()
     go_prev_button = Gtk.Template.Child()
 
+    app_id_dialog = Gtk.Template.Child()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.settings = Gio.Settings.new('io.github.nokse22.HighTide')
+        self.settings = Gio.Settings.new('io.github.nokse22.high-tide')
 
         self.settings.bind(
             "window-width", self,
@@ -210,6 +212,22 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.portal.set_background_status(_("Playing Music"))
 
         self.connect("notify::is-active", self.stop_video_in_background)
+
+        if not self.settings.get_boolean("app-id-change-understood"):
+            self.app_id_dialog.present(self)
+
+    @Gtk.Template.Callback("on_app_id_response_cb")
+    def on_app_id_response_cb(self, dialog, response):
+        self.app_id_dialog.close()
+
+    @Gtk.Template.Callback("on_app_id_check_toggled_cb")
+    def on_app_id_check_toggled_cb(self, check_btn):
+        self.app_id_dialog.set_response_enabled(
+            "close", check_btn.get_active())
+
+    @Gtk.Template.Callback("on_app_id_closed_cb")
+    def on_app_id_closed_cb(self, dialog):
+        self.settings.set_boolean("app-id-change-understood", True)
 
     #
     #   LOGIN

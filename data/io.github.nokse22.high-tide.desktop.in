@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=High Tide
 Exec=high-tide %U
-Icon=io.github.nokse22.HighTide
+Icon=io.github.nokse22.high-tide
 Terminal=false
 Type=Application
 Categories=GNOME;GTK;Music;Audio;AudioVideo;
