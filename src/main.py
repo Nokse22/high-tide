@@ -33,7 +33,7 @@ class TidalApplication(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
-        super().__init__(application_id='io.github.nokse22.HighTide',
+        super().__init__(application_id='io.github.nokse22.high-tide',
                          flags=Gio.ApplicationFlags.HANDLES_OPEN)
         self.create_action(
             'quit', lambda *_: self.quit(), ['<primary>q', '<primary>w'])
@@ -45,7 +45,7 @@ class TidalApplication(Adw.Application):
 
         utils.init()
 
-        self.settings = Gio.Settings.new('io.github.nokse22.HighTide')
+        self.settings = Gio.Settings.new('io.github.nokse22.high-tide')
 
         self.preferences = None
 
@@ -77,7 +77,7 @@ class TidalApplication(Adw.Application):
     def on_about_action(self, widget, *args):
         about = Adw.AboutDialog(
             application_name='High Tide',
-            application_icon='io.github.nokse22.HighTide',
+            application_icon='io.github.nokse22.high-tide',
             developer_name='Nokse',
             version='0.1.6',
             developers=['Nokse', 'Nila The Dragon', 'Dråfølin'],
@@ -98,7 +98,7 @@ class TidalApplication(Adw.Application):
 
         if not self.preferences:
             builder = Gtk.Builder.new_from_resource(
-                "/io/github/nokse22/HighTide/ui/preferences.ui")
+                "/io/github/nokse22/high-tide/ui/preferences.ui")
 
             builder.get_object("_quality_row").set_selected(
                 self.settings.get_int("quality"))

@@ -59,7 +59,7 @@ class HTExplorePage(Page):
             return
 
         builder = Gtk.Builder.new_from_resource(
-            "/io/github/nokse22/HighTide/ui/search_entry.ui")
+            "/io/github/nokse22/high-tide/ui/search_entry.ui")
         search_entry = builder.get_object("search_entry")
         self.signals.append((
             search_entry,

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-	<id>io.github.nokse22.HighTide</id>
+	<id>io.github.nokse22.high-tide</id>
+  <provides>
+    <id>io.github.nokse22.HighTide</id>
+  </provides>
 	<metadata_license>CC0-1.0</metadata_license>
 	<project_license>GPL-3.0-or-later</project_license>
 	<name>High Tide</name>
@@ -25,16 +28,19 @@
     <color type="primary" scheme_preference="dark">#24C9CB</color>
   </branding>
 
-  <launchable type="desktop-id">io.github.nokse22.HighTide.desktop</launchable>
+  <launchable type="desktop-id">io.github.nokse22.high-tide.desktop</launchable>
 
   <url type="homepage">https://github.com/Nokse22/high-tide</url>
   <url type="bugtracker">https://github.com/Nokse22/high-tide/issues</url>
   <url type="vcs-browser">https://github.com/Nokse22/high-tide</url>
   <url type="translate">https://github.com/Nokse22/high-tide/tree/master/po</url>
   <url type="donation">https://ko-fi.com/nokse22</url>
+  <url type="contact">https://matrix.to/#/#high-tide:matrix.org</url>
+  <url type="contribute">https://github.com/Nokse22/high-tide/blob/master/CONTRIBUTING.md</url>
+  <url type="help">https://matrix.to/#/#high-tide:matrix.org</url>
 
   <translation type="gettext">high-tide</translation>
-  
+
   <recommends>
     <control>keyboard</control>
     <control>pointing</control>

@@ -1,6 +1,6 @@
 desktop_file = i18n.merge_file(
-        input: 'io.github.nokse22.HighTide.desktop.in',
-       output: 'io.github.nokse22.HighTide.desktop',
+        input: 'io.github.nokse22.high-tide.desktop.in',
+       output: 'io.github.nokse22.high-tide.desktop',
          type: 'desktop',
        po_dir: '../po',
       install: true,
@@ -35,8 +35,8 @@ blueprints = custom_target('blueprints',
 )
 
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
-gnome.compile_resources('HighTide',
-  'HighTide.gresource.xml',
+gnome.compile_resources('high-tide',
+  'high-tide.gresource.xml',
   gresource_bundle: true,
   install: true,
   install_dir: pkgdatadir,
@@ -49,8 +49,8 @@ if desktop_utils.found()
 endif
 
 appstream_file = i18n.merge_file(
-        input: 'io.github.nokse22.HighTide.appdata.xml.in',
-       output: 'io.github.nokse22.HighTide.appdata.xml',
+        input: 'io.github.nokse22.high-tide.appdata.xml.in',
+       output: 'io.github.nokse22.high-tide.appdata.xml',
        po_dir: '../po',
       install: true,
   install_dir: join_paths(get_option('datadir'), 'appdata')
@@ -61,7 +61,7 @@ if appstream_util.found()
   test('Validate appstream file', appstream_util, args: ['validate', appstream_file])
 endif
 
-install_data('io.github.nokse22.HighTide.gschema.xml',
+install_data('io.github.nokse22.high-tide.gschema.xml',
   install_dir: join_paths(get_option('datadir'), 'glib-2.0/schemas')
 )
 

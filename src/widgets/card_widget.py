@@ -36,7 +36,7 @@ from gettext import gettext as _
 
 
 @Gtk.Template(
-    resource_path='/io/github/nokse22/HighTide/ui/widgets/card_widget.ui')
+    resource_path='/io/github/nokse22/high-tide/ui/widgets/card_widget.ui')
 class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
     __gtype_name__ = 'HTCardWidget'
 

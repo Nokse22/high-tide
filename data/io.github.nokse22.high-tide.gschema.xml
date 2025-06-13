@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="tidal">
-	<schema id="io.github.nokse22.HighTide" path="/io/github/nokse22/tidal/">
+	<schema id="io.github.nokse22.high-tide" path="/io/github/nokse22/tidal/">
 	  <key name="window-width" type="i">
       <default>1000</default>
     </key>
@@ -36,6 +36,9 @@
       <default>false</default>
     </key>
 	  <key name="quadratic-volume" type="b">
+      <default>false</default>
+    </key>
+	  <key name="app-id-change-understood" type="b">
       <default>false</default>
     </key>
 	</schema>

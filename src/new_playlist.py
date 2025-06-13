@@ -26,7 +26,7 @@ import tidalapi
 
 from .lib import utils
 
-@Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/new_playlist.ui')
+@Gtk.Template(resource_path='/io/github/nokse22/high-tide/ui/new_playlist.ui')
 class NewPlaylistWindow(Adw.Dialog):
     __gtype_name__ = 'NewPlaylistWindow'
 

@@ -26,7 +26,7 @@ from ..disconnectable_iface import IDisconnectable
 
 
 @Gtk.Template(
-    resource_path='/io/github/nokse22/HighTide/ui/widgets/carousel_widget.ui')
+    resource_path='/io/github/nokse22/high-tide/ui/widgets/carousel_widget.ui')
 class HTCarouselWidget(Gtk.Box, IDisconnectable):
     __gtype_name__ = 'HTCarouselWidget'
 

@@ -48,7 +48,7 @@ class HTPlaylistPage(Page):
         self.set_title(self.item.name)
 
         builder = Gtk.Builder.new_from_resource(
-            "/io/github/nokse22/HighTide/ui/pages_ui/tracks_list_template.ui")
+            "/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui")
 
         page_content = builder.get_object("_main")
         tracks_list_box = builder.get_object("_list_box")
