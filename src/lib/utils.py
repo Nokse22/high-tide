@@ -287,17 +287,23 @@ def pretty_duration(secs):
     return "00:00"
 
 
-def get_image_url(item):
+def get_best_dimensions(widget):
+    edge = widget.get_height()
+    dimensions = [80, 160, 320, 640, 1280]
+    return next((x for x in dimensions if x > edge), dimensions[-1])
+
+
+def get_image_url(item, dimensions=320):
     if hasattr(item, "id"):
-        file_path = Path(f"{IMG_DIR}/{item.id}.jpg")
+        file_path = Path(f"{IMG_DIR}/{item.id}_{dimensions}.jpg")
     else:
-        file_path = Path(f"{IMG_DIR}/{uuid.uuid4()}.jpg")
+        file_path = Path(f"{IMG_DIR}/{uuid.uuid4()}_{dimensions}.jpg")
 
     if file_path.is_file():
         return str(file_path)
 
     try:
-        picture_url = item.image()
+        picture_url = item.image(dimensions=dimensions)
         response = requests.get(picture_url)
     except Exception as e:
         print(e)
@@ -322,7 +328,7 @@ def add_picture(widget, item, cancellable=Gio.Cancellable.new()):
             widget.set_filename(file_path)
 
     GLib.idle_add(
-        _add_picture, widget, get_image_url(item), cancellable)
+        _add_picture, widget, get_image_url(item, get_best_dimensions(widget)), cancellable)
 
 
 def add_image(widget, item, cancellable=Gio.Cancellable.new()):
@@ -336,17 +342,17 @@ def add_image(widget, item, cancellable=Gio.Cancellable.new()):
         _add_image, widget, get_image_url(item), cancellable)
 
 
-def get_video_cover_url(item):
+def get_video_cover_url(item, dimensions=640):
     if hasattr(item, "id"):
-        file_path = Path(f"{IMG_DIR}/{item.id}.mp4")
+        file_path = Path(f"{IMG_DIR}/{item.id}_{dimensions}.mp4")
     else:
-        file_path = Path(f"{IMG_DIR}/{uuid.uuid4()}.mp4")
+        file_path = Path(f"{IMG_DIR}/{uuid.uuid4()}_{dimensions}.mp4")
 
     if file_path.is_file():
         return str(file_path)
 
     try:
-        video_url = item.video(dimensions=640)
+        video_url = item.video(dimensions=dimensions)
         response = requests.get(video_url)
     except Exception as e:
         print(e)
@@ -368,15 +374,13 @@ def add_video_cover(widget, videoplayer, item, cancellable=Gio.Cancellable.new()
 
     def _add_video_cover(widget, videoplayer, file_path, cancellable):
         if not cancellable.is_cancelled() and file_path:
-            videoplayer.pause()
-            videoplayer.clear()
             videoplayer.set_loop(True) 
             videoplayer.set_filename(file_path)
             widget.set_paintable(videoplayer)
             videoplayer.play()
 
     GLib.idle_add(
-        _add_video_cover, widget, videoplayer, get_video_cover_url(item), cancellable)
+        _add_video_cover, widget, videoplayer, get_video_cover_url(item, get_best_dimensions(widget)), cancellable)
 
 
 def add_image_to_avatar(widget, item, cancellable=Gio.Cancellable.new()):
