@@ -290,7 +290,14 @@ def pretty_duration(secs):
 def get_best_dimensions(widget):
     edge = widget.get_height()
     dimensions = [80, 160, 320, 640, 1280]
-    return next((x for x in dimensions if x > edge), dimensions[-1])
+    # The function for fractional scaling is not availible in GTKWidget
+    scale = 1.0
+    native = widget.get_native()
+    if native:
+        surface = native.get_surface()
+        if surface:
+            scale = surface.get_scale()
+    return next((x for x in dimensions if x > (edge * scale)), dimensions[-1])
 
 
 def get_image_url(item, dimensions=320):
