@@ -38,5 +38,8 @@
 	  <key name="quadratic-volume" type="b">
       <default>false</default>
     </key>
+	  <key name="app-id-change-understood" type="b">
+      <default>false</default>
+    </key>
 	</schema>
 </schemalist>

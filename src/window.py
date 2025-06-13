@@ -84,6 +84,8 @@ class HighTideWindow(Adw.ApplicationWindow):
     go_next_button = Gtk.Template.Child()
     go_prev_button = Gtk.Template.Child()
 
+    app_id_dialog = Gtk.Template.Child()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -206,6 +208,22 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.portal = Xdp.Portal()
 
         self.portal.set_background_status(_("Playing Music"))
+
+        if not self.settings.get_boolean("app-id-change-understood"):
+            self.app_id_dialog.present(self)
+
+    @Gtk.Template.Callback("on_app_id_response_cb")
+    def on_app_id_response_cb(self, dialog, response):
+        self.app_id_dialog.close()
+
+    @Gtk.Template.Callback("on_app_id_check_toggled_cb")
+    def on_app_id_check_toggled_cb(self, check_btn):
+        self.app_id_dialog.set_response_enabled(
+            "close", check_btn.get_active())
+
+    @Gtk.Template.Callback("on_app_id_closed_cb")
+    def on_app_id_closed_cb(self, dialog):
+        self.settings.set_boolean("app-id-change-understood", True)
 
     #
     #   LOGIN
