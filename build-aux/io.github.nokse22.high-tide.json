@@ -1,10 +1,10 @@
 {
-    "app-id" : "io.github.nokse22.high-tide",
-    "runtime" : "org.gnome.Platform",
-    "runtime-version" : "48",
-    "sdk" : "org.gnome.Sdk",
-    "command" : "high-tide",
-    "finish-args" : [
+    "app-id": "io.github.nokse22.high-tide",
+    "runtime": "org.gnome.Platform",
+    "runtime-version": "48",
+    "sdk": "org.gnome.Sdk",
+    "command": "high-tide",
+    "finish-args": [
         "--share=network",
         "--share=ipc",
         "--socket=fallback-x11",
@@ -12,9 +12,9 @@
         "--socket=wayland",
         "--socket=pulseaudio",
         "--filesystem=xdg-run/pipewire-0:ro",
-        "--filesystem=xdg-run/discord-ipc-0:ro"
+        "--filesystem=xdg-run/discord-ipc-0"
     ],
-    "cleanup" : [
+    "cleanup": [
         "/include",
         "/lib/pkgconfig",
         "/man",
@@ -25,23 +25,23 @@
         "*.la",
         "*.a"
     ],
-    "modules" : [
+    "modules": [
         "python3-tidalapi.json",
         "python3-pypresence.json",
         "blueprint-compiler.json",
         "gstreamer.json",
         "libportal.json",
         {
-            "name" : "high-tide",
-            "builddir" : true,
-            "buildsystem" : "meson",
-            "sources" : [
+            "name": "high-tide",
+            "builddir": true,
+            "buildsystem": "meson",
+            "sources": [
                 {
-                    "type" : "dir",
-		    "path": "../."
+                    "type": "dir",
+                    "path": "../."
                 }
             ],
-            "config-opts" : [
+            "config-opts": [
                 "--libdir=lib"
             ]
         }
