@@ -11,7 +11,8 @@
         "--device=dri",
         "--socket=wayland",
         "--socket=pulseaudio",
-        "--filesystem=xdg-run/pipewire-0:ro"
+        "--filesystem=xdg-run/pipewire-0:ro",
+        "--filesystem=xdg-run/discord-ipc-0:ro"
     ],
     "cleanup" : [
         "/include",
@@ -26,7 +27,7 @@
     ],
     "modules" : [
         "python3-tidalapi.json",
-        "python3-discord-rpc.json",
+        "python3-pypresence.json",
         "blueprint-compiler.json",
         "gstreamer.json",
         "libportal.json",
