@@ -47,13 +47,13 @@ If you want/need locales, please build from source.
 
 ### ⚡ From source (binary)
 
-You just need to clone the repository, and build with mason.
+You just need to clone the repository, and build with meson.
 
 ```sh
 git clone https://github.com/Nokse22/high-tide.git
-mason builddir
-mason compile -C builddir
-mason install -C builddir
+meson builddir
+meson compile -C builddir
+meson install -C builddir
 ```
 
 Or open the project in GNOME Builder and click "Run Project".
