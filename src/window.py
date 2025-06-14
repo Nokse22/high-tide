@@ -603,11 +603,15 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.shuffle_button.set_active(self.player_object.shuffle)
 
     def update_slider(self, *args):
-        """Called on a timer, it updates the progress bar and
-            adds the song duration and position."""
+        """Update the progress bar and playback information.
+
+        Called periodically to update the progress bar, song duration,
+        current position and volume level.
+        """
         self.duration = self.player_object.query_duration()
         end_value = self.duration / Gst.SECOND
 
+        self.volume_button.get_adjustment().set_value(self.player_object.query_volume())
         position = self.player_object.query_position(default=None)
         if position is None:
             return
