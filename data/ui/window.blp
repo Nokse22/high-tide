@@ -3,7 +3,7 @@ using Adw 1;
 
 Adw.AlertDialog app_id_dialog {
   heading: _("We Changed App ID");
-  body: "We had to change the app ID for High Tide, if you had it installed before as Flatpak make sure to remove the old version with this command:";
+  body: _("We had to change the app ID for High Tide, if you had it installed before as Flatpak make sure to remove the old version with this command:");
   can-close: bind check_btn.active;
   response => $on_app_id_response_cb();
   closed => $on_app_id_closed_cb();

@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the high-tide package.
+# This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: high-tide\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-04 09:47+0200\n"
+"POT-Creation-Date: 2025-06-14 19:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,7 +47,7 @@ msgid "Title"
 msgstr ""
 
 #: data/ui/detailed_track_listing.blp:137
-#: data/ui/detailed_track_listing.blp:162 data/ui/window.blp:504
+#: data/ui/detailed_track_listing.blp:162 data/ui/window.blp:528
 msgid "Go to track radio"
 msgstr ""
 
@@ -90,116 +90,142 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
-#: data/ui/preferences.blp:10
-msgid "Low 96k"
+#: data/ui/preferences.blp:7
+msgid "Audio"
 msgstr ""
 
 #: data/ui/preferences.blp:11
-msgid "High 320k"
+msgid "Low 96k"
 msgstr ""
 
 #: data/ui/preferences.blp:12
-msgid "Lossless"
+msgid "High 320k"
 msgstr ""
 
 #: data/ui/preferences.blp:13
+msgid "Lossless"
+msgstr ""
+
+#: data/ui/preferences.blp:14
 msgid "Hi-res Lossless"
 msgstr ""
 
-#: data/ui/preferences.blp:17
+#: data/ui/preferences.blp:18
 msgid "Quality"
 msgstr ""
 
-#: data/ui/preferences.blp:25
+#: data/ui/preferences.blp:23
 msgid "Automatic"
 msgstr ""
 
-#: data/ui/preferences.blp:33
+#: data/ui/preferences.blp:31
 msgid "Preferred Audio Sink"
 msgstr ""
 
-#: data/ui/preferences.blp:39
+#: data/ui/preferences.blp:34
 msgid "Normalize volume"
 msgstr ""
 
-#: data/ui/preferences.blp:45
+#: data/ui/preferences.blp:39
+msgid "App"
+msgstr ""
+
+#: data/ui/preferences.blp:41
 msgid "Run in the background"
 msgstr ""
 
-#: data/ui/preferences.blp:51
+#: data/ui/preferences.blp:44
 msgid "Use quadratic volume control"
+msgstr ""
+
+#: data/ui/preferences.blp:47
+msgid "Display animated covers"
 msgstr ""
 
 #: data/ui/search_entry.blp:4
 msgid "Search..."
 msgstr ""
 
-#: data/ui/window.blp:134 data/ui/window.blp:370 data/ui/window.blp:615
+#: data/ui/window.blp:5
+msgid "We Changed App ID"
+msgstr ""
+
+#: data/ui/window.blp:6
+msgid ""
+"We had to change the app ID for High Tide, if you had it installed before as "
+"Flatpak make sure to remove the old version with this command:"
+msgstr ""
+
+#: data/ui/window.blp:18
+msgid "I understood"
+msgstr ""
+
+#: data/ui/window.blp:158 data/ui/window.blp:394 data/ui/window.blp:639
 msgid "Play/Pause"
 msgstr ""
 
-#: data/ui/window.blp:145 data/ui/window.blp:382 data/ui/window.blp:628
+#: data/ui/window.blp:169 data/ui/window.blp:406 data/ui/window.blp:652
 msgid "Skip Forward"
 msgstr ""
 
-#: data/ui/window.blp:190 src/pages/page.py:47
+#: data/ui/window.blp:214 src/pages/page.py:47
 msgid "Loading..."
 msgstr ""
 
-#: data/ui/window.blp:216 src/pages/home_page.py:40
+#: data/ui/window.blp:240 src/pages/home_page.py:40
 msgid "Home"
 msgstr ""
 
-#: data/ui/window.blp:241 src/pages/explore_page.py:50
+#: data/ui/window.blp:265 src/pages/explore_page.py:50
 msgid "Explore"
 msgstr ""
 
-#: data/ui/window.blp:266 src/pages/collection_page.py:40
+#: data/ui/window.blp:290 src/pages/collection_page.py:40
 msgid "Collection"
 msgstr ""
 
-#: data/ui/window.blp:445
+#: data/ui/window.blp:469
 msgid "No Song"
 msgstr ""
 
-#: data/ui/window.blp:467
+#: data/ui/window.blp:491
 msgid "Nobody"
 msgstr ""
 
-#: data/ui/window.blp:492
+#: data/ui/window.blp:516
 msgid "Add/Remove from favorites"
 msgstr ""
 
-#: data/ui/window.blp:516
+#: data/ui/window.blp:540
 msgid "Go to album"
 msgstr ""
 
-#: data/ui/window.blp:528
+#: data/ui/window.blp:552
 msgid "Copy Share Link"
 msgstr ""
 
-#: data/ui/window.blp:590
+#: data/ui/window.blp:614
 msgid "Toggle Shuffle"
 msgstr ""
 
-#: data/ui/window.blp:603
+#: data/ui/window.blp:627
 msgid "Skip Backward"
 msgstr ""
 
-#: data/ui/window.blp:656
+#: data/ui/window.blp:680
 msgid "Player"
 msgstr ""
 
-#: data/ui/window.blp:666 data/ui/widgets/lyrics_widget.blp:22
+#: data/ui/window.blp:690 data/ui/widgets/lyrics_widget.blp:22
 msgid "Lyrics"
 msgstr ""
 
-#: data/ui/window.blp:676 data/ui/widgets/queue_widget.blp:58
+#: data/ui/window.blp:700 data/ui/widgets/queue_widget.blp:58
 msgid "Queue"
 msgstr ""
 
 #: data/ui/pages_ui/artist_page_template.blp:174
-#: data/ui/pages_ui/tracks_list_template.blp:194
+#: data/ui/pages_ui/tracks_list_template.blp:205
 msgid "Copy Share URL"
 msgstr ""
 
@@ -256,36 +282,36 @@ msgid "Top Hit"
 msgstr ""
 
 #: data/io.github.nokse22.high-tide.desktop.in:2
-#: data/io.github.nokse22.high-tide.appdata.xml.in:6
+#: data/io.github.nokse22.high-tide.appdata.xml.in:9
 msgid "High Tide"
 msgstr ""
 
-#: data/io.github.nokse22.high-tide.appdata.xml.in:7
+#: data/io.github.nokse22.high-tide.appdata.xml.in:10
 msgid "TIDAL client"
 msgstr ""
 
-#: data/io.github.nokse22.high-tide.appdata.xml.in:9
+#: data/io.github.nokse22.high-tide.appdata.xml.in:12
 msgid ""
 "Third party unofficial TIDAL music client. Listen to your favorite music "
 "from your desktop or mobile Linux device at the highest quality."
 msgstr ""
 
-#: data/io.github.nokse22.high-tide.appdata.xml.in:50
+#: data/io.github.nokse22.high-tide.appdata.xml.in:56
 msgid ""
 "High Tide in a large window format playing the album `Dreams` by Fleetwood "
 "Mac"
 msgstr ""
 
-#: data/io.github.nokse22.high-tide.appdata.xml.in:55
+#: data/io.github.nokse22.high-tide.appdata.xml.in:61
 msgid ""
 "High Tide in a small window format playing `Let It Happen` by Tame Impala"
 msgstr ""
 
-#: src/pages/album_page.py:61
+#: src/pages/album_page.py:60
 msgid "Unknown"
 msgstr ""
 
-#: src/pages/album_page.py:63 src/pages/playlist_page.py:79
+#: src/pages/album_page.py:62 src/pages/playlist_page.py:79
 msgid "{} tracks ({})"
 msgstr ""
 
@@ -376,14 +402,14 @@ msgstr ""
 msgid "Mix"
 msgstr ""
 
-#: src/main.py:91
+#: src/main.py:93
 msgid "Donate with Ko-Fi"
 msgstr ""
 
-#: src/main.py:93
+#: src/main.py:95
 msgid "Donate with Github"
 msgstr ""
 
-#: src/window.py:208
+#: src/window.py:217
 msgid "Playing Music"
 msgstr ""
