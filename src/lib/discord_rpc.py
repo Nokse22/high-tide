@@ -11,6 +11,7 @@ connected: bool = False
 rpc: pypresence.Presence | None = None
 logger = logging.getLogger(__name__)
 
+
 def connect():
     global connected
 
@@ -19,7 +20,7 @@ def connect():
 
     try:
         rpc.connect()
-    except ConnectionRefusedError:
+    except Exception:
         logger.debug("Can't connect to discord IPC; usually means that the RPC server is closed.")
         connected = False
         return False
@@ -28,7 +29,8 @@ def connect():
         connected = True
         return True
 
-def set_activity(track: Track|None = None, offset_ms: int = 0):
+
+def set_activity(track: Track | None = None, offset_ms: int = 0):
     global connected
 
     if pypresence is None:
@@ -81,8 +83,9 @@ def set_activity(track: Track|None = None, offset_ms: int = 0):
             connected = False
             logger.error("Connection with discord IPC lost.")
 
+
 if pypresence:
     rpc = pypresence.Presence(client_id=1379096506065223680)
     connect()
-else: 
+else:
     logger.info("[pypresence] library not installed, rpc disabled")
