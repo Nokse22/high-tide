@@ -26,7 +26,7 @@
       <default>0</default>
     </key>
 	  <key name="preferred-sink" type="i">
-	    <range min="0" max="4"/>
+	    <range min="0" max="5"/>
       <default>0</default>
     </key>
 	  <key name="run-background" type="b">
