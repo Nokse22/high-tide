@@ -167,7 +167,7 @@ class PlayerObject(GObject.GObject):
             # the pre-amp value is set to match tidal webs volume
             normalization =  f"taginject name=rgtags {self.most_recent_rg_tags} ! rgvolume name=rgvol pre-amp=4.0 headroom=6.0 ! rglimiter ! audioconvert !"
 
-        pipeline_str = f"queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! audioconvert ! {normalization} audioresample ! {sink_name}"
+        pipeline_str = f"queue ! audioconvert ! {normalization} audioresample ! {sink_name}"
 
         try:
             audio_bin = Gst.parse_bin_from_description(pipeline_str, True)
