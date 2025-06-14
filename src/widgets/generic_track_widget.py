@@ -87,6 +87,10 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         self.track_duration_label.set_label(
             utils.pretty_duration(self.track.duration))
 
+        if not self.track.available:
+            self.set_activatable(False)
+            self.set_sensitive(False)
+
         threading.Thread(
             target=utils.add_image,
             args=(self.image, self.track.album)).start()
