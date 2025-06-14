@@ -47,6 +47,7 @@ class AudioSink(IntEnum):
     ALSA = 2
     JACK = 3
     OSS = 4
+    PIPEWIRE = 5
 
 
 class PlayerObject(GObject.GObject):
@@ -156,7 +157,8 @@ class PlayerObject(GObject.GObject):
             AudioSink.PULSE: 'pulsesink',
             AudioSink.ALSA: 'alsasink',
             AudioSink.JACK: 'jackaudiosink',
-            AudioSink.OSS: 'osssink'
+            AudioSink.OSS: 'osssink',
+            AudioSink.PIPEWIRE: 'pipewiresink'
         }
 
         sink_name = sink_map.get(sink_type, 'autoaudiosink')
