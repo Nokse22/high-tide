@@ -56,7 +56,10 @@ class TidalApplication(Adw.Application):
 
         uri = files[0].get_uri()
         if uri:
-            utils.open_tidal_uri(uri)
+            if self.win.is_logged_in:
+                utils.open_tidal_uri(uri)
+            else:
+                self.win.queued_uri = uri
 
     def on_download(self, *args):
         threading.Thread(target=self.win.th_download_song).start()

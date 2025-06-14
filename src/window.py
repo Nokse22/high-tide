@@ -197,6 +197,9 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.image_canc = None
 
+        self.queued_uri = None
+        self.is_logged_in = False
+
         self.videoplayer = Gtk.MediaFile.new()
 
         self.video_covers_enabled = True
@@ -272,6 +275,11 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.navigation_buttons.set_sensitive(True)
 
         threading.Thread(target=self.th_set_last_playing_song, args=()).start()
+
+        self.is_logged_in = True
+
+        if self.queued_uri:
+            utils.open_tidal_uri(self.queued_uri)
 
     def on_login_failed(self):
         print("login failed")
