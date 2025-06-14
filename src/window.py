@@ -197,6 +197,10 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.image_canc = None
 
+        self.videoplayer = Gtk.MediaFile.new()
+
+        self.video_covers_enabled = True
+
         self.queue_widget_updated = False
 
         self.secret_store = SecretStore(self.session)
@@ -208,6 +212,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.portal = Xdp.Portal()
 
         self.portal.set_background_status(_("Playing Music"))
+
+        self.connect("notify::is-active", self.stop_video_in_background)
 
         if not self.settings.get_boolean("app-id-change-understood"):
             self.app_id_dialog.present(self)
@@ -331,9 +337,20 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.image_canc.cancel()
             self.image_canc = Gio.Cancellable.new()
 
-        threading.Thread(
-            target=utils.add_picture,
-            args=(self.playing_track_picture, album, self.image_canc)).start()
+        # Remove old video cover should maybe be threaded
+        if self.video_covers_enabled:
+            self.videoplayer.pause()
+            self.videoplayer.clear()
+
+        if self.video_covers_enabled and album.video_cover:
+            threading.Thread(
+                target=utils.add_video_cover,
+                args=(self.playing_track_picture, self.videoplayer, album, self.image_canc)).start()
+        else:
+            threading.Thread(
+                target=utils.add_picture,
+                args=(self.playing_track_picture, album, self.image_canc)).start()
+
 
         threading.Thread(
             target=utils.add_image,
@@ -366,6 +383,18 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.settings.set_int(
                 "last-playing-index",
                 self.player_object.get_index())
+
+
+    def stop_video_in_background(self, window, param):
+        album = self.player_object.song_album
+        if not self.video_covers_enabled or not album or not album.video_cover:
+            return
+
+        if self.is_active():
+            self.videoplayer.play()
+        else: 
+            self.videoplayer.pause()
+            
 
     def set_quality_label(self):
         codec = None
@@ -654,6 +683,28 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.player_object.quadratic_volume = state
             self.settings.set_boolean("quadratic-volume", state)
 
+    def change_video_covers_enabled(self, state):
+        if self.settings.get_boolean("video-covers") != state:
+            self.video_covers_enabled = state
+            self.settings.set_boolean("video-covers", state)
+
+            album = self.player_object.song_album
+            if not album:
+                return
+
+            self.videoplayer.pause()
+            self.videoplayer.clear()
+
+            if self.video_covers_enabled and album.video_cover:
+                threading.Thread(
+                    target=utils.add_video_cover,
+                    args=(self.playing_track_picture, self.videoplayer, album, self.image_canc)).start()
+            else:
+                threading.Thread(
+                    target=utils.add_picture,
+                    args=(self.playing_track_picture, album, self.image_canc)).start()
+                
+            
     #
     #   PAGES ACTIONS CALLBACKS
     #

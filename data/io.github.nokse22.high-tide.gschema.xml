@@ -41,5 +41,8 @@
 	  <key name="app-id-change-understood" type="b">
       <default>false</default>
     </key>
+	  <key name="video-covers" type="b">
+      <default>true</default>
+    </key>
 	</schema>
 </schemalist>
