@@ -199,6 +199,8 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.videoplayer = Gtk.MediaFile.new()
 
+        self.video_covers_enabled = True
+
         self.queue_widget_updated = False
 
         self.secret_store = SecretStore(self.session)
@@ -336,10 +338,11 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.image_canc = Gio.Cancellable.new()
 
         # Remove old video cover should maybe be threaded
-        self.videoplayer.pause()
-        self.videoplayer.clear()
+        if self.video_covers_enabled:
+            self.videoplayer.pause()
+            self.videoplayer.clear()
 
-        if album.video_cover:
+        if self.video_covers_enabled and album.video_cover:
             threading.Thread(
                 target=utils.add_video_cover,
                 args=(self.playing_track_picture, self.videoplayer, album, self.image_canc)).start()
@@ -384,7 +387,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def stop_video_in_background(self, window, param):
         album = self.player_object.song_album
-        if not album or not album.video_cover:
+        if not self.video_covers_enabled or not album or not album.video_cover:
             return
 
         if self.is_active():
@@ -680,6 +683,28 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.player_object.quadratic_volume = state
             self.settings.set_boolean("quadratic-volume", state)
 
+    def change_video_covers_enabled(self, state):
+        if self.settings.get_boolean("video-covers") != state:
+            self.video_covers_enabled = state
+            self.settings.set_boolean("video-covers", state)
+
+            album = self.player_object.song_album
+            if not album:
+                return
+
+            self.videoplayer.pause()
+            self.videoplayer.clear()
+
+            if self.video_covers_enabled and album.video_cover:
+                threading.Thread(
+                    target=utils.add_video_cover,
+                    args=(self.playing_track_picture, self.videoplayer, album, self.image_canc)).start()
+            else:
+                threading.Thread(
+                    target=utils.add_picture,
+                    args=(self.playing_track_picture, album, self.image_canc)).start()
+                
+            
     #
     #   PAGES ACTIONS CALLBACKS
     #
