@@ -81,9 +81,12 @@ class TidalApplication(Adw.Application):
         about = Adw.AboutDialog(
             application_name='High Tide',
             application_icon='io.github.nokse22.high-tide',
-            developer_name='Nokse',
+            developer_name='The High Tide Contributors',
             version='0.1.6',
-            developers=['Nokse', 'Nila The Dragon', 'Dråfølin'],
+            developers=[
+                'Nokse https://github.com/Nokse22',
+                'Nila The Dragon https://github.com/nilathedragon',
+                'Dråfølin https://github.com/drafolin'],
             copyright='© 2023-2025 Nokse',
             license_type="GTK_LICENSE_GPL_3_0",
             issue_url='https://github.com/Nokse22/high-tide/issues',
@@ -93,6 +96,8 @@ class TidalApplication(Adw.Application):
             _("Donate with Ko-Fi"), "https://ko-fi.com/nokse22")
         about.add_link(
             _("Donate with Github"), "https://github.com/sponsors/Nokse22")
+
+        about.set_support_url('https://matrix.to/#/%23high-tide:matrix.org')
 
         about.present(self.props.active_window)
 
