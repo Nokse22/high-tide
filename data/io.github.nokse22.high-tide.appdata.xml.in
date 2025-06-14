@@ -20,7 +20,7 @@
   </content_rating>
 
   <developer id="io.github.nokse22">
-    <name translate="no">Nokse</name>
+    <name translate="no">The High Tide Contributors</name>
   </developer>
 
   <branding>
@@ -63,6 +63,18 @@
   </screenshots>
 
   <releases>
+    <release version="0.1.7" date="2025-06-14">
+      <description translate="no">
+        <p>Add Discord rich presence</p>
+        <p>Add album duration in album page</p>
+        <p>Changed App ID</p>
+        <p>Added animated covers</p>
+        <p>Improved used covers quality</p>
+        <p>Ensure volume is synced</p>
+        <p>Improve preferences window</p>
+        <p>Made unavailable track unsensitive</p>
+      </description>
+    </release>
     <release version="0.1.6" date="2025-06-03">
       <description translate="no">
         <p>Use full_name of track if available</p>

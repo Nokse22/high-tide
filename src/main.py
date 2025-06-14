@@ -82,7 +82,7 @@ class TidalApplication(Adw.Application):
             application_name='High Tide',
             application_icon='io.github.nokse22.high-tide',
             developer_name='The High Tide Contributors',
-            version='0.1.6',
+            version='0.1.7',
             developers=[
                 'Nokse https://github.com/Nokse22',
                 'Nila The Dragon https://github.com/nilathedragon',
