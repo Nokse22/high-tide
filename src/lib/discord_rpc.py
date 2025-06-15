@@ -29,6 +29,21 @@ def connect():
         connected = True
         return True
 
+def disconnect():
+    global connected
+
+    if pypresence is None:
+        return False
+
+    try:
+        rpc.close()
+    except Exception:
+        logger.debug("Can't disconnect from discord IPC")
+        return False
+    else:
+        logger.info("Disconnected from discord IPC")
+        connected = False
+        return True
 
 def set_activity(track: Track | None = None, offset_ms: int = 0):
     global connected
