@@ -80,6 +80,7 @@ def set_activity(track: Track | None = None, offset_ms: int = 0):
                 small_image="hightide_x1024" if track.album else None,
                 small_text="High Tide" if track.album else None,
                 start=int(time.time() * 1_000 - offset_ms),
+                end= int(time.time() * 1_000 - offset_ms + track.duration * 1_000),
                 buttons=[
                     {
                         "label": "Listen to this song",
