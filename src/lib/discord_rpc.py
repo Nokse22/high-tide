@@ -3,12 +3,12 @@ from tidalapi.media import Track
 import time
 try:
     import pypresence
+    rpc: pypresence.Presence | None = None
 except ImportError:
     print("pypresence not found, skipping")
     pypresence = None
 
 connected: bool = False
-rpc: pypresence.Presence | None = None
 logger = logging.getLogger(__name__)
 
 
@@ -61,7 +61,7 @@ def set_activity(track: Track | None = None, offset_ms: int = 0):
                 details=track.name,
                 state=f"By {track.artist.name}",
                 large_image=track.album.image() if track.album else "hightide_x1024",
-                large_text=track.album.name if track.album else "High Tide",
+                large_text=track.name if track.album else "High Tide",
                 small_image="hightide_x1024" if track.album else None,
                 small_text="High Tide" if track.album else None,
                 start=int(time.time() * 1_000 - offset_ms),
