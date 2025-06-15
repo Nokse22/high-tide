@@ -44,5 +44,8 @@
 	  <key name="video-covers" type="b">
       <default>true</default>
     </key>
+	  <key name="discord-rpc" type="b">
+      <default>true</default>
+    </key>
 	</schema>
 </schemalist>
