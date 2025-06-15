@@ -28,8 +28,7 @@
 </table>
 
 ## 🚀 Installation
-<details><summary>Stores (Still not available)</summary>
-### 🛒 High Tide is available on
+### 🛒 Flathub
 
 <a href='https://flathub.org/apps/io.github.nokse22.high-tide'><img height='80' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.png'/></a>
 </details>
