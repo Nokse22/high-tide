@@ -202,7 +202,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.videoplayer = Gtk.MediaFile.new()
 
-        self.video_covers_enabled = True
+        self.video_covers_enabled = self.settings.get_boolean("video-covers")
 
         self.queue_widget_updated = False
 
