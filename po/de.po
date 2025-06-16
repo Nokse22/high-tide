@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: high-tide\n"
-"Report-Msgid-Bugs-To: ur parent\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-16 10:11+0200\n"
 "PO-Revision-Date: 2025-06-16 09:41+0200\n"
-"POT-Creation-Date: 2025-06-16 09:41+0200\n"
 "Last-Translator: Stella and Charlie - teamcons.carrd.co\n"
 "Language-Team: the germans\n"
 "Language: de\n"
@@ -38,20 +38,17 @@ msgctxt "shortcut window"
 msgid "Quit"
 msgstr "Beenden"
 
-#: data/ui/detailed_track_listing.blp:46
-#: src/widgets/top_hit_widget.py:133
+#: data/ui/detailed_track_listing.blp:46 src/widgets/top_hit_widget.py:133
 msgid "Album"
 msgstr "Album"
 
-#: data/ui/detailed_track_listing.blp:62
-#: data/ui/detailed_track_listing.blp:93
+#: data/ui/detailed_track_listing.blp:62 data/ui/detailed_track_listing.blp:93
 #: data/ui/widgets/generic_track_widget.blp:68
 msgid "Title"
 msgstr "Titel"
 
 #: data/ui/detailed_track_listing.blp:137
-#: data/ui/detailed_track_listing.blp:162
-#: data/ui/window.blp:528
+#: data/ui/detailed_track_listing.blp:162 data/ui/window.blp:528
 msgid "Go to track radio"
 msgstr "Zum Track Radio gehen"
 
@@ -77,8 +74,12 @@ msgid "Log In"
 msgstr "Einloggen"
 
 #: data/ui/login.blp:23
-msgid "Go to this website and login with your account, if it asks for a code insert the code provided below."
-msgstr "Gehen Sie auf diese Website und melden Sie sich mit Ihrem Konto an. Wenn Sie nach einem Code gefragt werden, geben Sie den unten angegebenen Code ein."
+msgid ""
+"Go to this website and login with your account, if it asks for a code insert "
+"the code provided below."
+msgstr ""
+"Gehen Sie auf diese Website und melden Sie sich mit Ihrem Konto an. Wenn Sie "
+"nach einem Code gefragt werden, geben Sie den unten angegebenen Code ein."
 
 #: data/ui/new_playlist.blp:29
 msgid "Playlist Name"
@@ -153,42 +154,39 @@ msgid "We Changed App ID"
 msgstr "Wir haben die App-ID geändert"
 
 #: data/ui/window.blp:6
-msgid "We had to change the app ID for High Tide, if you had it installed before as Flatpak make sure to remove the old version with this command:"
-msgstr "Wir mussten die App-ID für High Tide ändern, wenn ihr es vorher als Flatpak installiert hattet, stellt sicher, dass ihr die alte Version mit diesem Befehl entfernt:"
+msgid ""
+"We had to change the app ID for High Tide, if you had it installed before as "
+"Flatpak make sure to remove the old version with this command:"
+msgstr ""
+"Wir mussten die App-ID für High Tide ändern, wenn ihr es vorher als Flatpak "
+"installiert hattet, stellt sicher, dass ihr die alte Version mit diesem "
+"Befehl entfernt:"
 
 #: data/ui/window.blp:18
 msgid "I understood"
 msgstr "Ich habe verstanden"
 
-#: data/ui/window.blp:158
-#: data/ui/window.blp:394
-#: data/ui/window.blp:639
+#: data/ui/window.blp:158 data/ui/window.blp:394 data/ui/window.blp:639
 msgid "Play/Pause"
 msgstr "Wiedergabe/Pause"
 
-#: data/ui/window.blp:169
-#: data/ui/window.blp:406
-#: data/ui/window.blp:652
+#: data/ui/window.blp:169 data/ui/window.blp:406 data/ui/window.blp:652
 msgid "Skip Forward"
 msgstr "Vorwärts springen"
 
-#: data/ui/window.blp:214
-#: src/pages/page.py:47
+#: data/ui/window.blp:214 src/pages/page.py:47
 msgid "Loading..."
 msgstr "Laden..."
 
-#: data/ui/window.blp:240
-#: src/pages/home_page.py:40
+#: data/ui/window.blp:240 src/pages/home_page.py:40
 msgid "Home"
 msgstr "Startseite"
 
-#: data/ui/window.blp:265
-#: src/pages/explore_page.py:50
+#: data/ui/window.blp:265 src/pages/explore_page.py:50
 msgid "Explore"
 msgstr "Erkunden"
 
-#: data/ui/window.blp:290
-#: src/pages/collection_page.py:40
+#: data/ui/window.blp:290 src/pages/collection_page.py:40
 msgid "Collection"
 msgstr "Sammlung"
 
@@ -224,13 +222,11 @@ msgstr "Rückwärts springen"
 msgid "Player"
 msgstr "Spieler"
 
-#: data/ui/window.blp:690
-#: data/ui/widgets/lyrics_widget.blp:22
+#: data/ui/window.blp:690 data/ui/widgets/lyrics_widget.blp:22
 msgid "Lyrics"
 msgstr "Lyrics"
 
-#: data/ui/window.blp:700
-#: data/ui/widgets/queue_widget.blp:58
+#: data/ui/window.blp:700 data/ui/widgets/queue_widget.blp:58
 msgid "Queue"
 msgstr "Warteschlange"
 
@@ -271,8 +267,7 @@ msgstr "Freigabe-Url kopieren"
 msgid "Add to a playlist"
 msgstr "Zu einer Wiedergabeliste hinzufügen"
 
-#: data/ui/widgets/lyrics_widget.blp:11
-#: data/ui/widgets/lyrics_widget.blp:15
+#: data/ui/widgets/lyrics_widget.blp:11 data/ui/widgets/lyrics_widget.blp:15
 msgid "No Lyrics"
 msgstr "Keine Lyrics"
 
@@ -302,28 +297,38 @@ msgid "TIDAL client"
 msgstr "TIDAL-Kunde"
 
 #: data/io.github.nokse22.high-tide.appdata.xml.in:12
-msgid "Third party unofficial TIDAL music client. Listen to your favorite music from your desktop or mobile Linux device at the highest quality."
-msgstr "Inoffizieller TIDAL-Musikclient eines Drittanbieters. Hören Sie Ihre Lieblingsmusik von Ihrem Desktop oder mobilen Linux-Gerät in höchster Qualität."
+msgid ""
+"Third party unofficial TIDAL music client. Listen to your favorite music "
+"from your desktop or mobile Linux device at the highest quality."
+msgstr ""
+"Inoffizieller TIDAL-Musikclient eines Drittanbieters. Hören Sie Ihre "
+"Lieblingsmusik von Ihrem Desktop oder mobilen Linux-Gerät in höchster "
+"Qualität."
 
 #: data/io.github.nokse22.high-tide.appdata.xml.in:56
-msgid "High Tide in a large window format playing the album `Dreams` by Fleetwood Mac"
-msgstr "High Tide in einem großen Fensterformat, das das Album `Dreams` von Fleetwood Mac spielt"
+msgid ""
+"High Tide in a large window format playing the album `Dreams` by Fleetwood "
+"Mac"
+msgstr ""
+"High Tide in einem großen Fensterformat, das das Album `Dreams` von "
+"Fleetwood Mac spielt"
 
 #: data/io.github.nokse22.high-tide.appdata.xml.in:61
-msgid "High Tide in a small window format playing `Let It Happen` by Tame Impala"
-msgstr "High Tide in einem kleinen Fensterformat spielt \"Let It Happen\" von Tame Impala"
+msgid ""
+"High Tide in a small window format playing `Let It Happen` by Tame Impala"
+msgstr ""
+"High Tide in einem kleinen Fensterformat spielt \"Let It Happen\" von Tame "
+"Impala"
 
 #: src/pages/album_page.py:60
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: src/pages/album_page.py:62
-#: src/pages/playlist_page.py:79
+#: src/pages/album_page.py:62 src/pages/playlist_page.py:79
 msgid "{} tracks ({})"
 msgstr "{} Spuren ({})"
 
-#: src/pages/artist_page.py:101
-#: src/widgets/card_widget.py:139
+#: src/pages/artist_page.py:101 src/widgets/card_widget.py:139
 #: src/widgets/top_hit_widget.py:183
 msgid "Artist"
 msgstr "Künstler"
@@ -332,8 +337,7 @@ msgstr "Künstler"
 msgid "Top Tracks"
 msgstr "Top Tracks"
 
-#: src/pages/artist_page.py:117
-#: src/pages/collection_page.py:49
+#: src/pages/artist_page.py:117 src/pages/collection_page.py:49
 #: src/pages/search_page.py:65
 msgid "Albums"
 msgstr "Alben"
@@ -354,8 +358,7 @@ msgstr "Ähnliche Künstler"
 msgid "Bio"
 msgstr "Bio"
 
-#: src/pages/artist_page.py:201
-#: src/pages/track_radio_page.py:55
+#: src/pages/artist_page.py:201 src/pages/track_radio_page.py:55
 msgid "Radio of {}"
 msgstr "Radio von {}"
 
@@ -363,19 +366,16 @@ msgstr "Radio von {}"
 msgid "My Mixes and Radios"
 msgstr "Meine Mixe und Radios"
 
-#: src/pages/collection_page.py:47
-#: src/pages/search_page.py:71
+#: src/pages/collection_page.py:47 src/pages/search_page.py:71
 msgid "Playlists"
 msgstr "Wiedergabelisten"
 
-#: src/pages/collection_page.py:51
-#: src/pages/search_page.py:77
+#: src/pages/collection_page.py:51 src/pages/search_page.py:77
 msgid "Tracks"
 msgstr "Tracks"
 
 #. Adds a carousel with artists, albums and playlists
-#: src/pages/collection_page.py:53
-#: src/pages/search_page.py:59
+#: src/pages/collection_page.py:53 src/pages/search_page.py:59
 msgid "Artists"
 msgstr "Künstler"
 
@@ -393,10 +393,11 @@ msgstr "Erst anmelden"
 
 #: src/pages/not_logged_in_page.py:41
 msgid "To be able to use this app you need to login with your TIDAL account."
-msgstr "Um diese App nutzen zu können, müssen Sie sich mit Ihrem TIDAL-Konto anmelden."
+msgstr ""
+"Um diese App nutzen zu können, müssen Sie sich mit Ihrem TIDAL-Konto "
+"anmelden."
 
-#: src/pages/playlist_page.py:77
-#: src/pages/track_radio_page.py:62
+#: src/pages/playlist_page.py:77 src/pages/track_radio_page.py:62
 msgid "by {}"
 msgstr "von {}"
 
