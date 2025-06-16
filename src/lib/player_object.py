@@ -58,16 +58,18 @@ class PlayerObject(GObject.GObject):
     can_go_prev = GObject.Property(type=bool, default=True)
 
     __gsignals__ = {
-        'songs-list-changed': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-        'update-slider': (GObject.SignalFlags.RUN_FIRST, None, ()),
-        'song-changed': (GObject.SignalFlags.RUN_FIRST, None, ()),
-        'song-added-to-queue': (GObject.SignalFlags.RUN_FIRST, None, ()),
-        'duration-changed': (GObject.SignalFlags.RUN_FIRST, None, ()),
-        'volume-changed': (GObject.SignalFlags.RUN_FIRST, None, (float,)),
-        'buffering': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+        "songs-list-changed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+        "update-slider": (GObject.SignalFlags.RUN_FIRST, None, ()),
+        "song-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
+        "song-added-to-queue": (GObject.SignalFlags.RUN_FIRST, None, ()),
+        "duration-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
+        "volume-changed": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
+        "buffering": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
     }
 
-    def __init__(self, preferred_sink=AudioSink.AUTO, normalize=False, quadratic_volume=False):
+    def __init__(
+        self, preferred_sink=AudioSink.AUTO, normalize=False, quadratic_volume=False
+    ):
         GObject.GObject.__init__(self)
 
         Gst.init(None)
@@ -96,9 +98,9 @@ class PlayerObject(GObject.GObject):
         # Set up message bus
         self._bus = self.pipeline.get_bus()
         self._bus.add_signal_watch()
-        self._bus.connect('message::eos', self._on_bus_eos)
-        self._bus.connect('message::error', self._on_bus_error)
-        self._bus.connect('message::buffering', self._on_buffering_message)
+        self._bus.connect("message::eos", self._on_bus_eos)
+        self._bus.connect("message::error", self._on_bus_error)
+        self._bus.connect("message::buffering", self._on_buffering_message)
 
         # Initialize state utils
         self._shuffle = False
@@ -155,34 +157,41 @@ class PlayerObject(GObject.GObject):
     def _setup_audio_sink(self, sink_type):
         """Configure the audio sink using parse_launch for simplicity."""
         sink_map = {
-            AudioSink.AUTO: 'autoaudiosink',
-            AudioSink.PULSE: 'pulsesink',
-            AudioSink.ALSA: 'alsasink',
-            AudioSink.JACK: 'jackaudiosink',
-            AudioSink.OSS: 'osssink',
-            AudioSink.PIPEWIRE: 'pipewiresink'
+            AudioSink.AUTO: "autoaudiosink",
+            AudioSink.PULSE: "pulsesink",
+            AudioSink.ALSA: "alsasink",
+            AudioSink.JACK: "jackaudiosink",
+            AudioSink.OSS: "osssink",
+            AudioSink.PIPEWIRE: "pipewiresink",
         }
 
-        sink_name = sink_map.get(sink_type, 'autoaudiosink')
+        sink_name = sink_map.get(sink_type, "autoaudiosink")
 
         # add normalization to pipeline if set by settings
         normalization = ""
         if self.normalize:
             # the pre-amp value is set to match tidal webs volume
-            normalization =  f"taginject name=rgtags {self.most_recent_rg_tags} ! rgvolume name=rgvol pre-amp=4.0 headroom=6.0 ! rglimiter ! audioconvert !"
+            normalization = (
+                f"taginject name=rgtags {self.most_recent_rg_tags} ! "
+                f"rgvolume name=rgvol pre-amp=4.0 headroom=6.0 ! "
+                f"rglimiter ! audioconvert !"
+            )
 
-        pipeline_str = f"queue ! audioconvert ! {normalization} audioresample ! {sink_name}"
+        pipeline_str = (
+            f"queue ! audioconvert ! {normalization} audioresample ! {sink_name}"
+        )
 
         try:
             audio_bin = Gst.parse_bin_from_description(pipeline_str, True)
             if not audio_bin:
                 raise RuntimeError("Failed to create audio bin")
 
-            self.playbin.set_property('audio-sink', audio_bin)
+            self.playbin.set_property("audio-sink", audio_bin)
         except GLib.Error as e:
             print(f"Error creating pipeline: {e}")
             self.playbin.set_property(
-                'audio-sink', Gst.ElementFactory.make('autoaudiosink', None))
+                "audio-sink", Gst.ElementFactory.make("autoaudiosink", None)
+            )
 
     def change_audio_sink(self, sink_type):
         """Change the audio sink while maintaining playback state."""
@@ -271,14 +280,16 @@ class PlayerObject(GObject.GObject):
         self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
 
         if self.discord_rpc_enabled and self.playing_track:
-            discord_rpc.set_activity(self.playing_track, self.query_position() / 1_000_000)
+            discord_rpc.set_activity(
+                self.playing_track, self.query_position() / 1_000_000
+            )
 
     def pause(self):
         """Pause playback."""
         self.playing = False
         self.pipeline.set_state(Gst.State.PAUSED)
 
-        if self.discord_rpc_enabled: 
+        if self.discord_rpc_enabled:
             discord_rpc.set_activity()
 
     def play_pause(self):
@@ -434,7 +445,7 @@ class PlayerObject(GObject.GObject):
     def query_volume(self):
         volume = self.playbin.get_property("volume")
         if self.quadratic_volume:
-            return volume ** (1/2)
+            return volume ** (1 / 2)
         else:
             return volume
 
@@ -470,9 +481,7 @@ class PlayerObject(GObject.GObject):
 
         position = int(seek_fraction * self.query_duration())
         self.playbin.seek_simple(
-            Gst.Format.TIME,
-            Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
-            position
+            Gst.Format.TIME, Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, position
         )
 
         if self.discord_rpc_enabled:
@@ -481,13 +490,13 @@ class PlayerObject(GObject.GObject):
     def set_discord_rpc(self, enabled: bool = True):
         self.discord_rpc_enabled = enabled
         if enabled and self.playing:
-            discord_rpc.set_activity(self.playing_track, self.query_position() / 1_000_000)
-        elif enabled: 
+            discord_rpc.set_activity(
+                self.playing_track, self.query_position() / 1_000_000
+            )
+        elif enabled:
             discord_rpc.set_activity()
         else:
             discord_rpc.disconnect()
-            
-
 
     def get_index(self):
         for index, track_id in enumerate(self.id_list):

@@ -32,7 +32,7 @@ from ..disconnectable_iface import IDisconnectable
 
 
 class HTMixPage(Page):
-    __gtype_name__ = 'HTMixPage'
+    __gtype_name__ = "HTMixPage"
 
     def __init__(self, _id):
         IDisconnectable.__init__(self)
@@ -46,42 +46,44 @@ class HTMixPage(Page):
         self.set_title(self.item.title)
 
         builder = Gtk.Builder.new_from_resource(
-            "/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui")
+            "/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui"
+        )
 
         page_content = builder.get_object("_main")
         tracks_list_box = builder.get_object("_list_box")
         self.signals.append((
             tracks_list_box,
-            tracks_list_box.connect("row-activated", self.on_row_selected)))
+            tracks_list_box.connect("row-activated", self.on_row_selected),
+        ))
 
         builder.get_object("_title_label").set_label(self.item.title)
-        builder.get_object("_first_subtitle_label").set_label(
-            self.item.sub_title)
+        builder.get_object("_first_subtitle_label").set_label(self.item.sub_title)
 
         play_btn = builder.get_object("_play_button")
         self.signals.append((
             play_btn,
-            play_btn.connect("clicked", self.on_play_button_clicked)))
+            play_btn.connect("clicked", self.on_play_button_clicked),
+        ))
 
         shuffle_btn = builder.get_object("_shuffle_button")
         self.signals.append((
             shuffle_btn,
-            shuffle_btn.connect("clicked", self.on_shuffle_button_clicked)))
+            shuffle_btn.connect("clicked", self.on_shuffle_button_clicked),
+        ))
 
         in_my_collection_btn = builder.get_object("_in_my_collection_button")
         self.signals.append((
             in_my_collection_btn,
-            in_my_collection_btn.connect(
-                "clicked", self.th_add_to_my_collection)))
+            in_my_collection_btn.connect("clicked", self.th_add_to_my_collection),
+        ))
 
         builder.get_object("_share_button").set_visible(False)
 
-        if (utils.is_favourited(self.item)):
+        if utils.is_favourited(self.item):
             in_my_collection_btn.set_icon_name("heart-filled-symbolic")
 
         image = builder.get_object("_image")
-        threading.Thread(
-            target=utils.add_image, args=(image, self.item)).start()
+        threading.Thread(target=utils.add_image, args=(image, self.item)).start()
 
         if isinstance(self.item, MixV2):
             self.item = utils.session.mix(self.item.id)

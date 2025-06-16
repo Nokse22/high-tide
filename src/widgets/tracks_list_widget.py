@@ -24,9 +24,10 @@ from ..disconnectable_iface import IDisconnectable
 
 
 @Gtk.Template(
-    resource_path='/io/github/nokse22/high-tide/ui/widgets/tracks_list_widget.ui')
+    resource_path="/io/github/nokse22/high-tide/ui/widgets/tracks_list_widget.ui"
+)
 class HTTracksListWidget(Gtk.Box, IDisconnectable):
-    __gtype_name__ = 'HTTracksListWidget'
+    __gtype_name__ = "HTTracksListWidget"
 
     """It is used to display multiple elements side by side
     with navigation arrows"""
@@ -41,7 +42,8 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
 
         self.signals.append((
             self.more_button,
-            self.more_button.connect("clicked", self.on_more_clicked)))
+            self.more_button.connect("clicked", self.on_more_clicked),
+        ))
 
         self.n_pages = 0
 
@@ -52,8 +54,8 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
 
         self.signals.append((
             self.tracks_list_box,
-            self.tracks_list_box.connect(
-                "row-activated", self.on_tracks_row_selected)))
+            self.tracks_list_box.connect("row-activated", self.on_tracks_row_selected),
+        ))
 
         self.tracks = []
 

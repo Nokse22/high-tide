@@ -1,11 +1,28 @@
-import gi
-gi.require_version('Secret', '1')
+# secret_storage.py
+#
+# Copyright 2025 Nokse <nokse@posteo.com>
+#
+# This file is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or (at
+# your option) any later version.
+#
+# This file is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+# License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: LGPL-3.0-or-later
 
 from gi.repository import Secret
 
 import json
 
-class SecretStore():
+
+class SecretStore:
     def __init__(self, _session):
         super().__init__()
 
@@ -15,23 +32,15 @@ class SecretStore():
         self.session = _session
 
         self.token_dictionary = {}
-        self.attributes = {
-            "version": Secret.SchemaAttributeType.STRING
-        }
+        self.attributes = {"version": Secret.SchemaAttributeType.STRING}
 
         self.schema = Secret.Schema.new(
-            "io.github.nokse22.high-tide",
-            Secret.SchemaFlags.NONE,
-            self.attributes
+            "io.github.nokse22.high-tide", Secret.SchemaFlags.NONE, self.attributes
         )
 
         self.key = "high-tide-login"
 
-        password = Secret.password_lookup_sync(
-            self.schema,
-            {},
-            None
-        )
+        password = Secret.password_lookup_sync(self.schema, {}, None)
 
         try:
             if password:
@@ -44,20 +53,18 @@ class SecretStore():
             self.token_dictionary = {}
 
     def get(self):
-        return (self.token_dictionary["token-type"],
-                self.token_dictionary["access-token"],
-                self.token_dictionary["refresh-token"],
-                self.token_dictionary["expiry-time"])
+        return (
+            self.token_dictionary["token-type"],
+            self.token_dictionary["access-token"],
+            self.token_dictionary["refresh-token"],
+            self.token_dictionary["expiry-time"],
+        )
 
     def clear(self):
         self.token_dictionary.clear()
         self.save()
 
-        Secret.password_clear_sync(
-            self.schema,
-            {},
-            None
-        )
+        Secret.password_clear_sync(self.schema, {}, None)
 
     def save(self):
         token_type = self.session.token_type
@@ -69,16 +76,11 @@ class SecretStore():
             "token-type": token_type,
             "access-token": access_token,
             "refresh-token": refresh_token,
-            "expiry-time": str(expiry_time)
+            "expiry-time": str(expiry_time),
         }
 
         json_data = json.dumps(self.token_dictionary, indent=2)
 
         Secret.password_store_sync(
-            self.schema,
-            {},
-            Secret.COLLECTION_DEFAULT,
-            self.key,
-            json_data,
-            None
+            self.schema, {}, Secret.COLLECTION_DEFAULT, self.key, json_data, None
         )

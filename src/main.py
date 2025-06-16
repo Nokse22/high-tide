@@ -33,19 +33,22 @@ class TidalApplication(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
-        super().__init__(application_id='io.github.nokse22.high-tide',
-                         flags=Gio.ApplicationFlags.HANDLES_OPEN)
+        super().__init__(
+            application_id="io.github.nokse22.high-tide",
+            flags=Gio.ApplicationFlags.HANDLES_OPEN,
+        )
+        self.create_action("quit", lambda *_: self.quit(), ["<primary>q", "<primary>w"])
+        self.create_action("about", self.on_about_action)
         self.create_action(
-            'quit', lambda *_: self.quit(), ['<primary>q', '<primary>w'])
-        self.create_action('about', self.on_about_action)
-        self.create_action('preferences', self.on_preferences_action, ['<primary>comma'])
-        self.create_action('log-in', self.on_login_action)
-        self.create_action('log-out', self.on_logout_action)
-        self.create_action('download', self.on_download, ['<primary>d'])
+            "preferences", self.on_preferences_action, ["<primary>comma"]
+        )
+        self.create_action("log-in", self.on_login_action)
+        self.create_action("log-out", self.on_logout_action)
+        self.create_action("download", self.on_download, ["<primary>d"])
 
         utils.init()
 
-        self.settings = Gio.Settings.new('io.github.nokse22.high-tide')
+        self.settings = Gio.Settings.new("io.github.nokse22.high-tide")
 
         self.preferences = None
 
@@ -79,25 +82,25 @@ class TidalApplication(Adw.Application):
 
     def on_about_action(self, widget, *args):
         about = Adw.AboutDialog(
-            application_name='High Tide',
-            application_icon='io.github.nokse22.high-tide',
-            developer_name='The High Tide Contributors',
-            version='0.1.7',
+            application_name="High Tide",
+            application_icon="io.github.nokse22.high-tide",
+            developer_name="The High Tide Contributors",
+            version="0.1.7",
             developers=[
-                'Nokse https://github.com/Nokse22',
-                'Nila The Dragon https://github.com/nilathedragon',
-                'Dråfølin https://github.com/drafolin'],
-            copyright='© 2023-2025 Nokse',
+                "Nokse https://github.com/Nokse22",
+                "Nila The Dragon https://github.com/nilathedragon",
+                "Dråfølin https://github.com/drafolin",
+            ],
+            copyright="© 2023-2025 Nokse",
             license_type="GTK_LICENSE_GPL_3_0",
-            issue_url='https://github.com/Nokse22/high-tide/issues',
-            website='https://github.com/Nokse22/high-tide')
+            issue_url="https://github.com/Nokse22/high-tide/issues",
+            website="https://github.com/Nokse22/high-tide",
+        )
 
-        about.add_link(
-            _("Donate with Ko-Fi"), "https://ko-fi.com/nokse22")
-        about.add_link(
-            _("Donate with Github"), "https://github.com/sponsors/Nokse22")
+        about.add_link(_("Donate with Ko-Fi"), "https://ko-fi.com/nokse22")
+        about.add_link(_("Donate with Github"), "https://github.com/sponsors/Nokse22")
 
-        about.set_support_url('https://matrix.to/#/%23high-tide:matrix.org')
+        about.set_support_url("https://matrix.to/#/%23high-tide:matrix.org")
 
         about.present(self.props.active_window)
 
@@ -106,43 +109,56 @@ class TidalApplication(Adw.Application):
 
         if not self.preferences:
             builder = Gtk.Builder.new_from_resource(
-                "/io/github/nokse22/high-tide/ui/preferences.ui")
+                "/io/github/nokse22/high-tide/ui/preferences.ui"
+            )
 
             builder.get_object("_quality_row").set_selected(
-                self.settings.get_int("quality"))
+                self.settings.get_int("quality")
+            )
             builder.get_object("_quality_row").connect(
-                "notify::selected", self.on_quality_changed)
+                "notify::selected", self.on_quality_changed
+            )
 
             builder.get_object("_sink_row").set_selected(
-                self.settings.get_int("preferred-sink"))
+                self.settings.get_int("preferred-sink")
+            )
             builder.get_object("_sink_row").connect(
-                "notify::selected", self.on_sink_changed)
+                "notify::selected", self.on_sink_changed
+            )
 
             bg_row = builder.get_object("_background_row")
             bg_row.set_active(self.settings.get_boolean("run-background"))
             self.settings.bind(
-                "run-background", bg_row,
-                "active", Gio.SettingsBindFlags.DEFAULT)
+                "run-background", bg_row, "active", Gio.SettingsBindFlags.DEFAULT
+            )
 
             builder.get_object("_normalize_row").set_active(
-                self.settings.get_boolean("normalize"))
+                self.settings.get_boolean("normalize")
+            )
             builder.get_object("_normalize_row").connect(
-                "notify::active", self.on_normalize_changed)
+                "notify::active", self.on_normalize_changed
+            )
 
             builder.get_object("_quadratic_volume_row").set_active(
-                self.settings.get_boolean("quadratic-volume"))
+                self.settings.get_boolean("quadratic-volume")
+            )
             builder.get_object("_quadratic_volume_row").connect(
-                "notify::active", self.on_quadratic_volume_changed)
+                "notify::active", self.on_quadratic_volume_changed
+            )
 
             builder.get_object("_video_cover_row").set_active(
-                self.settings.get_boolean("video-covers"))
+                self.settings.get_boolean("video-covers")
+            )
             builder.get_object("_video_cover_row").connect(
-                "notify::active", self.on_video_covers_changed)
+                "notify::active", self.on_video_covers_changed
+            )
 
             builder.get_object("_discord_rpc_row").set_active(
-                self.settings.get_boolean("discord-rpc"))
+                self.settings.get_boolean("discord-rpc")
+            )
             builder.get_object("_discord_rpc_row").connect(
-                "notify::active", self.on_discord_rpc_changed)
+                "notify::active", self.on_discord_rpc_changed
+            )
 
             self.preferences = builder.get_object("_preference_window")
 

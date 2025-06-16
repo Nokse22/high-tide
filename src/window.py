@@ -49,9 +49,9 @@ from .widgets import HTLyricsWidget
 from gettext import gettext as _
 
 
-@Gtk.Template(resource_path='/io/github/nokse22/high-tide/ui/window.ui')
+@Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/window.ui")
 class HighTideWindow(Adw.ApplicationWindow):
-    __gtype_name__ = 'HighTideWindow'
+    __gtype_name__ = "HighTideWindow"
 
     progress_bar = Gtk.Template.Child()
     duration_label = Gtk.Template.Child()
@@ -89,42 +89,39 @@ class HighTideWindow(Adw.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.settings = Gio.Settings.new('io.github.nokse22.high-tide')
+        self.settings = Gio.Settings.new("io.github.nokse22.high-tide")
 
         self.settings.bind(
-            "window-width", self,
-            "default-width", Gio.SettingsBindFlags.DEFAULT)
+            "window-width", self, "default-width", Gio.SettingsBindFlags.DEFAULT
+        )
         self.settings.bind(
-            "window-height", self,
-            "default-height", Gio.SettingsBindFlags.DEFAULT)
+            "window-height", self, "default-height", Gio.SettingsBindFlags.DEFAULT
+        )
         self.settings.bind(
-            "run-background", self,
-            "hide-on-close", Gio.SettingsBindFlags.DEFAULT)
+            "run-background", self, "hide-on-close", Gio.SettingsBindFlags.DEFAULT
+        )
 
         self.create_action_with_target(
-            'push-artist-page',
-            GLib.VariantType.new("s"),
-            self.on_push_artist_page)
+            "push-artist-page", GLib.VariantType.new("s"), self.on_push_artist_page
+        )
 
         self.create_action_with_target(
-            'push-album-page',
-            GLib.VariantType.new("s"),
-            self.on_push_album_page)
+            "push-album-page", GLib.VariantType.new("s"), self.on_push_album_page
+        )
 
         self.create_action_with_target(
-            'push-playlist-page',
-            GLib.VariantType.new("s"),
-            self.on_push_playlist_page)
+            "push-playlist-page", GLib.VariantType.new("s"), self.on_push_playlist_page
+        )
 
         self.create_action_with_target(
-            'push-mix-page',
-            GLib.VariantType.new("s"),
-            self.on_push_mix_page)
+            "push-mix-page", GLib.VariantType.new("s"), self.on_push_mix_page
+        )
 
         self.create_action_with_target(
-            'push-track-radio-page',
+            "push-track-radio-page",
             GLib.VariantType.new("s"),
-            self.on_push_track_radio_page)
+            self.on_push_track_radio_page,
+        )
 
         # self.create_action_with_target(
         #     'play-next',
@@ -132,53 +129,47 @@ class HighTideWindow(Adw.ApplicationWindow):
         #     self.on_play_next)
 
         self.player_object = PlayerObject(
-            self.settings.get_int('preferred-sink'),
-            self.settings.get_boolean('normalize'),
-            self.settings.get_boolean('quadratic-volume'))
+            self.settings.get_int("preferred-sink"),
+            self.settings.get_boolean("normalize"),
+            self.settings.get_boolean("quadratic-volume"),
+        )
         utils.player_object = self.player_object
-        self.player_object.set_discord_rpc(self.settings.get_boolean('discord-rpc'))
+        self.player_object.set_discord_rpc(self.settings.get_boolean("discord-rpc"))
 
         self.volume_button.get_adjustment().set_value(
-            self.settings.get_int("last-volume")/10)
+            self.settings.get_int("last-volume") / 10
+        )
 
-        self.player_object.connect(
-            "notify::shuffle", self.on_shuffle_changed)
-        self.player_object.connect(
-            "update-slider", self.update_slider)
-        self.player_object.connect(
-            "song-changed", self.on_song_changed)
-        self.player_object.connect(
-            "song-added-to-queue", self.on_song_added_to_queue)
-        self.player_object.connect(
-            "notify::playing", self.update_controls)
-        self.player_object.connect(
-            "buffering", self.on_song_buffering)
-        self.player_object.connect(
-            "notify::repeat-type", self.update_repeat_button)
+        self.player_object.connect("notify::shuffle", self.on_shuffle_changed)
+        self.player_object.connect("update-slider", self.update_slider)
+        self.player_object.connect("song-changed", self.on_song_changed)
+        self.player_object.connect("song-added-to-queue", self.on_song_added_to_queue)
+        self.player_object.connect("notify::playing", self.update_controls)
+        self.player_object.connect("buffering", self.on_song_buffering)
+        self.player_object.connect("notify::repeat-type", self.update_repeat_button)
         self.player_object.connect(
             "notify::can-go-next",
             lambda *_: self.go_next_button.set_sensitive(
-                self.player_object.can_go_next))
+                self.player_object.can_go_next
+            ),
+        )
         self.player_object.connect(
             "notify::can-go-prev",
             lambda *_: self.go_prev_button.set_sensitive(
-                self.player_object.can_go_prev))
+                self.player_object.can_go_prev
+            ),
+        )
 
         self.player_object.repeat_type = self.settings.get_int("repeat")
         if self.player_object.repeat_type == RepeatType.NONE:
-            self.repeat_button.set_icon_name(
-                "media-playlist-consecutive-symbolic")
+            self.repeat_button.set_icon_name("media-playlist-consecutive-symbolic")
         elif self.player_object.repeat_type == RepeatType.LIST:
-            self.repeat_button.set_icon_name(
-                "media-playlist-repeat-symbolic")
+            self.repeat_button.set_icon_name("media-playlist-repeat-symbolic")
         elif self.player_object.repeat_type == RepeatType.SONG:
-            self.repeat_button.set_icon_name(
-                "playlist-repeat-song-symbolic")
+            self.repeat_button.set_icon_name("playlist-repeat-song-symbolic")
 
-        self.artist_label.connect(
-            "activate-link", utils.open_uri)
-        self.miniplayer_artist_label.connect(
-            "activate-link", utils.open_uri)
+        self.artist_label.connect("activate-link", utils.open_uri)
+        self.miniplayer_artist_label.connect("activate-link", utils.open_uri)
 
         self.session = tidalapi.Session()
 
@@ -228,8 +219,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_app_id_check_toggled_cb")
     def on_app_id_check_toggled_cb(self, check_btn):
-        self.app_id_dialog.set_response_enabled(
-            "close", check_btn.get_active())
+        self.app_id_dialog.set_response_enabled("close", check_btn.get_active())
 
     @Gtk.Template.Callback("on_app_id_closed_cb")
     def on_app_id_closed_cb(self, dialog):
@@ -252,7 +242,8 @@ class HighTideWindow(Adw.ApplicationWindow):
                 self.secret_store.token_dictionary["token-type"],
                 self.secret_store.token_dictionary["access-token"],
                 self.secret_store.token_dictionary["refresh-token"],
-                self.secret_store.token_dictionary["expiry-time"])
+                self.secret_store.token_dictionary["expiry-time"],
+            )
         except Exception as e:
             print(f"error! {e}")
             GLib.idle_add(self.on_login_failed)
@@ -325,7 +316,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         if track is None:
             return
 
-        track_name = track.full_name if hasattr(track, 'full_name') else track.name
+        track_name = track.full_name if hasattr(track, "full_name") else track.name
         self.song_title_label.set_label(track_name)
         self.song_title_label.set_tooltip_text(track_name)
         self.artist_label.set_artists(track.artists)
@@ -334,11 +325,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.set_quality_label()
 
         if utils.is_favourited(track):
-            self.in_my_collection_button.set_icon_name(
-                "heart-filled-symbolic")
+            self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
         else:
-            self.in_my_collection_button.set_icon_name(
-                "heart-outline-thick-symbolic")
+            self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
 
         self.save_last_playing_thing()
 
@@ -354,16 +343,22 @@ class HighTideWindow(Adw.ApplicationWindow):
         if self.video_covers_enabled and album.video_cover:
             threading.Thread(
                 target=utils.add_video_cover,
-                args=(self.playing_track_picture, self.videoplayer, album, self.image_canc)).start()
+                args=(
+                    self.playing_track_picture,
+                    self.videoplayer,
+                    album,
+                    self.image_canc,
+                ),
+            ).start()
         else:
             threading.Thread(
                 target=utils.add_picture,
-                args=(self.playing_track_picture, album, self.image_canc)).start()
-
+                args=(self.playing_track_picture, album, self.image_canc),
+            ).start()
 
         threading.Thread(
-            target=utils.add_image,
-            args=(self.playing_track_image, album)).start()
+            target=utils.add_image, args=(self.playing_track_image, album)
+        ).start()
 
         threading.Thread(target=self.th_add_lyrics_to_page, args=()).start()
 
@@ -380,19 +375,15 @@ class HighTideWindow(Adw.ApplicationWindow):
         mix_album_playlist = self.player_object.current_mix_album_playlist
         track = self.player_object.playing_track
 
-        if (mix_album_playlist is not None and
-                not isinstance(mix_album_playlist, list)):
+        if mix_album_playlist is not None and not isinstance(mix_album_playlist, list):
             self.settings.set_string(
-                "last-playing-thing-id",
-                str(mix_album_playlist.id))
+                "last-playing-thing-id", str(mix_album_playlist.id)
+            )
             self.settings.set_string(
-                "last-playing-thing-type",
-                utils.get_type(mix_album_playlist))
+                "last-playing-thing-type", utils.get_type(mix_album_playlist)
+            )
         if track is not None:
-            self.settings.set_int(
-                "last-playing-index",
-                self.player_object.get_index())
-
+            self.settings.set_int("last-playing-index", self.player_object.get_index())
 
     def stop_video_in_background(self, window, param):
         album = self.player_object.song_album
@@ -401,9 +392,8 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         if self.is_active():
             self.videoplayer.play()
-        else: 
+        else:
             self.videoplayer.pause()
-            
 
     def set_quality_label(self):
         codec = None
@@ -458,14 +448,11 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def update_repeat_button(self, player, repeat_type):
         if player.repeat_type == RepeatType.NONE:
-            self.repeat_button.set_icon_name(
-                "media-playlist-consecutive-symbolic")
+            self.repeat_button.set_icon_name("media-playlist-consecutive-symbolic")
         elif player.repeat_type == RepeatType.LIST:
-            self.repeat_button.set_icon_name(
-                "media-playlist-repeat-symbolic")
+            self.repeat_button.set_icon_name("media-playlist-repeat-symbolic")
         elif player.repeat_type == RepeatType.SONG:
-            self.repeat_button.set_icon_name(
-                "playlist-repeat-song-symbolic")
+            self.repeat_button.set_icon_name("playlist-repeat-song-symbolic")
 
     def on_song_buffering(self, player, percentage):
         if percentage != 100:
@@ -543,7 +530,8 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_in_my_collection_button_clicked")
     def on_in_my_collection_button_clicked(self, btn):
         utils.on_in_to_my_collection_button_clicked(
-            btn, self.player_object.playing_track)
+            btn, self.player_object.playing_track
+        )
 
     @Gtk.Template.Callback("on_shuffle_button_toggled")
     def on_shuffle_button_toggled(self, btn):
@@ -552,7 +540,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_volume_changed")
     def on_volume_changed_func(self, widget, value):
         self.player_object.change_volume(value)
-        self.settings.set_int("last-volume", int(value*10))
+        self.settings.set_int("last-volume", int(value * 10))
 
     @Gtk.Template.Callback("on_slider_seek")
     def on_slider_seek(self, *args):
@@ -572,7 +560,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         position = time_ms / 1000
 
-        self.player_object.seek(position/end_value)
+        self.player_object.seek(position / end_value)
 
     def on_song_added_to_queue(self, *args):
         if self.queue_widget.get_mapped():
@@ -632,7 +620,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.duration_label.set_label(utils.pretty_duration(end_value))
 
         if end_value != 0:
-            fraction = position/end_value
+            fraction = position / end_value
         self.small_progress_bar.set_fraction(fraction)
         self.progress_bar.get_adjustment().set_value(fraction)
 
@@ -689,7 +677,8 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.settings.set_boolean("normalize", state)
             # recreate audio pipeline, kinda dirty ngl
             self.player_object.change_audio_sink(
-                self.settings.get_int("preferred-sink"))
+                self.settings.get_int("preferred-sink")
+            )
 
     def change_quadratic_volume(self, state):
         if self.settings.get_boolean("quadratic-volume") != state:
@@ -711,17 +700,24 @@ class HighTideWindow(Adw.ApplicationWindow):
             if self.video_covers_enabled and album.video_cover:
                 threading.Thread(
                     target=utils.add_video_cover,
-                    args=(self.playing_track_picture, self.videoplayer, album, self.image_canc)).start()
+                    args=(
+                        self.playing_track_picture,
+                        self.videoplayer,
+                        album,
+                        self.image_canc,
+                    ),
+                ).start()
             else:
                 threading.Thread(
                     target=utils.add_picture,
-                    args=(self.playing_track_picture, album, self.image_canc)).start()
-                
+                    args=(self.playing_track_picture, album, self.image_canc),
+                ).start()
+
     def change_discord_rpc_enabled(self, state):
         if self.settings.get_boolean("discord-rpc") != state:
             self.settings.set_boolean("discord-rpc", state)
             self.player_object.set_discord_rpc(state)
-            
+
     #
     #   PAGES ACTIONS CALLBACKS
     #

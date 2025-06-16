@@ -1,8 +1,10 @@
 import logging
 from tidalapi.media import Track
 import time
+
 try:
     import pypresence
+
     rpc: pypresence.Presence | None = None
 except ImportError:
     print("pypresence not found, skipping")
@@ -21,13 +23,16 @@ def connect():
     try:
         rpc.connect()
     except Exception:
-        logger.debug("Can't connect to discord IPC; usually means that the RPC server is closed.")
+        logger.debug(
+            "Can't connect to discord IPC; usually means that the RPC server is closed."
+        )
         connected = False
         return False
     else:
         logger.info("Connected to discord IPC")
         connected = True
         return True
+
 
 def disconnect():
     global connected
@@ -44,6 +49,7 @@ def disconnect():
         logger.info("Disconnected from discord IPC")
         connected = False
         return True
+
 
 def set_activity(track: Track | None = None, offset_ms: int = 0):
     global connected
@@ -66,9 +72,9 @@ def set_activity(track: Track | None = None, offset_ms: int = 0):
                 buttons=[
                     {
                         "label": "Get High Tide",
-                        "url": "https://github.com/nokse22/high-tide"
+                        "url": "https://github.com/nokse22/high-tide",
                     }
-                ]
+                ],
             )
         else:
             rpc.update(
@@ -80,16 +86,13 @@ def set_activity(track: Track | None = None, offset_ms: int = 0):
                 small_image="hightide_x1024" if track.album else None,
                 small_text="High Tide" if track.album else None,
                 start=int(time.time() * 1_000 - offset_ms),
-                end= int(time.time() * 1_000 - offset_ms + track.duration * 1_000),
+                end=int(time.time() * 1_000 - offset_ms + track.duration * 1_000),
                 buttons=[
-                    {
-                        "label": "Listen to this song",
-                        "url": f"{track.share_url}?u"
-                    },
+                    {"label": "Listen to this song", "url": f"{track.share_url}?u"},
                     {
                         "label": "Get High Tide",
-                        "url": "https://github.com/nokse22/high-tide"
-                    }
+                        "url": "https://github.com/nokse22/high-tide",
+                    },
                 ],
             )
     except pypresence.exceptions.PipeClosed:
