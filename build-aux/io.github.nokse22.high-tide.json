@@ -26,11 +26,11 @@
         "*.a"
     ],
     "modules": [
-        "python3-tidalapi.json",
-        "python3-pypresence.json",
-        "blueprint-compiler.json",
         "gstreamer.json",
         "libportal.json",
+        "blueprint-compiler.json",
+        "python3-pypresence.json",
+        "python3-tidalapi.json",
         {
             "name": "high-tide",
             "builddir": true,
