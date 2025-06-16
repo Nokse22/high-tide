@@ -220,7 +220,7 @@ msgstr "Rückwärts springen"
 
 #: data/ui/window.blp:680
 msgid "Player"
-msgstr "Spieler"
+msgstr "Musikplayer"
 
 #: data/ui/window.blp:690 data/ui/widgets/lyrics_widget.blp:22
 msgid "Lyrics"
@@ -241,15 +241,15 @@ msgstr "Hauptmenü"
 
 #: data/ui/pages_ui/page_template.blp:56
 msgid "Logout"
-msgstr "Abmeldung"
+msgstr "Abmelden"
 
 #: data/ui/pages_ui/page_template.blp:63
 msgid "_Preferences"
-msgstr "_Einstellungen"
+msgstr "Einstellungen"
 
 #: data/ui/pages_ui/page_template.blp:68
 msgid "_Keyboard Shortcuts"
-msgstr "_Tastaturkürzel"
+msgstr "Tastaturkürzel"
 
 #: data/ui/pages_ui/page_template.blp:73
 msgid "_About High Tide"
@@ -411,7 +411,7 @@ msgstr "Von {}"
 
 #: src/widgets/top_hit_widget.py:91
 msgid "Track"
-msgstr "Spur"
+msgstr "Titel"
 
 #: src/widgets/top_hit_widget.py:110
 msgid "Mix"
