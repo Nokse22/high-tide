@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: high-tide\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-16 10:11+0200\n"
+"POT-Creation-Date: 2025-06-16 10:18+0200\n"
 "PO-Revision-Date: 2025-06-16 09:41+0200\n"
 "Last-Translator: Stella and Charlie - teamcons.carrd.co\n"
 "Language-Team: the germans\n"
@@ -176,7 +176,7 @@ msgstr "Vorwärts springen"
 
 #: data/ui/window.blp:214 src/pages/page.py:47
 msgid "Loading..."
-msgstr "Laden..."
+msgstr "Ladet..."
 
 #: data/ui/window.blp:240 src/pages/home_page.py:40
 msgid "Home"
