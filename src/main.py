@@ -139,6 +139,11 @@ class TidalApplication(Adw.Application):
             builder.get_object("_video_cover_row").connect(
                 "notify::active", self.on_video_covers_changed)
 
+            builder.get_object("_discord_rpc_row").set_active(
+                self.settings.get_boolean("discord-rpc"))
+            builder.get_object("_discord_rpc_row").connect(
+                "notify::active", self.on_discord_rpc_changed)
+
             self.preferences = builder.get_object("_preference_window")
 
         self.preferences.present(self.win)
@@ -157,6 +162,9 @@ class TidalApplication(Adw.Application):
 
     def on_video_covers_changed(self, widget, *args):
         self.win.change_video_covers_enabled(widget.get_active())
+
+    def on_discord_rpc_changed(self, widget, *args):
+        self.win.change_discord_rpc_enabled(widget.get_active())
 
     def create_action(self, name, callback, shortcuts=None):
         action = Gio.SimpleAction.new(name, None)

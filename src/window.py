@@ -136,6 +136,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.settings.get_boolean('normalize'),
             self.settings.get_boolean('quadratic-volume'))
         utils.player_object = self.player_object
+        self.player_object.set_discord_rpc(self.settings.get_boolean('discord-rpc'))
 
         self.volume_button.get_adjustment().set_value(
             self.settings.get_int("last-volume")/10)
@@ -716,6 +717,10 @@ class HighTideWindow(Adw.ApplicationWindow):
                     target=utils.add_picture,
                     args=(self.playing_track_picture, album, self.image_canc)).start()
                 
+    def change_discord_rpc_enabled(self, state):
+        if self.settings.get_boolean("discord-rpc") != state:
+            self.settings.set_boolean("discord-rpc", state)
+            self.player_object.set_discord_rpc(state)
             
     #
     #   PAGES ACTIONS CALLBACKS

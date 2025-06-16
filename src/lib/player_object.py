@@ -88,6 +88,8 @@ class PlayerObject(GObject.GObject):
         self.quadratic_volume = quadratic_volume
         self.most_recent_rg_tags = ""
 
+        self.discord_rpc_enabled = True
+
         # Configure audio sink
         self._setup_audio_sink(preferred_sink)
 
@@ -268,7 +270,7 @@ class PlayerObject(GObject.GObject):
             GLib.source_remove(self.update_timer)
         self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
 
-        if self.playing_track:
+        if self.discord_rpc_enabled and self.playing_track:
             discord_rpc.set_activity(self.playing_track, self.query_position() / 1_000_000)
 
     def pause(self):
@@ -276,7 +278,8 @@ class PlayerObject(GObject.GObject):
         self.playing = False
         self.pipeline.set_state(Gst.State.PAUSED)
 
-        discord_rpc.set_activity()
+        if self.discord_rpc_enabled: 
+            discord_rpc.set_activity()
 
     def play_pause(self):
         """Toggle between play and pause states."""
@@ -472,7 +475,19 @@ class PlayerObject(GObject.GObject):
             position
         )
 
-        discord_rpc.set_activity(self.playing_track, position / 1_000_000)
+        if self.discord_rpc_enabled:
+            discord_rpc.set_activity(self.playing_track, position / 1_000_000)
+
+    def set_discord_rpc(self, enabled: bool = True):
+        self.discord_rpc_enabled = enabled
+        if enabled and self.playing:
+            discord_rpc.set_activity(self.playing_track, self.query_position() / 1_000_000)
+        elif enabled: 
+            discord_rpc.set_activity()
+        else:
+            discord_rpc.disconnect()
+            
+
 
     def get_index(self):
         for index, track_id in enumerate(self.id_list):

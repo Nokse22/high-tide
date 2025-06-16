@@ -142,6 +142,10 @@ msgstr ""
 msgid "Display animated covers"
 msgstr ""
 
+#: data/ui/preferences.blp:51
+msgid "Enable Discord Rich Presence"
+msgstr ""
+
 #: data/ui/search_entry.blp:4
 msgid "Search..."
 msgstr ""

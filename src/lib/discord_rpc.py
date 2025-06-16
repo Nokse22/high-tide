@@ -3,12 +3,12 @@ from tidalapi.media import Track
 import time
 try:
     import pypresence
+    rpc: pypresence.Presence | None = None
 except ImportError:
     print("pypresence not found, skipping")
     pypresence = None
 
 connected: bool = False
-rpc: pypresence.Presence | None = None
 logger = logging.getLogger(__name__)
 
 
@@ -29,6 +29,21 @@ def connect():
         connected = True
         return True
 
+def disconnect():
+    global connected
+
+    if pypresence is None:
+        return False
+
+    try:
+        rpc.close()
+    except Exception:
+        logger.debug("Can't disconnect from discord IPC")
+        return False
+    else:
+        logger.info("Disconnected from discord IPC")
+        connected = False
+        return True
 
 def set_activity(track: Track | None = None, offset_ms: int = 0):
     global connected
@@ -65,6 +80,7 @@ def set_activity(track: Track | None = None, offset_ms: int = 0):
                 small_image="hightide_x1024" if track.album else None,
                 small_text="High Tide" if track.album else None,
                 start=int(time.time() * 1_000 - offset_ms),
+                end= int(time.time() * 1_000 - offset_ms + track.duration * 1_000),
                 buttons=[
                     {
                         "label": "Listen to this song",
