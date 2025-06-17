@@ -92,6 +92,8 @@ class PlayerObject(GObject.GObject):
             self.playbin = Gst.ElementFactory.make("playbin", "playbin")
             self.gapless_enabled = False
 
+        self.use_about_to_finish = True
+
         self.pipeline.add(self.playbin)
 
         self.normalize = normalize
@@ -439,6 +441,7 @@ class PlayerObject(GObject.GObject):
         """Set up and play track from URL."""
         print(f"{gapless=}")
         if not gapless:
+            self.use_about_to_finish = False
             self.pipeline.set_state(Gst.State.NULL)
             self.playbin.set_property("volume", self.playbin.get_property("volume"))
         self.playbin.set_property("uri", music_url)
@@ -450,12 +453,17 @@ class PlayerObject(GObject.GObject):
         if not gapless and self.playing:
             self.play()
 
+        if not gapless:
+            self.use_about_to_finish = True
 
         
     def play_next_gapless(self, playbin):
         # playbin is need as arg but we access it later over self
-        self.play_next(gapless=True)
-        print("Trying gapless playbck")
+        if self.use_about_to_finish:
+            self.play_next(gapless=True)
+            print("Trying gapless playbck")
+        else:
+            print("Ignoring about to finish event")
 
 
     def play_next(self, gapless = False):
@@ -473,6 +481,7 @@ class PlayerObject(GObject.GObject):
             self.play_track(track, gapless=gapless)
             return
 
+        print("changed tracks to play")
         if not self._tracks_to_play and self._repeat_type == RepeatType.LIST:
             self._tracks_to_play = self.played_songs
             self.tracks_to_play = self._tracks_to_play
