@@ -298,9 +298,6 @@ class PlayerObject(GObject.GObject):
         """Start playback."""
         self.playing = True
         self.pipeline.set_state(Gst.State.PLAYING)
-        if self.update_timer:
-            GLib.source_remove(self.update_timer)
-        self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
 
 
     def pause(self):
@@ -482,10 +479,6 @@ class PlayerObject(GObject.GObject):
         """Update playback slider and duration."""
         self.update_timer = None
         self.emit("update-slider")
-        duration = self.query_duration()
-        if duration != self.duration:
-            self.duration = duration
-            self.emit("duration-changed")
         return self.playing
 
     def query_duration(self):
