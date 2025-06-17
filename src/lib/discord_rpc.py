@@ -2,22 +2,22 @@ import logging
 from tidalapi.media import Track
 import time
 
+logger = logging.getLogger(__name__)
+
 try:
     import pypresence
-
-    rpc: pypresence.Presence | None = None
+    has_pypresence = True
 except ImportError:
-    print("pypresence not found, skipping")
-    pypresence = None
+    logger.warning("pypresence not found, skipping")
+    has_pypresence = False
 
 connected: bool = False
-logger = logging.getLogger(__name__)
 
 
 def connect():
     global connected
 
-    if pypresence is None:
+    if not has_pypresence:
         return False
 
     try:
@@ -37,7 +37,7 @@ def connect():
 def disconnect():
     global connected
 
-    if pypresence is None:
+    if not has_pypresence:
         return False
 
     try:
@@ -54,7 +54,7 @@ def disconnect():
 def set_activity(track: Track | None = None, offset_ms: int = 0):
     global connected
 
-    if pypresence is None:
+    if not has_pypresence:
         return
 
     if not connected:
@@ -102,9 +102,6 @@ def set_activity(track: Track | None = None, offset_ms: int = 0):
             connected = False
             logger.error("Connection with discord IPC lost.")
 
-
-if pypresence:
-    rpc = pypresence.Presence(client_id=1379096506065223680)
+if has_pypresence:
+    rpc: pypresence.Presence = pypresence.Presence(client_id=1379096506065223680)
     connect()
-else:
-    logger.info("[pypresence] library not installed, rpc disabled")
