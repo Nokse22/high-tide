@@ -150,7 +150,7 @@ class PlayerObject(GObject.GObject):
         self._shuffle = _shuffle
         self.notify("shuffle")
         self._update_shuffle_queue()
-        self.emit("song-changed")
+        # self.emit("song-changed")
 
     @GObject.Property(type=int, default=0)
     def repeat_type(self):
@@ -236,7 +236,6 @@ class PlayerObject(GObject.GObject):
         self.notify("can-go-prev")
         self.notify("can-go-next")
 
-        self.emit("song-changed")
 
         if self.discord_rpc_enabled and self.playing_track:
             discord_rpc.set_activity(self.playing_track, self.query_position() / 1_000_000)
@@ -244,6 +243,7 @@ class PlayerObject(GObject.GObject):
         if self.update_timer:
             GLib.source_remove(self.update_timer)
         self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
+        self.emit("song-changed")
     
     def play_this(self, thing, index=0):
         """Play tracks from a mix, album, playlist, or artist."""
@@ -267,7 +267,7 @@ class PlayerObject(GObject.GObject):
 
         self.play_track(track)
         self.play()
-        self.emit("song-changed")
+        # self.emit("song-changed")
 
     def shuffle_this(self, thing):
         """Same as play_this, but on shuffle"""
