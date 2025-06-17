@@ -29,55 +29,53 @@ from ..widgets.top_hit_widget import HTTopHitWidget
 
 from .page import Page
 
-from ..lib import variables
+from ..lib import utils
+
+from ..disconnectable_iface import IDisconnectable
+from gettext import gettext as _
 
 
-class searchPage(Page):
-    __gtype_name__ = 'searchPage'
+class HTSearchPage(Page):
+    __gtype_name__ = "HTSearchPage"
 
     """It is used to display the search results"""
 
-    # TODO Add a card for the top result, it needs to change based on the top result type
-    # TODO Implement filters
-    # TODO Custom search page with filters (no builder with search_filters.ui)
+    def __init__(self, _search):
+        IDisconnectable.__init__(self)
+        super().__init__()
+
+        self.search = _search
 
     def _th_load_page(self):
-        # filter_builder = Gtk.Builder.new_from_resource("/io/github/nokse22/HighTide/ui/search_filter.ui")
-        # filters_scrolled_window = filter_builder.get_object("filters_scrolled_window")
-
-        # page_content.prepend(filters_scrolled_window)
-
-        results = variables.session.search(self.item, [Artist, Album, Playlist, Track], 10)
-
-        # print(query, results)
+        results = utils.session.search(
+            self.search, [Artist, Album, Playlist, Track], 10
+        )
 
         top_hit = results["top_hit"]
         top_hit_widget = HTTopHitWidget(top_hit)
         self.page_content.append(top_hit_widget)
-        # self.page_content.append(Gtk.Label(label=top_hit.name))
-        print(top_hit)
 
-        # Adds a carousel with artists, albums and playlists if in the search results
+        # Adds a carousel with artists, albums and playlists
 
-        carousel = self.get_carousel("Artists")
+        carousel = self.get_carousel(_("Artists"))
         artists = results["artists"]
         if len(artists) > 0:
             self.page_content.append(carousel)
             carousel.set_items(artists, "artist")
 
-        carousel = self.get_carousel("Albums")
+        carousel = self.get_carousel(_("Albums"))
         albums = results["albums"]
         if len(albums) > 0:
             self.page_content.append(carousel)
             carousel.set_items(albums, "album")
 
-        carousel = self.get_carousel("Playlists")
+        carousel = self.get_carousel(_("Playlists"))
         playlists = results["playlists"]
         if len(playlists) > 0:
             self.page_content.append(carousel)
             carousel.set_items(playlists, "playlist")
 
-        carousel = self.get_carousel("Tracks")
+        carousel = self.get_carousel(_("Tracks"))
         tracks = results["tracks"]
         if len(tracks) > 0:
             self.page_content.append(carousel)

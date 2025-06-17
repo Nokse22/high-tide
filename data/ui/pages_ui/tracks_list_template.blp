@@ -11,21 +11,24 @@ Box _main {
     vexpand-set: true;
 
     Adw.Breakpoint {
-      condition ("max-width: 460px")
+      condition ("max-width: 500px")
 
       setters {
         multi_layout_view.layout-name: "vertical";
-        _bin.height-request: 360;
+        _bin.height-request: 385;
         _image.pixel-size: 200;
         _title_label.xalign: 0.5;
         _first_subtitle_label.xalign: 0.5;
         _first_subtitle_label.justify: center;
+        _second_subtitle_label.xalign: 0.5;
+        _second_subtitle_label.justify: center;
       }
     }
 
     child: Adw.MultiLayoutView multi_layout_view {
       Adw.Layout {
         name: "horizontal";
+
         content: Box _horizontal_layout_box {
           valign: center;
           vexpand: true;
@@ -48,9 +51,15 @@ Box _main {
             Adw.LayoutSlot {
               id: "title-label";
             }
+
             Adw.LayoutSlot {
               id: "first-subtitle-label";
             }
+
+            Adw.LayoutSlot {
+              id: "second-subtitle-label";
+            }
+
             Adw.LayoutSlot {
               id: "artist-button";
             }
@@ -63,11 +72,17 @@ Box _main {
             valign: center;
 
             Adw.LayoutSlot {
+              id: "share-button";
+            }
+
+            Adw.LayoutSlot {
               id: "in-my-collection-button";
             }
+
             Adw.LayoutSlot {
               id: "shuffle-button";
             }
+
             Adw.LayoutSlot {
               id: "play-button";
             }
@@ -77,6 +92,7 @@ Box _main {
 
       Adw.Layout {
         name: "vertical";
+
         content: Box _vertical_layout_box {
           valign: center;
           halign: center;
@@ -96,8 +112,13 @@ Box _main {
           Adw.LayoutSlot {
             id: "title-label";
           }
+
           Adw.LayoutSlot {
             id: "first-subtitle-label";
+          }
+
+          Adw.LayoutSlot {
+            id: "second-subtitle-label";
           }
 
           Box {
@@ -108,11 +129,17 @@ Box _main {
             Adw.LayoutSlot {
               id: "play-button";
             }
+
             Adw.LayoutSlot {
               id: "shuffle-button";
             }
+
             Adw.LayoutSlot {
               id: "in-my-collection-button";
+            }
+
+            Adw.LayoutSlot {
+              id: "share-button";
             }
           }
         };
@@ -146,6 +173,7 @@ Box _main {
       Label _first_subtitle_label {
         styles [
           "dim-label",
+          "title-3",
         ]
 
         ellipsize: end;
@@ -162,12 +190,25 @@ Box _main {
 
         ellipsize: end;
         vexpand: true;
+        lines: 1;
         xalign: 0.0;
       }
 
       [artist-button]
       Button _artist_button {
         visible: false;
+      }
+
+      [share-button]
+      Button _share_button {
+        icon-name: "share-alt-symbolic";
+        tooltip-text: _("Copy Share URL");
+        valign: center;
+
+        styles [
+          "flat",
+          "circular",
+        ]
       }
 
       [in-my-collection-button]
@@ -177,7 +218,7 @@ Box _main {
 
         styles [
           "flat",
-          "circular"
+          "circular",
         ]
       }
 
@@ -187,7 +228,7 @@ Box _main {
 
         styles [
           "flat",
-          "pill"
+          "pill",
         ]
       }
 
@@ -195,7 +236,7 @@ Box _main {
       Button _play_button {
         styles [
           "suggested-action",
-          "pill"
+          "pill",
         ]
 
         icon-name: "media-playback-start-symbolic";
@@ -215,7 +256,7 @@ Box _main {
     margin-bottom: 12;
 
     styles [
-      "boxed-list",
+      "tracks-list-box",
     ]
   }
 }

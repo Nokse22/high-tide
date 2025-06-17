@@ -1,0 +1,18 @@
+{
+    "name": "libportal",
+    "buildsystem": "meson",
+    "config-opts": [
+        "-Dtests=false",
+        "-Dbackend-gtk3=disabled",
+        "-Dbackend-gtk4=enabled",
+        "-Dbackend-qt5=disabled",
+        "-Ddocs=false"
+    ],
+    "sources": [
+        {
+            "type": "archive",
+            "url": "https://github.com/flatpak/libportal/releases/download/0.8.1/libportal-0.8.1.tar.xz",
+            "sha256": "281e54e4f8561125a65d20658f1462ab932b2b1258c376fed2137718441825ac"
+        }
+    ]
+}

@@ -17,18 +17,19 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk
 
 from ..widgets import HTCardWidget
-from ..lib import variables
+from ..lib import utils
 
 from ..disconnectable_iface import IDisconnectable
 
 
 @Gtk.Template(
-    resource_path='/io/github/nokse22/HighTide/ui/widgets/carousel_widget.ui')
+    resource_path="/io/github/nokse22/high-tide/ui/widgets/carousel_widget.ui"
+)
 class HTCarouselWidget(Gtk.Box, IDisconnectable):
-    __gtype_name__ = 'HTCarouselWidget'
+    __gtype_name__ = "HTCarouselWidget"
 
     """It is used to display multiple elements side by side with
     navigation arrows"""
@@ -45,15 +46,18 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
 
         self.signals.append((
             self.next_button,
-            self.next_button.connect("clicked", self.carousel_go_next)))
+            self.next_button.connect("clicked", self.carousel_go_next),
+        ))
 
         self.signals.append((
             self.prev_button,
-            self.prev_button.connect("clicked", self.carousel_go_prev)))
+            self.prev_button.connect("clicked", self.carousel_go_prev),
+        ))
 
         self.signals.append((
             self.more_button,
-            self.more_button.connect("clicked", self.on_more_clicked)))
+            self.more_button.connect("clicked", self.on_more_clicked),
+        ))
 
         self.n_pages = 0
 
@@ -99,7 +103,7 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
             page.set_function(self.more_function)
 
         page.load()
-        variables.navigation_view.push(page)
+        utils.navigation_view.push(page)
 
     def carousel_go_next(self, btn):
         pos = self.carousel.get_position()

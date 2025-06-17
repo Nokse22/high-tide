@@ -1,6 +1,6 @@
 #!@PYTHON@
 
-# HighTide.in
+# high-tide.in
 #
 # Copyright 2023 Nokse
 #
@@ -31,15 +31,17 @@ localedir = '@localedir@'
 
 sys.path.insert(1, pkgdatadir)
 signal.signal(signal.SIGINT, signal.SIG_DFL)
-locale.bindtextdomain('tidal', localedir)
-locale.textdomain('tidal')
-gettext.install('tidal', localedir)
+locale.bindtextdomain('high-tide', localedir)
+locale.textdomain('high-tide')
+gettext.bindtextdomain('high-tide', localedir)
+gettext.textdomain('high-tide')
+gettext.install('high-tide', localedir)
 
 if __name__ == '__main__':
     import gi
 
     from gi.repository import Gio
-    resource = Gio.Resource.load(os.path.join(pkgdatadir, 'HighTide.gresource'))
+    resource = Gio.Resource.load(os.path.join(pkgdatadir, 'high-tide.gresource'))
     resource._register()
 
     from high_tide import main

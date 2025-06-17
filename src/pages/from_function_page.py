@@ -25,16 +25,19 @@ import threading
 from .page import Page
 from ..widgets import HTCardWidget
 
-from ..lib import variables
+from ..lib import utils
+
+from ..disconnectable_iface import IDisconnectable
 
 
 class fromFunctionPage(Page):
-    __gtype_name__ = 'fromFunctionPage'
+    __gtype_name__ = "fromFunctionPage"
 
     """Used to display lists of albums/artists/mixes/playlists and tracks
     from a request function"""
 
     def __init__(self, _type, _title=""):
+        IDisconnectable.__init__(self)
         super().__init__()
 
         self.function = None
@@ -50,7 +53,8 @@ class fromFunctionPage(Page):
         self.items_n = 0
 
         self.handler_id = self.scrolled_window.connect(
-            "edge-overshot", self.on_edge_overshot)
+            "edge-overshot", self.on_edge_overshot
+        )
         self.signals.append((self.scrolled_window, self.handler_id))
 
     def set_function(self, function):
@@ -61,9 +65,7 @@ class fromFunctionPage(Page):
 
     def on_edge_overshot(self, scrolled_window, pos):
         if pos == Gtk.PositionType.BOTTOM:
-            th = threading.Thread(target=self.th_load_items)
-            th.deamon = True
-            th.start()
+            threading.Thread(target=self.th_load_items).start()
 
     def _th_load_page(self):
         self.th_load_items()
@@ -73,8 +75,7 @@ class fromFunctionPage(Page):
     def th_load_items(self):
         new_items = []
         if self.function:
-            new_items = self.function(
-                limit=self.items_limit, offset=(self.items_n))
+            new_items = self.function(limit=self.items_limit, offset=(self.items_n))
             self.items.extend(new_items)
             if new_items == []:
                 self.scrolled_window.disconnect(self.handler_id)
@@ -82,8 +83,6 @@ class fromFunctionPage(Page):
         else:
             new_items = self.items
             self.scrolled_window.disconnect(self.handler_id)
-
-        print(f"loading {self.items_n} of type {self.type}")
 
         if self.type == "track":
             self.add_tracks(new_items)
@@ -95,16 +94,17 @@ class fromFunctionPage(Page):
     def add_tracks(self, new_items):
         if self.parent is None:
             self.parent = Gtk.ListBox(
-                css_classes=["boxed-list"],
+                css_classes=["tracks-list-box"],
                 margin_bottom=12,
                 margin_start=12,
                 margin_end=12,
-                margin_top=12)
+                margin_top=12,
+            )
             GLib.idle_add(self.page_content.append, self.parent)
             self.signals.append((
                 self.parent,
-                self.parent.connect(
-                    "row-activated", self.on_tracks_row_selected)))
+                self.parent.connect("row-activated", self.on_tracks_row_selected),
+            ))
 
         for index, track in enumerate(new_items):
             listing = self.get_track_listing(track)
@@ -123,4 +123,4 @@ class fromFunctionPage(Page):
     def on_tracks_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        variables.player_object.play_this(self.items, index)
+        utils.player_object.play_this(self.items, index)

@@ -21,11 +21,14 @@ from gi.repository import Gtk
 from ..lib import utils
 import threading
 from .page import Page
-from ..lib import variables
+from ..lib import utils
+from ..disconnectable_iface import IDisconnectable
+from tidalapi.playlist import Playlist
+from gettext import gettext as _
 
 
-class playlistPage(Page):
-    __gtype_name__ = 'playlistPage'
+class HTPlaylistPage(Page):
+    __gtype_name__ = "HTPlaylistPage"
 
     """It is used to display a playlist with author,
     number of tracks and duration"""
@@ -33,27 +36,39 @@ class playlistPage(Page):
     # FIXME Fix the favorite hearth
     # FIXME After playing shuffle the next track is not found
 
+    def __init__(self, _id):
+        IDisconnectable.__init__(self)
+        super().__init__()
+
+        self.id = _id
+
     def _th_load_page(self):
+        self.item = Playlist(utils.session, self.id)
+
+        self.set_title(self.item.name)
+
         builder = Gtk.Builder.new_from_resource(
-            "/io/github/nokse22/HighTide/ui/pages_ui/tracks_list_template.ui")
+            "/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui"
+        )
 
         page_content = builder.get_object("_main")
         tracks_list_box = builder.get_object("_list_box")
         self.signals.append((
-                tracks_list_box,
-                tracks_list_box.connect(
-                    "row-activated", self.on_row_selected)))
+            tracks_list_box,
+            tracks_list_box.connect("row-activated", self.on_row_selected),
+        ))
 
         play_btn = builder.get_object("_play_button")
         self.signals.append((
-                play_btn,
-                play_btn.connect("clicked", self.on_play_button_clicked)))
+            play_btn,
+            play_btn.connect("clicked", self.on_play_button_clicked),
+        ))
 
         shuffle_btn = builder.get_object("_shuffle_button")
         self.signals.append((
-                shuffle_btn,
-                shuffle_btn.connect(
-                    "clicked", self.on_shuffle_button_clicked)))
+            shuffle_btn,
+            shuffle_btn.connect("clicked", self.on_shuffle_button_clicked),
+        ))
 
         builder.get_object("_title_label").set_label(self.item.name)
         creator = self.item.creator
@@ -61,27 +76,34 @@ class playlistPage(Page):
             creator = creator.name
         else:
             creator = "TIDAL"
-        builder.get_object("_first_subtitle_label").set_label(f"by {creator}")
+        builder.get_object("_first_subtitle_label").set_label(
+            _("by {}").format(creator)
+        )
         builder.get_object("_second_subtitle_label").set_label(
-            "{} tracks ({})".format(
-                self.item.num_tracks,
-                utils.pretty_duration(self.item.duration)))
+            _("{} tracks ({})").format(
+                self.item.num_tracks, utils.pretty_duration(self.item.duration)
+            )
+        )
 
         in_my_collection_btn = builder.get_object("_in_my_collection_button")
         self.signals.append((
-                in_my_collection_btn,
-                in_my_collection_btn.connect(
-                    "clicked",
-                    variables.on_in_to_my_collection_button_clicked,
-                    self.item)))
+            in_my_collection_btn,
+            in_my_collection_btn.connect(
+                "clicked", utils.on_in_to_my_collection_button_clicked, self.item
+            ),
+        ))
 
-        if (variables.is_favourited(self.item)):
+        share_button = builder.get_object("_share_button")
+        self.signals.append((
+            share_button,
+            share_button.connect("clicked", lambda *_: utils.share_this(self.item)),
+        ))
+
+        if utils.is_favourited(self.item):
             in_my_collection_btn.set_icon_name("heart-filled-symbolic")
 
         image = builder.get_object("_image")
-        threading.Thread(
-            target=utils.add_image,
-            args=(image, self.item)).start()
+        threading.Thread(target=utils.add_image, args=(image, self.item)).start()
 
         for index, track in enumerate(self.item.items()):
             listing = self.get_track_listing(track)
@@ -93,4 +115,4 @@ class playlistPage(Page):
 
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
-        variables.player_object.play_this(self.item, index)
+        utils.player_object.play_this(self.item, index)

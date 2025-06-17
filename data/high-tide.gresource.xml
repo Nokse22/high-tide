@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/io/github/nokse22/HighTide">
+  <gresource prefix="/io/github/nokse22/high-tide">
     <file>style.css</file>
     <file>style-dark.css</file>
     <file preprocess="xml-stripblanks">ui/window.ui</file>
@@ -19,12 +19,12 @@
     <file preprocess="xml-stripblanks">ui/widgets/carousel_widget.ui</file>
     <file preprocess="xml-stripblanks">ui/widgets/top_hit_widget.ui</file>
     <file preprocess="xml-stripblanks">ui/widgets/tracks_list_widget.ui</file>
+    <file preprocess="xml-stripblanks">ui/widgets/lyrics_widget.ui</file>
     <file preprocess="xml-stripblanks">ui/search_filter.ui</file>
     <file preprocess="xml-stripblanks">ui/search_entry.ui</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/chat-bubble-text-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/heart-filled-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/heart-outline-thick-symbolic.svg</file>
-    <file preprocess="xml-stripblanks">icons/16x16/actions/navigate-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/music-artist-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/explore2-large-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/library-music-symbolic.svg</file>
@@ -38,6 +38,8 @@
     <file preprocess="xml-stripblanks">icons/16x16/actions/media-playlist-consecutive-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/key-login-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/view-list-ordered-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/16x16/actions/missing-lyrics-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/16x16/actions/share-alt-symbolic.svg</file>
   </gresource>
 </gresources>
 

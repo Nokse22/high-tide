@@ -24,14 +24,15 @@ from gi.repository import GLib, GObject
 
 import tidalapi
 
-from .lib import variables
+from .lib import utils
 
-@Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/new_playlist.ui')
+
+@Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/new_playlist.ui")
 class NewPlaylistWindow(Adw.Dialog):
-    __gtype_name__ = 'NewPlaylistWindow'
+    __gtype_name__ = "NewPlaylistWindow"
 
     __gsignals__ = {
-        'create-playlist': (GObject.SignalFlags.RUN_FIRST, None, (str, str,)),
+        "create-playlist": (GObject.SignalFlags.RUN_FIRST, None, (str, str))
     }
 
     playlist_name_entry = Gtk.Template.Child()
@@ -41,7 +42,9 @@ class NewPlaylistWindow(Adw.Dialog):
     def __init__(self):
         super().__init__()
 
-        self.playlist_name_entry.connect("notify::text", self.on_title_text_inserted_func)
+        self.playlist_name_entry.connect(
+            "notify::text", self.on_title_text_inserted_func
+        )
 
     @Gtk.Template.Callback("on_create_button_clicked")
     def on_create_button_clicked_func(self, *args):
@@ -56,4 +59,3 @@ class NewPlaylistWindow(Adw.Dialog):
             self.create_button.set_sensitive(True)
             return
         self.create_button.set_sensitive(False)
-            

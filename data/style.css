@@ -1,14 +1,5 @@
-.hover-show{
-    opacity:0;
-    transition: opacity 0.5s ease-in-out;
-}
-
 .rounded {
   border-radius: 20px;
-}
-
-.hover-show:hover{
-    opacity:100;
 }
 
 .small-pill{
@@ -16,86 +7,136 @@
 }
 
 .card-image{
-    border-radius:10px;
-    transition: opacity 0.1s ease-in-out;
-}
-
-.card-image:hover{
-    opacity: 0.8;
+  border-radius:10px;
 }
 
 .small-image{
-    border-radius:4px;
+  border-radius:4px;
 }
 
 .card-bg{
-    transition: opacity 0.1s ease-in-out;
-    border-radius:14px;
-}
-
-.card-bg:hover{
-    transition: background-color 0.1s ease-in-out;
-    background-color:@card_shade_color;
+  transition: opacity 0.1s ease-in-out;
+  transition: background-color 0.1s ease-in-out;
   border-radius:14px;
 }
 
+.card-bg:hover{
+  background-color:alpha(var(--window-fg-color), 0.1);
+}
+
 .artist-link{
-    color: #888;
+  color: #888;
 }
 
 .link-text{
-    color: #888;
-    text-decoration: underline;
-    transition: color 0.3s ease-in-out;
-    background-color: transparent;
-    font-weight: normal;
+  color: #888;
+  text-decoration: underline;
+  transition: color 0.3s ease-in-out;
+  background-color: transparent;
+  font-weight: normal;
 }
 
 .link-text:hover{
-    color: #444;
+  color: #444;
 }
 
 .card-label{
-    padding:6px;
-}
-
-.card-button{
-    padding:0px;
-    border-radius:10px;
-    background-color:black;
+  padding:6px;
 }
 
 .artist-button{
-    padding:0px;
+  padding:0px;
 }
 
 .play-btn{
-    padding-left:18px;
-    padding-right:18px;
-    padding-top:8px;
-    padding-bottom:8px;
+  padding-left:18px;
+  padding-right:18px;
+  padding-top:8px;
+  padding-bottom:8px;
 }
 
 .artist-picture{
-    border-radius:100px;
+  border-radius:100px;
 }
 
 .track-picture{
-    border-radius:12px;
-}
-
-.lyrics{
-    font-weight:bold;
-    font-size:16pt;
-    color:@theme_text_color;
+  border-radius:12px;
 }
 
 .explicit-label{
   padding:0px;
   padding-left:3px;
   padding-right:3px;
-  background-color:@popover_shade_color;
+  background-color:var(--popover-shade-color);
   border-radius:4px;
-  font-size:11pt;
+}
+
+.lyrics-widget{
+  background-color: transparent;
+}
+
+.lyrics-widget > row{
+  background-color: transparent;
+  padding:0px;
+}
+
+.lyrics-widget > row label{
+  transition: background-color 0.1s ease-in-out;
   font-weight:bold;
+  font-size:14pt;
+  color:alpha(var(--view-fg-color), 0.5);
+  border-radius: 12px;
+  padding:6px;
+}
+
+.lyrics-widget > row label:hover{
+  background-color: alpha(var(--view-fg-color), 0.04);
+}
+
+.lyrics-widget > row:selected label{
+  background-color: alpha(var(--view-fg-color), 0.07);
+  color: var(--accent-color);
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.lyrics-widget > row:selected:hover{
+  color: alpha(var(--accent-color), 0.9);
+}
+
+.tracks-list-box {
+  border-radius: 12px;
+  background-color: transparent;
+}
+
+.tracks-list-box row {
+  border-radius: 12px;
+  background-color: transparent;
+  transition: background-color 0.1s ease-in-out;
+}
+
+.tracks-list-box row:nth-child(odd) {
+  background-color: alpha(var(--window-fg-color), 0.05);
+}
+
+.tracks-list-box row:hover {
+  background-color: alpha(var(--window-fg-color), 0.1);
+}
+
+.quality-label {
+  background-color:var(--popover-shade-color);
+  border-radius:4px;
+  padding:3px;
+  padding-left:6px;
+  padding-right:6px;
+}
+
+.sidebar-progress-bar trough { /* codespell:ignore trough */
+  border-radius:0px;
+  background-color: transparent;
+}
+
+.sidebar-progress-bar trough > progress { /* codespell:ignore trough */
+  border-radius:0px;
+  background-color:alpha(var(--window-fg-color), 0.05);
 }

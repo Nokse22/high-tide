@@ -18,11 +18,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk
+
+from tidalapi import Artist
+
 import html
 
 
 class HTLinkLabelWidget(Gtk.Label):
-    __gtype_name__ = 'HTLinkLabelWidget'
+    __gtype_name__ = "HTLinkLabelWidget"
 
     """It is used to display multiple artist with a link"""
 
@@ -33,13 +36,17 @@ class HTLinkLabelWidget(Gtk.Label):
         self.add_css_class("artist-link")
 
     def set_artists(self, artists):
+        if not isinstance(artists, list) or not isinstance(artists[0], Artist):
+            return
+
         label = ""
 
         for index, artist in enumerate(artists):
             if index >= 1:
                 label += ", "
             label += "<a href='artist:{}'>{}</a>".format(
-                artist.id, html.escape(artist.name))
+                artist.id, html.escape(artist.name)
+            )
 
             self.set_markup(label)
 

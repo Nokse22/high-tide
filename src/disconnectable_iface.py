@@ -17,6 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+
 class IDisconnectable:
     def __init__(self):
         self.signals = []
@@ -27,16 +28,27 @@ class IDisconnectable:
         """Disconnects all signals so that the class can be deleted"""
 
         for obj, signal_id in self.signals:
-            obj.disconnect(signal_id)
+            if obj.handler_is_connected(signal_id):
+                obj.disconnect(signal_id)
         del self.signals
 
         for binding in self.bindings:
-            binding.unbind()
+            try:
+                binding.unbind()
+            except Exception:
+                pass
         del self.bindings
 
         for widget in self.disconnectables:
-            widget.disconnect_all()
+            try:
+                widget.disconnect_all()
+            except Exception:
+                pass
         del self.disconnectables
 
-    def __del__(self, *args):
-        print(f"DELETING {self}")
+        self.signals = []
+        self.bindings = []
+        self.disconnectables = []
+
+    # def __del__(self):
+    #     print(f"DELETING {self}")

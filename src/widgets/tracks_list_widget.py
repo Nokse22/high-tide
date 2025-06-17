@@ -19,14 +19,15 @@
 
 from gi.repository import Gtk
 from . import HTGenericTrackWidget
-from ..lib import variables
+from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 
 
 @Gtk.Template(
-    resource_path='/io/github/nokse22/HighTide/ui/widgets/tracks_list_widget.ui')
+    resource_path="/io/github/nokse22/high-tide/ui/widgets/tracks_list_widget.ui"
+)
 class HTTracksListWidget(Gtk.Box, IDisconnectable):
-    __gtype_name__ = 'HTTracksListWidget'
+    __gtype_name__ = "HTTracksListWidget"
 
     """It is used to display multiple elements side by side
     with navigation arrows"""
@@ -41,7 +42,8 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
 
         self.signals.append((
             self.more_button,
-            self.more_button.connect("clicked", self.on_more_clicked)))
+            self.more_button.connect("clicked", self.on_more_clicked),
+        ))
 
         self.n_pages = 0
 
@@ -52,8 +54,8 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
 
         self.signals.append((
             self.tracks_list_box,
-            self.tracks_list_box.connect(
-                "row-activated", self.on_tracks_row_selected)))
+            self.tracks_list_box.connect("row-activated", self.on_tracks_row_selected),
+        ))
 
         self.tracks = []
 
@@ -82,12 +84,12 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
         page = fromFunctionPage("track", self.title_name)
         page.set_function(self.get_function)
         page.load()
-        variables.navigation_view.push(page)
+        utils.navigation_view.push(page)
 
     def on_tracks_row_selected(self, list_box, row):
         index = int(row.get_name())
 
-        variables.player_object.play_this(self.tracks, index)
+        utils.player_object.play_this(self.tracks, index)
 
     def __repr__(self, *args):
         return "<HTTracksListWidget>"

@@ -15,7 +15,7 @@ template $HTTopHitWidget: Box {
       "title-3",
     ]
 
-    label: 'Top Hit';
+    label: _("Top Hit");
     margin-start: 6;
     xalign: 0.0;
   }
@@ -25,6 +25,8 @@ template $HTTopHitWidget: Box {
       "card",
       "activatable",
     ]
+
+    GestureClick click_gesture {}
 
     valign: start;
 
@@ -62,7 +64,7 @@ template $HTTopHitWidget: Box {
             xalign: 0.0;
           }
 
-          Label secondary_label{
+          Label secondary_label {
             vexpand: true;
             xalign: 0.0;
           }
@@ -70,6 +72,7 @@ template $HTTopHitWidget: Box {
           $HTLinkLabelWidget artist_label {
             ellipsize: "end";
             visible: false;
+            xalign: 0.0;
           }
         }
       }

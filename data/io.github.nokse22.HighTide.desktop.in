@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=High Tide
-Exec=HighTide
-Icon=io.github.nokse22.HighTide
-Terminal=false
-Type=Application
-Categories=GTK;music;Gnome;
-StartupNotify=true

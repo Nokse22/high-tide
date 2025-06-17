@@ -24,11 +24,12 @@ from gi.repository import Gdk
 
 import tidalapi
 
-from .lib import variables
+from .lib import utils
 
-@Gtk.Template(resource_path='/io/github/nokse22/HighTide/ui/login.ui')
+
+@Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/login.ui")
 class LoginDialog(Adw.Dialog):
-    __gtype_name__ = 'LoginDialog'
+    __gtype_name__ = "LoginDialog"
 
     link_button = Gtk.Template.Child()
     code_label = Gtk.Template.Child()

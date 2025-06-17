@@ -1,4 +1,4 @@
-application_id = 'io.github.nokse22.HighTide'
+application_id = 'io.github.nokse22.high-tide'
 
 scalable_dir = join_paths('hicolor', 'scalable', 'apps')
 install_data(

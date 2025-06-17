@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+	<id>io.github.nokse22.high-tide</id>
+  <provides>
+    <id>io.github.nokse22.HighTide</id>
+  </provides>
+	<metadata_license>CC0-1.0</metadata_license>
+	<project_license>GPL-3.0-or-later</project_license>
+	<name>High Tide</name>
+  <summary>TIDAL client</summary>
+	<description>
+	  <p>Third party unofficial TIDAL music client. Listen to your favorite music from your desktop or mobile Linux device at the highest quality.</p>
+	</description>
+	<content_rating type="oars-1.1">
+    <content_attribute id="language-profanity">intense</content_attribute>
+    <content_attribute id="language-humor">moderate</content_attribute>
+    <content_attribute id="sex-themes">moderate</content_attribute>
+    <content_attribute id="drugs-alcohol">moderate</content_attribute>
+    <content_attribute id="violence-realistic">mild</content_attribute>
+  </content_rating>
+
+  <developer id="io.github.nokse22">
+    <name translate="no">The High Tide Contributors</name>
+  </developer>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#8FEAEB</color>
+    <color type="primary" scheme_preference="dark">#24C9CB</color>
+  </branding>
+
+  <launchable type="desktop-id">io.github.nokse22.high-tide.desktop</launchable>
+
+  <url type="homepage">https://github.com/Nokse22/high-tide</url>
+  <url type="bugtracker">https://github.com/Nokse22/high-tide/issues</url>
+  <url type="vcs-browser">https://github.com/Nokse22/high-tide</url>
+  <url type="translate">https://github.com/Nokse22/high-tide/tree/master/po</url>
+  <url type="donation">https://ko-fi.com/nokse22</url>
+  <url type="contact">https://matrix.to/#/#high-tide:matrix.org</url>
+  <url type="contribute">https://github.com/Nokse22/high-tide/blob/master/CONTRIBUTING.md</url>
+  <url type="help">https://matrix.to/#/#high-tide:matrix.org</url>
+
+  <translation type="gettext">high-tide</translation>
+
+  <recommends>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <control>touch</control>
+  </recommends>
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%201.png</image>
+      <caption>High Tide in a large window format playing the album `Dreams` by Fleetwood Mac</caption>
+    </screenshot>
+
+	  <screenshot>
+	    <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%202.png</image>
+	    <caption>High Tide in a small window format playing `Let It Happen` by Tame Impala</caption>
+	  </screenshot>
+  </screenshots>
+
+  <releases>
+    <release version="0.1.7" date="2025-06-14">
+      <description translate="no">
+        <p>Add Discord rich presence</p>
+        <p>Add album duration in album page</p>
+        <p>Changed App ID</p>
+        <p>Added animated covers</p>
+        <p>Improved used covers quality</p>
+        <p>Ensure volume is synced</p>
+        <p>Improve preferences window</p>
+        <p>Made unavailable track unsensitive</p>
+      </description>
+    </release>
+    <release version="0.1.6" date="2025-06-03">
+      <description translate="no">
+        <p>Use full_name of track if available</p>
+        <p>Swiss German translation</p>
+        <p>French translation</p>
+        <p>Dutch translation</p>
+        <p>Allow Turntable support</p>
+        <p>Add Discord Rich Presence integration</p>
+        <p>Improved flatpak permissions</p>
+      </description>
+    </release>
+    <release version="0.1.5" date="2025-05-30">
+      <description translate="no">
+        <p>First public release! 🎉</p>
+      </description>
+    </release>
+  </releases>
+
+  <categories>
+    <category>Audio</category>
+    <category>Music</category>
+  </categories>
+
+</component>

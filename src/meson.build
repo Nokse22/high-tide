@@ -10,12 +10,12 @@ conf.set('localedir', join_paths(get_option('prefix'), get_option('localedir')))
 conf.set('pkgdatadir', pkgdatadir)
 
 configure_file(
-  input: 'HighTide.in',
-  output: 'HighTide',
+  input: 'high-tide.in',
+  output: 'high-tide',
   configuration: conf,
   install: true,
   install_dir: get_option('bindir'),
-  install_mode: 'r-xr--r--'
+  install_mode: 'r-xr-xr-x'
 )
 
 tidal_sources = [

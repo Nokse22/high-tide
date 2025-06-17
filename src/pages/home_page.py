@@ -27,41 +27,45 @@ from tidalapi.playlist import Playlist
 from .page import Page
 from ..widgets import HTTracksListWidget
 
-from ..lib import variables
+from ..lib import utils
+
+from gettext import gettext as _
 
 
-class homePage(Page):
-    __gtype_name__ = 'homePage'
+class HTHomePage(Page):
+    __gtype_name__ = "HTHomePage"
 
     def _th_load_page(self):
         self.set_tag("home")
-        self.set_title("Home")
+        self.set_title(_("Home"))
 
-        home = variables.session.home()
+        home = utils.session.home()
 
         for index, category in enumerate(home.categories):
-            if (
-                isinstance(category.items[0], PageItem) or
-                isinstance(category.items[0], PageLink)
-            ):
-                continue
+            try:
+                if isinstance(category.items[0], PageItem) or isinstance(
+                    category.items[0], PageLink
+                ):
+                    continue
 
-            if isinstance(category.items[0], Track):
-                tracks_list_widget = HTTracksListWidget(category.title)
-                self.disconnectables.append(tracks_list_widget)
-                tracks_list_widget.set_tracks_list(category.items)
-                self.page_content.append(tracks_list_widget)
-            else:
-                carousel = self.get_carousel(category.title)
-                self.page_content.append(carousel)
+                if isinstance(category.items[0], Track):
+                    tracks_list_widget = HTTracksListWidget(category.title)
+                    self.disconnectables.append(tracks_list_widget)
+                    tracks_list_widget.set_tracks_list(category.items)
+                    self.page_content.append(tracks_list_widget)
+                else:
+                    carousel = self.get_carousel(category.title)
+                    self.page_content.append(carousel)
 
-                if isinstance(category.items[0], Mix):
-                    carousel.set_items(category.items, "mix")
-                elif isinstance(category.items[0], Album):
-                    carousel.set_items(category.items, "album")
-                elif isinstance(category.items[0], Artist):
-                    carousel.set_items(category.items, "artist")
-                elif isinstance(category.items[0], Playlist):
-                    carousel.set_items(category.items, "playlist")
+                    if isinstance(category.items[0], Mix):
+                        carousel.set_items(category.items, "mix")
+                    elif isinstance(category.items[0], Album):
+                        carousel.set_items(category.items, "album")
+                    elif isinstance(category.items[0], Artist):
+                        carousel.set_items(category.items, "artist")
+                    elif isinstance(category.items[0], Playlist):
+                        carousel.set_items(category.items, "playlist")
+            except Exception as e:
+                print(e)
 
         self._page_loaded()
