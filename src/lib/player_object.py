@@ -375,6 +375,16 @@ class PlayerObject(GObject.GObject):
             f"replaygain-album-gain={self.stream.album_replay_gain},"
             f"replaygain-album-peak={self.stream.album_peak_amplitude}"
         )
+
+        # https://github.com/EbbLabs/python-tidal/issues/332
+        # Rather quiet album than broken eardrums
+        if self.stream.album_replay_gain == 1.0:
+            
+            tags = (
+                f"replaygain-track-gain={self.stream.track_replay_gain},"
+                f"replaygain-track-peak={self.stream.track_peak_amplitude}"
+            )
+
         if rgtags:
             rgtags.set_property("tags", tags)
             print(f"Applied RG Tags: {tags}")
