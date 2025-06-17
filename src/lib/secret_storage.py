@@ -39,9 +39,14 @@ class SecretStore:
         )
 
         self.key = "high-tide-login"
+        
+        # Ensure the Login keyring is unlocked (https://github.com/Nokse22/high-tide/issues/97)
+        service = Secret.Service.get_sync(Secret.ServiceFlags.LOAD_COLLECTIONS)
+        for c in service.get_collections():
+            if c.get_label() == "Login" and c.get_locked():
+                service.unlock_sync([c])
 
         password = Secret.password_lookup_sync(self.schema, {}, None)
-
         try:
             if password:
                 json_data = json.loads(password)
