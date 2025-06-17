@@ -133,6 +133,7 @@ class PlayerObject(GObject.GObject):
         self.manifest: Any | None = None
         self.stream: Any | None = None
         self.update_timer: Any | None = None
+        self.seek_after_sink_reload: int | None = None
 
         # next track variables for gapless
         self.next_track = None
@@ -214,6 +215,7 @@ class PlayerObject(GObject.GObject):
         Args:
             sink_type (int): The audio sink `AudioSink` enum
         """
+        self.use_about_to_finish = False
         was_playing: bool = self.playing
         position: int = self.query_position()
         duration: int = self.query_duration()
@@ -222,8 +224,10 @@ class PlayerObject(GObject.GObject):
         self._setup_audio_sink(sink_type)
 
         if was_playing and duration != 0:
+            print(position / duration)
             self.pipeline.set_state(Gst.State.PLAYING)
-            self.seek(position / duration)
+            self.seek_after_sink_reload = position / duration
+        self.use_about_to_finish = True
 
     def _on_bus_eos(self, *args) -> None:
         """Handle end of stream."""
@@ -263,6 +267,10 @@ class PlayerObject(GObject.GObject):
             GLib.source_remove(self.update_timer)
         self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
         self.emit("song-changed")
+
+        if self.seek_after_sink_reload:
+            self.seek(self.seek_after_sink_reload)
+            self.seek_after_sink_reload = None
     
 
     def play_this(
