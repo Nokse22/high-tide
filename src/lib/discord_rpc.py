@@ -1,6 +1,10 @@
 import logging
 from tidalapi.media import Track
 import time
+from enum import Enum
+import threading
+
+logger = logging.getLogger(__name__)
 
 logger = logging.getLogger(__name__)
 
@@ -11,11 +15,17 @@ except ImportError:
     logger.warning("pypresence not found, skipping")
     has_pypresence = False
 
-connected: bool = False
+class State(Enum):
+    DISCONNECTED = 0
+    IDLE = 1
+    PLAYING = 2
+
+state: State = State.DISCONNECTED
+disconnect_thread: threading.Thread | None = None
 
 
 def connect():
-    global connected
+    global state
 
     if not has_pypresence:
         return False
@@ -26,16 +36,16 @@ def connect():
         logger.debug(
             "Can't connect to discord IPC; usually means that the RPC server is closed."
         )
-        connected = False
+        state = State.DISCONNECTED
         return False
     else:
         logger.info("Connected to discord IPC")
-        connected = True
+        state = State.IDLE
         return True
 
 
 def disconnect():
-    global connected
+    global state
 
     if not has_pypresence:
         return False
@@ -47,17 +57,18 @@ def disconnect():
         return False
     else:
         logger.info("Disconnected from discord IPC")
-        connected = False
+        state = State.DISCONNECTED
         return True
 
 
 def set_activity(track: Track | None = None, offset_ms: int = 0):
-    global connected
+    global state
+    global disconnect_thread
 
     if not has_pypresence:
         return
 
-    if not connected:
+    if state == State.DISCONNECTED:
         if not connect():
             return
 
@@ -76,17 +87,27 @@ def set_activity(track: Track | None = None, offset_ms: int = 0):
                     }
                 ],
             )
+            state = State.IDLE
+            def disconnect_function():
+                for _ in range(5*60):
+                    time.sleep(1)
+                    if state != State.IDLE:
+                        return
+                disconnect()
+
+            disconnect_thread = threading.Thread(target=disconnect_function)
+            disconnect_thread.start()
         else:
             rpc.update(
                 activity_type=pypresence.ActivityType.LISTENING,
                 details=track.name,
-                state=f"By {track.artist.name}",
+                state=f"By {track.artist.name if track.artist else 'Unknown Artist'}",
                 large_image=track.album.image() if track.album else "hightide_x1024",
                 large_text=track.album.name if track.album else "High Tide",
                 small_image="hightide_x1024" if track.album else None,
                 small_text="High Tide" if track.album else None,
                 start=int(time.time() * 1_000 - offset_ms),
-                end=int(time.time() * 1_000 - offset_ms + track.duration * 1_000),
+                end=int(time.time() * 1_000 - offset_ms + track.duration * 1_000) if track.duration else None,
                 buttons=[
                     {"label": "Listen to this song", "url": f"{track.share_url}?u"},
                     {
@@ -95,11 +116,12 @@ def set_activity(track: Track | None = None, offset_ms: int = 0):
                     },
                 ],
             )
+            state = State.PLAYING
     except pypresence.exceptions.PipeClosed:
         if connect():
             set_activity(track, offset_ms)
         else:
-            connected = False
+            state = State.DISCONNECTED
             logger.error("Connection with discord IPC lost.")
 
 if has_pypresence:
