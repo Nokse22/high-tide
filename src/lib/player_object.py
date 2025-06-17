@@ -127,6 +127,7 @@ class PlayerObject(GObject.GObject):
         self.manifest = None
         self.stream = None
         self.update_timer = None
+        self.seek_after_sink_reload = None
 
         # next track variables for gapless
         self.next_track = None
@@ -197,6 +198,7 @@ class PlayerObject(GObject.GObject):
 
     def change_audio_sink(self, sink_type):
         """Change the audio sink while maintaining playback state."""
+        self.use_about_to_finish = False
         was_playing = self.playing
         position = self.query_position()
         duration = self.query_duration()
@@ -205,8 +207,10 @@ class PlayerObject(GObject.GObject):
         self._setup_audio_sink(sink_type)
 
         if was_playing and duration != 0:
+            print(position / duration)
             self.pipeline.set_state(Gst.State.PLAYING)
-            self.seek(position / duration)
+            self.seek_after_sink_reload = position / duration
+        self.use_about_to_finish = True
 
     def _on_bus_eos(self, *args):
         """Handle end of stream."""
@@ -246,6 +250,10 @@ class PlayerObject(GObject.GObject):
             GLib.source_remove(self.update_timer)
         self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
         self.emit("song-changed")
+
+        if self.seek_after_sink_reload:
+            self.seek(self.seek_after_sink_reload)
+            self.seek_after_sink_reload = None
     
     def play_this(self, thing, index=0):
         """Play tracks from a mix, album, playlist, or artist."""
