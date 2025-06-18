@@ -181,7 +181,7 @@ class PlayerObject(GObject.GObject):
         normalization = ""
         if self.normalize:
             # the pre-amp value is set to match tidal webs volume
-            normalization =  f"taginject name=rgtags {self.most_recent_rg_tags} ! rgvolume name=rgvol pre-amp=4.0 headroom=6.0 ! rglimiter ! audioconvert !"
+            normalization =  f"taginject name=rgtags {self.most_recent_rg_tags} ! rgvolume name=rgvol pre-amp=4.0 fallback-gain=-10 headroom=6.0 ! rglimiter ! audioconvert !"
 
         pipeline_str = f"queue ! audioconvert ! {normalization} audioresample ! {sink_name}"
 
@@ -371,19 +371,22 @@ class PlayerObject(GObject.GObject):
         if audio_sink:
             rgtags = audio_sink.get_by_name("rgtags")
 
-        tags = (
-            f"replaygain-album-gain={self.stream.album_replay_gain},"
-            f"replaygain-album-peak={self.stream.album_peak_amplitude}"
-        )
+        tags = ""
+        if self.stream.album_replay_gain != 1.0:
+            tags = (
+                f"replaygain-album-gain={self.stream.album_replay_gain},"
+                f"replaygain-album-peak={self.stream.album_peak_amplitude}"
+            )
 
         # https://github.com/EbbLabs/python-tidal/issues/332
         # Rather quiet album than broken eardrums
-        if self.stream.album_replay_gain == 1.0:
+        if self.stream.track_replay_gain != 1.0:
             
             tags = (
                 f"replaygain-track-gain={self.stream.track_replay_gain},"
                 f"replaygain-track-peak={self.stream.track_peak_amplitude}"
             )
+
 
         if rgtags:
             rgtags.set_property("tags", tags)
