@@ -510,10 +510,10 @@ class PlayerObject(GObject.GObject):
     def _update_slider_callback(self):
         """Update playback slider and duration."""
         self.update_timer = None
-        self.emit("update-slider")
         if not self.duration:
             print("Duration missing")
-            self.query_duration()
+            self.duration = self.query_duration()
+        self.emit("update-slider")
         return self.playing
 
     def query_duration(self):
