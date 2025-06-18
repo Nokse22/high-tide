@@ -372,11 +372,6 @@ class PlayerObject(GObject.GObject):
             rgtags = audio_sink.get_by_name("rgtags")
 
         tags = ""
-        if self.stream.album_replay_gain != 1.0:
-            tags = (
-                f"replaygain-album-gain={self.stream.album_replay_gain},"
-                f"replaygain-album-peak={self.stream.album_peak_amplitude}"
-            )
 
         # https://github.com/EbbLabs/python-tidal/issues/332
         # Rather quiet album than broken eardrums
@@ -385,6 +380,12 @@ class PlayerObject(GObject.GObject):
             tags = (
                 f"replaygain-track-gain={self.stream.track_replay_gain},"
                 f"replaygain-track-peak={self.stream.track_peak_amplitude}"
+            )
+
+        if self.stream.album_replay_gain != 1.0:
+            tags = (
+                f"replaygain-album-gain={self.stream.album_replay_gain},"
+                f"replaygain-album-peak={self.stream.album_peak_amplitude}"
             )
 
 
@@ -510,6 +511,9 @@ class PlayerObject(GObject.GObject):
         """Update playback slider and duration."""
         self.update_timer = None
         self.emit("update-slider")
+        if not self.duration:
+            print("Duration missing")
+            self.query_duration()
         return self.playing
 
     def query_duration(self):
