@@ -309,6 +309,12 @@ class PlayerObject(GObject.GObject):
         self.playing = True
         self.pipeline.set_state(Gst.State.PLAYING)
 
+        if self.discord_rpc_enabled and self.playing_track: 
+            discord_rpc.set_activity(self.playing_track, self.query_position() / 1_000_000)
+        if self.update_timer:
+            GLib.source_remove(self.update_timer)
+        self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
+
 
     def pause(self):
         """Pause playback."""
@@ -511,7 +517,7 @@ class PlayerObject(GObject.GObject):
         """Update playback slider and duration."""
         self.update_timer = None
         if not self.duration:
-            print("Duration missing")
+            print("Duration missing, trying again")
             self.duration = self.query_duration()
         self.emit("update-slider")
         return self.playing
