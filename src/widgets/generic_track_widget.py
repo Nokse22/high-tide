@@ -31,9 +31,10 @@ from gettext import gettext as _
 
 
 @Gtk.Template(
-    resource_path='/io/github/nokse22/high-tide/ui/widgets/generic_track_widget.ui')
+    resource_path="/io/github/nokse22/high-tide/ui/widgets/generic_track_widget.ui"
+)
 class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
-    __gtype_name__ = 'HTGenericTrackWidget'
+    __gtype_name__ = "HTGenericTrackWidget"
 
     """It is used to display a single track"""
 
@@ -64,36 +65,43 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     def set_track(self, _track, is_album=False):
         self.signals.append((
             self.artist_label,
-            self.artist_label.connect("activate-link", self.on_open_uri)))
+            self.artist_label.connect("activate-link", self.on_open_uri),
+        ))
         self.signals.append((
             self.artist_label_2,
-            self.artist_label_2.connect("activate-link", self.on_open_uri)))
+            self.artist_label_2.connect("activate-link", self.on_open_uri),
+        ))
         self.signals.append((
             self.track_album_label,
-            self.track_album_label.connect("activate-link", self.on_open_uri)))
+            self.track_album_label.connect("activate-link", self.on_open_uri),
+        ))
 
         self.signals.append((
             self.menu_button,
-            self.menu_button.connect("notify::active", self.on_menu_activate)))
+            self.menu_button.connect("notify::active", self.on_menu_activate),
+        ))
 
         self.track = _track
 
         self.track_album_label.set_album(self.track.album)
-        self.track_title_label.set_label(self.track.full_name if hasattr(self.track, 'full_name') else self.track.name)
+        self.track_title_label.set_label(
+            self.track.full_name
+            if hasattr(self.track, "full_name")
+            else self.track.name
+        )
         self.artist_label.set_artists(self.track.artists)
 
         self.explicit_label.set_visible(self.track.explicit)
 
-        self.track_duration_label.set_label(
-            utils.pretty_duration(self.track.duration))
+        self.track_duration_label.set_label(utils.pretty_duration(self.track.duration))
 
         if not self.track.available:
             self.set_activatable(False)
             self.set_sensitive(False)
 
         threading.Thread(
-            target=utils.add_image,
-            args=(self.image, self.track.album)).start()
+            target=utils.add_image, args=(self.image, self.track.album)
+        ).start()
 
         self.action_group = Gio.SimpleActionGroup()
         self.insert_action_group("trackwidget", self.action_group)
@@ -105,25 +113,27 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         self.menu_activated = True
 
         self.track_menu.prepend(
-            _("Go to track radio"),
-            f"win.push-track-radio-page::{self.track.id}")
+            _("Go to track radio"), f"win.push-track-radio-page::{self.track.id}"
+        )
 
         self.track_menu.prepend(
-            _("Go to album"),
-            f"win.push-album-page::{self.track.album.id}")
+            _("Go to album"), f"win.push-album-page::{self.track.album.id}"
+        )
 
         action_entries = [
             ("play-next", self._play_next),
             ("add-to-queue", self._add_to_queue),
             ("add-to-my-collection", self._th_add_to_my_collection),
-            ("copy-share-url", self._copy_share_url)
+            ("copy-share-url", self._copy_share_url),
         ]
 
         add_to_playlist_action = Gio.SimpleAction.new(
-            "add-to-playlist", GLib.VariantType.new("n"))
+            "add-to-playlist", GLib.VariantType.new("n")
+        )
         self.signals.append((
             add_to_playlist_action,
-            add_to_playlist_action.connect("activate", self._add_to_playlist)))
+            add_to_playlist_action.connect("activate", self._add_to_playlist),
+        ))
         self.action_group.add_action(add_to_playlist_action)
 
         for index, playlist in enumerate(utils.user_playlists):
@@ -132,15 +142,13 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             item = Gio.MenuItem.new()
             item.set_label(playlist.name)
             item.set_action_and_target_value(
-                "trackwidget.add-to-playlist",
-                GLib.Variant.new_int16(index))
+                "trackwidget.add-to-playlist", GLib.Variant.new_int16(index)
+            )
             self.playlists_submenu.insert_item(index, item)
 
         for name, callback in action_entries:
             action = Gio.SimpleAction.new(name, None)
-            self.signals.append((
-                action,
-                action.connect("activate", callback)))
+            self.signals.append((action, action.connect("activate", callback)))
             self.action_group.add_action(action)
 
     def hide_album(self):
@@ -160,8 +168,7 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         utils.player_object.add_to_queue(self.track)
 
     def _th_add_to_my_collection(self, *args):
-        threading.Thread(
-            target=self.th_add_to_my_collection, args=()).start()
+        threading.Thread(target=self.th_add_to_my_collection, args=()).start()
 
     def th_add_to_my_collection(self):
         utils.session.user.favorites.add_track(self.track.id)

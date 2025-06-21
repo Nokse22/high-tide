@@ -36,7 +36,7 @@ from gettext import gettext as _
 
 
 class HTSearchPage(Page):
-    __gtype_name__ = 'HTSearchPage'
+    __gtype_name__ = "HTSearchPage"
 
     """It is used to display the search results"""
 
@@ -48,7 +48,8 @@ class HTSearchPage(Page):
 
     def _th_load_page(self):
         results = utils.session.search(
-            self.search, [Artist, Album, Playlist, Track], 10)
+            self.search, [Artist, Album, Playlist, Track], 10
+        )
 
         top_hit = results["top_hit"]
         top_hit_widget = HTTopHitWidget(top_hit)

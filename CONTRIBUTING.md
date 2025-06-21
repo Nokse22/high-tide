@@ -24,7 +24,7 @@ This project follows a specific coding style. Please adhere to these guidelines 
 
 - Use clear, descriptive method and variables names that indicate their purpose
 - Use consistent indentation (4 spaces) for continuation lines
-- Do not have lines longer than 80 characters, use multiple lines
+- Do not have lines longer than 88 characters, use multiple lines
 - Group related assignments together for better code organization
 - Use the prefix `HT` for custom widgets and objects like `HTCustomWidget`
 - Use descriptive names for thread target methods (prefix with `th_` for thread methods)

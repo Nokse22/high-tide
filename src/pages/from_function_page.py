@@ -31,7 +31,7 @@ from ..disconnectable_iface import IDisconnectable
 
 
 class fromFunctionPage(Page):
-    __gtype_name__ = 'fromFunctionPage'
+    __gtype_name__ = "fromFunctionPage"
 
     """Used to display lists of albums/artists/mixes/playlists and tracks
     from a request function"""
@@ -53,7 +53,8 @@ class fromFunctionPage(Page):
         self.items_n = 0
 
         self.handler_id = self.scrolled_window.connect(
-            "edge-overshot", self.on_edge_overshot)
+            "edge-overshot", self.on_edge_overshot
+        )
         self.signals.append((self.scrolled_window, self.handler_id))
 
     def set_function(self, function):
@@ -74,8 +75,7 @@ class fromFunctionPage(Page):
     def th_load_items(self):
         new_items = []
         if self.function:
-            new_items = self.function(
-                limit=self.items_limit, offset=(self.items_n))
+            new_items = self.function(limit=self.items_limit, offset=(self.items_n))
             self.items.extend(new_items)
             if new_items == []:
                 self.scrolled_window.disconnect(self.handler_id)
@@ -98,12 +98,13 @@ class fromFunctionPage(Page):
                 margin_bottom=12,
                 margin_start=12,
                 margin_end=12,
-                margin_top=12)
+                margin_top=12,
+            )
             GLib.idle_add(self.page_content.append, self.parent)
             self.signals.append((
                 self.parent,
-                self.parent.connect(
-                    "row-activated", self.on_tracks_row_selected)))
+                self.parent.connect("row-activated", self.on_tracks_row_selected),
+            ))
 
         for index, track in enumerate(new_items):
             listing = self.get_track_listing(track)

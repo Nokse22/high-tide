@@ -33,7 +33,7 @@ from ..disconnectable_iface import IDisconnectable
 
 
 class genericPage(Page):
-    __gtype_name__ = 'genericPage'
+    __gtype_name__ = "genericPage"
 
     """It is used for explore page categories page"""
 
@@ -66,7 +66,8 @@ class genericPage(Page):
                     margin_top=12,
                     margin_bottom=12,
                     margin_end=12,
-                    label=category.text)
+                    label=category.text,
+                )
                 self.page_content.append(label)
             else:
                 carousel = self.get_carousel(category.title)

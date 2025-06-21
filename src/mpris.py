@@ -145,9 +145,7 @@ class MPRIS(Server):
         self.__metadata = {}
 
         track_id = 0 + randint(10000000, 90000000)
-        self.__metadata["mpris:trackid"] = GLib.Variant(
-            "o", f"/Track/{track_id}"
-        )
+        self.__metadata["mpris:trackid"] = GLib.Variant("o", f"/Track/{track_id}")
 
         track = self.player.playing_track
 
@@ -155,7 +153,9 @@ class MPRIS(Server):
             self.__metadata["xesam:title"] = GLib.Variant("s", track.name)
             self.__metadata["xesam:album"] = GLib.Variant("s", track.album)
             self.__metadata["xesam:artist"] = GLib.Variant("as", [track.artist])
-            self.__metadata["mpris:length"] = GLib.Variant("x", self.player.query_duration() / 1000)
+            self.__metadata["mpris:length"] = GLib.Variant(
+                "x", self.player.query_duration() / 1000
+            )
 
         self.__bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
         Gio.bus_own_name_on_connection(
@@ -275,10 +275,18 @@ class MPRIS(Server):
         if self.player.playing_track is None:
             return
 
-        self.__metadata["xesam:title"] = GLib.Variant("s", self.player.playing_track.name)
-        self.__metadata["xesam:album"] = GLib.Variant("s", self.player.playing_track.album.name)
-        self.__metadata["xesam:artist"] = GLib.Variant("as", [self.player.playing_track.artist.name])
-        self.__metadata["mpris:length"] = GLib.Variant("x", self.player.query_duration() / 1000)
+        self.__metadata["xesam:title"] = GLib.Variant(
+            "s", self.player.playing_track.name
+        )
+        self.__metadata["xesam:album"] = GLib.Variant(
+            "s", self.player.playing_track.album.name
+        )
+        self.__metadata["xesam:artist"] = GLib.Variant(
+            "as", [self.player.playing_track.artist.name]
+        )
+        self.__metadata["mpris:length"] = GLib.Variant(
+            "x", self.player.query_duration() / 1000
+        )
 
         # 320 px should always be fetched for example by queue logic
         url = f"file://{utils.IMG_DIR}/{self.player.playing_track.album.id}_320.jpg"
@@ -295,9 +303,8 @@ class MPRIS(Server):
 
     def _on_volume_changed(self, _player, volume):
         self.PropertiesChanged(
-            self.__MPRIS_PLAYER_IFACE,
-            {"Volume": GLib.Variant("d", volume)},
-            [])
+            self.__MPRIS_PLAYER_IFACE, {"Volume": GLib.Variant("d", volume)}, []
+        )
 
     def _on_playing_changed(self, *args):
         properties = {"PlaybackStatus": GLib.Variant("s", self._get_status())}
