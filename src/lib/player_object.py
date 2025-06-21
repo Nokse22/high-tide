@@ -245,20 +245,29 @@ class PlayerObject(GObject.GObject):
 
         self.emit("buffering", buffer_per)
 
+    def set_track(self, track = None):
+        if track:
+            self.playing_track = track
+        else: 
+            self.playing_track = self.next_track
+        self.song_album = self.playing_track.album
+        self.can_go_next = len(self._tracks_to_play) > 0
+        self.can_go_prev = len(self.played_songs) > 0
+        self.duration = self.query_duration()
+        # Should only trigger when track is enqued on start without playback
+        if not self.duration:
+            self.duration = self.playing_track.duration
+        self.notify("can-go-prev")
+        self.notify("can-go-next")
+        self.emit("song-changed")
+
 
     def _on_track_start(self, bus, message):
         # apply replaygain first to avoid volume clipping
         # (Idk if that will happen but its the only thing that has effect on audio in here)
         if self.stream:
             self.apply_replaygain_tags()
-        self.playing_track = self.next_track
-        self.song_album = self.playing_track.album
-        self.can_go_next = len(self._tracks_to_play) > 0
-        self.can_go_prev = len(self.played_songs) > 0
-        self.duration = self.query_duration()
-        self.notify("can-go-prev")
-        self.notify("can-go-next")
-
+        self.set_track()
 
         if self.discord_rpc_enabled and self.playing_track:
             discord_rpc.set_activity(self.playing_track, self.query_position() / 1_000_000)
@@ -266,7 +275,6 @@ class PlayerObject(GObject.GObject):
         if self.update_timer:
             GLib.source_remove(self.update_timer)
         self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
-        self.emit("song-changed")
 
         if self.seek_after_sink_reload:
             self.seek(self.seek_after_sink_reload)
@@ -302,6 +310,7 @@ class PlayerObject(GObject.GObject):
 
         self.play_track(track)
         self.play()
+        self.set_track(track)
         # self.emit("song-changed")
 
     def shuffle_this(
