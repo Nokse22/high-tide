@@ -108,8 +108,7 @@ class PlayerObject(GObject.GObject):
         # Set up message bus
         self._bus = self.pipeline.get_bus()
         self._bus.add_signal_watch()
-        if not self.gapless_enabled:
-            self._bus.connect('message::eos', self._on_bus_eos)
+        self._bus.connect('message::eos', self._on_bus_eos)
         self._bus.connect('message::error', self._on_bus_error)
         self._bus.connect('message::buffering', self._on_buffering_message)
         self._bus.connect('message::stream-start', self._on_track_start)
@@ -460,7 +459,6 @@ class PlayerObject(GObject.GObject):
 
     def _play_track_url(self, track, music_url, gapless = False):
         """Set up and play track from URL."""
-        print(f"{gapless=}")
         if not gapless:
             self.use_about_to_finish = False
             self.pipeline.set_state(Gst.State.NULL)
@@ -480,8 +478,8 @@ class PlayerObject(GObject.GObject):
         
     def play_next_gapless(self, playbin):
         # playbin is need as arg but we access it later over self
-        if self.use_about_to_finish:
-            self.play_next(gapless=True)
+        if self.use_about_to_finish and self._tracks_to_play:
+            GLib.idle_add(self.play_next, True)
             print("Trying gapless playbck")
         else:
             print("Ignoring about to finish event")
