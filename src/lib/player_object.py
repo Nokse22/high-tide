@@ -255,7 +255,7 @@ class PlayerObject(GObject.GObject):
         self.duration = self.query_duration()
         # Should only trigger when track is enqued on start without playback
         if not self.duration:
-            self.duration = self.playing_track.duration
+            self.duration = self.playing_track.duration * 1_000_000_000
         self.notify("can-go-prev")
         self.notify("can-go-next")
         self.emit("song-changed")
@@ -487,9 +487,12 @@ class PlayerObject(GObject.GObject):
 
     def play_next(self, gapless = False):
         """Play the next track in the queue or playlist."""
-        if self._repeat_type == RepeatType.SONG:
+        if self._repeat_type == RepeatType.SONG and not gapless:
             self.seek(0)
             self.apply_replaygain_tags()
+            return
+        if self._repeat_type == RepeatType.SONG: 
+            self.play_track(self.playing_track, gapless=True)
             return
 
         if self.playing_track:
@@ -500,7 +503,6 @@ class PlayerObject(GObject.GObject):
             self.play_track(track, gapless=gapless)
             return
 
-        print("changed tracks to play")
         if not self._tracks_to_play and self._repeat_type == RepeatType.LIST:
             self._tracks_to_play = self.played_songs
             self.tracks_to_play = self._tracks_to_play
