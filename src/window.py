@@ -195,6 +195,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.videoplayer = Gtk.MediaFile.new()
 
         self.video_covers_enabled = self.settings.get_boolean("video-covers")
+        self.in_background = False
 
         self.queue_widget_updated = False
 
@@ -347,6 +348,7 @@ class HighTideWindow(Adw.ApplicationWindow):
                     self.playing_track_picture,
                     self.videoplayer,
                     album,
+                    self.in_background,
                     self.image_canc,
                 ),
             ).start()
@@ -386,6 +388,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.settings.set_int("last-playing-index", self.player_object.get_index())
 
     def stop_video_in_background(self, window, param):
+        self.in_background = not self.is_active()
         album = self.player_object.song_album
         if not self.video_covers_enabled or not album or not album.video_cover:
             return
