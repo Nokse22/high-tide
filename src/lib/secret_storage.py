@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
-from gi.repository import Secret
+from gi.repository import Secret, Xdp
 
 import json
 
@@ -41,10 +41,14 @@ class SecretStore:
         self.key = "high-tide-login"
         
         # Ensure the Login keyring is unlocked (https://github.com/Nokse22/high-tide/issues/97)
-        service = Secret.Service.get_sync(Secret.ServiceFlags.LOAD_COLLECTIONS)
-        for c in service.get_collections():
-            if c.get_label() == "Login" and c.get_locked():
-                service.unlock_sync([c])
+        # This is also only possible outside of a flatpak.
+        if not Xdp.Portal.running_under_flatpak():
+            service = Secret.Service.get_sync(Secret.ServiceFlags.NONE)
+            if service:
+                collection = Secret.Collection.for_alias_sync(service, Secret.COLLECTION_DEFAULT, Secret.CollectionFlags.NONE)
+                if collection and collection.get_locked():
+                    print("Collection is locked, attempting to unlock")
+                    service.unlock_sync([collection])
 
         password = Secret.password_lookup_sync(self.schema, {}, None)
         try:
