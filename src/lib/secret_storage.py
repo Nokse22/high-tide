@@ -17,8 +17,7 @@
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
-from gi.repository import Secret
-from .utils import is_flatpak
+from gi.repository import Secret, Xdp
 
 import json
 
@@ -43,7 +42,7 @@ class SecretStore:
         
         # Ensure the Login keyring is unlocked (https://github.com/Nokse22/high-tide/issues/97)
         # This is also only possible outside of a flatpak.
-        if not is_flatpak():
+        if not Xdp.Portal.running_under_flatpak():
             service = Secret.Service.get_sync(Secret.ServiceFlags.NONE)
             if service:
                 collection = Secret.Collection.for_alias_sync(service, Secret.COLLECTION_DEFAULT, Secret.CollectionFlags.NONE)

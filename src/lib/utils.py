@@ -429,6 +429,3 @@ def replace_links(text):
     replaced_text = re.sub(pattern, replace, escaped_text)
 
     return replaced_text
-
-def is_flatpak():
-    return os.path.exists('/.flatpak-info')
