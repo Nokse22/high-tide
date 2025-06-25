@@ -3,6 +3,8 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+    types: [ "review_requested", "ready_for_review" ]
+
 name: Spell Check
 jobs:
   codespell:
