@@ -10,15 +10,18 @@ logger = logging.getLogger(__name__)
 
 try:
     import pypresence
+
     has_pypresence = True
 except ImportError:
     logger.warning("pypresence not found, skipping")
     has_pypresence = False
 
+
 class State(Enum):
     DISCONNECTED = 0
     IDLE = 1
     PLAYING = 2
+
 
 state: State = State.DISCONNECTED
 disconnect_thread: threading.Thread | None = None
@@ -88,8 +91,9 @@ def set_activity(track: Track | None = None, offset_ms: int = 0):
                 ],
             )
             state = State.IDLE
+
             def disconnect_function():
-                for _ in range(5*60):
+                for _ in range(5 * 60):
                     time.sleep(1)
                     if state != State.IDLE:
                         return
@@ -98,16 +102,26 @@ def set_activity(track: Track | None = None, offset_ms: int = 0):
             disconnect_thread = threading.Thread(target=disconnect_function)
             disconnect_thread.start()
         else:
+            artists = (
+                [artist.name for artist in track.artists if artist.name is not None]
+                if track.artists
+                else None
+            )
+            if artists is not None and len(artists) == 0:
+                artists = None
+
             rpc.update(
                 activity_type=pypresence.ActivityType.LISTENING,
                 details=track.name,
-                state=f"By {track.artist.name if track.artist else 'Unknown Artist'}",
+                state=", ".join(artists) if artists else "Unknown Artist",
                 large_image=track.album.image() if track.album else "hightide_x1024",
                 large_text=track.album.name if track.album else "High Tide",
                 small_image="hightide_x1024" if track.album else None,
                 small_text="High Tide" if track.album else None,
                 start=int(time.time() * 1_000 - offset_ms),
-                end=int(time.time() * 1_000 - offset_ms + track.duration * 1_000) if track.duration else None,
+                end=int(time.time() * 1_000 - offset_ms + track.duration * 1_000)
+                if track.duration
+                else None,
                 buttons=[
                     {"label": "Listen to this song", "url": f"{track.share_url}?u"},
                     {
@@ -123,6 +137,7 @@ def set_activity(track: Track | None = None, offset_ms: int = 0):
         else:
             state = State.DISCONNECTED
             logger.error("Connection with discord IPC lost.")
+
 
 if has_pypresence:
     rpc: pypresence.Presence = pypresence.Presence(client_id=1379096506065223680)
