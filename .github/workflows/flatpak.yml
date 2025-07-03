@@ -27,8 +27,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
-          bundle: HighTide.flatpak
-          manifest-path: build-aux/io.github.nokse22.HighTide.json
+          bundle: high-tide.flatpak
+          manifest-path: build-aux/io.github.nokse22.high-tide.json
           cache-key: flatpak-builder-${{ github.sha }}
           arch: ${{ matrix.variant.arch }}
           verbose: true

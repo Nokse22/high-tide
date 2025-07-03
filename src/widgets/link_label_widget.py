@@ -25,7 +25,7 @@ import html
 
 
 class HTLinkLabelWidget(Gtk.Label):
-    __gtype_name__ = 'HTLinkLabelWidget'
+    __gtype_name__ = "HTLinkLabelWidget"
 
     """It is used to display multiple artist with a link"""
 
@@ -45,7 +45,8 @@ class HTLinkLabelWidget(Gtk.Label):
             if index >= 1:
                 label += ", "
             label += "<a href='artist:{}'>{}</a>".format(
-                artist.id, html.escape(artist.name))
+                artist.id, html.escape(artist.name)
+            )
 
             self.set_markup(label)
 

@@ -131,14 +131,14 @@
   padding-right: 6px;
 }
 
-.sidebar-progress-bar trough {
-  border-radius: 0px;
+.sidebar-progress-bar trough { /* codespell:ignore trough */
+  border-radius:0px;
   background-color: transparent;
 }
 
-.sidebar-progress-bar trough>progress {
-  border-radius: 0px;
-  background-color: alpha(var(--window-fg-color), 0.05);
+.sidebar-progress-bar trough > progress { /* codespell:ignore trough */
+  border-radius:0px;
+  background-color:alpha(var(--window-fg-color), 0.05);
 }
 
 dropdown button:not(:hover) {

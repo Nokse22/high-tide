@@ -1,6 +1,30 @@
 using Gtk 4.0;
 using Adw 1;
 
+Adw.AlertDialog app_id_dialog {
+  heading: _("We Changed App ID");
+  body: _("We had to change the app ID for High Tide, if you had it installed before as Flatpak make sure to remove the old version with this command:");
+  can-close: bind check_btn.active;
+  response => $on_app_id_response_cb();
+  closed => $on_app_id_closed_cb();
+  extra-child: Box {
+    orientation: vertical;
+    spacing: 12;
+    Label {
+      label: "flatpak uninstall io.github.nokse22.HighTide --delete-data";
+      selectable: true;
+    }
+    CheckButton check_btn {
+      label: _("I understood");
+      halign: center;
+      toggled => $on_app_id_check_toggled_cb();
+    }
+  };
+  responses [
+    close: "Close" disabled
+  ]
+}
+
 template $HighTideWindow: Adw.ApplicationWindow {
   default-width: 800;
   default-height: 600;
@@ -140,7 +164,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
                       clicked => $on_play_button_clicked();
                     }
 
-                    Button {
+                    Button go_next_button {
                       icon-name: "media-skip-forward-symbolic";
                       tooltip-text: _("Skip Forward");
                       valign: center;
@@ -381,6 +405,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
                     icon-name: "media-skip-forward-symbolic";
                     tooltip-text: _("Skip Forward");
                     valign: center;
+                    sensitive: bind go_next_button.sensitive;
 
                     styles [
                       "flat",
@@ -597,7 +622,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
                       toggled => $on_shuffle_button_toggled();
                     }
 
-                    Button {
+                    Button go_prev_button {
                       icon-name: "media-skip-backward-symbolic";
                       tooltip-text: _("Skip Backward");
                       valign: center;
@@ -626,6 +651,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
                       icon-name: "media-skip-forward-symbolic";
                       tooltip-text: _("Skip Forward");
                       valign: center;
+                      sensitive: bind go_next_button.sensitive;
 
                       styles [
                         "circular",

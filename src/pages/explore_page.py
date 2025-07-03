@@ -35,7 +35,7 @@ from gettext import gettext as _
 
 
 class HTExplorePage(Page):
-    __gtype_name__ = 'HTExplorePage'
+    __gtype_name__ = "HTExplorePage"
 
     """It is used to display the explore page"""
 
@@ -59,11 +59,13 @@ class HTExplorePage(Page):
             return
 
         builder = Gtk.Builder.new_from_resource(
-            "/io/github/nokse22/HighTide/ui/search_entry.ui")
+            "/io/github/nokse22/high-tide/ui/search_entry.ui"
+        )
         search_entry = builder.get_object("search_entry")
         self.signals.append((
             search_entry,
-            search_entry.connect("activate", self.on_search_activated)))
+            search_entry.connect("activate", self.on_search_activated),
+        ))
 
         self.page_content.append(search_entry)
 
@@ -75,7 +77,8 @@ class HTExplorePage(Page):
     def _make_category(self, category):
         if isinstance(category.items[0], PageLink):
             carousel, flow_box_box = self.get_link_carousel(
-                category.title if category.title else _("More"))
+                category.title if category.title else _("More")
+            )
 
             flow_box = Gtk.FlowBox(homogeneous=True, height_request=100)
             flow_box_box.append(flow_box)
@@ -96,9 +99,7 @@ class HTExplorePage(Page):
                 cards_box.append(self.get_card(new_item))
             elif isinstance(item, PageLink):  # Generes and moods
                 if buttons_for_page == 4:
-                    flow_box = Gtk.FlowBox(
-                        homogeneous=True,
-                        height_request=100)
+                    flow_box = Gtk.FlowBox(homogeneous=True, height_request=100)
                     flow_box_box.append(flow_box)
                     buttons_for_page = 0
                 button = self.get_page_link_card(item)

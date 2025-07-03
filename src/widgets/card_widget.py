@@ -35,10 +35,9 @@ from ..disconnectable_iface import IDisconnectable
 from gettext import gettext as _
 
 
-@Gtk.Template(
-    resource_path='/io/github/nokse22/HighTide/ui/widgets/card_widget.ui')
+@Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/card_widget.ui")
 class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
-    __gtype_name__ = 'HTCardWidget'
+    __gtype_name__ = "HTCardWidget"
 
     """It is card that adapts to the content it needs to display,
     it is used when listing artists, albums, mixes and so on"""
@@ -56,12 +55,13 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         self.signals.append((
             self.track_artist_label,
-            self.track_artist_label.connect(
-                "activate-link", utils.open_uri)))
+            self.track_artist_label.connect("activate-link", utils.open_uri),
+        ))
 
         self.signals.append((
             self.click_gesture,
-            self.click_gesture.connect("released", self.on_click)))
+            self.click_gesture.connect("released", self.on_click),
+        ))
 
         self.item = _item
 
@@ -88,14 +88,13 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_artists(self.item.artists)
         self.track_artist_label.set_label(
-            _("Track by {}").format(self.track_artist_label.get_label()))
+            _("Track by {}").format(self.track_artist_label.get_label())
+        )
         self.detail_label.set_visible(False)
 
         self.item = self.item.album
 
-        threading.Thread(
-            target=utils.add_image,
-            args=(self.image, self.item)).start()
+        threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
     def make_mix_card(self):
         self.title_label.set_label(self.item.title)
@@ -103,9 +102,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.detail_label.set_label(self.item.sub_title)
         self.track_artist_label.set_visible(False)
 
-        threading.Thread(
-            target=utils.add_image,
-            args=(self.image, self.item)).start()
+        threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
     def make_album_card(self):
         self.title_label.set_label(self.item.name)
@@ -113,9 +110,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.track_artist_label.set_artists(self.item.artists)
         self.detail_label.set_visible(False)
 
-        threading.Thread(
-            target=utils.add_image,
-            args=(self.image, self.item)).start()
+        threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
     def make_playlist_card(self):
         self.title_label.set_label(self.item.name)
@@ -129,9 +124,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             creator = "TIDAL"
         self.detail_label.set_label(_("By {}").format(creator.title()))
 
-        threading.Thread(
-            target=utils.add_image,
-            args=(self.image, self.item)).start()
+        threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
     def make_artist_card(self):
         self.title_label.set_label(self.item.name)
@@ -139,14 +132,11 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.detail_label.set_label(_("Artist"))
         self.track_artist_label.set_visible(False)
 
-        threading.Thread(
-            target=utils.add_image,
-            args=(self.image, self.item)).start()
+        threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
     def on_click(self, *args):
         if self.action:
-            self.activate_action(
-                self.action, GLib.Variant("s", str(self.item.id)))
+            self.activate_action(self.action, GLib.Variant("s", str(self.item.id)))
 
     def __repr__(self, *args):
         return "<CardWidget>"

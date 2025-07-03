@@ -36,7 +36,7 @@ from gettext import gettext as _
 
 
 class HTArtistPage(Page):
-    __gtype_name__ = 'HTArtistPage'
+    __gtype_name__ = "HTArtistPage"
 
     """It is used to display an artist page"""
 
@@ -56,7 +56,8 @@ class HTArtistPage(Page):
         self.set_title(self.artist.name)
 
         builder = Gtk.Builder.new_from_resource(
-            "/io/github/nokse22/HighTide/ui/pages_ui/artist_page_template.ui")
+            "/io/github/nokse22/high-tide/ui/pages_ui/artist_page_template.ui"
+        )
 
         page_content = builder.get_object("_main")
         # top_tracks_list_box = builder.get_object("_top_tracks_list_box")
@@ -67,36 +68,37 @@ class HTArtistPage(Page):
         play_btn = builder.get_object("_play_button")
         self.signals.append((
             play_btn,
-            play_btn.connect("clicked", self.on_play_button_clicked)))
+            play_btn.connect("clicked", self.on_play_button_clicked),
+        ))
 
         shuffle_btn = builder.get_object("_shuffle_button")
         self.signals.append((
             shuffle_btn,
-            shuffle_btn.connect("clicked", self.on_shuffle_button_clicked)))
+            shuffle_btn.connect("clicked", self.on_shuffle_button_clicked),
+        ))
 
         follow_button = builder.get_object("_follow_button")
         self.signals.append((
             follow_button,
             follow_button.connect(
-                "clicked",
-                utils.on_in_to_my_collection_button_clicked,
-                self.artist)))
+                "clicked", utils.on_in_to_my_collection_button_clicked, self.artist
+            ),
+        ))
 
         share_button = builder.get_object("_share_button")
         self.signals.append((
             share_button,
-            share_button.connect(
-                "clicked",
-                lambda *_: utils.share_this(self.artist))))
+            share_button.connect("clicked", lambda *_: utils.share_this(self.artist)),
+        ))
 
-        if (utils.is_favourited(self.artist)):
+        if utils.is_favourited(self.artist):
             follow_button.set_icon_name("heart-filled-symbolic")
 
         artist_picture = builder.get_object("_avatar")
 
         threading.Thread(
-            target=utils.add_image_to_avatar,
-            args=(artist_picture, self.artist)).start()
+            target=utils.add_image_to_avatar, args=(artist_picture, self.artist)
+        ).start()
 
         builder.get_object("_first_subtitle_label").set_label(_("Artist"))
 
@@ -128,8 +130,7 @@ class HTArtistPage(Page):
         carousel = self.get_carousel(_("EP & Singles"))
         try:
             albums = self.artist.get_albums_ep_singles(limit=10)
-            carousel.set_more_function(
-                "album", self.artist.get_albums_ep_singles)
+            carousel.set_more_function("album", self.artist.get_albums_ep_singles)
         except Exception as e:
             print(e)
         else:
@@ -170,7 +171,8 @@ class HTArtistPage(Page):
                 css_classes=[],
                 margin_start=12,
                 margin_end=12,
-                margin_bottom=24)
+                margin_bottom=24,
+            )
             label.set_markup(bio)
             self.content_box.append(
                 Gtk.Label(
@@ -180,11 +182,11 @@ class HTArtistPage(Page):
                     label=_("Bio"),
                     xalign=0,
                     margin_top=12,
-                    margin_bottom=12))
-            self.content_box.append(label)
-            self.signals.append(
-                (label, label.connect("activate-link", utils.open_uri))
+                    margin_bottom=12,
+                )
             )
+            self.content_box.append(label)
+            self.signals.append((label, label.connect("activate-link", utils.open_uri)))
 
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())
@@ -198,6 +200,7 @@ class HTArtistPage(Page):
 
     def on_artist_radio_button_clicked(self, btn):
         from .track_radio_page import HTHrackRadioPage
+
         page = HTHrackRadioPage(self.artist, _("Radio of {}").format(self.artist.name))
         page.load()
         utils.navigation_view.push(page)

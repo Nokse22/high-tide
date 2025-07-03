@@ -33,7 +33,7 @@ from gettext import gettext as _
 
 
 class HTHomePage(Page):
-    __gtype_name__ = 'HTHomePage'
+    __gtype_name__ = "HTHomePage"
 
     def _th_load_page(self):
         self.set_tag("home")
@@ -43,9 +43,8 @@ class HTHomePage(Page):
 
         for index, category in enumerate(home.categories):
             try:
-                if (
-                    isinstance(category.items[0], PageItem) or
-                    isinstance(category.items[0], PageLink)
+                if isinstance(category.items[0], PageItem) or isinstance(
+                    category.items[0], PageLink
                 ):
                     continue
 

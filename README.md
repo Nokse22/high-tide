@@ -1,5 +1,5 @@
 <div align="center">
-  <img height="128" src="data/icons/hicolor/scalable/apps/io.github.nokse22.HighTide.svg" alt="High Tide Logo"/>
+  <img height="128" src="data/icons/hicolor/scalable/apps/io.github.nokse22.high-tide.svg" alt="High Tide Logo"/>
   
   # High Tide
   
@@ -28,8 +28,7 @@
 </table>
 
 ## 🚀 Installation
-<details><summary>Stores (Still not avalaible)</summary>
-### 🛒 High Tide is available on
+### 🛒 Flathub
 
 <a href='https://flathub.org/apps/io.github.nokse22.high-tide'><img height='80' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.png'/></a>
 </details>
@@ -39,7 +38,7 @@
 Go to the [Actions page](https://github.com/Nokse22/high-tide/actions), click on the latest working build and download the Artifact for your architecture.
 Extract the .flatpak file from the downloaded .zip file and install it clicking on it or with:
 
-`flatpak install HighTide.flatpak`
+`flatpak install high-tide.flatpak`
 
 Beware: Locales are not available when installing from a `.flatpak` file, since flatpak locales are stored in another runtime for optimisations, and `.flatpak` files only export the app without runtimes.
 
@@ -47,13 +46,13 @@ If you want/need locales, please build from source.
 
 ### ⚡ From source (binary)
 
-You just need to clone the repository, and build with mason.
+You just need to clone the repository, and build with meson.
 
 ```sh
 git clone https://github.com/Nokse22/high-tide.git
-mason builddir
-mason compile -C builddir
-mason install -C builddir
+meson builddir
+meson compile -C builddir
+meson install -C builddir
 ```
 
 Or open the project in GNOME Builder and click "Run Project".
@@ -66,10 +65,10 @@ First, terminate all High Tide processes. Keep in mind that "Run in background" 
 You can then remove the package using flatpak :
 ```sh
 # When installed system-wide (default)
-flatpak uninstall --delete-data io.github.nokse22.HighTide
+flatpak uninstall --delete-data io.github.nokse22.high-tide
 
 # When installed for the current user (-u flag at installation)
-flatpak uninstall --delete-data -u io.github.nokse22.HighTide
+flatpak uninstall --delete-data -u io.github.nokse22.high-tide
 ```
 
 The `--delete-data` flag should get rid of all the "junk" directories (i.e. cache, configs, etc.) on your system, and you don't need to do anything else.

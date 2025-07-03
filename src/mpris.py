@@ -123,6 +123,7 @@ class MPRIS(Server):
             <property name="PlaybackStatus" type="s" access="read"/>
             <property name="Metadata" type="a{sv}" access="read">
             </property>
+            <property name="Position" type="x" access="read"/>
             <property name="Volume" type="d" access="readwrite"/>
             <property name="CanGoNext" type="b" access="read"/>
             <property name="CanGoPrevious" type="b" access="read"/>
@@ -135,7 +136,7 @@ class MPRIS(Server):
 
     __MPRIS_IFACE = "org.mpris.MediaPlayer2"
     __MPRIS_PLAYER_IFACE = "org.mpris.MediaPlayer2.Player"
-    __MPRIS_HIGH_TIDE = "org.mpris.MediaPlayer2.HighTide"
+    __MPRIS_HIGH_TIDE = "org.mpris.MediaPlayer2.io.github.nokse22.high-tide"
     __MPRIS_PATH = "/org/mpris/MediaPlayer2"
 
     def __init__(self, player):
@@ -144,9 +145,7 @@ class MPRIS(Server):
         self.__metadata = {}
 
         track_id = 0 + randint(10000000, 90000000)
-        self.__metadata["mpris:trackid"] = GLib.Variant(
-            "o", f"/Track/{track_id}"
-        )
+        self.__metadata["mpris:trackid"] = GLib.Variant("o", f"/Track/{track_id}")
 
         track = self.player.playing_track
 
@@ -154,7 +153,9 @@ class MPRIS(Server):
             self.__metadata["xesam:title"] = GLib.Variant("s", track.name)
             self.__metadata["xesam:album"] = GLib.Variant("s", track.album)
             self.__metadata["xesam:artist"] = GLib.Variant("as", [track.artist])
-            self.__metadata["mpris:length"] = GLib.Variant("i", self.player.query_duration())
+            self.__metadata["mpris:length"] = GLib.Variant(
+                "x", self.player.query_duration() / 1000
+            )
 
         self.__bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
         Gio.bus_own_name_on_connection(
@@ -203,19 +204,21 @@ class MPRIS(Server):
         ]:
             return GLib.Variant("b", True)
         elif property_name == "CanGoNext":
-            return GLib.Variant("b", self.player.can_next)
+            return GLib.Variant("b", self.player.can_go_next)
         elif property_name == "CanGoPrevious":
-            return GLib.Variant("b", self.player.can_prev)
+            return GLib.Variant("b", self.player.can_go_prev)
         elif property_name == "Identity":
             return GLib.Variant("s", "High Tide")
         elif property_name == "DesktopEntry":
-            return GLib.Variant("s", "io.github.nokse22.HighTide")
+            return GLib.Variant("s", "io.github.nokse22.high-tide")
         elif property_name == "PlaybackStatus":
             return GLib.Variant("s", self._get_status())
         elif property_name == "Metadata":
             return GLib.Variant("a{sv}", self.__metadata)
+        elif property_name == "Position":
+            return GLib.Variant("x", self.player.query_position() / 1000)
         elif property_name == "Volume":
-            return GLib.Variant("d", 1.0)
+            return GLib.Variant("d", self.player.query_volume())
         else:
             return GLib.Variant("b", False)
 
@@ -228,6 +231,7 @@ class MPRIS(Server):
             for property_name in [
                 "PlaybackStatus",
                 "Metadata",
+                "Position",
                 "Volume",
                 "CanGoNext",
                 "CanGoPrevious",
@@ -240,7 +244,7 @@ class MPRIS(Server):
 
     def Set(self, interface, property_name, new_value):
         if property_name == "Volume":
-            self.player.volume = new_value
+            self.player.change_volume(new_value)
 
     def PropertiesChanged(
         self, interface_name, changed_properties, invalidated_properties
@@ -271,27 +275,36 @@ class MPRIS(Server):
         if self.player.playing_track is None:
             return
 
-        self.__metadata["xesam:title"] = GLib.Variant("s", self.player.playing_track.name)
-        self.__metadata["xesam:album"] = GLib.Variant("s", self.player.playing_track.album.name)
-        self.__metadata["xesam:artist"] = GLib.Variant("as", [self.player.playing_track.artist.name])
-        self.__metadata["mpris:length"] = GLib.Variant("i", self.player.duration)
+        self.__metadata["xesam:title"] = GLib.Variant(
+            "s", self.player.playing_track.name
+        )
+        self.__metadata["xesam:album"] = GLib.Variant(
+            "s", self.player.playing_track.album.name
+        )
+        self.__metadata["xesam:artist"] = GLib.Variant(
+            "as", [self.player.playing_track.artist.name]
+        )
+        self.__metadata["mpris:length"] = GLib.Variant(
+            "x", self.player.query_duration() / 1000
+        )
 
-        url = f"file://{utils.IMG_DIR}/{self.player.playing_track.album.id}.jpg"
+        # 320 px should always be fetched for example by queue logic
+        url = f"file://{utils.IMG_DIR}/{self.player.playing_track.album.id}_320.jpg"
 
         self.__metadata["mpris:artUrl"] = GLib.Variant("s", url)
 
         changed_properties = {
             "Metadata": GLib.Variant("a{sv}", self.__metadata),
-            "CanGoNext": GLib.Variant("b", self.player.can_next),
-            "CanGoPrevious": GLib.Variant("b", self.player.can_prev),
+            "Position": GLib.Variant("x", self.player.query_position() / 1000),
+            "CanGoNext": GLib.Variant("b", self.player.can_go_next),
+            "CanGoPrevious": GLib.Variant("b", self.player.can_go_prev),
         }
         self.PropertiesChanged(self.__MPRIS_PLAYER_IFACE, changed_properties, [])
 
     def _on_volume_changed(self, _player, volume):
         self.PropertiesChanged(
-            self.__MPRIS_PLAYER_IFACE,
-            {"Volume": GLib.Variant("d", volume)},
-            [])
+            self.__MPRIS_PLAYER_IFACE, {"Volume": GLib.Variant("d", volume)}, []
+        )
 
     def _on_playing_changed(self, *args):
         properties = {"PlaybackStatus": GLib.Variant("s", self._get_status())}

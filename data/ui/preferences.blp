@@ -1,0 +1,55 @@
+using Gtk 4.0;
+using Adw 1;
+
+Adw.PreferencesDialog _preference_window {
+  Adw.PreferencesPage {
+    Adw.PreferencesGroup {
+      title: _("Audio");
+      Adw.ComboRow _quality_row {
+        model: StringList {
+          strings [
+            _("Low 96k"),
+            _("High 320k"),
+            _("Lossless"),
+            _("Hi-res Lossless"),
+          ]
+        };
+
+        title: _("Quality");
+      }
+      Adw.ComboRow _sink_row {
+        model: StringList {
+          strings [
+            _("Automatic"),
+            "PulseAudio",
+            "ALSA",
+            "Jack",
+            "OSS",
+            "Pipewire",
+          ]
+        };
+
+        title: _("Preferred Audio Sink");
+      }
+      Adw.SwitchRow _normalize_row {
+        title: _("Normalize volume");
+      }
+    }
+
+    Adw.PreferencesGroup {
+      title: _("App");
+      Adw.SwitchRow _background_row {
+        title: _("Run in the background");
+      }
+      Adw.SwitchRow _quadratic_volume_row {
+        title: _("Use quadratic volume control");
+      }
+      Adw.SwitchRow _video_cover_row {
+        title: _("Display animated covers");
+      }
+      Adw.SwitchRow _discord_rpc_row {
+        title: _("Enable Discord Rich Presence");
+      }
+    }
+  }
+}

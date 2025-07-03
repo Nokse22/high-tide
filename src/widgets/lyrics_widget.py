@@ -48,7 +48,8 @@ class LineItemFactory(Gtk.SignalListItemFactory):
             justify=2,
             margin_start=12,
             margin_top=3,
-            margin_end=12)
+            margin_end=12,
+        )
 
         list_item.set_child(label)
 
@@ -62,17 +63,14 @@ class LineItemFactory(Gtk.SignalListItemFactory):
             label.set_text("...")
 
 
-@Gtk.Template(
-    resource_path='/io/github/nokse22/HighTide/ui/widgets/lyrics_widget.ui')
+@Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/lyrics_widget.ui")
 class HTLyricsWidget(Gtk.Box, IDisconnectable):
-    __gtype_name__ = 'HTLyricsWidget'
+    __gtype_name__ = "HTLyricsWidget"
 
     list_view = Gtk.Template.Child()
     stack = Gtk.Template.Child()
 
-    __gsignals__ = {
-        'seek': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-    }
+    __gsignals__ = {"seek": (GObject.SignalFlags.RUN_FIRST, None, (int,))}
 
     def __init__(self, _item=None):
         IDisconnectable.__init__(self)
@@ -91,7 +89,8 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
         self.prev_value = 0
 
         self.handler_id = self.selection_model.connect(
-            "selection-changed", self._on_selection_changed)
+            "selection-changed", self._on_selection_changed
+        )
 
     def set_lyrics(self, lyrics_text):
         self.stack.set_visible_child_name("lyrics_page")
@@ -99,7 +98,7 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
 
         lines = lyrics_text.splitlines()
         for line in lines:
-            match = re.match(r'\[(\d+):(\d+\.\d+)\](.*)', line)
+            match = re.match(r"\[(\d+):(\d+\.\d+)\](.*)", line)
             if match:
                 minutes = int(match.group(1))
                 seconds = float(match.group(2))
@@ -142,8 +141,7 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
                 position = new_index * row_height
                 target_position = position - (view_height / 2) + row_height
 
-                target_position = max(
-                    0, min(target_position, max_height - view_height))
+                target_position = max(0, min(target_position, max_height - view_height))
 
             self._scroll_to(target_position)
 
@@ -152,13 +150,10 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
         self.selection_model.handler_unblock(self.handler_id)
 
     def _scroll_to(self, value):
-        target = Adw.PropertyAnimationTarget.new(self.adjustment, 'value')
+        target = Adw.PropertyAnimationTarget.new(self.adjustment, "value")
         animation = Adw.TimedAnimation.new(
-            self,
-            self.adjustment.get_value(),
-            value,
-            200,
-            target)
+            self, self.adjustment.get_value(), value, 200, target
+        )
         animation.play()
 
         self.prev_value = value

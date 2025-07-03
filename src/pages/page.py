@@ -35,7 +35,7 @@ from gettext import gettext as _
 
 
 class Page(Adw.NavigationPage, IDisconnectable):
-    __gtype_name__ = 'Page'
+    __gtype_name__ = "Page"
 
     """It's the base class for all types of pages,
     it contains all the shared functions"""
@@ -49,7 +49,8 @@ class Page(Adw.NavigationPage, IDisconnectable):
         self.page_content = Gtk.Box(vexpand=True, hexpand=True, orientation=1)
 
         self.builder = Gtk.Builder.new_from_resource(
-            '/io/github/nokse22/HighTide/ui/pages_ui/page_template.ui')
+            "/io/github/nokse22/high-tide/ui/pages_ui/page_template.ui"
+        )
 
         self.content = self.builder.get_object("_content")
         self.content_stack = self.builder.get_object("_content_stack")
@@ -109,46 +110,43 @@ class Page(Adw.NavigationPage, IDisconnectable):
             margin_bottom=12,
             margin_start=12,
             margin_end=12,
-            overflow=Gtk.Overflow.HIDDEN)
-        title_box = Gtk.Box(
-            margin_top=12,
-            margin_bottom=6)
+            overflow=Gtk.Overflow.HIDDEN,
+        )
+        title_box = Gtk.Box(margin_top=12, margin_bottom=6)
         title_box.append(
-            Gtk.Label(
-                label=title,
-                xalign=0,
-                css_classes=["title-3"],
-                ellipsize=3))
+            Gtk.Label(label=title, xalign=0, css_classes=["title-3"], ellipsize=3)
+        )
         prev_button = Gtk.Button(
             icon_name="go-next-symbolic",
             margin_start=6,
             halign=Gtk.Align.END,
-            css_classes=["circular"])
+            css_classes=["circular"],
+        )
         next_button = Gtk.Button(
             icon_name="go-previous-symbolic",
             hexpand=True,
             halign=Gtk.Align.END,
-            css_classes=["circular"])
+            css_classes=["circular"],
+        )
         title_box.append(next_button)
         title_box.append(prev_button)
 
         box.append(title_box)
         cards_box = Adw.Carousel(
-            halign=Gtk.Align.FILL,
-            allow_scroll_wheel=False,
-            allow_long_swipes=True)
+            halign=Gtk.Align.FILL, allow_scroll_wheel=False, allow_long_swipes=True
+        )
         cards_box.set_overflow(Gtk.Overflow.VISIBLE)
         box.append(cards_box)
 
         self.signals.append((
             prev_button,
-            prev_button.connect(
-                "clicked", self.carousel_go_prev, cards_box, 1)))
+            prev_button.connect("clicked", self.carousel_go_prev, cards_box, 1),
+        ))
 
         self.signals.append((
             next_button,
-            next_button.connect(
-                "clicked", self.carousel_go_next, cards_box, 1)))
+            next_button.connect("clicked", self.carousel_go_next, cards_box, 1),
+        ))
 
         return box, cards_box
 
@@ -196,10 +194,12 @@ class Page(Adw.NavigationPage, IDisconnectable):
             margin_end=12,
             hexpand=True,
             width_request=200,
-            vexpand=True)
+            vexpand=True,
+        )
         self.signals.append((
             button,
-            button.connect("clicked", self.on_page_link_clicked, page_link)))
+            button.connect("clicked", self.on_page_link_clicked, page_link),
+        ))
 
         return button
 

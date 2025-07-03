@@ -36,8 +36,8 @@ user_playlists = []
 
 def init():
     global CACHE_DIR
-    CACHE_DIR = os.environ.get('XDG_CACHE_HOME')
-    if CACHE_DIR == "" or CACHE_DIR is None or "HighTide" not in CACHE_DIR:
+    CACHE_DIR = os.environ.get("XDG_CACHE_HOME")
+    if CACHE_DIR == "" or CACHE_DIR is None or "high-tide" not in CACHE_DIR:
         CACHE_DIR = f"{os.environ.get('HOME')}/.cache/high-tide"
     global IMG_DIR
     IMG_DIR = f"{CACHE_DIR}/images"
@@ -91,7 +91,7 @@ def is_favourited(item):
 
     if isinstance(item, Track):
         for fav in favourite_tracks:
-            if (fav.id == item.id):
+            if fav.id == item.id:
                 return True
 
     elif isinstance(item, Mix):
@@ -99,26 +99,24 @@ def is_favourited(item):
 
     elif isinstance(item, Album):
         for fav in favourite_albums:
-            if (fav.id == item.id):
+            if fav.id == item.id:
                 return True
 
     elif isinstance(item, Artist):
         for fav in favourite_artists:
-            if (fav.id == item.id):
+            if fav.id == item.id:
                 return True
 
     elif isinstance(item, Playlist):
         for fav in favourite_artists:
-            if (fav.id == item.id):
+            if fav.id == item.id:
                 return True
 
     return False
 
 
 def send_toast(toast_title, timeout):
-    toast_overlay.add_toast(Adw.Toast(
-        title=toast_title,
-        timeout=timeout))
+    toast_overlay.add_toast(Adw.Toast(title=toast_title, timeout=timeout))
 
 
 def th_add_to_my_collection(btn, item):
@@ -168,13 +166,9 @@ def th_remove_from_my_collection(btn, item):
 
 def on_in_to_my_collection_button_clicked(btn, item):
     if btn.get_icon_name() == "heart-outline-thick-symbolic":
-        threading.Thread(
-            target=th_add_to_my_collection,
-            args=(btn, item,)).start()
+        threading.Thread(target=th_add_to_my_collection, args=(btn, item)).start()
     else:
-        threading.Thread(
-            target=th_remove_from_my_collection,
-            args=(btn, item,)).start()
+        threading.Thread(target=th_remove_from_my_collection, args=(btn, item)).start()
 
 
 def share_this(item):
@@ -251,9 +245,7 @@ def open_tidal_uri(uri):
             page = HTAlbumPage(content_id).load()
             navigation_view.push(page)
         case "track":
-            threading.Thread(
-                target=th_play_track,
-                args=(content_id,)).start()
+            threading.Thread(target=th_play_track, args=(content_id,)).start()
         case "mix":
             page = HTMixPage(content_id).load()
             navigation_view.push(page)
@@ -280,24 +272,37 @@ def pretty_duration(secs):
     seconds = secs % 60
 
     if hours > 0:
-        return f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
+        return f"{int(hours)}:{int(minutes):02}:{int(seconds):02}"
     else:
-        return f"{int(minutes):02}:{int(seconds):02}"
+        return f"{int(minutes):2}:{int(seconds):02}"
 
     return "00:00"
 
 
-def get_image_url(item):
+def get_best_dimensions(widget):
+    edge = widget.get_height()
+    dimensions = [80, 160, 320, 640, 1280]
+    # The function for fractional scaling is not available in GTKWidget
+    scale = 1.0
+    native = widget.get_native()
+    if native:
+        surface = native.get_surface()
+        if surface:
+            scale = surface.get_scale()
+    return next((x for x in dimensions if x > (edge * scale)), dimensions[-1])
+
+
+def get_image_url(item, dimensions=320):
     if hasattr(item, "id"):
-        file_path = Path(f"{IMG_DIR}/{item.id}.jpg")
+        file_path = Path(f"{IMG_DIR}/{item.id}_{dimensions}.jpg")
     else:
-        file_path = Path(f"{IMG_DIR}/{uuid.uuid4()}.jpg")
+        file_path = Path(f"{IMG_DIR}/{uuid.uuid4()}_{dimensions}.jpg")
 
     if file_path.is_file():
         return str(file_path)
 
     try:
-        picture_url = item.image()
+        picture_url = item.image(dimensions=dimensions)
         response = requests.get(picture_url)
     except Exception as e:
         print(e)
@@ -322,7 +327,11 @@ def add_picture(widget, item, cancellable=Gio.Cancellable.new()):
             widget.set_filename(file_path)
 
     GLib.idle_add(
-        _add_picture, widget, get_image_url(item), cancellable)
+        _add_picture,
+        widget,
+        get_image_url(item, get_best_dimensions(widget)),
+        cancellable,
+    )
 
 
 def add_image(widget, item, cancellable=Gio.Cancellable.new()):
@@ -332,12 +341,61 @@ def add_image(widget, item, cancellable=Gio.Cancellable.new()):
         if not cancellable.is_cancelled():
             widget.set_from_file(file_path)
 
+    GLib.idle_add(_add_image, widget, get_image_url(item), cancellable)
+
+
+def get_video_cover_url(item, dimensions=640):
+    if hasattr(item, "id"):
+        file_path = Path(f"{IMG_DIR}/{item.id}_{dimensions}.mp4")
+    else:
+        file_path = Path(f"{IMG_DIR}/{uuid.uuid4()}_{dimensions}.mp4")
+
+    if file_path.is_file():
+        return str(file_path)
+
+    try:
+        video_url = item.video(dimensions=dimensions)
+        response = requests.get(video_url)
+    except Exception as e:
+        print(e)
+        return None
+    if response.status_code == 200:
+        picture_data = response.content
+
+        with open(file_path, "wb") as file:
+            file.write(picture_data)
+
+    return str(file_path)
+
+
+def add_video_cover(
+    widget, videoplayer, item, in_background, cancellable=Gio.Cancellable.new()
+):
+    """Retrieves and adds an video"""
+
+    if cancellable is None:
+        cancellable = Gio.Cancellable.new()
+
+    def _add_video_cover(widget, videoplayer, file_path, in_background, cancellable):
+        if not cancellable.is_cancelled() and file_path:
+            videoplayer.set_loop(True)
+            videoplayer.set_filename(file_path)
+            widget.set_paintable(videoplayer)
+            if not in_background:
+                videoplayer.play()
+
     GLib.idle_add(
-        _add_image, widget, get_image_url(item), cancellable)
+        _add_video_cover,
+        widget,
+        videoplayer,
+        get_video_cover_url(item, get_best_dimensions(widget)),
+        in_background,
+        cancellable,
+    )
 
 
 def add_image_to_avatar(widget, item, cancellable=Gio.Cancellable.new()):
-    """Same ad the previous function, but for Adwaita's avatar widgets"""
+    """Same as the previous function, but for Adwaita's avatar widgets"""
 
     def _add_image_to_avatar(avatar_widget, file_path, cancellable):
         if not cancellable.is_cancelled():
@@ -345,13 +403,12 @@ def add_image_to_avatar(widget, item, cancellable=Gio.Cancellable.new()):
             image = Gdk.Texture.new_from_file(file)
             widget.set_custom_image(image)
 
-    GLib.idle_add(
-        _add_image_to_avatar, widget, get_image_url(item), cancellable)
+    GLib.idle_add(_add_image_to_avatar, widget, get_image_url(item), cancellable)
 
 
 def replace_links(text):
-    # Define regular expression pattern to match escaped [wimpLink ...]...[/wimpLink] tags
-    pattern = r'\[wimpLink (artistId|albumId)=&quot;(\d+)&quot;\]([^[]+)\[\/wimpLink\]'
+    # Define regular expression pattern to match [wimpLink ...]...[/wimpLink] tags
+    pattern = r"\[wimpLink (artistId|albumId)=&quot;(\d+)&quot;\]([^[]+)\[\/wimpLink\]"
 
     # Escape HTML in the entire text
     escaped_text = html.escape(text)
@@ -370,7 +427,7 @@ def replace_links(text):
             return label
 
     # Replace <br/> with two periods
-    escaped_text = escaped_text.replace('&lt;br/&gt;', '\n')
+    escaped_text = escaped_text.replace("&lt;br/&gt;", "\n")
 
     # Use re.sub() to perform the replacement
     replaced_text = re.sub(pattern, replace, escaped_text)
