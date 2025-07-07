@@ -307,8 +307,9 @@ class PlayerObject(GObject.GObject):
         if self.shuffle:
             self._update_shuffle_queue()
 
+        # Will result in play() call later
+        self.playing = True
         self.play_track(track)
-        self.play()
         self.set_track(track)
         # self.emit("song-changed")
 
