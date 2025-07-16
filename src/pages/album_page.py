@@ -49,11 +49,11 @@ class HTAlbumPage(Page):
         )
 
         page_content = builder.get_object("_main")
-        tracks_list_box = builder.get_object("_list_box")
-        self.signals.append((
-            tracks_list_box,
-            tracks_list_box.connect("row-activated", self.on_row_selected),
-        ))
+
+        auto_load = builder.get_object("_auto_load")
+        auto_load.set_scrolled_window(self.scrolled_window)
+        auto_load.set_items(self.item.tracks())
+        auto_load.set_function(self.item.tracks)
 
         builder.get_object("_title_label").set_label(self.item.name)
         builder.get_object("_first_subtitle_label").set_label(
@@ -102,15 +102,5 @@ class HTAlbumPage(Page):
         image = builder.get_object("_image")
         threading.Thread(target=utils.add_image, args=(image, self.item)).start()
 
-        for index, track in enumerate(self.item.items()):
-            listing = self.get_album_track_listing(track)
-            listing.set_name(str(index))
-            tracks_list_box.append(listing)
-
         self.page_content.append(page_content)
         self._page_loaded()
-
-    def on_row_selected(self, list_box, row):
-        index = int(row.get_name())
-
-        utils.player_object.play_this(self.item, index)

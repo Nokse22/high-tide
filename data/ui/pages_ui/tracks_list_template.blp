@@ -247,16 +247,24 @@ Box _main {
   Separator {
     valign: start;
   }
-
+  // TODO remove this when HTTrackRadioPage is removed
   ListBox _list_box {
     valign: start;
     margin-top: 12;
     margin-start: 12;
     margin-end: 12;
     margin-bottom: 12;
+    visible: false;
 
     styles [
       "tracks-list-box",
     ]
+  }
+  $HTAutoLoadWidget _auto_load {
+    valign: start;
+    margin-top: 12;
+    margin-start: 12;
+    margin-end: 12;
+    margin-bottom: 12;
   }
 }

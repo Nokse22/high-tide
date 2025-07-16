@@ -52,6 +52,8 @@ class HTHrackRadioPage(Page):
             tracks_list_box,
             tracks_list_box.connect("row-activated", self.on_row_selected),
         ))
+        tracks_list_box.set_visible(True)
+        builder.get_object("_auto_load").set_visible(False)
 
         page_title = _("Radio of {}").format(self.item.name)
 
