@@ -109,6 +109,10 @@ class HTArtistPage(Page):
         tracks_list_widget.set_function(self.artist.get_top_tracks)
         self.content_box.append(tracks_list_widget)
 
+        radio_button = builder.get_object("_radio_button")
+        radio_button.set_detailed_action_name(
+            f"win.push-mix-page::{self.artist.get_radio_mix().id}")
+
         self.make_content()
         self.make_bio()
 
@@ -197,10 +201,3 @@ class HTArtistPage(Page):
 
     def on_shuffle_button_clicked(self, btn):
         utils.player_object.shuffle_this(self.top_tracks, 0)
-
-    def on_artist_radio_button_clicked(self, btn):
-        from .track_radio_page import HTHrackRadioPage
-
-        page = HTHrackRadioPage(self.artist, _("Radio of {}").format(self.artist.name))
-        page.load()
-        utils.navigation_view.push(page)
