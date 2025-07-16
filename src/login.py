@@ -22,10 +22,6 @@ from gi.repository import Gtk
 from gi.repository import GLib
 from gi.repository import Gdk
 
-import tidalapi
-
-from .lib import utils
-
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/login.ui")
 class LoginDialog(Adw.Dialog):
@@ -57,6 +53,11 @@ class LoginDialog(Adw.Dialog):
         GLib.timeout_add(600, self.check_login)
 
     def check_login(self):
+        """Check if we are logged in
+
+        Returns:
+            bool: whether we are logged in or not
+        """
         if self.session.check_login():
             self.win.secret_store.save()
             self.win.on_logged_in()
@@ -65,6 +66,6 @@ class LoginDialog(Adw.Dialog):
         return True
 
     @Gtk.Template.Callback("on_copy_code_button_clicked")
-    def foo(self, btn):
+    def on_copy_code_button_clicked(self, btn):
         clipboard = Gdk.Display().get_default().get_clipboard()
         clipboard.set(self.code)

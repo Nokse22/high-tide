@@ -65,6 +65,8 @@ class LineItemFactory(Gtk.SignalListItemFactory):
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/lyrics_widget.ui")
 class HTLyricsWidget(Gtk.Box, IDisconnectable):
+    """A widget to display a track lyrics"""
+
     __gtype_name__ = "HTLyricsWidget"
 
     list_view = Gtk.Template.Child()
@@ -92,7 +94,11 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
             "selection-changed", self._on_selection_changed
         )
 
-    def set_lyrics(self, lyrics_text):
+    def set_lyrics(self, lyrics_text : str):
+        """Set the lyrics
+
+        Args:
+            lyrics_text (str): the lyrics"""
         self.stack.set_visible_child_name("lyrics_page")
         self.list_store.remove_all()
 
@@ -111,10 +117,15 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
                 self.list_store.append(HTLine("", 0))
 
     def clear(self):
+        """Clears the lyrics"""
         self.stack.set_visible_child_name("status_page")
         self.list_store.remove_all()
 
-    def set_current_line(self, time_seconds):
+    def set_time(self, time_seconds : float):
+        """Updates the time of the widget to highlight the correct line
+
+        Args:
+            time_seconds (float): the time"""
         if self.list_store.get_n_items() == 0:
             return
 

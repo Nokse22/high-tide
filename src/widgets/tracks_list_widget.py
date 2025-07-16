@@ -27,10 +27,10 @@ from ..disconnectable_iface import IDisconnectable
     resource_path="/io/github/nokse22/high-tide/ui/widgets/tracks_list_widget.ui"
 )
 class HTTracksListWidget(Gtk.Box, IDisconnectable):
-    __gtype_name__ = "HTTracksListWidget"
-
     """It is used to display multiple elements side by side
     with navigation arrows"""
+
+    __gtype_name__ = "HTTracksListWidget"
 
     tracks_list_box = Gtk.Template.Child()
     more_button = Gtk.Template.Child()
@@ -42,7 +42,7 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
 
         self.signals.append((
             self.more_button,
-            self.more_button.connect("clicked", self.on_more_clicked),
+            self.more_button.connect("clicked", self._on_more_clicked),
         ))
 
         self.n_pages = 0
@@ -54,13 +54,17 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
 
         self.signals.append((
             self.tracks_list_box,
-            self.tracks_list_box.connect("row-activated", self.on_tracks_row_selected),
+            self.tracks_list_box.connect("row-activated", self._on_tracks_row_selected),
         ))
 
         self.tracks = []
 
-    def set_function(self, func):
-        self.get_function = func
+    def set_function(self, function):
+        """Set the function to fetch more items
+
+        Args:
+            function: the function"""
+        self.get_function = function
         self.tracks = self.get_function(10)
         self.more_button.set_visible(True)
 
@@ -78,7 +82,7 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
             listing.set_name(str(index))
             self.tracks_list_box.append(listing)
 
-    def on_more_clicked(self, *args):
+    def _on_more_clicked(self, *args):
         from ..pages import fromFunctionPage
 
         page = fromFunctionPage("track", self.title_name)
@@ -86,7 +90,7 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
         page.load()
         utils.navigation_view.push(page)
 
-    def on_tracks_row_selected(self, list_box, row):
+    def _on_tracks_row_selected(self, list_box, row):
         index = int(row.get_name())
 
         utils.player_object.play_this(self.tracks, index)

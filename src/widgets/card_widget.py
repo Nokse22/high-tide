@@ -37,10 +37,10 @@ from gettext import gettext as _
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/card_widget.ui")
 class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
-    __gtype_name__ = "HTCardWidget"
+    """It is card that adapts to the content it needs to display, it is used when
+    listing artists, albums, mixes and so on"""
 
-    """It is card that adapts to the content it needs to display,
-    it is used when listing artists, albums, mixes and so on"""
+    __gtype_name__ = "HTCardWidget"
 
     image = Gtk.Template.Child()
     click_gesture = Gtk.Template.Child()
@@ -60,7 +60,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         self.signals.append((
             self.click_gesture,
-            self.click_gesture.connect("released", self.on_click),
+            self.click_gesture.connect("released", self._on_click),
         ))
 
         self.item = _item
@@ -68,22 +68,22 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.action = None
 
         if isinstance(self.item, MixV2) or isinstance(self.item, Mix):
-            self.make_mix_card()
+            self._make_mix_card()
             self.action = "win.push-mix-page"
         elif isinstance(self.item, Album):
-            self.make_album_card()
+            self._make_album_card()
             self.action = "win.push-album-page"
         elif isinstance(self.item, Playlist):
-            self.make_playlist_card()
+            self._make_playlist_card()
             self.action = "win.push-playlist-page"
         elif isinstance(self.item, Artist):
-            self.make_artist_card()
+            self._make_artist_card()
             self.action = "win.push-artist-page"
         elif isinstance(self.item, Track):
-            self.make_track_card()
+            self._make_track_card()
             self.action = "win.push-album-page"
 
-    def make_track_card(self):
+    def _make_track_card(self):
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_artists(self.item.artists)
@@ -96,7 +96,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def make_mix_card(self):
+    def _make_mix_card(self):
         self.title_label.set_label(self.item.title)
         self.title_label.set_tooltip_text(self.item.title)
         self.detail_label.set_label(self.item.sub_title)
@@ -104,7 +104,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def make_album_card(self):
+    def _make_album_card(self):
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_artists(self.item.artists)
@@ -112,7 +112,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def make_playlist_card(self):
+    def _make_playlist_card(self):
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_visible(False)
@@ -126,7 +126,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def make_artist_card(self):
+    def _make_artist_card(self):
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
         self.detail_label.set_label(_("Artist"))
@@ -134,7 +134,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def on_click(self, *args):
+    def _on_click(self, *args):
         if self.action:
             self.activate_action(self.action, GLib.Variant("s", str(self.item.id)))
 
