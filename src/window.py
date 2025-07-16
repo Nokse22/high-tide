@@ -37,9 +37,12 @@ from .lib import PlayerObject, RepeatType, SecretStore, utils, HTCache
 from .login import LoginDialog
 # from .new_playlist import NewPlaylistWindow
 
-from .pages import HTNotLoggedInPage, HTGenericPage, HTExplorePage
+from .pages import HTExplorePage
+from .pages import HTNotLoggedInPage
 from .pages import HTCollectionPage
-from .pages import HTArtistPage, HTMixPage, HTHrackRadioPage, HTPlaylistPage
+from .pages import HTArtistPage
+from .pages import HTMixPage
+from .pages import HTPlaylistPage
 from .pages import HTAlbumPage
 
 from .widgets import HTGenericTrackWidget
@@ -89,6 +92,9 @@ class HighTideWindow(Adw.ApplicationWindow):
     sidebar_stack = Gtk.Template.Child()
     go_next_button = Gtk.Template.Child()
     go_prev_button = Gtk.Template.Child()
+    track_radio_button = Gtk.Template.Child()
+    album_button = Gtk.Template.Child()
+    copy_share_link = Gtk.Template.Child()
 
     app_id_dialog = Gtk.Template.Child()
 
@@ -126,7 +132,13 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.create_action_with_target(
             "push-track-radio-page",
             GLib.VariantType.new("s"),
-            self.on_push_track_radio_page,
+            self.on_push_track_radio_page
+        )
+
+        self.create_action_with_target(
+            "push-artist-radio-page",
+            GLib.VariantType.new("s"),
+            self.on_push_artist_radio_page
         )
 
         # self.create_action_with_target(
@@ -344,6 +356,11 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.set_quality_label()
 
+        self.track_radio_button.set_action_target_value(
+            GLib.Variant("s", str(track.id)))
+        self.album_button.set_action_target_value(
+            GLib.Variant("s", str(album.id)))
+
         if utils.is_favourited(track):
             self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
         else:
@@ -507,18 +524,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         track = self.player_object.playing_track
         if track:
             utils.share_this(track)
-
-    @Gtk.Template.Callback("on_track_radio_button_clicked")
-    def on_track_radio_button_clicked_func(self, widget):
-        track = self.player_object.playing_track
-        page = HTHrackRadioPage.new_from_id(track.id).load()
-        self.navigation_view.push(page)
-
-    @Gtk.Template.Callback("on_album_button_clicked")
-    def on_album_button_clicked_func(self, widget):
-        track = self.player_object.playing_track
-        page = HTAlbumPage.new_from_id(track.album.id).load()
-        self.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_skip_forward_button_clicked")
     def on_skip_forward_button_clicked_func(self, widget):
@@ -759,6 +764,10 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def on_push_mix_page(self, action, parameter):
         page = HTMixPage.new_from_id(parameter.get_string()).load()
+        self.navigation_view.push(page)
+
+    def on_push_artist_radio_page(self, action, parameter):
+        page = HTMixPage(parameter.get_string(), "artist").load()
         self.navigation_view.push(page)
 
     def on_push_track_radio_page(self, action, parameter):
