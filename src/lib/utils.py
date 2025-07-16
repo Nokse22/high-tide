@@ -368,30 +368,34 @@ def get_video_cover_url(item, dimensions=640):
     return str(file_path)
 
 
-def add_video_cover(widget, videoplayer, item, cancellable=Gio.Cancellable.new()):
+def add_video_cover(
+    widget, videoplayer, item, in_background, cancellable=Gio.Cancellable.new()
+):
     """Retrieves and adds an video"""
 
     if cancellable is None:
         cancellable = Gio.Cancellable.new()
 
-    def _add_video_cover(widget, videoplayer, file_path, cancellable):
+    def _add_video_cover(widget, videoplayer, file_path, in_background, cancellable):
         if not cancellable.is_cancelled() and file_path:
             videoplayer.set_loop(True)
             videoplayer.set_filename(file_path)
             widget.set_paintable(videoplayer)
-            videoplayer.play()
+            if not in_background:
+                videoplayer.play()
 
     GLib.idle_add(
         _add_video_cover,
         widget,
         videoplayer,
         get_video_cover_url(item, get_best_dimensions(widget)),
+        in_background,
         cancellable,
     )
 
 
 def add_image_to_avatar(widget, item, cancellable=Gio.Cancellable.new()):
-    """Same ad the previous function, but for Adwaita's avatar widgets"""
+    """Same as the previous function, but for Adwaita's avatar widgets"""
 
     def _add_image_to_avatar(avatar_widget, file_path, cancellable):
         if not cancellable.is_cancelled():
