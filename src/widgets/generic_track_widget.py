@@ -65,15 +65,15 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     def set_track(self, _track, is_album=False):
         self.signals.append((
             self.artist_label,
-            self.artist_label.connect("activate-link", self.on_open_uri),
+            self.artist_label.connect("activate-link", utils.open_uri),
         ))
         self.signals.append((
             self.artist_label_2,
-            self.artist_label_2.connect("activate-link", self.on_open_uri),
+            self.artist_label_2.connect("activate-link", utils.open_uri),
         ))
         self.signals.append((
             self.track_album_label,
-            self.track_album_label.connect("activate-link", self.on_open_uri),
+            self.track_album_label.connect("activate-link", utils.open_uri),
         ))
 
         self.signals.append((
@@ -184,10 +184,6 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
 
     def _copy_share_url(self, *args):
         utils.share_this(self.track)
-
-    def on_open_uri(self, label, uri, *args):
-        utils.open_uri(label, uri)
-        return True
 
     def __repr__(self, *args):
         return "<TrackWidget>"
