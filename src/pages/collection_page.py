@@ -39,8 +39,6 @@ class HTCollectionPage(Page):
         self.set_tag("collection")
         self.set_title(_("Collection"))
 
-        utils.get_favourites()
-
         self.new_carousel_for(_("My Mixes and Radios"), utils.favourite_mixes)
         self.new_carousel_for(_("Playlists"), utils.playlist_and_favorite_playlists)
         self.new_carousel_for(_("Albums"), utils.favourite_albums)
