@@ -53,8 +53,7 @@ class HTMixPage(Page):
 
         auto_load = builder.get_object("_auto_load")
         auto_load.set_scrolled_window(self.scrolled_window)
-        auto_load.set_items(self.item.tracks())
-        auto_load.set_function(self.item.tracks)
+        auto_load.set_items(self.item.items())
 
         builder.get_object("_title_label").set_label(self.item.title)
         builder.get_object("_first_subtitle_label").set_label(self.item.sub_title)

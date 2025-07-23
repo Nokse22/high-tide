@@ -18,8 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk
-from gi.repository import GLib
-from gi.repository import Adw
+from gi.repository import GLib, GObject
 
 import threading
 
@@ -31,8 +30,14 @@ from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 
 
-class HTAutoLoadWidget(Adw.Bin, IDisconnectable):
+@Gtk.Template(
+    resource_path="/io/github/nokse22/high-tide/ui/widgets/auto_load_widget.ui"
+)
+class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
     __gtype_name__ = "HTAutoLoadWidget"
+
+    content = Gtk.Template.Child()
+    spinner = Gtk.Template.Child()
 
     def __init__(self) -> None:
         IDisconnectable.__init__(self)
@@ -42,6 +47,8 @@ class HTAutoLoadWidget(Adw.Bin, IDisconnectable):
         self.type = None
 
         self.parent = None
+
+        self.is_loading = False
 
         self.items = []
 
@@ -53,7 +60,8 @@ class HTAutoLoadWidget(Adw.Bin, IDisconnectable):
 
     def set_function(self, function : callable) -> None:
         """
-        Set the function to use to fetch new items
+        Set the function to use to fetch new items, it needs to support limit and
+            offset arguments
 
         Args:
             function (callable): the function to call
@@ -75,7 +83,8 @@ class HTAutoLoadWidget(Adw.Bin, IDisconnectable):
         self.items_n = len(self.items)
 
     def set_type(self, _type : str) -> None:
-        """Set the type of items that the widget will load
+        """Set the type of items that the widget will load, if not set it will be
+            set based on the first kind of items
         Args:
             type (str): the string for the item type
         """
@@ -96,34 +105,38 @@ class HTAutoLoadWidget(Adw.Bin, IDisconnectable):
         self.signals.append((self.scrolled_window, self.handler_id))
 
     def th_load_items(self) -> None:
-        """Load the items, this function can be called in a thread"""
+        """Load more items, this function can be called in a thread"""
+        if self.is_loading or not self.function:
+            return
+        self.is_loading = True
+        self.spinner.set_visible(True)
         new_items = []
-        if self.function:
-            new_items = self.function(limit=self.items_limit, offset=(self.items_n))
-            self.items.extend(new_items)
-            if new_items == []:
-                self.scrolled_window.disconnect(self.handler_id)
-                return
-        else:
-            new_items = self.items
-            self.scrolled_window.disconnect(self.handler_id)
+        new_items = self.function(limit=self.items_limit, offset=(self.items_n))
+        self.items.extend(new_items)
+        if new_items == []:
+            GObject.signal_handler_disconnect(self.scrolled_window, self.handler_id)
+            self.spinner.set_visible(False)
+            return
+        elif self.type is None:
+            self.type = utils.get_type(new_items[0])
 
         if self.type == "track":
             GLib.idle_add(self._add_tracks, new_items)
         elif self.type is not None:
             GLib.idle_add(self._add_cards, new_items)
 
-        self.items_n += self.items_limit
+        self.spinner.set_visible(False)
 
     def _on_edge_reached(self, scrolled_window, pos):
-        print("edge reached!!!")
+        GObject.signal_handler_block(self.scrolled_window, self.handler_id)
         if pos == Gtk.PositionType.BOTTOM:
             threading.Thread(target=self.th_load_items).start()
+        GObject.signal_handler_unblock(self.scrolled_window, self.handler_id)
 
     def _add_tracks(self, new_items):
         if self.parent is None:
             self.parent = Gtk.ListBox(css_classes=["tracks-list-box"])
-            self.set_child(self.parent)
+            self.content.set_child(self.parent)
             self.signals.append((
                 self.parent,
                 self.parent.connect("row-activated", self._on_tracks_row_selected),
@@ -133,16 +146,24 @@ class HTAutoLoadWidget(Adw.Bin, IDisconnectable):
             listing = HTGenericTrackWidget(track, False)
             self.disconnectables.append(listing)
             listing.set_name(str(index + self.items_n))
-            GLib.idle_add(self.parent.append, listing)
+            self.parent.append(listing)
+
+        self.items_n += len(new_items)
+        self.spinner.set_visible(False)
+        self.is_loading = False
 
     def _add_cards(self, new_items):
         if self.parent is None:
             self.parent = Gtk.FlowBox(selection_mode=0)
-            self.set_child(self.parent)
+            self.content.set_child(self.parent)
 
         for index, item in enumerate(new_items):
             card = HTCardWidget(item)
-            GLib.idle_add(self.parent.append, card)
+            self.parent.append(card)
+
+        self.items_n += len(new_items)
+        self.spinner.set_visible(False)
+        self.is_loading = False
 
     def _on_tracks_row_selected(self, list_box, row):
         index = int(row.get_name())

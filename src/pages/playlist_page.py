@@ -51,8 +51,8 @@ class HTPlaylistPage(Page):
 
         auto_load = builder.get_object("_auto_load")
         auto_load.set_scrolled_window(self.scrolled_window)
-        auto_load.set_items(self.item.tracks())
         auto_load.set_function(self.item.tracks)
+        auto_load.th_load_items()
 
         play_btn = builder.get_object("_play_button")
         self.signals.append((
