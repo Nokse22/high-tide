@@ -39,9 +39,9 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
     content = Gtk.Template.Child()
     spinner = Gtk.Template.Child()
 
-    def __init__(self) -> None:
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
         IDisconnectable.__init__(self)
-        super().__init__()
 
         self.function = None
         self.type = None
@@ -97,7 +97,6 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         Args:
             scrolled_window (Gtk.ScrolledWindow): the scrolled window
         """
-        print("setting scrolled window!!!", scrolled_window)
         self.scrolled_window = scrolled_window
         self.handler_id = self.scrolled_window.connect(
             "edge-reached", self._on_edge_reached
