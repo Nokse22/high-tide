@@ -93,13 +93,13 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
             self.append_card(HTCardWidget(item))
 
     def on_more_clicked(self, *args):
-        from ..pages import fromFunctionPage
+        from ..pages import HTFromFunctionPage
 
         if self.more_function is None:
-            page = fromFunctionPage(self.type, self.title)
+            page = HTFromFunctionPage(self.title)
             page.set_items(self.items)
         else:
-            page = fromFunctionPage(self.type, self.title)
+            page = HTFromFunctionPage(self.title)
             page.set_function(self.more_function)
 
         page.load()

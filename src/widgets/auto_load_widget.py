@@ -79,16 +79,16 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
             return
 
         self.items = items
-        self._add_tracks(self.items)
-        self.items_n = len(self.items)
 
-    def set_type(self, _type : str) -> None:
-        """Set the type of items that the widget will load, if not set it will be
-            set based on the first kind of items
-        Args:
-            type (str): the string for the item type
-        """
-        self.type = _type
+        if self.type is None:
+            self.type = utils.get_type(self.items[0])
+
+        if self.type == "track":
+            GLib.idle_add(self._add_tracks, self.items)
+        elif self.type is not None:
+            GLib.idle_add(self._add_cards, self.items)
+
+        self.items_n = len(self.items)
 
     def set_scrolled_window(self, scrolled_window) -> None:
         """
