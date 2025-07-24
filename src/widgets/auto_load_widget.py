@@ -70,12 +70,13 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
 
     def set_items(self, items : list) -> None:
         """
-        Set the initial or fixed items to display, can only be called once
+        Call once to set the initial items to display. Subsequent calls are ignored
 
         Args:
             items (list): the list of items
         """
         if len(self.items) > 0:
+            print("You can't set items for HTAutoLoadWidget twice")
             return
 
         self.items = items
