@@ -25,7 +25,7 @@ from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import Gst, GLib
-from gi.repository import Xdp
+from gi.repository import Xdp, GObject
 
 from .mpris import MPRIS
 
@@ -47,6 +47,11 @@ from .widgets import HTQueueWidget
 from .widgets import HTLyricsWidget
 
 from gettext import gettext as _
+
+GObject.type_register(HTGenericTrackWidget)
+GObject.type_register(HTLinkLabelWidget)
+GObject.type_register(HTQueueWidget)
+GObject.type_register(HTLyricsWidget)
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/window.ui")
@@ -618,7 +623,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         position = position / Gst.SECOND
         fraction = 0
 
-        self.lyrics_widget.set_current_line(position)
+        self.lyrics_widget.set_time(position)
 
         self.duration_label.set_label(utils.pretty_duration(end_value))
 

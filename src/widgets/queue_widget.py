@@ -19,18 +19,15 @@
 
 from gi.repository import Gtk
 
-import threading
-
-from ..lib import utils
 from ..widgets import HTGenericTrackWidget
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/queue_widget.ui")
 class HTQueueWidget(Gtk.Box):
-    __gtype_name__ = "HTQueueWidget"
-
     """It is used to display the track queue, including played tracks,
         tracks to play and tracks added to the queue"""
+
+    __gtype_name__ = "HTQueueWidget"
 
     played_songs_list = Gtk.Template.Child()
     queued_songs_list = Gtk.Template.Child()
@@ -44,11 +41,13 @@ class HTQueueWidget(Gtk.Box):
         super().__init__()
 
     def update_all(self, player):
+        """Updates played songs, queue and next songs"""
         self.update_played_songs(player)
         self.update_queue(player)
         self.update_next_songs(player)
 
     def update_played_songs(self, player):
+        """Updates played songs"""
         child = self.played_songs_list.get_row_at_index(0)
         while child:
             self.played_songs_list.remove(child)
@@ -65,6 +64,7 @@ class HTQueueWidget(Gtk.Box):
             self.played_songs_box.set_visible(False)
 
     def update_queue(self, player):
+        """Updates the queue"""
         child = self.queued_songs_list.get_row_at_index(0)
         while child:
             self.queued_songs_list.remove(child)
@@ -81,6 +81,7 @@ class HTQueueWidget(Gtk.Box):
             self.queued_songs_box.set_visible(False)
 
     def update_next_songs(self, player):
+        """Updates next songs"""
         child = self.next_songs_list.get_row_at_index(0)
         while child:
             self.next_songs_list.remove(child)

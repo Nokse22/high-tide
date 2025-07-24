@@ -29,10 +29,9 @@ from ..disconnectable_iface import IDisconnectable
     resource_path="/io/github/nokse22/high-tide/ui/widgets/carousel_widget.ui"
 )
 class HTCarouselWidget(Gtk.Box, IDisconnectable):
-    __gtype_name__ = "HTCarouselWidget"
+    """It is used to display multiple elements side by side with navigation arrows"""
 
-    """It is used to display multiple elements side by side with
-    navigation arrows"""
+    __gtype_name__ = "HTCarouselWidget"
 
     title_label = Gtk.Template.Child()
     next_button = Gtk.Template.Child()

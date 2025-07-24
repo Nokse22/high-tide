@@ -20,11 +20,7 @@
 
 from gi.repository import Adw
 from gi.repository import Gtk
-from gi.repository import GLib, GObject
-
-import tidalapi
-
-from .lib import utils
+from gi.repository import GObject
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/new_playlist.ui")
