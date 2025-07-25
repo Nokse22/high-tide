@@ -20,6 +20,8 @@
 from gi.repository import Gtk
 
 from tidalapi.mix import MixV2, Mix
+from tidalapi.artist import Artist
+from tidalapi.media import Track
 
 from ..lib import utils
 
@@ -34,14 +36,20 @@ from ..disconnectable_iface import IDisconnectable
 class HTMixPage(Page):
     __gtype_name__ = "HTMixPage"
 
-    def __init__(self, _id):
+    def __init__(self, _id, _type=None):
         IDisconnectable.__init__(self)
         super().__init__()
 
         self.id = _id
+        self.type = _type
 
     def _th_load_page(self):
-        self.item = Mix(utils.session, self.id)
+        if self.type is None:
+            self.item = Mix(utils.session, self.id)
+        elif self.type == "artist":
+            self.item = Artist(utils.session, self.id).get_radio_mix()
+        elif self.type == "track":
+            self.item = Track(utils.session, self.id).get_radio_mix()
 
         self.set_title(self.item.title)
 
