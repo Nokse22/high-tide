@@ -50,11 +50,10 @@ class HTMixPage(Page):
         )
 
         page_content = builder.get_object("_main")
-        tracks_list_box = builder.get_object("_list_box")
-        self.signals.append((
-            tracks_list_box,
-            tracks_list_box.connect("row-activated", self.on_row_selected),
-        ))
+
+        auto_load = builder.get_object("_auto_load")
+        auto_load.set_scrolled_window(self.scrolled_window)
+        auto_load.set_items(self.item.items())
 
         builder.get_object("_title_label").set_label(self.item.title)
         builder.get_object("_first_subtitle_label").set_label(self.item.sub_title)
@@ -88,17 +87,8 @@ class HTMixPage(Page):
         if isinstance(self.item, MixV2):
             self.item = utils.session.mix(self.item.id)
 
-        for index, track in enumerate(self.item.items()):
-            listing = self.get_track_listing(track)
-            listing.set_name(str(index))
-            tracks_list_box.append(listing)
-
         self.page_content.append(page_content)
         self._page_loaded()
-
-    def on_row_selected(self, list_box, row):
-        index = int(row.get_name())
-        utils.player_object.play_this(self.item, index)
 
     def th_add_to_my_collection(self, btn):
         utils.on_in_to_my_collection_button_clicked(btn, self.item)
