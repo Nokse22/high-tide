@@ -1,5 +1,5 @@
 from .home_page import HTHomePage
-from .from_function_page import fromFunctionPage
+from .from_function_page import HTFromFunctionPage
 from .explore_page import HTExplorePage
 from .artist_page import HTArtistPage
 from .search_page import HTSearchPage

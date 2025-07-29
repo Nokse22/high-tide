@@ -21,7 +21,6 @@ from gi.repository import Gtk
 from ..lib import utils
 import threading
 from .page import Page
-from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 from tidalapi.playlist import Playlist
 from gettext import gettext as _
@@ -32,9 +31,6 @@ class HTPlaylistPage(Page):
 
     """It is used to display a playlist with author,
     number of tracks and duration"""
-
-    # FIXME Fix the favorite hearth
-    # FIXME After playing shuffle the next track is not found
 
     def __init__(self, _id):
         IDisconnectable.__init__(self)
@@ -52,11 +48,11 @@ class HTPlaylistPage(Page):
         )
 
         page_content = builder.get_object("_main")
-        tracks_list_box = builder.get_object("_list_box")
-        self.signals.append((
-            tracks_list_box,
-            tracks_list_box.connect("row-activated", self.on_row_selected),
-        ))
+
+        auto_load = builder.get_object("_auto_load")
+        auto_load.set_scrolled_window(self.scrolled_window)
+        auto_load.set_function(self.item.tracks)
+        auto_load.th_load_items()
 
         play_btn = builder.get_object("_play_button")
         self.signals.append((
@@ -104,11 +100,6 @@ class HTPlaylistPage(Page):
 
         image = builder.get_object("_image")
         threading.Thread(target=utils.add_image, args=(image, self.item)).start()
-
-        for index, track in enumerate(self.item.items()):
-            listing = self.get_track_listing(track)
-            listing.set_name(str(index))
-            tracks_list_box.append(listing)
 
         self.page_content.append(page_content)
         self._page_loaded()

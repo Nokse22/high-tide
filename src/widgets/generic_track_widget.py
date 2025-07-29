@@ -23,7 +23,7 @@ from gi.repository import Gio, GLib
 from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 
-from tidalapi.playlist import UserPlaylist
+from tidalapi import UserPlaylist, Track
 
 import threading
 
@@ -34,9 +34,9 @@ from gettext import gettext as _
     resource_path="/io/github/nokse22/high-tide/ui/widgets/generic_track_widget.ui"
 )
 class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
-    __gtype_name__ = "HTGenericTrackWidget"
-
     """It is used to display a single track"""
+
+    __gtype_name__ = "HTGenericTrackWidget"
 
     image = Gtk.Template.Child()
     track_title_label = Gtk.Template.Child()
@@ -62,26 +62,31 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
 
         self.set_track(_track, is_album)
 
-    def set_track(self, _track, is_album=False):
+    def set_track(self, track : Track, is_album=False):
+        """Set the track for HTGenericTrackWidget
+
+        Args:
+            track: the track
+            is_album (bool): if this track is in an album view"""
         self.signals.append((
             self.artist_label,
-            self.artist_label.connect("activate-link", self.on_open_uri),
+            self.artist_label.connect("activate-link", utils.open_uri),
         ))
         self.signals.append((
             self.artist_label_2,
-            self.artist_label_2.connect("activate-link", self.on_open_uri),
+            self.artist_label_2.connect("activate-link", utils.open_uri),
         ))
         self.signals.append((
             self.track_album_label,
-            self.track_album_label.connect("activate-link", self.on_open_uri),
+            self.track_album_label.connect("activate-link", utils.open_uri),
         ))
 
         self.signals.append((
             self.menu_button,
-            self.menu_button.connect("notify::active", self.on_menu_activate),
+            self.menu_button.connect("notify::active", self._on_menu_activate),
         ))
 
-        self.track = _track
+        self.track = track
 
         self.track_album_label.set_album(self.track.album)
         self.track_title_label.set_label(
@@ -106,7 +111,7 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         self.action_group = Gio.SimpleActionGroup()
         self.insert_action_group("trackwidget", self.action_group)
 
-    def on_menu_activate(self, *args):
+    def _on_menu_activate(self, *args):
         if self.menu_activated:
             return
 
@@ -151,16 +156,6 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             self.signals.append((action, action.connect("activate", callback)))
             self.action_group.add_action(action)
 
-    def hide_album(self):
-        self._grid.remove(self.track_album_label)
-        self.image.set_visible(False)
-        self.track_title_label.set_margin_start(12)
-
-    def hide_artist(self):
-        self._grid.remove(self.track_album_label)
-        self.image.set_visible(False)
-        self.track_title_label.set_margin_start(12)
-
     def _play_next(self, *args):
         utils.player_object.add_next(self.track)
 
@@ -184,10 +179,6 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
 
     def _copy_share_url(self, *args):
         utils.share_this(self.track)
-
-    def on_open_uri(self, label, uri, *args):
-        utils.open_uri(label, uri)
-        return True
 
     def __repr__(self, *args):
         return "<TrackWidget>"

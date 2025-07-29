@@ -47,11 +47,9 @@ class HTHrackRadioPage(Page):
         )
 
         page_content = builder.get_object("_main")
-        tracks_list_box = builder.get_object("_list_box")
-        self.signals.append((
-            tracks_list_box,
-            tracks_list_box.connect("row-activated", self.on_row_selected),
-        ))
+
+        auto_load = builder.get_object("_auto_load")
+        auto_load.set_scrolled_window(self.scrolled_window)
 
         page_title = _("Radio of {}").format(self.item.name)
 
@@ -91,10 +89,7 @@ class HTHrackRadioPage(Page):
         else:
             self.radio_tracks = self.item.get_radio()
 
-        for index, track in enumerate(self.radio_tracks):
-            listing = self.get_track_listing(track)
-            listing.set_name(str(index))
-            tracks_list_box.append(listing)
+        auto_load.set_items(self.radio_tracks)
 
         self.page_content.append(page_content)
         self._page_loaded()

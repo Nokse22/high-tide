@@ -29,10 +29,9 @@ from ..disconnectable_iface import IDisconnectable
     resource_path="/io/github/nokse22/high-tide/ui/widgets/carousel_widget.ui"
 )
 class HTCarouselWidget(Gtk.Box, IDisconnectable):
-    __gtype_name__ = "HTCarouselWidget"
+    """It is used to display multiple elements side by side with navigation arrows"""
 
-    """It is used to display multiple elements side by side with
-    navigation arrows"""
+    __gtype_name__ = "HTCarouselWidget"
 
     title_label = Gtk.Template.Child()
     next_button = Gtk.Template.Child()
@@ -93,13 +92,13 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
             self.append_card(HTCardWidget(item))
 
     def on_more_clicked(self, *args):
-        from ..pages import fromFunctionPage
+        from ..pages import HTFromFunctionPage
 
         if self.more_function is None:
-            page = fromFunctionPage(self.type, self.title)
+            page = HTFromFunctionPage(self.title)
             page.set_items(self.items)
         else:
-            page = fromFunctionPage(self.type, self.title)
+            page = HTFromFunctionPage(self.title)
             page.set_function(self.more_function)
 
         page.load()
