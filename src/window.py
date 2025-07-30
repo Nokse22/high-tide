@@ -566,6 +566,9 @@ class HighTideWindow(Adw.ApplicationWindow):
     def on_seek_from_lyrics(self, lyrics_widget, time_ms):
         end_value = self.duration / Gst.SECOND
 
+        if end_value == 0:
+            return
+
         position = time_ms / 1000
 
         self.player_object.seek(position / end_value)

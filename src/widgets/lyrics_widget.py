@@ -39,15 +39,15 @@ class LineItemFactory(Gtk.SignalListItemFactory):
 
     def _on_setup(self, factory, list_item):
         label = Gtk.Label(
-            xalign=0.5,
+            xalign=0.0,
             halign=Gtk.Align.FILL,
             hexpand=True,
             valign=Gtk.Align.FILL,
             vexpand=True,
             wrap=True,
-            justify=2,
             margin_start=12,
             margin_top=3,
+            margin_bottom=3,
             margin_end=12,
         )
 
