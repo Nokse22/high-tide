@@ -82,7 +82,7 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
             listing.set_name(str(index))
             self.tracks_list_box.append(listing)
 
-    def on_more_clicked(self, *args):
+    def _on_more_clicked(self, *args):
         from ..pages import HTFromFunctionPage
 
         page = HTFromFunctionPage(self.title_name)
