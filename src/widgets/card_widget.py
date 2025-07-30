@@ -81,7 +81,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             self.action = "win.push-artist-page"
         elif isinstance(self.item, Track):
             self._make_track_card()
-            self.action = "win.push-album-page"
+            self.action = None
 
     def _make_track_card(self):
         self.title_label.set_label(self.item.name)
@@ -92,9 +92,10 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         )
         self.detail_label.set_visible(False)
 
-        self.item = self.item.album
-
-        threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
+        threading.Thread(
+            target=utils.add_image,
+            args=(self.image, self.item.album)
+        ).start()
 
     def _make_mix_card(self):
         self.title_label.set_label(self.item.title)
@@ -137,6 +138,8 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
     def _on_click(self, *args):
         if self.action:
             self.activate_action(self.action, GLib.Variant("s", str(self.item.id)))
+        elif isinstance(self.item, Track):
+            utils.player_object.play_this(self.item)
 
     def __repr__(self, *args):
         return "<CardWidget>"

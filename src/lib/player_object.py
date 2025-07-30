@@ -266,6 +266,8 @@ class PlayerObject(GObject.GObject):
             tracks_list = thing.top_tracks()
         elif isinstance(thing, list):
             tracks_list = thing
+        elif isinstance(thing, Track):
+            tracks_list = [thing]
 
         self.id_list = [track.id for track in tracks_list]
 
