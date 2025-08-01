@@ -63,6 +63,20 @@
   </screenshots>
 
   <releases>
+    <release version="0.1.8" date="2025-08-01">
+      <description translate="no">
+        <p>Add Pipewire sink</p>
+        <p>Fix video cover setting not applied on startup</p>
+        <p>Add german-german translation</p>
+        <p>Add settings toggle for rich presence</p>
+        <p>Add Brazilian Portuguese translation</p>
+        <p>Implement keyring unlocking</p>
+        <p>Fix video covers not being paused when started in background</p>
+        <p>Disconnect discord RPC when idle for 5 minutes</p>
+        <p>Added SOCKS proxy support</p>
+        <p>Fix track not showing past first 100</p>
+      </description>
+    </release>
     <release version="0.1.7" date="2025-06-14">
       <description translate="no">
         <p>Add Discord rich presence</p>
