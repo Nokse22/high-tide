@@ -33,6 +33,9 @@ from ..disconnectable_iface import IDisconnectable
 
 from gettext import gettext as _
 
+# FIXME fix the load_async/finish, all API calls have to be made in the async and
+#           GTK calls in the finish
+
 
 class HTExplorePage(Page):
     __gtype_name__ = "HTExplorePage"
@@ -45,7 +48,7 @@ class HTExplorePage(Page):
 
         self.tries = 0
 
-    def _th_load_page(self):
+    def _load_async(self):
         self.set_tag("explore")
         self.set_title(_("Explore"))
 
@@ -55,7 +58,7 @@ class HTExplorePage(Page):
             print(e)
             self.tries += 1
             if self.tries < 5:
-                self._th_load_page()
+                self._load_async()
             return
 
         builder = Gtk.Builder.new_from_resource(
@@ -67,12 +70,13 @@ class HTExplorePage(Page):
             search_entry.connect("activate", self.on_search_activated),
         ))
 
-        self.page_content.append(search_entry)
+        self.append(search_entry)
 
         for index, category in enumerate(explore.categories):
             self._make_category(category)
 
-        self._page_loaded()
+    def _load_finish(self):
+        ...
 
     def _make_category(self, category):
         if isinstance(category.items[0], PageLink):
@@ -82,10 +86,10 @@ class HTExplorePage(Page):
 
             flow_box = Gtk.FlowBox(homogeneous=True, height_request=100)
             flow_box_box.append(flow_box)
-            self.page_content.append(carousel)
+            self.append(carousel)
         else:
             carousel, cards_box = self.get_link_carousel(category.title)
-            self.page_content.append(carousel)
+            self.append(carousel)
 
         buttons_for_page = 0
 

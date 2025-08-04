@@ -19,15 +19,10 @@
 
 from gi.repository import Gtk
 
-from tidalapi.page import PageItem, PageLink, TextBlock
-from tidalapi.artist import Artist
-from tidalapi.mix import Mix
-from tidalapi.album import Album
+from tidalapi.page import PageItem, TextBlock
 from tidalapi.media import Track
-from tidalapi.playlist import Playlist
 
 from .page import Page
-from ..widgets import HTTracksListWidget
 
 from ..disconnectable_iface import IDisconnectable
 
@@ -43,20 +38,20 @@ class genericPage(Page):
 
         self.item = _page_link
 
-    def _th_load_page(self):
-        self.set_title(self.item.title)
-        generic_content = self.item.get()
+        self.content = None
 
-        for index, category in enumerate(generic_content.categories):
+    def _load_async(self):
+        self.content = self.item.get()
+
+    def _load_finish(self):
+        self.set_title(self.item.title)
+
+        for index, category in enumerate(self.content.categories):
             if isinstance(category, PageItem):
                 continue
-            items = []
 
             if isinstance(category.items[0], Track):
-                tracks_list_widget = HTTracksListWidget(category.title)
-                self.disconnectables.append(tracks_list_widget)
-                tracks_list_widget.set_tracks_list(category.items)
-                self.page_content.append(tracks_list_widget)
+                self.new_track_list_for(category.title, category.items)
             elif isinstance(category, TextBlock):
                 label = Gtk.Label(
                     justify=0,
@@ -68,25 +63,6 @@ class genericPage(Page):
                     margin_end=12,
                     label=category.text,
                 )
-                self.page_content.append(label)
+                self.append(label)
             else:
-                carousel = self.get_carousel(category.title)
-                self.page_content.append(carousel)
-
-                for item in category.items:
-                    if isinstance(item, PageItem):  # Featured
-                        carousel.append_card(self.get_card(item.get()))
-                    elif isinstance(item, PageLink):  # Generes and moods
-                        items.append("\t" + item.title)
-                        button = self.get_page_link_card(item)
-                        carousel.append_card(button)
-                    elif isinstance(item, Mix):  # Mixes and for you
-                        carousel.append_card(self.get_card(item))
-                    elif isinstance(item, Album):
-                        carousel.append_card(self.get_card(item))
-                    elif isinstance(item, Artist):
-                        carousel.append_card(self.get_card(item))
-                    elif isinstance(item, Playlist):
-                        carousel.append_card(self.get_card(item))
-
-        self._page_loaded()
+                self.new_carousel_for(category.title, category.items)

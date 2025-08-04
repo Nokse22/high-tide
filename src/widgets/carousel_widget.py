@@ -64,14 +64,12 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         self.title_label.set_label(self.title)
 
         self.more_function = None
-        self.type = None
 
         self.items = []
 
-    def set_more_function(self, _type, _function):
+    def set_more_function(self, _function):
         self.more_button.set_visible(True)
         self.more_function = _function
-        self.type = _type
 
     def append_card(self, card):
         self.disconnectables.append(card)
@@ -81,9 +79,8 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         if self.n_pages != 2:
             self.next_button.set_sensitive(True)
 
-    def set_items(self, items_list, items_type):
+    def set_items(self, items_list):
         self.items = items_list
-        self.type = items_type
 
         for index, item in enumerate(self.items):
             if index >= 8:

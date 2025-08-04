@@ -38,22 +38,25 @@ class HTAlbumPage(Page):
         super().__init__()
 
         self.id = _id
+        self.top_tracks = None
 
-    def _th_load_page(self):
+    def _load_async(self):
         self.item = Album(utils.session, self.id)
+        self.top_tracks = self.item.tracks(limit=50)
 
+    def _load_finish(self):
         self.set_title(self.item.name)
 
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui"
         )
 
-        page_content = builder.get_object("_main")
+        self.append(builder.get_object("_main"))
 
         auto_load = builder.get_object("_auto_load")
         auto_load.set_scrolled_window(self.scrolled_window)
         auto_load.set_function(self.item.tracks)
-        auto_load.th_load_items()
+        auto_load.set_items(self.top_tracks)
 
         builder.get_object("_title_label").set_label(self.item.name)
         builder.get_object("_first_subtitle_label").set_label(
@@ -101,6 +104,3 @@ class HTAlbumPage(Page):
 
         image = builder.get_object("_image")
         threading.Thread(target=utils.add_image, args=(image, self.item)).start()
-
-        self.page_content.append(page_content)
-        self._page_loaded()

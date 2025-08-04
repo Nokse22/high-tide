@@ -44,11 +44,13 @@ class HTFromFunctionPage(Page):
         )
         self.auto_load.set_scrolled_window(self.scrolled_window)
 
-        self.page_content.append(self.auto_load)
+        self.append(self.auto_load)
 
-    def _th_load_page(self):
+    def _load_async(self):
         self.auto_load.th_load_items()
-        self._page_loaded()
+
+    def _load_finish(self):
+        ...
 
     def set_function(self, function):
         self.auto_load.set_function(function)
