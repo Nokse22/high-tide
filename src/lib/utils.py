@@ -121,16 +121,16 @@ def send_toast(toast_title, timeout):
 
 def th_add_to_my_collection(btn, item):
     if isinstance(item, Track):
-        result = session.user.favorites.add_track(item.id)
+        result = session.user.favorites.add_track(str(item.id))
     elif isinstance(item, Mix):
         return  # still not supported
-        result = session.user.favorites.add_mix(item.id)
+        result = session.user.favorites.add_mix(str(item.id))
     elif isinstance(item, Album):
-        result = session.user.favorites.add_album(item.id)
+        result = session.user.favorites.add_album(str(item.id))
     elif isinstance(item, Artist):
-        result = session.user.favorites.add_artist(item.id)
+        result = session.user.favorites.add_artist(str(item.id))
     elif isinstance(item, Playlist):
-        result = session.user.favorites.add_playlist(item.id)
+        result = session.user.favorites.add_playlist(str(item.id))
     else:
         result = False
 
@@ -144,16 +144,16 @@ def th_add_to_my_collection(btn, item):
 
 def th_remove_from_my_collection(btn, item):
     if isinstance(item, Track):
-        result = session.user.favorites.remove_track(item.id)
+        result = session.user.favorites.remove_track(str(item.id))
     elif isinstance(item, Mix):
         return  # still not supported
-        result = session.user.favorites.remove_mix(item.id)
+        result = session.user.favorites.remove_mix(str(item.id))
     elif isinstance(item, Album):
-        result = session.user.favorites.remove_album(item.id)
+        result = session.user.favorites.remove_album(str(item.id))
     elif isinstance(item, Artist):
-        result = session.user.favorites.remove_artist(item.id)
+        result = session.user.favorites.remove_artist(str(item.id))
     elif isinstance(item, Playlist):
-        result = session.user.favorites.remove_playlist(item.id)
+        result = session.user.favorites.remove_playlist(str(item.id))
     else:
         result = False
 
