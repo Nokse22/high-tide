@@ -20,6 +20,7 @@
 from tidalapi.page import PageItem, PageLink, ShortcutList, TrackList
 
 from .page import Page
+from ..widgets import HTShorcutsWidget
 
 from ..lib import utils
 
@@ -45,8 +46,11 @@ class HTHomePage(Page):
                 ):
                     continue
 
-                if isinstance(category.items[0], Track):
+                if isinstance(category, TrackList):
                     self.new_track_list_for(category.title, category.items)
+                elif isinstance(category, ShortcutList):
+                    shortcut_list = HTShorcutsWidget(category.items)
+                    self.append(shortcut_list)
                 else:
                     self.new_carousel_for(category.title, category.items)
             except Exception as e:
