@@ -38,21 +38,26 @@ class HTPlaylistPage(Page):
 
         self.id = _id
 
-    def _th_load_page(self):
+        self.tracks = None
+
+    def _load_async(self):
         self.item = Playlist(utils.session, self.id)
 
+        self.tracks = self.item.tracks(limit=50)
+
+    def _load_finish(self):
         self.set_title(self.item.name)
 
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui"
         )
 
-        page_content = builder.get_object("_main")
+        self.append(builder.get_object("_main"))
 
         auto_load = builder.get_object("_auto_load")
         auto_load.set_scrolled_window(self.scrolled_window)
         auto_load.set_function(self.item.tracks)
-        auto_load.th_load_items()
+        auto_load.set_items(self.tracks)
 
         play_btn = builder.get_object("_play_button")
         self.signals.append((
@@ -100,10 +105,3 @@ class HTPlaylistPage(Page):
 
         image = builder.get_object("_image")
         threading.Thread(target=utils.add_image, args=(image, self.item)).start()
-
-        self.page_content.append(page_content)
-        self._page_loaded()
-
-    def on_row_selected(self, list_box, row):
-        index = int(row.get_name())
-        utils.player_object.play_this(self.item, index)

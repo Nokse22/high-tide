@@ -27,7 +27,10 @@ from gettext import gettext as _
 class HTNotLoggedInPage(Page):
     __gtype_name__ = "HTNotLoggedInPage"
 
-    def _th_load_page(self):
+    def _load_async(self):
+        pass
+
+    def _load_finish(self):
         self.set_title("Not Logged In")
 
         login_button = Gtk.Button(
@@ -36,7 +39,7 @@ class HTNotLoggedInPage(Page):
             action_name="app.log-in",
             halign=Gtk.Align.CENTER,
         )
-        status_page = Adw.StatusPage(
+        self.append(Adw.StatusPage(
             title=_("Login first"),
             description=_(
                 "To be able to use this app you need to login with your TIDAL account."
@@ -45,7 +48,4 @@ class HTNotLoggedInPage(Page):
             child=login_button,
             valign=Gtk.Align.CENTER,
             vexpand=True,
-        )
-
-        self.page_content.append(status_page)
-        self._page_loaded()
+        ))

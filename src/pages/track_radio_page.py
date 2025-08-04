@@ -30,23 +30,26 @@ class HTHrackRadioPage(Page):
 
     """It is used to display a radio from a track"""
 
-    # FIXME Fix the favourite hearth (Probably impossible because tidalapi doesn't
-    # store a radio as a mix, but maybe possible with some ID)
-
     def __init__(self, _id):
         super().__init__()
 
         self.id = _id
         self.radio_tracks = []
 
-    def _th_load_page(self):
+    def _load_async(self):
         self.item = Track(utils.session, self.id)
 
+        if isinstance(self.item, Track):
+            self.radio_tracks = self.item.get_track_radio()
+        else:
+            self.radio_tracks = self.item.get_radio()
+
+    def _load_finish(self):
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui"
         )
 
-        page_content = builder.get_object("_main")
+        self.append(builder.get_object("_main"))
 
         auto_load = builder.get_object("_auto_load")
         auto_load.set_scrolled_window(self.scrolled_window)
@@ -84,15 +87,7 @@ class HTHrackRadioPage(Page):
         else:
             threading.Thread(target=utils.add_image, args=(image, self.item)).start()
 
-        if isinstance(self.item, Track):
-            self.radio_tracks = self.item.get_track_radio()
-        else:
-            self.radio_tracks = self.item.get_radio()
-
         auto_load.set_items(self.radio_tracks)
-
-        self.page_content.append(page_content)
-        self._page_loaded()
 
     def on_row_selected(self, list_box, row):
         index = int(row.get_name())

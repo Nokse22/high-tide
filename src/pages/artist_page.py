@@ -19,49 +19,50 @@
 
 from gi.repository import Gtk
 
-from ..lib import utils
-from ..widgets import HTCarouselWidget
-from ..widgets import HTTracksListWidget
-
-import threading
-
 from .page import Page
+from ..lib import utils
+from ..disconnectable_iface import IDisconnectable
 
 from tidalapi.artist import Artist
 
-from ..lib import utils
-from ..disconnectable_iface import IDisconnectable
+import threading
 
 from gettext import gettext as _
 
 
 class HTArtistPage(Page):
-    __gtype_name__ = "HTArtistPage"
-
     """It is used to display an artist page"""
 
-    # TODO Add missing features: influences, appears on, credits and so on
+    __gtype_name__ = "HTArtistPage"
 
     def __init__(self, _id):
         IDisconnectable.__init__(self)
         super().__init__()
 
-        self.top_tracks = []
         self.id = _id
         self.artist = None
 
-    def _th_load_page(self):
+        self.top_tracks = None
+        self.bio = None
+
+    def _load_async(self):
         self.artist = Artist(utils.session, self.id)
 
+        self.top_tracks = self.artist.get_top_tracks(limit=5)
+        self.albums = self.artist.get_albums(limit=10)
+        self.albums_ep_singles = self.artist.get_albums_ep_singles(limit=10)
+        self.albums_other = self.artist.get_albums_other(limit=10)
+        self.similar = self.artist.get_similar()
+        self.bio = self.artist.get_bio()
+
+    def _load_finish(self):
         self.set_title(self.artist.name)
 
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/high-tide/ui/pages_ui/artist_page_template.ui"
         )
 
-        page_content = builder.get_object("_main")
-        # top_tracks_list_box = builder.get_object("_top_tracks_list_box")
-        self.content_box = builder.get_object("_content_box")
+        self.append(builder.get_object("_main"))
 
         builder.get_object("_name_label").set_label(self.artist.name)
 
@@ -102,95 +103,55 @@ class HTArtistPage(Page):
 
         builder.get_object("_first_subtitle_label").set_label(_("Artist"))
 
-        self.top_tracks = self.artist.get_top_tracks()
+        self.new_track_list_for(
+            _("Top Tracks"), self.top_tracks, self.artist.get_top_tracks
+        )
 
-        tracks_list_widget = HTTracksListWidget(_("Top Tracks"))
-        self.disconnectables.append(tracks_list_widget)
-        tracks_list_widget.set_function(self.artist.get_top_tracks)
-        self.content_box.append(tracks_list_widget)
+        self.new_carousel_for(
+            _("Albums"), self.albums, self.artist.get_albums
+        )
 
-        self.make_content()
-        self.make_bio()
+        self.new_carousel_for(
+            _("EP & Singles"),
+            self.albums_ep_singles,
+            self.artist.get_albums_ep_singles
+        )
 
-        self.page_content.append(page_content)
-        self._page_loaded()
+        self.new_carousel_for(
+            _("Appears On"),
+            self.albums_other,
+            self.artist.get_albums_other
+        )
 
-    def make_content(self):
-        carousel = self.get_carousel(_("Albums"))
-        try:
-            albums = self.artist.get_albums(limit=10)
-            carousel.set_more_function("album", self.artist.get_albums)
-        except Exception as e:
-            print(e)
-        else:
-            if len(albums) != 0:
-                self.content_box.append(carousel)
-                carousel.set_items(albums, "album")
+        self.new_carousel_for(
+            _("Similar Artists"),
+            self.similar
+        )
 
-        carousel = self.get_carousel(_("EP & Singles"))
-        try:
-            albums = self.artist.get_albums_ep_singles(limit=10)
-            carousel.set_more_function("album", self.artist.get_albums_ep_singles)
-        except Exception as e:
-            print(e)
-        else:
-            if len(albums) != 0:
-                self.content_box.append(carousel)
-                carousel.set_items(albums, "album")
+        if self.bio is None:
+            return
 
-        carousel = self.get_carousel(_("Appears On"))
-        try:
-            albums = self.artist.get_albums_other(limit=10)
-            carousel.set_more_function("album", self.artist.get_albums_other)
-        except Exception as e:
-            print(e)
-        else:
-            if len(albums) != 0:
-                self.content_box.append(carousel)
-                carousel.set_items(albums, "album")
-
-        carousel = self.get_carousel(_("Similar Artists"))
-        try:
-            artists = self.artist.get_similar()
-        except Exception as e:
-            print("could not find similar artists", e)
-        else:
-            if len(artists) != 0:
-                self.content_box.append(carousel)
-                carousel.set_items(artists, "artist")
-
-    def make_bio(self):
-        try:
-            bio = self.artist.get_bio()
-        except Exception as e:
-            print(e)
-        else:
-            bio = utils.replace_links(bio)
-            label = Gtk.Label(
+        bio = utils.replace_links(self.bio)
+        label = Gtk.Label(
+            wrap=True,
+            css_classes=[],
+            margin_start=12,
+            margin_end=12,
+            margin_bottom=24,
+        )
+        label.set_markup(bio)
+        self.append(
+            Gtk.Label(
                 wrap=True,
-                css_classes=[],
+                css_classes=["title-3"],
                 margin_start=12,
-                margin_end=12,
-                margin_bottom=24,
+                label=_("Bio"),
+                xalign=0,
+                margin_top=12,
+                margin_bottom=12,
             )
-            label.set_markup(bio)
-            self.content_box.append(
-                Gtk.Label(
-                    wrap=True,
-                    css_classes=["title-3"],
-                    margin_start=12,
-                    label=_("Bio"),
-                    xalign=0,
-                    margin_top=12,
-                    margin_bottom=12,
-                )
-            )
-            self.content_box.append(label)
-            self.signals.append((label, label.connect("activate-link", utils.open_uri)))
-
-    def on_row_selected(self, list_box, row):
-        index = int(row.get_name())
-        utils.player_object.play_this(self.item, index)
+        )
+        self.signals.append((label, label.connect("activate-link", utils.open_uri)))
 
     def on_play_button_clicked(self, btn):
         utils.player_object.play_this(self.top_tracks, 0)

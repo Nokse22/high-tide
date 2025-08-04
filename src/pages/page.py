@@ -26,6 +26,8 @@ import threading
 from ..widgets import HTGenericTrackWidget
 from ..widgets import HTCarouselWidget
 from ..widgets import HTCardWidget
+from ..widgets import HTTracksListWidget
+from ..widgets import HTAutoLoadWidget
 
 from ..lib import utils
 
@@ -46,8 +48,6 @@ class Page(Adw.NavigationPage, IDisconnectable):
 
         self.set_title(_("Loading..."))
 
-        self.page_content = Gtk.Box(vexpand=True, hexpand=True, orientation=1)
-
         self.builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/high-tide/ui/pages_ui/page_template.ui"
         )
@@ -63,21 +63,35 @@ class Page(Adw.NavigationPage, IDisconnectable):
         """Called when the page is created, it just starts a thread running
         the actual function to load the page UI"""
 
-        threading.Thread(target=self._th_load_page).start()
+        def _loaded():
+            self._load_finish()
+            self.content_stack.set_visible_child_name("content")
+
+        def _load():
+            try:
+                self._load_async()
+            except Exception as e:
+                print(e)
+                return
+
+            GLib.idle_add(_loaded)
+
+        threading.Thread(target=_load).start()
 
         return self
 
-    def _th_load_page(self):
-        """Overwritten by each different page"""
+    def _load_async(self):
+        """Fetch all data here"""
+        raise NotImplementedError
 
-        return
+    def _load_finish(self):
+        """Update the UI here"""
+        raise NotImplementedError
 
-    def _page_loaded(self):
-        def _add_content_to_page():
-            self.content_stack.set_visible_child_name("content")
-            self.content.append(self.page_content)
-
-        GLib.idle_add(_add_content_to_page)
+    def append(self, widget):
+        if isinstance(widget, IDisconnectable):
+            self.disconnectables.append(widget)
+        self.content.append(widget)
 
     def get_card(self, item):
         card = HTCardWidget(item)
@@ -178,6 +192,43 @@ class Page(Adw.NavigationPage, IDisconnectable):
         carousel = HTCarouselWidget(carousel_title)
         self.disconnectables.append(carousel)
         return carousel
+
+    def new_carousel_for(self, carousel_title, carousel_content, more_function=None):
+        if len(carousel_content) == 0:
+            return
+
+        carousel = HTCarouselWidget(carousel_title)
+        carousel.set_items(carousel_content)
+
+        if more_function:
+            carousel.set_more_function(more_function)
+
+        self.append(carousel)
+
+    def new_track_list_for(self, list_title, list_content, more_function=None):
+        if len(list_content) == 0:
+            return
+
+        tracks_list_widget = HTTracksListWidget(list_title)
+        tracks_list_widget.set_tracks_list(list_content)
+
+        if more_function:
+            tracks_list_widget.set_more_function(more_function)
+
+        self.append(tracks_list_widget)
+
+    def new_auto_load_for(self, list_title, list_content=None, more_function=None):
+        if len(list_content) == 0:
+            return
+
+        auto_load = HTAutoLoadWidget()
+        auto_load.set_scrolled_window(self.scrolled_window)
+
+        if more_function:
+            auto_load.set_function(more_function)
+
+        if list_content:
+            auto_load.set_items(list_content)
 
     def on_playlist_button_clicked(self, btn, playlist):
         utils.sidebar_list.select_row(None)

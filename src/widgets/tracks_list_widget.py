@@ -59,7 +59,7 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
 
         self.tracks = []
 
-    def set_function(self, function):
+    def set_more_function(self, function):
         """Set the function to fetch more items
 
         Args:

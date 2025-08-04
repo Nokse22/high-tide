@@ -17,15 +17,9 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from tidalapi.page import PageItem, PageLink
-from tidalapi.mix import Mix
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
+from tidalapi.page import PageItem, PageLink, ShortcutList, TrackList
 
 from .page import Page
-from ..widgets import HTTracksListWidget
 
 from ..lib import utils
 
@@ -35,13 +29,16 @@ from gettext import gettext as _
 class HTHomePage(Page):
     __gtype_name__ = "HTHomePage"
 
-    def _th_load_page(self):
+    home = None
+
+    def _load_async(self):
+        self.home = utils.session.home()
+
+    def _load_finish(self):
         self.set_tag("home")
         self.set_title(_("Home"))
 
-        home = utils.session.home()
-
-        for index, category in enumerate(home.categories):
+        for index, category in enumerate(self.home.categories):
             try:
                 if isinstance(category.items[0], PageItem) or isinstance(
                     category.items[0], PageLink
@@ -49,23 +46,8 @@ class HTHomePage(Page):
                     continue
 
                 if isinstance(category.items[0], Track):
-                    tracks_list_widget = HTTracksListWidget(category.title)
-                    self.disconnectables.append(tracks_list_widget)
-                    tracks_list_widget.set_tracks_list(category.items)
-                    self.page_content.append(tracks_list_widget)
+                    self.new_track_list_for(category.title, category.items)
                 else:
-                    carousel = self.get_carousel(category.title)
-                    self.page_content.append(carousel)
-
-                    if isinstance(category.items[0], Mix):
-                        carousel.set_items(category.items, "mix")
-                    elif isinstance(category.items[0], Album):
-                        carousel.set_items(category.items, "album")
-                    elif isinstance(category.items[0], Artist):
-                        carousel.set_items(category.items, "artist")
-                    elif isinstance(category.items[0], Playlist):
-                        carousel.set_items(category.items, "playlist")
+                    self.new_carousel_for(category.title, category.items)
             except Exception as e:
                 print(e)
-
-        self._page_loaded()
