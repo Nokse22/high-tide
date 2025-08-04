@@ -255,7 +255,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
         return button
 
     def on_page_link_clicked(self, btn, page_link):
-        from .generic_page import genericPage
+        from .generic_page import HTGenericPage
 
-        page = genericPage(page_link).load()
+        page = HTGenericPage(page_link.get).load()
         utils.navigation_view.push(page)

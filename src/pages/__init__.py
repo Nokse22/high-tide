@@ -1,4 +1,4 @@
-from .home_page import HTHomePage
+from .generic_page import HTGenericPage
 from .from_function_page import HTFromFunctionPage
 from .explore_page import HTExplorePage
 from .artist_page import HTArtistPage

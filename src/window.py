@@ -36,7 +36,7 @@ from .lib import PlayerObject, RepeatType, SecretStore, utils
 from .login import LoginDialog
 # from .new_playlist import NewPlaylistWindow
 
-from .pages import HTHomePage, HTExplorePage, HTNotLoggedInPage
+from .pages import HTNotLoggedInPage, HTGenericPage
 from .pages import HTCollectionPage
 from .pages import HTArtistPage, HTMixPage, HTHrackRadioPage, HTPlaylistPage
 from .pages import HTAlbumPage
@@ -266,7 +266,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     def on_logged_in(self):
         print("logged in")
 
-        page = HTHomePage().load()
+        page = HTGenericPage(utils.session.home).load()
         self.navigation_view.replace([page])
 
         self.player_lyrics_queue.set_sensitive(True)
@@ -512,7 +512,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.navigation_view.pop_to_tag("explore")
             return
 
-        page = HTExplorePage().load()
+        page = HTGenericPage(utils.session.explore).load()
         self.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_collection_button_clicked")

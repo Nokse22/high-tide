@@ -19,39 +19,45 @@
 
 from gi.repository import Gtk
 
-from tidalapi.page import PageItem, TextBlock
+from tidalapi.page import PageItem, TextBlock, ShortcutList, TrackList
 from tidalapi.media import Track
 
 from .page import Page
+from ..widgets import HTShorcutsWidget
 
 from ..disconnectable_iface import IDisconnectable
 
 
-class genericPage(Page):
-    __gtype_name__ = "genericPage"
+class HTGenericPage(Page):
+    """A page to display any tidalapi Page from a function to get it"""
 
-    """It is used for explore page categories page"""
+    __gtype_name__ = "HTGenericPage"
 
-    def __init__(self, _page_link):
+    function = None
+    page = None
+
+    def __init__(self, function):
         IDisconnectable.__init__(self)
         super().__init__()
 
-        self.item = _page_link
-
-        self.content = None
+        self.function = function
 
     def _load_async(self):
-        self.content = self.item.get()
+        self.page = self.function()
 
     def _load_finish(self):
-        self.set_title(self.item.title)
+        if self.page.title:
+            self.set_title(self.page.title)
 
-        for index, category in enumerate(self.content.categories):
+        for index, category in enumerate(self.page.categories):
             if isinstance(category, PageItem):
                 continue
 
-            if isinstance(category.items[0], Track):
+            if isinstance(category.items[0], Track) or isinstance(category, TrackList):
                 self.new_track_list_for(category.title, category.items)
+            elif isinstance(category, ShortcutList):
+                shortcut_list = HTShorcutsWidget(category.items)
+                self.append(shortcut_list)
             elif isinstance(category, TextBlock):
                 label = Gtk.Label(
                     justify=0,
