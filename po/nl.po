@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-30 21:32+0200\n"
-"PO-Revision-Date: 2025-06-01 10:15+0200\n"
+"POT-Creation-Date: 2025-06-14 19:11+0200\n"
+"PO-Revision-Date: 2025-08-02 14:20+0200\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -18,159 +18,29 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.6\n"
 
-#: data/io.github.nokse22.high-tide.desktop.in:2
-#: data/io.github.nokse22.high-tide.appdata.xml.in:6
-msgid "High Tide"
-msgstr "High Tide"
+#: data/gtk/help-overlay.blp:11
+msgctxt "shortcut window"
+msgid "General"
+msgstr "Algemeen"
 
-#: data/io.github.nokse22.high-tide.appdata.xml.in:7
-msgid "TIDAL client"
-msgstr "TIDAL-client"
+#: data/gtk/help-overlay.blp:14
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "Sneltoetsen tonen"
 
-#: data/io.github.nokse22.high-tide.appdata.xml.in:9
-msgid ""
-"Third party unofficial TIDAL music client. Listen to your favorite music "
-"from your desktop or mobile Linux device at the highest quality."
-msgstr ""
-"Een onofficiële TIDAL-muziekspeler. Luister naar je favoriete muziek vanaf "
-"Linux in de hoogste kwaliteit, of dat nu op je desktop is of je mobiel."
+#: data/gtk/help-overlay.blp:19
+msgctxt "shortcut window"
+msgid "Edit preferences"
+msgstr "Voorkeuren aanpassen"
 
-#: data/io.github.nokse22.high-tide.appdata.xml.in:50
-msgid ""
-"High Tide in a large window format playing the album Dreams by Fleetwood Mac"
-msgstr "High Tide in een groot venster, met Dreams van Fleetwood Mac"
+#: data/gtk/help-overlay.blp:24
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr "Afsluiten"
 
-#: data/io.github.nokse22.high-tide.appdata.xml.in:55
-msgid "High Tide in a small window format playing Let It Happen by Tame Impala"
-msgstr "High Tide in een klein venster, met Let It Happen van Tame Impala"
-
-#: src/main.py:90
-msgid "Donate with Ko-Fi"
-msgstr "Doneren via Ko-Fi"
-
-#: src/main.py:92
-msgid "Donate with Github"
-msgstr "Doneren via GitHub"
-
-#: src/pages/album_page.py:61
-msgid "Unknown"
-msgstr "Onbekend"
-
-#: src/pages/album_page.py:63 src/pages/playlist_page.py:79
-msgid "{} tracks ({})"
-msgstr "{} nummers ({})"
-
-#: src/pages/artist_page.py:101 src/widgets/card_widget.py:141
-#: src/widgets/top_hit_widget.py:183
-msgid "Artist"
-msgstr "Artiest"
-
-#: src/pages/artist_page.py:105
-msgid "Top Tracks"
-msgstr "Topnummers"
-
-#: src/pages/artist_page.py:117 src/pages/collection_page.py:49
-#: src/pages/search_page.py:65
-#| msgid "Album"
-msgid "Albums"
-msgstr "Albums"
-
-#: src/pages/artist_page.py:128
-msgid "EP & Singles"
-msgstr "Ep's en singles"
-
-#: src/pages/artist_page.py:140
-msgid "Appears On"
-msgstr "Als gastmuzikant op"
-
-#: src/pages/artist_page.py:151
-msgid "Similar Artists"
-msgstr "Vergelijkbare artiesten"
-
-#: src/pages/artist_page.py:180
-msgid "Bio"
-msgstr "Biografie"
-
-#: src/pages/artist_page.py:201 src/pages/track_radio_page.py:55
-msgid "Radio of {}"
-msgstr "Radiostation van {}"
-
-#: src/pages/collection_page.py:40 data/ui/window.blp:266
-msgid "Collection"
-msgstr "Collectie"
-
-#: src/pages/collection_page.py:45
-msgid "My Mixes and Radios"
-msgstr "Mijn mixen en radio's"
-
-#: src/pages/collection_page.py:47 src/pages/search_page.py:71
-msgid "Playlists"
-msgstr "Afspeellijsten"
-
-#: src/pages/collection_page.py:51 src/pages/search_page.py:77
-msgid "Tracks"
-msgstr "Nummers"
-
-#. Adds a carousel with artists, albums and playlists
-#: src/pages/collection_page.py:53 src/pages/search_page.py:59
-msgid "Artists"
-msgstr "Artiesten"
-
-#: src/pages/explore_page.py:50 data/ui/window.blp:241
-msgid "Explore"
-msgstr "Verkennen"
-
-#: src/pages/explore_page.py:78
-msgid "More"
-msgstr "Meer"
-
-#: src/pages/home_page.py:40 data/ui/window.blp:216
-msgid "Home"
-msgstr "Startscherm"
-
-#: src/pages/not_logged_in_page.py:34
-msgid "Login"
-msgstr "Inloggen"
-
-#: src/pages/not_logged_in_page.py:40
-msgid "Login first"
-msgstr "Log in"
-
-#: src/pages/not_logged_in_page.py:41
-msgid "To be able to use this app you need to login with your TIDAL account."
-msgstr "Log in op je TIDAL-account om deze toepassing te kunnen gebruiken."
-
-#: src/pages/page.py:47 data/ui/window.blp:190
-msgid "Loading..."
-msgstr "Bezig met laden…"
-
-#: src/pages/playlist_page.py:77 src/pages/track_radio_page.py:62
-msgid "by {}"
-msgstr "van {}"
-
-#: src/widgets/card_widget.py:93
-msgid "Track by {}"
-msgstr "Nummer van {}"
-
-#: src/widgets/card_widget.py:132
-msgid "By {}"
-msgstr "Van {}"
-
-#: src/widgets/top_hit_widget.py:91
-msgid "Track"
-msgstr "Nummer"
-
-#: src/widgets/top_hit_widget.py:110
-msgid "Mix"
-msgstr "Mix"
-
-#: src/widgets/top_hit_widget.py:133 data/ui/detailed_track_listing.blp:46
+#: data/ui/detailed_track_listing.blp:46 src/widgets/top_hit_widget.py:133
 msgid "Album"
 msgstr "Album"
-
-#: src/window.py:198
-msgid "Playing Music"
-msgstr "Muziek aan het afspelen"
 
 #: data/ui/detailed_track_listing.blp:62 data/ui/detailed_track_listing.blp:93
 #: data/ui/widgets/generic_track_widget.blp:68
@@ -178,7 +48,7 @@ msgid "Title"
 msgstr "Titel"
 
 #: data/ui/detailed_track_listing.blp:137
-#: data/ui/detailed_track_listing.blp:162 data/ui/window.blp:503
+#: data/ui/detailed_track_listing.blp:162 data/ui/window.blp:528
 msgid "Go to track radio"
 msgstr "Ga naar radiostation"
 
@@ -223,80 +93,149 @@ msgstr "Afspeellijstbeschrijving"
 msgid "Create"
 msgstr "Maken"
 
-#: data/ui/preferences.ui:19
+#: data/ui/preferences.blp:7
+msgid "Audio"
+msgstr "Geluidskwaliteit"
+
+#: data/ui/preferences.blp:11
+msgid "Low 96k"
+msgstr "Laag (96k)"
+
+#: data/ui/preferences.blp:12
+msgid "High 320k"
+msgstr "Hoog (320k)"
+
+#: data/ui/preferences.blp:13
+msgid "Lossless"
+msgstr "Zonder kwaliteitsverlies"
+
+#: data/ui/preferences.blp:14
+msgid "Hi-res Lossless"
+msgstr "Hi-res zonder kwaliteitsverlies"
+
+#: data/ui/preferences.blp:18
 msgid "Quality"
 msgstr "Kwaliteit"
 
-#: data/ui/preferences.ui:37
+#: data/ui/preferences.blp:23
+msgid "Automatic"
+msgstr "Automatisch"
+
+#: data/ui/preferences.blp:31
 msgid "Preferred Audio Sink"
 msgstr "Voorkeursgeluidssysteem"
 
-#: data/ui/preferences.ui:46
+#: data/ui/preferences.blp:34
 msgid "Normalize volume"
 msgstr "Volumeniveau normaliseren"
 
-#: data/ui/preferences.ui:55
+#: data/ui/preferences.blp:39
+msgid "App"
+msgstr "Toepassing"
+
+#: data/ui/preferences.blp:41
 msgid "Run in the background"
 msgstr "Uitvoeren op achtergrond"
 
-#: data/ui/preferences.ui:64
+#: data/ui/preferences.blp:44
 msgid "Use quadratic volume control"
 msgstr "Kwadratische volumeregeling gebruiken"
+
+#: data/ui/preferences.blp:47
+msgid "Display animated covers"
+msgstr "Hoezen voorzien van animaties"
+
+#: data/ui/preferences.blp:51
+msgid "Enable Discord Rich Presence"
+msgstr "Discord-integratie inschakelen"
 
 #: data/ui/search_entry.blp:4
 msgid "Search..."
 msgstr "Zoeken…"
 
-#: data/ui/window.blp:134 data/ui/window.blp:370 data/ui/window.blp:614
+#: data/ui/window.blp:5
+msgid "We Changed App ID"
+msgstr "De toepassingsid is gewijzigd"
+
+#: data/ui/window.blp:6
+msgid ""
+"We had to change the app ID for High Tide, if you had it installed before as "
+"Flatpak make sure to remove the old version with this command:"
+msgstr ""
+"We waren genoodzaakt de toepassingsid te wijzigen. Als je de flatpakversie "
+"geïnstalleerd hebt, verwijder dan de oude versie met behulp van deze "
+"opdracht:"
+
+#: data/ui/window.blp:18
+msgid "I understood"
+msgstr "Ik begrijp het"
+
+#: data/ui/window.blp:158 data/ui/window.blp:394 data/ui/window.blp:639
 msgid "Play/Pause"
 msgstr "Afspelen/Pauzeren"
 
-#: data/ui/window.blp:145 data/ui/window.blp:382 data/ui/window.blp:627
+#: data/ui/window.blp:169 data/ui/window.blp:406 data/ui/window.blp:652
 msgid "Skip Forward"
 msgstr "Vooruitspoelen"
 
-#: data/ui/window.blp:444
+#: data/ui/window.blp:214 src/pages/page.py:47
+msgid "Loading..."
+msgstr "Bezig met laden…"
+
+#: data/ui/window.blp:240 src/pages/home_page.py:40
+msgid "Home"
+msgstr "Startscherm"
+
+#: data/ui/window.blp:265 src/pages/explore_page.py:50
+msgid "Explore"
+msgstr "Verkennen"
+
+#: data/ui/window.blp:290 src/pages/collection_page.py:40
+msgid "Collection"
+msgstr "Collectie"
+
+#: data/ui/window.blp:469
 msgid "No Song"
 msgstr "Geen nummer"
 
-#: data/ui/window.blp:466
+#: data/ui/window.blp:491
 msgid "Nobody"
 msgstr "Niemand"
 
-#: data/ui/window.blp:491
+#: data/ui/window.blp:516
 msgid "Add/Remove from favorites"
 msgstr "Toevoegen aan/Verwijderen uit favorieten"
 
-#: data/ui/window.blp:515
+#: data/ui/window.blp:540
 msgid "Go to album"
 msgstr "Ga naar album"
 
-#: data/ui/window.blp:527
+#: data/ui/window.blp:552
 msgid "Copy Share Link"
 msgstr "Deellink kopiëren"
 
-#: data/ui/window.blp:589
+#: data/ui/window.blp:614
 msgid "Toggle Shuffle"
 msgstr "Willekeurig aan/uit"
 
-#: data/ui/window.blp:602
+#: data/ui/window.blp:627
 msgid "Skip Backward"
 msgstr "Terugspoelen"
 
-#: data/ui/window.blp:654
+#: data/ui/window.blp:680
 msgid "Player"
 msgstr "Speler"
 
-#: data/ui/window.blp:664 data/ui/widgets/lyrics_widget.blp:22
+#: data/ui/window.blp:690 data/ui/widgets/lyrics_widget.blp:22
 msgid "Lyrics"
 msgstr "Songtekst"
 
-#: data/ui/window.blp:674 data/ui/widgets/queue_widget.blp:58
+#: data/ui/window.blp:700 data/ui/widgets/queue_widget.blp:58
 msgid "Queue"
 msgstr "Wachtrij"
 
 #: data/ui/pages_ui/artist_page_template.blp:174
-#: data/ui/pages_ui/tracks_list_template.blp:194
+#: data/ui/pages_ui/tracks_list_template.blp:205
 msgid "Copy Share URL"
 msgstr "Deellink kopiëren"
 
@@ -351,6 +290,141 @@ msgstr "Volgende nummers"
 #: data/ui/widgets/top_hit_widget.blp:18
 msgid "Top Hit"
 msgstr "Beste resultaat"
+
+#: data/io.github.nokse22.high-tide.desktop.in:2
+#: data/io.github.nokse22.high-tide.appdata.xml.in:9
+msgid "High Tide"
+msgstr "High Tide"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:10
+msgid "TIDAL client"
+msgstr "TIDAL-client"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:12
+msgid ""
+"Third party unofficial TIDAL music client. Listen to your favorite music "
+"from your desktop or mobile Linux device at the highest quality."
+msgstr ""
+"Een onofficiële TIDAL-muziekspeler. Luister naar je favoriete muziek vanaf "
+"Linux in de hoogste kwaliteit, of dat nu op je desktop is of je mobiel."
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:56
+msgid ""
+"High Tide in a large window format playing the album `Dreams` by Fleetwood "
+"Mac"
+msgstr "High Tide in een groot venster, met `Dreams` van Fleetwood Mac"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:61
+msgid ""
+"High Tide in a small window format playing `Let It Happen` by Tame Impala"
+msgstr "High Tide in een klein venster, met `Let It Happen` van Tame Impala"
+
+#: src/pages/album_page.py:60
+msgid "Unknown"
+msgstr "Onbekend"
+
+#: src/pages/album_page.py:62 src/pages/playlist_page.py:79
+msgid "{} tracks ({})"
+msgstr "{} nummers ({})"
+
+#: src/pages/artist_page.py:101 src/widgets/card_widget.py:139
+#: src/widgets/top_hit_widget.py:183
+msgid "Artist"
+msgstr "Artiest"
+
+#: src/pages/artist_page.py:105
+msgid "Top Tracks"
+msgstr "Topnummers"
+
+#: src/pages/artist_page.py:117 src/pages/collection_page.py:49
+#: src/pages/search_page.py:65
+msgid "Albums"
+msgstr "Albums"
+
+#: src/pages/artist_page.py:128
+msgid "EP & Singles"
+msgstr "Ep's en singles"
+
+#: src/pages/artist_page.py:140
+msgid "Appears On"
+msgstr "Als gastmuzikant op"
+
+#: src/pages/artist_page.py:151
+msgid "Similar Artists"
+msgstr "Vergelijkbare artiesten"
+
+#: src/pages/artist_page.py:180
+msgid "Bio"
+msgstr "Biografie"
+
+#: src/pages/artist_page.py:201 src/pages/track_radio_page.py:55
+msgid "Radio of {}"
+msgstr "Radiostation van {}"
+
+#: src/pages/collection_page.py:45
+msgid "My Mixes and Radios"
+msgstr "Mijn mixen en radio's"
+
+#: src/pages/collection_page.py:47 src/pages/search_page.py:71
+msgid "Playlists"
+msgstr "Afspeellijsten"
+
+#: src/pages/collection_page.py:51 src/pages/search_page.py:77
+msgid "Tracks"
+msgstr "Nummers"
+
+#. Adds a carousel with artists, albums and playlists
+#: src/pages/collection_page.py:53 src/pages/search_page.py:59
+msgid "Artists"
+msgstr "Artiesten"
+
+#: src/pages/explore_page.py:78
+msgid "More"
+msgstr "Meer"
+
+#: src/pages/not_logged_in_page.py:34
+msgid "Login"
+msgstr "Inloggen"
+
+#: src/pages/not_logged_in_page.py:40
+msgid "Login first"
+msgstr "Log in"
+
+#: src/pages/not_logged_in_page.py:41
+msgid "To be able to use this app you need to login with your TIDAL account."
+msgstr "Log in op je TIDAL-account om deze toepassing te kunnen gebruiken."
+
+#: src/pages/playlist_page.py:77 src/pages/track_radio_page.py:62
+msgid "by {}"
+msgstr "van {}"
+
+#: src/widgets/card_widget.py:91
+msgid "Track by {}"
+msgstr "Nummer van {}"
+
+#: src/widgets/card_widget.py:130
+msgid "By {}"
+msgstr "Van {}"
+
+#: src/widgets/top_hit_widget.py:91
+msgid "Track"
+msgstr "Nummer"
+
+#: src/widgets/top_hit_widget.py:110
+msgid "Mix"
+msgstr "Mix"
+
+#: src/main.py:93
+msgid "Donate with Ko-Fi"
+msgstr "Doneren via Ko-Fi"
+
+#: src/main.py:95
+msgid "Donate with Github"
+msgstr "Doneren via GitHub"
+
+#: src/window.py:217
+msgid "Playing Music"
+msgstr "Muziek aan het afspelen"
 
 #~ msgid "Sail away"
 #~ msgstr "Recht zo die gaat"
