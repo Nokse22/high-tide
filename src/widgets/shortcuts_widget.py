@@ -77,6 +77,8 @@ class HTShorcutWidget(Gtk.FlowBoxChild, IDisconnectable):
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
     def _on_click(self, *args) -> None:
+        threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
+
         if self.action is None:
             return
 

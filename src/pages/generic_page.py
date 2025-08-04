@@ -19,11 +19,12 @@
 
 from gi.repository import Gtk
 
-from tidalapi.page import TextBlock, PageLinks
-from tidalapi.page import ItemList
+from tidalapi.page import TextBlock, PageLinks, TrackList, HorizontalListWithContext
+from tidalapi.page import ItemList, ShortcutList, HorizontalList
 from tidalapi.media import Track
 
 from .page import Page
+from ..widgets import HTShorcutsWidget
 
 from gettext import gettext as _
 
@@ -68,7 +69,7 @@ class HTGenericPage(Page):
             self.set_title("")
 
         for index, category in enumerate(self.page.categories):
-            if isinstance(category.items[0], Track):
+            if isinstance(category.items[0], Track) or isinstance(category, TrackList):
                 self.new_track_list_for(category.title, category.items)
             elif isinstance(category, TextBlock):
                 self.append(
@@ -87,8 +88,11 @@ class HTGenericPage(Page):
                 self.new_link_carousel_for(
                     category.title if category.title else _("More"), category.items
                 )
-            else:
-                try:
-                    self.new_carousel_for(category.title, category.items)
-                except Exception as e:
-                    print(e)
+            elif isinstance(category, ShortcutList):
+                self.append(HTShorcutsWidget(category.items))
+            elif (
+                isinstance(category, ItemList)
+                or isinstance(category, HorizontalList)
+                or isinstance(category, HorizontalListWithContext)
+            ):
+                self.new_carousel_for(category.title, category.items)
