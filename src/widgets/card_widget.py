@@ -118,12 +118,9 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_visible(False)
 
-        creator = self.item.creator
-        if creator:
-            creator = creator.name
-        else:
-            creator = "TIDAL"
-        self.detail_label.set_label(_("By {}").format(creator.title()))
+        self.detail_label.set_label(_("By {}").format(
+            self.item.creator.name if self.item.creator else "TIDAL")
+        )
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
