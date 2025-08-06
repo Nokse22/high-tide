@@ -59,6 +59,12 @@ class IDisconnectable:
         self.bindings = []
         self.disconnectables = []
 
+    def connect_signal(self, g_object, signal_name, callback_func, *args):
+        self.signals.append((
+            g_object,
+            g_object.connect(signal_name, callback_func, *args),
+        ))
+
     def disconnect_all(self, *_args) -> None:
         """Disconnects all signals so that the class can be deleted"""
 
