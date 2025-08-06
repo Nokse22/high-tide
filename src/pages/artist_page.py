@@ -23,8 +23,6 @@ from .page import Page
 from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 
-from tidalapi.artist import Artist
-
 import threading
 
 from gettext import gettext as _
@@ -46,7 +44,7 @@ class HTArtistPage(Page):
         self.bio = None
 
     def _load_async(self):
-        self.artist = Artist(utils.session, self.id)
+        self.artist = utils.get_artist(self.id)
 
         self.top_tracks = self.artist.get_top_tracks(limit=5)
         self.albums = self.artist.get_albums(limit=10)

@@ -18,11 +18,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk
-from ..lib import utils
-import threading
+
 from .page import Page
+from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
-from tidalapi.playlist import Playlist
+
+import threading
+
 from gettext import gettext as _
 
 
@@ -41,7 +43,7 @@ class HTPlaylistPage(Page):
         self.tracks = None
 
     def _load_async(self):
-        self.item = Playlist(utils.session, self.id)
+        self.item = utils.get_playlist(self.id)
 
         self.tracks = self.item.tracks(limit=50)
 

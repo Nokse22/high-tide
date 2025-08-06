@@ -20,7 +20,6 @@
 from gi.repository import Gtk
 from ..lib import utils
 from .page import Page
-from tidalapi.album import Album
 from ..disconnectable_iface import IDisconnectable
 
 import threading
@@ -41,7 +40,7 @@ class HTAlbumPage(Page):
         self.top_tracks = None
 
     def _load_async(self):
-        self.item = Album(utils.session, self.id)
+        self.item = utils.get_album(self.id)
         self.top_tracks = self.item.tracks(limit=50)
 
     def _load_finish(self):

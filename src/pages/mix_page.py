@@ -19,8 +19,6 @@
 
 from gi.repository import Gtk
 
-from tidalapi.mix import MixV2, Mix
-
 from ..lib import utils
 from .page import Page
 
@@ -41,7 +39,7 @@ class HTMixPage(Page):
         self.tracks = None
 
     def _load_async(self):
-        self.item = Mix(utils.session, self.id)
+        self.item = utils.get_mix(self.id)
 
         self.tracks = self.item.items()
 

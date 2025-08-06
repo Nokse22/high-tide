@@ -37,7 +37,7 @@ class HTHrackRadioPage(Page):
         self.radio_tracks = []
 
     def _load_async(self):
-        self.item = Track(utils.session, self.id)
+        self.item = utils.get_track(self.id)
 
         if isinstance(self.item, Track):
             self.radio_tracks = self.item.get_track_radio()
