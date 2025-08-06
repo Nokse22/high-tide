@@ -114,7 +114,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
     def on_shuffle_button_clicked(self, btn):
         utils.player_object.shuffle_this(self.item)
 
-    def get_link_carousel(self, title):
+    def new_link_carousel_for(self, title, items):
         """Similar to the last function but used to display links to other
         pages like in the explore page to display genres..."""
 
@@ -162,7 +162,20 @@ class Page(Adw.NavigationPage, IDisconnectable):
             next_button.connect("clicked", self.carousel_go_next, cards_box, 1),
         ))
 
-        return box, cards_box
+        buttons_for_page = 0
+
+        flow_box = Gtk.FlowBox(homogeneous=True, height_request=100)
+        cards_box.append(flow_box)
+        self.append(box)
+
+        for index, item in enumerate(items):
+            if buttons_for_page == 4:
+                flow_box = Gtk.FlowBox(homogeneous=True, height_request=100)
+                cards_box.append(flow_box)
+                buttons_for_page = 0
+            button = self.get_page_link_card(item)
+            flow_box.append(button)
+            buttons_for_page += 1
 
     def carousel_go_prev(self, btn, carousel, jump=2):
         pos = carousel.get_position()
@@ -257,5 +270,5 @@ class Page(Adw.NavigationPage, IDisconnectable):
     def on_page_link_clicked(self, btn, page_link):
         from .generic_page import HTGenericPage
 
-        page = HTGenericPage(page_link.get).load()
+        page = HTGenericPage.new_from_function(page_link.get).load()
         utils.navigation_view.push(page)

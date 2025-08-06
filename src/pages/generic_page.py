@@ -19,13 +19,15 @@
 
 from gi.repository import Gtk
 
-from tidalapi.page import PageItem, TextBlock, ShortcutList, TrackList
+from tidalapi.page import PageItem, TextBlock, ShortcutList, TrackList, PageLinks
+from tidalapi.page import HorizontalList, HorizontalListWithContext
+from tidalapi.page import FeaturedItems, ItemList, LinkList
 from tidalapi.media import Track
 
 from .page import Page
 from ..widgets import HTShorcutsWidget
 
-from ..disconnectable_iface import IDisconnectable
+from gettext import gettext as _
 
 
 class HTGenericPage(Page):
@@ -36,11 +38,13 @@ class HTGenericPage(Page):
     function = None
     page = None
 
-    def __init__(self, function):
-        IDisconnectable.__init__(self)
-        super().__init__()
+    @classmethod
+    def new_from_function(cls, function):
+        instance = cls()
 
-        self.function = function
+        instance.function = function
+
+        return instance
 
     def _load_async(self):
         self.page = self.function()
@@ -50,25 +54,31 @@ class HTGenericPage(Page):
             self.set_title(self.page.title)
 
         for index, category in enumerate(self.page.categories):
-            if isinstance(category, PageItem):
-                continue
-
             if isinstance(category.items[0], Track) or isinstance(category, TrackList):
                 self.new_track_list_for(category.title, category.items)
             elif isinstance(category, ShortcutList):
-                shortcut_list = HTShorcutsWidget(category.items)
-                self.append(shortcut_list)
+                self.append(HTShorcutsWidget(category.items))
             elif isinstance(category, TextBlock):
-                label = Gtk.Label(
-                    justify=0,
-                    xalign=0,
-                    wrap=True,
-                    margin_start=12,
-                    margin_top=12,
-                    margin_bottom=12,
-                    margin_end=12,
-                    label=category.text,
+                self.append(
+                    Gtk.Label(
+                        justify=0,
+                        xalign=0,
+                        wrap=True,
+                        margin_start=12,
+                        margin_top=12,
+                        margin_bottom=12,
+                        margin_end=12,
+                        label=category.text,
+                    )
                 )
-                self.append(label)
-            else:
+            elif (
+                isinstance(category, HorizontalList)
+                or isinstance(category, HorizontalListWithContext)
+                or isinstance(category, ItemList)
+            ):
                 self.new_carousel_for(category.title, category.items)
+            elif isinstance(category, PageLinks):
+                self.new_link_carousel_for(
+                    category.title if category.title else _("More"),
+                    category.items
+                )

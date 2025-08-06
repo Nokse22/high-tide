@@ -31,12 +31,12 @@ from .mpris import MPRIS
 
 from tidalapi.media import Quality
 
-from .lib import PlayerObject, RepeatType, SecretStore, utils
+from .lib import PlayerObject, RepeatType, SecretStore, utils, HTCache
 
 from .login import LoginDialog
 # from .new_playlist import NewPlaylistWindow
 
-from .pages import HTNotLoggedInPage, HTGenericPage
+from .pages import HTNotLoggedInPage, HTGenericPage, HTExplorePage
 from .pages import HTCollectionPage
 from .pages import HTArtistPage, HTMixPage, HTHrackRadioPage, HTPlaylistPage
 from .pages import HTAlbumPage
@@ -181,6 +181,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         utils.session = self.session
         utils.navigation_view = self.navigation_view
         utils.toast_overlay = self.toast_overlay
+        utils.cache = HTCache(self.session)
 
         self.user = self.session.user
 
@@ -266,7 +267,8 @@ class HighTideWindow(Adw.ApplicationWindow):
     def on_logged_in(self):
         print("logged in")
 
-        page = HTGenericPage(utils.session.home).load()
+        page = HTGenericPage.new_from_function(utils.session.home).load()
+        page.set_tag("home")
         self.navigation_view.replace([page])
 
         self.player_lyrics_queue.set_sensitive(True)
@@ -512,7 +514,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.navigation_view.pop_to_tag("explore")
             return
 
-        page = HTGenericPage(utils.session.explore).load()
+        page = HTExplorePage().load()
         self.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_collection_button_clicked")
