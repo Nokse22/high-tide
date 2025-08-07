@@ -24,12 +24,10 @@ from .window import HighTideWindow
 
 from .lib import utils
 
-import threading
-
 from gettext import gettext as _
 
 
-class TidalApplication(Adw.Application):
+class HighTideApplication(Adw.Application):
     """The main application singleton class.
 
     This class handles the main application lifecycle, manages global actions,
@@ -48,7 +46,6 @@ class TidalApplication(Adw.Application):
         )
         self.create_action("log-in", self.on_login_action)
         self.create_action("log-out", self.on_logout_action)
-        self.create_action("download", self.on_download, ["<primary>d"])
 
         utils.init()
 
@@ -67,9 +64,6 @@ class TidalApplication(Adw.Application):
                 utils.open_tidal_uri(uri)
             else:
                 self.win.queued_uri = uri
-
-    def on_download(self, *args):
-        threading.Thread(target=self.win.th_download_song).start()
 
     def on_login_action(self, *args):
         """Handle the login action by initiating a new login process."""
@@ -112,7 +106,7 @@ class TidalApplication(Adw.Application):
 
         about.present(self.props.active_window)
 
-    def on_preferences_action(self, widget, _):
+    def on_preferences_action(self, *args):
         """Display the preferences window and bind settings to UI controls"""
 
         if not self.preferences:
@@ -206,5 +200,5 @@ class TidalApplication(Adw.Application):
 
 
 def main(version):
-    app = TidalApplication()
+    app = HighTideApplication()
     return app.run(sys.argv)
