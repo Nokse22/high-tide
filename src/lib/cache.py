@@ -35,6 +35,14 @@ class HTCache:
         self.session = session
 
     def get_artist(self, artist_id):
+        """Get an artist from cache or fetch from TIDAL API if not cached.
+
+        Args:
+            artist_id (str): The TIDAL artist ID
+
+        Returns:
+            Artist: The artist object from TIDAL API
+        """
         if artist_id in self.artists:
             return self.artists[artist_id]
         artist = Artist(self.session, artist_id)
@@ -42,6 +50,14 @@ class HTCache:
         return artist
 
     def get_album(self, album_id):
+        """Get an album from cache or fetch from TIDAL API if not cached.
+
+        Args:
+            album_id (str): The TIDAL album ID
+
+        Returns:
+            Album: The album object from TIDAL API
+        """
         if album_id in self.albums:
             return self.albums[album_id]
         album = Album(self.session, album_id)
@@ -49,6 +65,14 @@ class HTCache:
         return album
 
     def get_track(self, track_id):
+        """Get a track from cache or fetch from TIDAL API if not cached.
+
+        Args:
+            track_id (str): The TIDAL track ID
+
+        Returns:
+            Track: The track object from TIDAL API
+        """
         if track_id in self.tracks:
             return self.tracks[track_id]
         track = Track(self.session, track_id)
@@ -56,6 +80,14 @@ class HTCache:
         return track
 
     def get_playlist(self, playlist_id):
+        """Get a playlist from cache or fetch from TIDAL API if not cached.
+
+        Args:
+            playlist_id (str): The TIDAL playlist ID
+
+        Returns:
+            Playlist: The playlist object from TIDAL API
+        """
         if playlist_id in self.playlists:
             return self.playlists[playlist_id]
         playlist = Playlist(self.session, playlist_id)
@@ -63,6 +95,14 @@ class HTCache:
         return playlist
 
     def get_mix(self, mix_id):
+        """Get a mix from cache or fetch from TIDAL API if not cached.
+
+        Args:
+            mix_id (str): The TIDAL mix ID
+
+        Returns:
+            Mix: The mix object from TIDAL API
+        """
         if mix_id in self.mixes:
             return self.mixes[mix_id]
         mix = Mix(self.session, mix_id)

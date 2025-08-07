@@ -37,10 +37,7 @@ class HTFromFunctionPage(Page):
         self.set_title(_title)
 
         self.auto_load = HTAutoLoadWidget(
-            margin_start=12,
-            margin_end=12,
-            margin_top=12,
-            margin_bottom=12
+            margin_start=12, margin_end=12, margin_top=12, margin_bottom=12
         )
         self.auto_load.set_scrolled_window(self.scrolled_window)
 
@@ -49,8 +46,7 @@ class HTFromFunctionPage(Page):
     def _load_async(self):
         self.auto_load.th_load_items()
 
-    def _load_finish(self):
-        ...
+    def _load_finish(self): ...
 
     def set_function(self, function):
         self.auto_load.set_function(function)

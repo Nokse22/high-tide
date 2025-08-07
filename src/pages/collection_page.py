@@ -24,12 +24,11 @@ from gettext import gettext as _
 
 
 class HTCollectionPage(Page):
-    """It is used for the collection"""
+    """A page to display the collection"""
 
     __gtype_name__ = "HTCollectionPage"
 
-    def _load_async(self):
-        ...
+    def _load_async(self): ...
 
     def _load_finish(self):
         self.set_tag("collection")

@@ -29,7 +29,13 @@ from ..disconnectable_iface import IDisconnectable
     resource_path="/io/github/nokse22/high-tide/ui/widgets/carousel_widget.ui"
 )
 class HTCarouselWidget(Gtk.Box, IDisconnectable):
-    """It is used to display multiple elements side by side with navigation arrows"""
+    """A horizontal scrolling carousel widget for displaying multiple TIDAL items.
+
+    This widget creates a scrollable carousel with navigation arrows to display
+    collections of TIDAL content (albums, artists, playlists, etc.) in a
+    horizontal layout. It supports "See More" functionality to navigate to
+    detailed pages and automatic card creation for TIDAL items.
+    """
 
     __gtype_name__ = "HTCarouselWidget"
 
@@ -68,6 +74,11 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         self.items = []
 
     def set_more_function(self, _function):
+        """Set the function to call when the "See More" button is clicked.
+
+        Args:
+            _function: A callable that returns page content
+        """
         self.more_button.set_visible(True)
         self.more_function = _function
 
@@ -89,6 +100,7 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
             self.append_card(HTCardWidget(item))
 
     def on_more_clicked(self, *args):
+        """Handle "See More" button clicks by navigating to a detailed page"""
         from ..pages import HTFromFunctionPage
 
         if self.more_function is None:
@@ -102,6 +114,7 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         utils.navigation_view.push(page)
 
     def carousel_go_next(self, btn):
+        """Navigate to the next page in the carousel"""
         pos = self.carousel.get_position()
         total_pages = self.carousel.get_n_pages()
 
@@ -118,6 +131,7 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         self.next_button.set_sensitive(next_pos < total_pages - 2)
 
     def carousel_go_prev(self, btn):
+        """Navigate to the previous page in the carousel"""
         pos = self.carousel.get_position()
         total_pages = self.carousel.get_n_pages()
 

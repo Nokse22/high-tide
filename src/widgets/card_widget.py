@@ -37,8 +37,13 @@ from gettext import gettext as _
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/card_widget.ui")
 class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
-    """It is card that adapts to the content it needs to display, it is used when
-    listing artists, albums, mixes and so on"""
+    """A card widget that adapts to display different types of TIDAL content.
+
+    This widget automatically configures itself based on the type of TIDAL item
+    it receives (Track, Album, Artist, Playlist, Mix) and displays appropriate
+    information and imagery. It handles click events to navigate to detail pages
+    or start playback for tracks.
+    """
 
     __gtype_name__ = "HTCardWidget"
 
@@ -50,6 +55,11 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
     track_artist_label = Gtk.Template.Child()
 
     def __init__(self, _item):
+        """Initialize the card widget with a TIDAL item.
+
+        Args:
+            _item: A TIDAL object (Track, Album, Artist, Playlist, or Mix) to display
+        """
         IDisconnectable.__init__(self)
         super().__init__()
 
@@ -84,6 +94,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             self.action = None
 
     def _make_track_card(self):
+        """Configure the card to display a Track item"""
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_artists(self.item.artists)
@@ -98,6 +109,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         ).start()
 
     def _make_mix_card(self):
+        """Configure the card to display a Mix item"""
         self.title_label.set_label(self.item.title)
         self.title_label.set_tooltip_text(self.item.title)
         self.detail_label.set_label(self.item.sub_title)
@@ -106,6 +118,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
     def _make_album_card(self):
+        """Configure the card to display an Album item"""
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_artists(self.item.artists)
@@ -114,6 +127,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
     def _make_playlist_card(self):
+        """Configure the card to display a Playlist item"""
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_visible(False)
@@ -125,6 +139,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
     def _make_artist_card(self):
+        """Configure the card to display an Artist item"""
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
         self.detail_label.set_label(_("Artist"))
@@ -133,6 +148,11 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
     def _on_click(self, *args):
+        """Handle click events on the card.
+
+        For non-track items, activates the appropriate navigation action to show
+        the detail page. For track items, starts playback immediately.
+        """
         if self.action:
             self.activate_action(self.action, GLib.Variant("s", str(self.item.id)))
         elif isinstance(self.item, Track):

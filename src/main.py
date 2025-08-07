@@ -30,7 +30,11 @@ from gettext import gettext as _
 
 
 class TidalApplication(Adw.Application):
-    """The main application singleton class."""
+    """The main application singleton class.
+
+    This class handles the main application lifecycle, manages global actions,
+    preferences, and provides the entry point for the High Tide TIDAL music player.
+    """
 
     def __init__(self):
         super().__init__(
@@ -68,12 +72,15 @@ class TidalApplication(Adw.Application):
         threading.Thread(target=self.win.th_download_song).start()
 
     def on_login_action(self, *args):
+        """Handle the login action by initiating a new login process."""
         self.win.new_login()
 
     def on_logout_action(self, *args):
+        """Handle the logout action by logging out the current user."""
         self.win.logout()
 
     def do_activate(self):
+        """Activate the application by creating and presenting the main window."""
         self.win = self.props.active_window
         if not self.win:
             self.win = HighTideWindow(application=self)
@@ -81,6 +88,7 @@ class TidalApplication(Adw.Application):
         self.win.present()
 
     def on_about_action(self, widget, *args):
+        """Display the about dialog with application information"""
         about = Adw.AboutDialog(
             application_name="High Tide",
             application_icon="io.github.nokse22.high-tide",
@@ -105,7 +113,7 @@ class TidalApplication(Adw.Application):
         about.present(self.props.active_window)
 
     def on_preferences_action(self, widget, _):
-        """Callback for the app.preferences action."""
+        """Display the preferences window and bind settings to UI controls"""
 
         if not self.preferences:
             builder = Gtk.Builder.new_from_resource(
@@ -183,6 +191,13 @@ class TidalApplication(Adw.Application):
         self.win.change_discord_rpc_enabled(widget.get_active())
 
     def create_action(self, name, callback, shortcuts=None):
+        """Create a new application action with optional keyboard shortcuts.
+
+        Args:
+            name: The action name
+            callback: The callback function to execute when action is triggered
+            shortcuts: Optional list of keyboard shortcut strings
+        """
         action = Gio.SimpleAction.new(name, None)
         action.connect("activate", callback)
         self.add_action(action)
@@ -191,6 +206,5 @@ class TidalApplication(Adw.Application):
 
 
 def main(version):
-    """The application's entry point."""
     app = TidalApplication()
     return app.run(sys.argv)

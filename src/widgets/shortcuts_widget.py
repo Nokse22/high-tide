@@ -35,6 +35,8 @@ from gettext import gettext as _
     resource_path="/io/github/nokse22/high-tide/ui/widgets/shortcut_widget.ui"
 )
 class HTShorcutWidget(Gtk.FlowBoxChild, IDisconnectable):
+    """A widget to display a shortcut on the home page"""
+
     __gtype_name__ = "HTShorcutWidget"
 
     title_label = Gtk.Template.Child()
@@ -86,6 +88,8 @@ class HTShorcutWidget(Gtk.FlowBoxChild, IDisconnectable):
     resource_path="/io/github/nokse22/high-tide/ui/widgets/shortcuts_widget.ui"
 )
 class HTShorcutsWidget(Gtk.Box, IDisconnectable):
+    """A widget to display all shortcuts on the home page"""
+
     __gtype_name__ = "HTShorcutsWidget"
 
     shorcuts_flow_box = Gtk.Template.Child()

@@ -28,7 +28,7 @@ from gettext import gettext as _
 
 
 class HTExplorePage(HTGenericPage):
-    """It is used to display the explore page"""
+    """A page to display the explore page"""
 
     __gtype_name__ = "HTExplorePage"
 

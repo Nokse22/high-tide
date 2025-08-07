@@ -34,7 +34,12 @@ from gettext import gettext as _
     resource_path="/io/github/nokse22/high-tide/ui/widgets/generic_track_widget.ui"
 )
 class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
-    """It is used to display a single track"""
+    """A widget for displaying a single track with playback and menu options.
+
+    This widget shows track information including title, artist, album, duration,
+    and cover art. It provides context menu actions for playing, adding to queue,
+    adding to playlists, and other track-related operations.
+    """
 
     __gtype_name__ = "HTGenericTrackWidget"
 

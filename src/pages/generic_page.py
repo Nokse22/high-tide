@@ -31,7 +31,13 @@ from gettext import gettext as _
 
 
 class HTGenericPage(Page):
-    """A page to display any tidalapi Page from a function to get it"""
+    """A generic page that can display any TIDAL API page content.
+
+    This page dynamically renders content from TIDAL API page objects,
+    automatically creating appropriate widgets based on the content type
+    (tracks, carousels, shortcuts, etc.). It's used for displaying various
+    TIDAL pages like home, explore, genres, and search results.
+    """
 
     __gtype_name__ = "HTGenericPage"
 
@@ -40,6 +46,14 @@ class HTGenericPage(Page):
 
     @classmethod
     def new_from_function(cls, function):
+        """Create a new generic page instance from a function that returns page data.
+
+        Args:
+            function: A callable that returns a TIDAL API page object when called
+
+        Returns:
+            HTGenericPage: A new instance configured with the provided function
+        """
         instance = cls()
 
         instance.function = function

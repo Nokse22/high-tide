@@ -29,7 +29,7 @@ from gettext import gettext as _
 
 
 class HTArtistPage(Page):
-    """It is used to display an artist page"""
+    """A page to display an artist"""
 
     __gtype_name__ = "HTArtistPage"
 

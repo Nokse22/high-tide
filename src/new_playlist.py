@@ -25,6 +25,12 @@ from gi.repository import GObject
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/new_playlist.ui")
 class NewPlaylistWindow(Adw.Dialog):
+    """Dialog window for creating new playlists.
+
+    Provides a form interface for users to enter playlist name and description.
+    Emits a 'create-playlist' signal when the user confirms creation.
+    """
+
     __gtype_name__ = "NewPlaylistWindow"
 
     __gsignals__ = {

@@ -26,6 +26,14 @@ disconnect_thread: threading.Thread | None = None
 
 
 def connect():
+    """Connect to Discord Rich Presence IPC.
+
+    Attempts to establish a connection to Discord's IPC server for
+    Rich Presence functionality.
+
+    Returns:
+        bool: True if connection successful, False otherwise
+    """
     global state
 
     if not has_pypresence:
@@ -46,6 +54,13 @@ def connect():
 
 
 def disconnect():
+    """Disconnect from Discord Rich Presence IPC.
+
+    Closes the connection to Discord's IPC server and updates the state.
+
+    Returns:
+        bool: True if disconnection successful, False otherwise
+    """
     global state
 
     if not has_pypresence:
@@ -63,6 +78,14 @@ def disconnect():
 
 
 def set_activity(track: Track | None = None, offset_ms: int = 0):
+    """Set the Discord Rich Presence activity status.
+
+    Updates Discord with the current playing track information and playback position.
+
+    Args:
+        track: The currently playing Track object, or None to clear activity
+        offset_ms: Current playback position in milliseconds (default: 0)
+    """
     global state
     global disconnect_thread
 

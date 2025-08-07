@@ -34,8 +34,7 @@ from gettext import gettext as _
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/top_hit_widget.ui")
 class HTTopHitWidget(Gtk.Box, IDisconnectable):
-    """It is used to display the top hit when searching regardless
-    of the type"""
+    """A widget to display the top hit when searching"""
 
     __gtype_name__ = "HTTopHitWidget"
 

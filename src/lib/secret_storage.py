@@ -39,13 +39,15 @@ class SecretStore:
         )
 
         self.key = "high-tide-login"
-        
+
         # Ensure the Login keyring is unlocked (https://github.com/Nokse22/high-tide/issues/97)
         # This is also only possible outside of a flatpak.
         if not Xdp.Portal.running_under_flatpak():
             service = Secret.Service.get_sync(Secret.ServiceFlags.NONE)
             if service:
-                collection = Secret.Collection.for_alias_sync(service, Secret.COLLECTION_DEFAULT, Secret.CollectionFlags.NONE)
+                collection = Secret.Collection.for_alias_sync(
+                    service, Secret.COLLECTION_DEFAULT, Secret.CollectionFlags.NONE
+                )
                 if collection and collection.get_locked():
                     print("Collection is locked, attempting to unlock")
                     service.unlock_sync([collection])
@@ -62,20 +64,34 @@ class SecretStore:
             self.token_dictionary = {}
 
     def get(self):
+        """Get the stored authentication tokens.
+
+        Returns:
+            tuple: A tuple containing (token_type, access_token, refresh_token)
+        """
         return (
             self.token_dictionary["token-type"],
             self.token_dictionary["access-token"],
             self.token_dictionary["refresh-token"],
-            self.token_dictionary["expiry-time"],
         )
 
     def clear(self):
+        """Clear all stored authentication tokens from memory and keyring.
+
+        Removes tokens from the internal dictionary and deletes them from
+        the system keyring/secret storage.
+        """
         self.token_dictionary.clear()
         self.save()
 
         Secret.password_clear_sync(self.schema, {}, None)
 
     def save(self):
+        """Save the current session tokens to secure storage.
+
+        Stores the session's token_type, access_token, and refresh_token
+        in the system keyring for persistent authentication.
+        """
         token_type = self.session.token_type
         access_token = self.session.access_token
         refresh_token = self.session.refresh_token

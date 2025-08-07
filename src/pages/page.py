@@ -37,10 +37,15 @@ from gettext import gettext as _
 
 
 class Page(Adw.NavigationPage, IDisconnectable):
-    __gtype_name__ = "Page"
+    """Base class for all types of pages in the High Tide application.
 
-    """It's the base class for all types of pages,
-    it contains all the shared functions"""
+    This class provides shared functionality for all page types, including
+    UI loading, content management, and common widget creation methods.
+    It handles the page lifecycle and provides utilities for displaying
+    carousels, track listings, and other common UI elements.
+    """
+
+    __gtype_name__ = "Page"
 
     def __init__(self):
         IDisconnectable.__init__(self)
@@ -60,8 +65,15 @@ class Page(Adw.NavigationPage, IDisconnectable):
         self.set_child(self.object)
 
     def load(self):
-        """Called when the page is created, it just starts a thread running
-        the actual function to load the page UI"""
+        """Load the page content asynchronously.
+
+        Starts a background thread to fetch data via _load_async() and then updates
+        the UI via _load_finish().
+        Shows a loading state until content is ready.
+
+        Returns:
+            Page: Self for method chaining
+        """
 
         def _loaded():
             self._load_finish()
@@ -81,19 +93,50 @@ class Page(Adw.NavigationPage, IDisconnectable):
         return self
 
     def _load_async(self):
-        """Fetch all data here"""
+        """Fetch all data for the page in a background thread.
+
+        This method should be overridden by subclasses to implement
+        their specific data loading logic. Called from a background thread.
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses
+        """
         raise NotImplementedError
 
     def _load_finish(self):
-        """Update the UI here"""
+        """Update the UI with loaded data.
+
+        This method should be overridden by subclasses to implement
+        their specific UI update logic. Called on the main thread after
+        _load_async() completes successfully.
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses
+        """
         raise NotImplementedError
 
     def append(self, widget):
+        """Append a widget to the page content.
+
+        Automatically tracks disconnectable widgets for cleanup when the page
+        is removed from navigation.
+
+        Args:
+            widget: The GTK widget to append to the page content
+        """
         if isinstance(widget, IDisconnectable):
             self.disconnectables.append(widget)
         self.content.append(widget)
 
     def get_card(self, item):
+        """Create a card widget for a TIDAL item.
+
+        Args:
+            item: A TIDAL object (Track, Album, Artist, Playlist, etc.)
+
+        Returns:
+            HTCardWidget: A card widget displaying the item
+        """
         card = HTCardWidget(item)
         self.disconnectables.append(card)
         return card
@@ -109,14 +152,33 @@ class Page(Adw.NavigationPage, IDisconnectable):
         return track_listing
 
     def on_play_button_clicked(self, btn):
+        """Handle play button clicks by starting playback of the page's item.
+
+        Args:
+            btn: The play button widget that was clicked
+        """
         utils.player_object.play_this(self.item)
 
     def on_shuffle_button_clicked(self, btn):
+        """Handle shuffle button clicks by starting shuffled playback.
+
+        Args:
+            btn: The shuffle button widget that was clicked
+        """
         utils.player_object.shuffle_this(self.item)
 
     def new_link_carousel_for(self, title, items):
-        """Similar to the last function but used to display links to other
-        pages like in the explore page to display genres..."""
+        """Create a carousel of page link buttons.
+
+        Creates a horizontal scrollable carousel containing buttons that link
+        to other pages, commonly used for genre links and similar navigation.
+
+        Args:
+            title (str): The title to display above the carousel
+            items: List of items with .title attribute and .get() method for navigation
+        """
+
+        # TODO make a separate widget for this
 
         cards_box = Gtk.Box()
         box = Gtk.Box(
@@ -207,6 +269,13 @@ class Page(Adw.NavigationPage, IDisconnectable):
         return carousel
 
     def new_carousel_for(self, carousel_title, carousel_content, more_function=None):
+        """Create and append a carousel widget with content.
+
+        Args:
+            carousel_title (str): The title to display for the carousel
+            carousel_content: List of items to display in the carousel
+            more_function: Optional function to call when "See More" is clicked
+        """
         if len(carousel_content) == 0:
             return
 
@@ -219,6 +288,13 @@ class Page(Adw.NavigationPage, IDisconnectable):
         self.append(carousel)
 
     def new_track_list_for(self, list_title, list_content, more_function=None):
+        """Create and append a track list widget with content.
+
+        Args:
+            list_title (str): The title to display for the track list
+            list_content: List of Track objects to display
+            more_function: Optional function to call when "See More" is clicked
+        """
         if len(list_content) == 0:
             return
 
@@ -231,6 +307,13 @@ class Page(Adw.NavigationPage, IDisconnectable):
         self.append(tracks_list_widget)
 
     def new_auto_load_for(self, list_title, list_content=None, more_function=None):
+        """Create an auto-loading widget that loads more content on scroll.
+
+        Args:
+            list_title (str): The title for the auto-load widget
+            list_content: Optional initial list of items to display
+            more_function: Function to call to load more content
+        """
         if len(list_content) == 0:
             return
 
@@ -268,6 +351,12 @@ class Page(Adw.NavigationPage, IDisconnectable):
         return button
 
     def on_page_link_clicked(self, btn, page_link):
+        """Handle page link button clicks by navigating to the linked page.
+
+        Args:
+            btn: The button that was clicked
+            page_link: An object with a .get() method that returns page content
+        """
         from .generic_page import HTGenericPage
 
         page = HTGenericPage.new_from_function(page_link.get).load()

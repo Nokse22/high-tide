@@ -28,6 +28,8 @@ import threading
 
 
 class HTMixPage(Page):
+    """A page to display a mix"""
+
     __gtype_name__ = "HTMixPage"
 
     def __init__(self, _id):

@@ -28,9 +28,10 @@ from gettext import gettext as _
 
 
 class HTAlbumPage(Page):
+    """A page to display an album"""
+
     __gtype_name__ = "HTAlbumPage"
 
-    """It is used to display an album"""
 
     def __init__(self, _id):
         IDisconnectable.__init__(self)

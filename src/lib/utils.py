@@ -34,6 +34,8 @@ from ..pages import HTAlbumPage
 from ..pages import HTMixPage
 from ..pages import HTPlaylistPage
 
+from .cache import HTCache
+
 import threading
 import requests
 import uuid
@@ -54,6 +56,11 @@ user_playlists = []
 
 
 def init():
+    """Initialize the utils module by setting up cache directories and global objects.
+
+    Sets up the cache directory structure, creates necessary directories,
+    and initializes the global cache object for TIDAL API responses.
+    """
     global CACHE_DIR
     CACHE_DIR = os.environ.get("XDG_CACHE_HOME")
     if CACHE_DIR == "" or CACHE_DIR is None or "high-tide" not in CACHE_DIR:
@@ -69,34 +76,81 @@ def init():
     global player_object
     global toast_overlay
     global cache
+    session = None
+    cache = HTCache(session)
 
 
 def get_artist(artist_id):
+    """Get an artist object by ID from the cache.
+
+    Args:
+        artist_id: The TIDAL artist ID
+
+    Returns:
+        Artist: The artist object from TIDAL API
+    """
     global cache
     return cache.get_artist(artist_id)
 
 
 def get_album(album_id):
+    """Get an album object by ID from the cache.
+
+    Args:
+        album_id: The TIDAL album ID
+
+    Returns:
+        Album: The album object from TIDAL API
+    """
     global cache
     return cache.get_album(album_id)
 
 
 def get_track(track_id):
+    """Get a track object by ID from the cache.
+
+    Args:
+        track_id: The TIDAL track ID
+
+    Returns:
+        Track: The track object from TIDAL API
+    """
     global cache
     return cache.get_track(track_id)
 
 
 def get_playlist(playlist_id):
+    """Get a playlist object by ID from the cache.
+
+    Args:
+        playlist_id: The TIDAL playlist ID
+
+    Returns:
+        Playlist: The playlist object from TIDAL API
+    """
     global cache
     return cache.get_playlist(playlist_id)
 
 
 def get_mix(mix_id):
+    """Get a mix object by ID from the cache.
+
+    Args:
+        mix_id: The TIDAL mix ID
+
+    Returns:
+        Mix: The mix object from TIDAL API
+    """
     global cache
     return cache.get_mix(mix_id)
 
 
 def get_favourites():
+    """Load all user favorites from TIDAL API and cache them globally.
+
+    Retrieves and caches the user's favorite mixes, tracks, artists, albums,
+    playlists, and user-created playlists for quick access throughout the app.
+    """
     global favourite_mixes
     global favourite_tracks
     global favourite_artists
@@ -128,6 +182,14 @@ def get_favourites():
 
 
 def is_favourited(item):
+    """Check if a TIDAL item is in the user's favorites.
+
+    Args:
+        item: A TIDAL object (Track, Mix, Album, Artist, or Playlist)
+
+    Returns:
+        bool: True if the item is favorited, False otherwise
+    """
     global favourite_mixes
     global favourite_tracks
     global favourite_artists
@@ -138,22 +200,20 @@ def is_favourited(item):
         for fav in favourite_tracks:
             if fav.id == item.id:
                 return True
-
     elif isinstance(item, Mix):
-        return  # still not supported
-
+        for fav in favourite_mixes:
+            if fav.id == item.id:
+                return True
     elif isinstance(item, Album):
         for fav in favourite_albums:
             if fav.id == item.id:
                 return True
-
     elif isinstance(item, Artist):
         for fav in favourite_artists:
             if fav.id == item.id:
                 return True
-
     elif isinstance(item, Playlist):
-        for fav in favourite_artists:
+        for fav in favourite_playlists:
             if fav.id == item.id:
                 return True
 
@@ -161,10 +221,22 @@ def is_favourited(item):
 
 
 def send_toast(toast_title, timeout):
+    """Display a toast notification to the user.
+
+    Args:
+        toast_title (str): The message to display in the toast
+        timeout (int): Duration in seconds before the toast disappears
+    """
     toast_overlay.add_toast(Adw.Toast(title=toast_title, timeout=timeout))
 
 
 def th_add_to_my_collection(btn, item):
+    """Thread function to add a TIDAL item to the user's favorites.
+
+    Args:
+        btn: The favorite button widget (for UI updates)
+        item: The TIDAL item to add to favorites
+    """
     if isinstance(item, Track):
         result = session.user.favorites.add_track(str(item.id))
     elif isinstance(item, Mix):
@@ -188,6 +260,12 @@ def th_add_to_my_collection(btn, item):
 
 
 def th_remove_from_my_collection(btn, item):
+    """Thread function to remove a TIDAL item from the user's favorites.
+
+    Args:
+        btn: The favorite button widget (for UI updates)
+        item: The TIDAL item to remove from favorites
+    """
     if isinstance(item, Track):
         result = session.user.favorites.remove_track(str(item.id))
     elif isinstance(item, Mix):
@@ -210,6 +288,12 @@ def th_remove_from_my_collection(btn, item):
 
 
 def on_in_to_my_collection_button_clicked(btn, item):
+    """Handle favorite/unfavorite button clicks by starting appropriate thread.
+
+    Args:
+        btn: The favorite button that was clicked
+        item: The TIDAL item to add or remove from favorites
+    """
     if btn.get_icon_name() == "heart-outline-thick-symbolic":
         threading.Thread(target=th_add_to_my_collection, args=(btn, item)).start()
     else:
@@ -217,6 +301,11 @@ def on_in_to_my_collection_button_clicked(btn, item):
 
 
 def share_this(item):
+    """Copy a TIDAL item's share URL to the system clipboard.
+
+    Args:
+        item: A TIDAL object with a share_url attribute
+    """
     clipboard = Gdk.Display().get_default().get_clipboard()
 
     share_url = None
@@ -239,6 +328,14 @@ def share_this(item):
 
 
 def get_type(item):
+    """Get the string type identifier for a TIDAL item.
+
+    Args:
+        item: A TIDAL object (Track, Mix, Album, Artist, or Playlist)
+
+    Returns:
+        str: The type as a lowercase string ("track", "mix", "album", "artist", or "playlist")
+    """
     if isinstance(item, Track):
         return "track"
     elif isinstance(item, Mix):
@@ -252,6 +349,12 @@ def get_type(item):
 
 
 def open_uri(label, uri):
+    """Open a URI by navigating to the appropriate page in the application.
+
+    Args:
+        label: Display label for the URI (currently unused)
+        uri: A URI string in format "type:id" (e.g., "artist:123456")
+    """
     uri_parts = uri.split(":")
 
     match uri_parts[0]:
@@ -262,6 +365,7 @@ def open_uri(label, uri):
             page = HTAlbumPage(uri_parts[1]).load()
             navigation_view.push(page)
 
+    # TODO implement the rest?
     return True
 
 
@@ -303,12 +407,25 @@ def open_tidal_uri(uri):
 
 
 def th_play_track(track_id):
+    """Thread function to play a specific track by ID.
+
+    Args:
+        track_id: The TIDAL track ID to play
+    """
     track = session.track(track_id)
 
     player_object.play_this([track])
 
 
 def pretty_duration(secs):
+    """Format a duration in seconds to a human-readable string.
+
+    Args:
+        secs (int): Duration in seconds
+
+    Returns:
+        str: Formatted duration string (MM:SS or HH:MM:SS for durations over an hour)
+    """
     if not secs:
         return "00:00"
 
@@ -319,12 +436,20 @@ def pretty_duration(secs):
     if hours > 0:
         return f"{int(hours)}:{int(minutes):02}:{int(seconds):02}"
     else:
-        return f"{int(minutes):2}:{int(seconds):02}"
+        return f"{int(minutes):02}:{int(seconds):02}"
 
     return "00:00"
 
 
 def get_best_dimensions(widget):
+    """Determine the best image dimensions for a widget.
+
+    Args:
+        widget: A GTK widget to measure
+
+    Returns:
+        int: The best image dimension from available sizes (80, 160, 320, 640, 1280)
+    """
     edge = widget.get_height()
     dimensions = [80, 160, 320, 640, 1280]
     # The function for fractional scaling is not available in GTKWidget
@@ -338,6 +463,15 @@ def get_best_dimensions(widget):
 
 
 def get_image_url(item, dimensions=320):
+    """Get the local file path for an item's image, downloading if necessary.
+
+    Args:
+        item: A TIDAL object with image data
+        dimensions (int): The desired image dimensions (default: 320)
+
+    Returns:
+        str: Path to the local image file, or None if download failed
+    """
     if hasattr(item, "id"):
         file_path = Path(f"{IMG_DIR}/{item.id}_{dimensions}.jpg")
     else:
@@ -362,7 +496,15 @@ def get_image_url(item, dimensions=320):
 
 
 def add_picture(widget, item, cancellable=Gio.Cancellable.new()):
-    """Retrieves and adds an picture"""
+    """Retrieve and set an image for a widget from a TIDAL item.
+
+    Downloads the image if necessary and sets it on the widget using set_filename().
+
+    Args:
+        widget: A GTK widget that supports set_filename()
+        item: A TIDAL object with image data
+        cancellable: Optional GCancellable for canceling the operation
+    """
 
     if cancellable is None:
         cancellable = Gio.Cancellable.new()
@@ -380,7 +522,15 @@ def add_picture(widget, item, cancellable=Gio.Cancellable.new()):
 
 
 def add_image(widget, item, cancellable=Gio.Cancellable.new()):
-    """Retrieves and adds an image"""
+    """Retrieve and set an image for a widget from a TIDAL item.
+
+    Downloads the image if necessary and sets it on the widget using set_from_file().
+
+    Args:
+        widget: A GTK widget that supports set_from_file()
+        item: A TIDAL object with image data
+        cancellable: Optional GCancellable for canceling the operation
+    """
 
     def _add_image(widget, file_path, cancellable):
         if not cancellable.is_cancelled():
@@ -390,6 +540,15 @@ def add_image(widget, item, cancellable=Gio.Cancellable.new()):
 
 
 def get_video_cover_url(item, dimensions=640):
+    """Get the local file path for an item's video cover, downloading if necessary.
+
+    Args:
+        item: A TIDAL object with video data
+        dimensions (int): The desired video dimensions (default: 640)
+
+    Returns:
+        str: Path to the local video file, or None if download failed
+    """
     if hasattr(item, "id"):
         file_path = Path(f"{IMG_DIR}/{item.id}_{dimensions}.mp4")
     else:
@@ -416,7 +575,17 @@ def get_video_cover_url(item, dimensions=640):
 def add_video_cover(
     widget, videoplayer, item, in_background, cancellable=Gio.Cancellable.new()
 ):
-    """Retrieves and adds an video"""
+    """Retrieve and set a video cover for a video player widget from a TIDAL item.
+
+    Downloads the video if necessary and configures the video player.
+
+    Args:
+        widget: The container widget
+        videoplayer: The GtkMediaFile
+        item: A TIDAL object with video data
+        in_background (bool): Whether the video should play in the background
+        cancellable: Optional GCancellable for canceling the operation
+    """
 
     if cancellable is None:
         cancellable = Gio.Cancellable.new()
@@ -440,7 +609,13 @@ def add_video_cover(
 
 
 def add_image_to_avatar(widget, item, cancellable=Gio.Cancellable.new()):
-    """Same as the previous function, but for Adwaita's avatar widgets"""
+    """Retrieve and set an image for an Adwaita Avatar widget from a TIDAL item.
+
+    Args:
+        widget: An Adw.Avatar widget
+        item: A TIDAL object with image data
+        cancellable: Optional GCancellable for canceling the operation
+    """
 
     def _add_image_to_avatar(avatar_widget, file_path, cancellable):
         if not cancellable.is_cancelled():
@@ -452,6 +627,17 @@ def add_image_to_avatar(widget, item, cancellable=Gio.Cancellable.new()):
 
 
 def replace_links(text):
+    """Replace TIDAL wimpLink tags in text with clickable HTML links.
+
+    Converts [wimpLink artistId="123"]Artist Name[/wimpLink] format links
+    to proper HTML anchor tags for display in markup-enabled widgets.
+
+    Args:
+        text (str): Input text containing wimpLink tags
+
+    Returns:
+        str: HTML-escaped text with wimpLink tags converted to anchor tags
+    """
     # Define regular expression pattern to match [wimpLink ...]...[/wimpLink] tags
     pattern = r"\[wimpLink (artistId|albumId)=&quot;(\d+)&quot;\]([^[]+)\[\/wimpLink\]"
 
