@@ -24,9 +24,9 @@ from gettext import gettext as _
 
 
 class HTCollectionPage(Page):
-    __gtype_name__ = "HTCollectionPage"
-
     """It is used for the collection"""
+
+    __gtype_name__ = "HTCollectionPage"
 
     def _load_async(self):
         ...

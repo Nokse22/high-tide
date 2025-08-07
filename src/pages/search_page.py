@@ -33,9 +33,9 @@ from gettext import gettext as _
 
 
 class HTSearchPage(Page):
-    __gtype_name__ = "HTSearchPage"
-
     """It is used to display the search results"""
+
+    __gtype_name__ = "HTSearchPage"
 
     def __init__(self, _search):
         IDisconnectable.__init__(self)

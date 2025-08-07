@@ -25,10 +25,10 @@ from ..widgets import HTAutoLoadWidget
 
 
 class HTFromFunctionPage(Page):
-    __gtype_name__ = "HTFromFunctionPage"
-
     """Used to display lists of albums/artists/mixes/playlists and tracks
     from a request function"""
+
+    __gtype_name__ = "HTFromFunctionPage"
 
     def __init__(self, _title=""):
         IDisconnectable.__init__(self)

@@ -29,10 +29,10 @@ from gettext import gettext as _
 
 
 class HTPlaylistPage(Page):
-    __gtype_name__ = "HTPlaylistPage"
-
     """It is used to display a playlist with author,
     number of tracks and duration"""
+
+    __gtype_name__ = "HTPlaylistPage"
 
     def __init__(self, _id):
         IDisconnectable.__init__(self)
