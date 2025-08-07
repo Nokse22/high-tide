@@ -510,13 +510,13 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_track_radio_button_clicked")
     def on_track_radio_button_clicked_func(self, widget):
         track = self.player_object.playing_track
-        page = HTHrackRadioPage(track.id).load()
+        page = HTHrackRadioPage.new_from_id(track.id).load()
         self.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_album_button_clicked")
     def on_album_button_clicked_func(self, widget):
         track = self.player_object.playing_track
-        page = HTAlbumPage(track.album.id).load()
+        page = HTAlbumPage.new_from_id(track.album.id).load()
         self.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_skip_forward_button_clicked")
@@ -744,23 +744,23 @@ class HighTideWindow(Adw.ApplicationWindow):
     #
 
     def on_push_artist_page(self, action, parameter):
-        page = HTArtistPage(parameter.get_string()).load()
+        page = HTArtistPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_album_page(self, action, parameter):
-        page = HTAlbumPage(parameter.get_string()).load()
+        page = HTAlbumPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_playlist_page(self, action, parameter):
-        page = HTPlaylistPage(parameter.get_string()).load()
+        page = HTPlaylistPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_mix_page(self, action, parameter):
-        page = HTMixPage(parameter.get_string()).load()
+        page = HTMixPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_track_radio_page(self, action, parameter):
-        page = HTHrackRadioPage(parameter.get_string()).load()
+        page = HTHrackRadioPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     #

@@ -20,7 +20,6 @@
 from gi.repository import Gtk
 from ..lib import utils
 from .page import Page
-from ..disconnectable_iface import IDisconnectable
 
 import threading
 
@@ -32,13 +31,7 @@ class HTAlbumPage(Page):
 
     __gtype_name__ = "HTAlbumPage"
 
-
-    def __init__(self, _id):
-        IDisconnectable.__init__(self)
-        super().__init__()
-
-        self.id = _id
-        self.top_tracks = None
+    top_tracks = []
 
     def _load_async(self):
         self.item = utils.get_album(self.id)

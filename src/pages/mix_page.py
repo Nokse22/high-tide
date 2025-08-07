@@ -22,8 +22,6 @@ from gi.repository import Gtk
 from ..lib import utils
 from .page import Page
 
-from ..disconnectable_iface import IDisconnectable
-
 import threading
 
 
@@ -32,13 +30,7 @@ class HTMixPage(Page):
 
     __gtype_name__ = "HTMixPage"
 
-    def __init__(self, _id):
-        IDisconnectable.__init__(self)
-        super().__init__()
-
-        self.id = _id
-
-        self.tracks = None
+    tracks = None
 
     def _load_async(self):
         self.item = utils.get_mix(self.id)

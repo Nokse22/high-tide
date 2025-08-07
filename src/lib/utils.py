@@ -359,10 +359,10 @@ def open_uri(label, uri):
 
     match uri_parts[0]:
         case "artist":
-            page = HTArtistPage(uri_parts[1]).load()
+            page = HTArtistPage.new_from_id(uri_parts[1]).load()
             navigation_view.push(page)
         case "album":
-            page = HTAlbumPage(uri_parts[1]).load()
+            page = HTAlbumPage.new_from_id(uri_parts[1]).load()
             navigation_view.push(page)
 
     # TODO implement the rest?
@@ -388,10 +388,10 @@ def open_tidal_uri(uri):
 
     match content_type:
         case "artist":
-            page = HTArtistPage(content_id).load()
+            page = HTArtistPage.new_from_id(content_id).load()
             navigation_view.push(page)
         case "album":
-            page = HTAlbumPage(content_id).load()
+            page = HTAlbumPage.new_from_id(content_id).load()
             navigation_view.push(page)
         case "track":
             threading.Thread(target=th_play_track, args=(content_id,)).start()

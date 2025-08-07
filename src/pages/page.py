@@ -46,6 +46,25 @@ class Page(Adw.NavigationPage, IDisconnectable):
 
     __gtype_name__ = "Page"
 
+    id = None
+
+    @classmethod
+    def new_from_id(cls, id):
+        """Create a new Page instance from the id should be used only on pages that
+        support it.
+
+        Args:
+            id: The page id
+
+        Returns:
+            Page: A new instance configured with the provided id
+        """
+        instance = cls()
+
+        instance.id = id
+
+        return instance
+
     def __init__(self):
         IDisconnectable.__init__(self)
         super().__init__()

@@ -21,7 +21,6 @@ from gi.repository import Gtk
 
 from .page import Page
 from ..lib import utils
-from ..disconnectable_iface import IDisconnectable
 
 import threading
 
@@ -34,13 +33,7 @@ class HTPlaylistPage(Page):
 
     __gtype_name__ = "HTPlaylistPage"
 
-    def __init__(self, _id):
-        IDisconnectable.__init__(self)
-        super().__init__()
-
-        self.id = _id
-
-        self.tracks = None
+    tracks = None
 
     def _load_async(self):
         self.item = utils.get_playlist(self.id)

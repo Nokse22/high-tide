@@ -21,7 +21,6 @@ from gi.repository import Gtk
 
 from .page import Page
 from ..lib import utils
-from ..disconnectable_iface import IDisconnectable
 
 import threading
 
@@ -32,16 +31,6 @@ class HTArtistPage(Page):
     """A page to display an artist"""
 
     __gtype_name__ = "HTArtistPage"
-
-    def __init__(self, _id):
-        IDisconnectable.__init__(self)
-        super().__init__()
-
-        self.id = _id
-        self.artist = None
-
-        self.top_tracks = None
-        self.bio = None
 
     def _load_async(self):
         self.artist = utils.get_artist(self.id)
@@ -105,26 +94,17 @@ class HTArtistPage(Page):
             _("Top Tracks"), self.top_tracks, self.artist.get_top_tracks
         )
 
+        self.new_carousel_for(_("Albums"), self.albums, self.artist.get_albums)
+
         self.new_carousel_for(
-            _("Albums"), self.albums, self.artist.get_albums
+            _("EP & Singles"), self.albums_ep_singles, self.artist.get_albums_ep_singles
         )
 
         self.new_carousel_for(
-            _("EP & Singles"),
-            self.albums_ep_singles,
-            self.artist.get_albums_ep_singles
+            _("Appears On"), self.albums_other, self.artist.get_albums_other
         )
 
-        self.new_carousel_for(
-            _("Appears On"),
-            self.albums_other,
-            self.artist.get_albums_other
-        )
-
-        self.new_carousel_for(
-            _("Similar Artists"),
-            self.similar
-        )
+        self.new_carousel_for(_("Similar Artists"), self.similar)
 
         if self.bio is None:
             return
@@ -160,6 +140,8 @@ class HTArtistPage(Page):
     def on_artist_radio_button_clicked(self, btn):
         from .track_radio_page import HTHrackRadioPage
 
-        page = HTHrackRadioPage(self.artist, _("Radio of {}").format(self.artist.name))
+        page = HTHrackRadioPage.new_from_id(
+            self.artist, _("Radio of {}").format(self.artist.name)
+        )
         page.load()
         utils.navigation_view.push(page)

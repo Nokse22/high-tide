@@ -26,15 +26,11 @@ from gettext import gettext as _
 
 
 class HTHrackRadioPage(Page):
-    __gtype_name__ = "HTHrackRadioPage"
-
     """It is used to display a radio from a track"""
 
-    def __init__(self, _id):
-        super().__init__()
+    __gtype_name__ = "HTHrackRadioPage"
 
-        self.id = _id
-        self.radio_tracks = []
+    radio_tracks = []
 
     def _load_async(self):
         self.item = utils.get_track(self.id)
