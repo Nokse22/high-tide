@@ -77,7 +77,7 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
 
     def _add_tracks(self):
         for index, track in enumerate(self.tracks):
-            listing = HTGenericTrackWidget(track, False)
+            listing = HTGenericTrackWidget(track)
             self.disconnectables.append(listing)
             listing.set_name(str(index))
             self.tracks_list_box.append(listing)

@@ -143,7 +143,7 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
             ))
 
         for index, track in enumerate(new_items):
-            listing = HTGenericTrackWidget(track, False)
+            listing = HTGenericTrackWidget(track)
             self.disconnectables.append(listing)
             listing.set_name(str(index + self.items_n))
             self.parent.append(listing)

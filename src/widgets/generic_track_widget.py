@@ -23,7 +23,7 @@ from gi.repository import Gio, GLib
 from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 
-from tidalapi import UserPlaylist, Track
+from tidalapi import UserPlaylist
 
 import threading
 
@@ -57,22 +57,13 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     menu_button = Gtk.Template.Child()
     track_menu = Gtk.Template.Child()
 
-    def __init__(self, _track=None, is_album=False):
+    def __init__(self, track):
         IDisconnectable.__init__(self)
         super().__init__()
-        if not _track:
-            return
 
         self.menu_activated = False
+        self.track = track
 
-        self.set_track(_track, is_album)
-
-    def set_track(self, track : Track, is_album=False):
-        """Set the track for HTGenericTrackWidget
-
-        Args:
-            track: the track
-            is_album (bool): if this track is in an album view"""
         self.signals.append((
             self.artist_label,
             self.artist_label.connect("activate-link", utils.open_uri),
@@ -90,8 +81,6 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             self.menu_button,
             self.menu_button.connect("notify::active", self._on_menu_activate),
         ))
-
-        self.track = track
 
         self.track_album_label.set_album(self.track.album)
         self.track_title_label.set_label(

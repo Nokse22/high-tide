@@ -57,7 +57,7 @@ class HTQueueWidget(Gtk.Box):
         if len(player.played_songs) > 0:
             self.played_songs_box.set_visible(True)
             for index, track in enumerate(player.played_songs):
-                listing = HTGenericTrackWidget(track, False)
+                listing = HTGenericTrackWidget(track)
                 listing.set_name(str(index))
                 self.played_songs_list.append(listing)
         else:
@@ -74,7 +74,7 @@ class HTQueueWidget(Gtk.Box):
         if len(player.queue) > 0:
             self.queued_songs_box.set_visible(True)
             for index, track in enumerate(player.queue):
-                listing = HTGenericTrackWidget(track, False)
+                listing = HTGenericTrackWidget(track)
                 listing.set_name(str(index))
                 self.queued_songs_list.append(listing)
         else:
@@ -91,7 +91,7 @@ class HTQueueWidget(Gtk.Box):
         if len(player.tracks_to_play) > 0:
             self.next_songs_box.set_visible(True)
             for index, track in enumerate(player.tracks_to_play):
-                listing = HTGenericTrackWidget(track, False)
+                listing = HTGenericTrackWidget(track)
                 listing.set_name(str(index))
                 self.next_songs_list.append(listing)
         else:
