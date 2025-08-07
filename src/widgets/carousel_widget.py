@@ -82,22 +82,27 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         self.more_button.set_visible(True)
         self.more_function = _function
 
-    def append_card(self, card):
-        self.disconnectables.append(card)
-        self.carousel.append(card)
-        self.n_pages = self.carousel.get_n_pages()
-
-        if self.n_pages != 2:
-            self.next_button.set_sensitive(True)
-
     def set_items(self, items_list):
+        """Set the list of items to display in the carousel.
+
+        Creates card widgets for each item in the list and adds them to the carousel.
+
+        Args:
+            items_list: List of TIDAL objects to display as cards
+        """
         self.items = items_list
 
         for index, item in enumerate(self.items):
             if index >= 8:
                 self.more_button.set_visible(True)
                 break
-            self.append_card(HTCardWidget(item))
+            card = HTCardWidget(item)
+            self.disconnectables.append(card)
+            self.carousel.append(card)
+            self.n_pages = self.carousel.get_n_pages()
+
+            if self.n_pages != 2:
+                self.next_button.set_sensitive(True)
 
     def on_more_clicked(self, *args):
         """Handle "See More" button clicks by navigating to a detailed page"""
@@ -118,8 +123,8 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         pos = self.carousel.get_position()
         total_pages = self.carousel.get_n_pages()
 
-        if pos + 3 >= total_pages:
-            next_pos = max(0, total_pages - 2)
+        if pos + 2 >= total_pages:
+            next_pos = total_pages - 1
         else:
             next_pos = pos + 2
 
@@ -127,7 +132,7 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         if next_page is not None:
             self.carousel.scroll_to(next_page, True)
 
-        self.prev_button.set_sensitive(next_pos > 0)
+        self.prev_button.set_sensitive(next_pos > 1)
         self.next_button.set_sensitive(next_pos < total_pages - 2)
 
     def carousel_go_prev(self, btn):
@@ -136,17 +141,16 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         total_pages = self.carousel.get_n_pages()
 
         if pos - 2 < 0:
-            next_pos = 0
+            prev_pos = 0
         else:
-            next_pos = pos - 2
+            prev_pos = pos - 2
 
-        next_page = self.carousel.get_nth_page(next_pos)
-        if next_page is not None:
-            self.carousel.scroll_to(next_page, True)
+        prev_page = self.carousel.get_nth_page(prev_pos)
+        if prev_page is not None:
+            self.carousel.scroll_to(prev_page, True)
 
-        # Update button sensitivity
-        self.prev_button.set_sensitive(next_pos > 0)
-        self.next_button.set_sensitive(next_pos < total_pages - 2)
+        self.prev_button.set_sensitive(prev_pos > 1)
+        self.next_button.set_sensitive(prev_pos < total_pages - 2)
 
     def __repr__(self, *args):
         return "<HTCarouselWidget>"
