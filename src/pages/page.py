@@ -23,7 +23,6 @@ from gi.repository import GLib
 
 import threading
 
-from ..widgets import HTGenericTrackWidget
 from ..widgets import HTCarouselWidget
 from ..widgets import HTCardWidget
 from ..widgets import HTTracksListWidget
@@ -141,16 +140,6 @@ class Page(Adw.NavigationPage, IDisconnectable):
         self.disconnectables.append(card)
         return card
 
-    def get_track_listing(self, track):
-        track_listing = HTGenericTrackWidget(track, False)
-        self.disconnectables.append(track_listing)
-        return track_listing
-
-    def get_album_track_listing(self, track):
-        track_listing = HTGenericTrackWidget(track, True)
-        self.disconnectables.append(track_listing)
-        return track_listing
-
     def on_play_button_clicked(self, btn):
         """Handle play button clicks by starting playback of the page's item.
 
@@ -239,7 +228,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
             flow_box.append(button)
             buttons_for_page += 1
 
-    def carousel_go_prev(self, btn, carousel, jump=2):
+    def carousel_go_prev(self, btn, carousel):
         pos = carousel.get_position()
         if pos + 2 >= carousel.get_n_pages():
             if pos + 1 == carousel.get_n_pages():
@@ -247,11 +236,11 @@ class Page(Adw.NavigationPage, IDisconnectable):
             else:
                 next_page = carousel.get_nth_page(pos + 1)
         else:
-            next_page = carousel.get_nth_page(pos + jump)
+            next_page = carousel.get_nth_page(pos + 1)
         if next_page is not None:
             carousel.scroll_to(next_page, True)
 
-    def carousel_go_next(self, btn, carousel, jump=2):
+    def carousel_go_next(self, btn, carousel):
         pos = carousel.get_position()
         if pos - 2 < 0:
             if pos - 1 < 0:
@@ -259,14 +248,9 @@ class Page(Adw.NavigationPage, IDisconnectable):
             else:
                 next_page = carousel.get_nth_page(0)
         else:
-            next_page = carousel.get_nth_page(pos - jump)
+            next_page = carousel.get_nth_page(pos - 1)
 
         carousel.scroll_to(next_page, True)
-
-    def get_carousel(self, carousel_title):
-        carousel = HTCarouselWidget(carousel_title)
-        self.disconnectables.append(carousel)
-        return carousel
 
     def new_carousel_for(self, carousel_title, carousel_content, more_function=None):
         """Create and append a carousel widget with content.
@@ -326,15 +310,18 @@ class Page(Adw.NavigationPage, IDisconnectable):
         if list_content:
             auto_load.set_items(list_content)
 
-    def on_playlist_button_clicked(self, btn, playlist):
-        utils.sidebar_list.select_row(None)
-
-        from .playlist_page import HTPlaylistPage
-
-        page = HTPlaylistPage(playlist, playlist.name).load()
-        utils.navigation_view.push(page)
-
     def get_page_link_card(self, page_link):
+        """Create a button card for navigating to another page.
+
+        Args:
+            page_link: An object with .title attribute and .get() method
+
+        Returns:
+            Gtk.Button: A button configured to navigate to the linked page
+        """
+
+        # TODO make a separate widget for this
+
         button = Gtk.Button(
             label=page_link.title,
             margin_start=12,
