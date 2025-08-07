@@ -66,6 +66,8 @@ class HTGenericPage(Page):
     def _load_finish(self):
         if self.page.title:
             self.set_title(self.page.title)
+        else:
+            self.set_title("")
 
         for index, category in enumerate(self.page.categories):
             if isinstance(category.items[0], Track) or isinstance(category, TrackList):
@@ -93,6 +95,5 @@ class HTGenericPage(Page):
                 self.new_carousel_for(category.title, category.items)
             elif isinstance(category, PageLinks):
                 self.new_link_carousel_for(
-                    category.title if category.title else _("More"),
-                    category.items
+                    category.title if category.title else _("More"), category.items
                 )
