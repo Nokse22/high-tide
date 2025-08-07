@@ -25,7 +25,7 @@ from ..widgets import HTGenericTrackWidget
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/queue_widget.ui")
 class HTQueueWidget(Gtk.Box):
     """It is used to display the track queue, including played tracks,
-        tracks to play and tracks added to the queue"""
+    tracks to play and tracks added to the queue"""
 
     __gtype_name__ = "HTQueueWidget"
 

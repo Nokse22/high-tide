@@ -58,7 +58,7 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         self.handler_id = None
         self.scrolled_window = None
 
-    def set_function(self, function : callable) -> None:
+    def set_function(self, function: callable) -> None:
         """
         Set the function to use to fetch new items, it needs to support limit and
             offset arguments
@@ -68,7 +68,7 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         """
         self.function = function
 
-    def set_items(self, items : list) -> None:
+    def set_items(self, items: list) -> None:
         """
         Call once to set the initial items to display. Subsequent calls are ignored
 

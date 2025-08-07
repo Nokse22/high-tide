@@ -73,9 +73,7 @@ class HTShorcutWidget(Gtk.FlowBoxChild, IDisconnectable):
             self.subtitle_label.set_label(self.item.creator.name)
             self.action = "win.push-playlist-page"
 
-        threading.Thread(
-            target=utils.add_image, args=(self.image, self.item)
-        ).start()
+        threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
     def _on_click(self, *args):
         if self.action is None:

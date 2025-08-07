@@ -35,7 +35,7 @@ class HTLinkLabelWidget(Gtk.Label):
         self.xalign = 0.0
         self.add_css_class("artist-link")
 
-    def set_artists(self, artists : list[Artist]):
+    def set_artists(self, artists: list[Artist]):
         """Set the artists for HTLinkLabelWidget
 
         Args:
@@ -54,7 +54,7 @@ class HTLinkLabelWidget(Gtk.Label):
 
             self.set_markup(label)
 
-    def set_album(self, album : Album):
+    def set_album(self, album: Album):
         """Set the album for HTLinkLabelWidget
 
         Args:

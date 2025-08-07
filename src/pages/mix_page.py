@@ -77,7 +77,8 @@ class HTMixPage(Page):
         self.signals.append((
             in_my_collection_btn,
             in_my_collection_btn.connect(
-                "clicked", utils.on_in_to_my_collection_button_clicked, self.item),
+                "clicked", utils.on_in_to_my_collection_button_clicked, self.item
+            ),
         ))
 
         builder.get_object("_share_button").set_visible(False)

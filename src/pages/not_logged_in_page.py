@@ -39,13 +39,15 @@ class HTNotLoggedInPage(Page):
             action_name="app.log-in",
             halign=Gtk.Align.CENTER,
         )
-        self.append(Adw.StatusPage(
-            title=_("Login first"),
-            description=_(
-                "To be able to use this app you need to login with your TIDAL account."
-            ),
-            icon_name="key-login-symbolic",
-            child=login_button,
-            valign=Gtk.Align.CENTER,
-            vexpand=True,
-        ))
+        self.append(
+            Adw.StatusPage(
+                title=_("Login first"),
+                description=_(
+                    "To be able to use this app you need to login with your TIDAL account."
+                ),
+                icon_name="key-login-symbolic",
+                child=login_button,
+                valign=Gtk.Align.CENTER,
+                vexpand=True,
+            )
+        )

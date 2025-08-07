@@ -104,8 +104,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.detail_label.set_visible(False)
 
         threading.Thread(
-            target=utils.add_image,
-            args=(self.image, self.item.album)
+            target=utils.add_image, args=(self.image, self.item.album)
         ).start()
 
     def _make_mix_card(self):
@@ -132,8 +131,8 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_visible(False)
 
-        self.detail_label.set_label(_("By {}").format(
-            self.item.creator.name if self.item.creator else "TIDAL")
+        self.detail_label.set_label(
+            _("By {}").format(self.item.creator.name if self.item.creator else "TIDAL")
         )
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()

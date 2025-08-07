@@ -94,7 +94,7 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
             "selection-changed", self._on_selection_changed
         )
 
-    def set_lyrics(self, lyrics_text : str):
+    def set_lyrics(self, lyrics_text: str):
         """Set the lyrics
 
         Args:
@@ -121,7 +121,7 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
         self.stack.set_visible_child_name("status_page")
         self.list_store.remove_all()
 
-    def set_time(self, time_seconds : float):
+    def set_time(self, time_seconds: float):
         """Updates the time of the widget to highlight the correct line
 
         Args:
