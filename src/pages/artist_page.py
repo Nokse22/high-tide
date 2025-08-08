@@ -129,6 +129,7 @@ class HTArtistPage(Page):
                 margin_bottom=12,
             )
         )
+        self.append(label)
         self.signals.append((label, label.connect("activate-link", utils.open_uri)))
 
     def on_play_button_clicked(self, btn) -> None:
