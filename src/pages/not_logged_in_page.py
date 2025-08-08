@@ -44,7 +44,7 @@ class HTNotLoggedInPage(Page):
             Adw.StatusPage(
                 title=_("Login first"),
                 description=_(
-                    "To be able to use this app you need to login with your TIDAL account."
+                    "To be able to use this app, you need to login with your TIDAL account."
                 ),
                 icon_name="key-login-symbolic",
                 child=login_button,

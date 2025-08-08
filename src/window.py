@@ -18,8 +18,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import threading
-import requests
 import tidalapi
+
+from typing import Callable
 
 from gi.repository import Adw
 from gi.repository import Gtk
@@ -767,7 +768,9 @@ class HighTideWindow(Adw.ApplicationWindow):
     #
     #
 
-    def create_action_with_target(self, name, target_type, callback):
+    def create_action_with_target(
+        self, name: str, target_type: GLib.VariantType, callback: Callable
+    ):
         """Create a new GAction with a target parameter.
 
         Args:

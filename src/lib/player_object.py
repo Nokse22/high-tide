@@ -201,7 +201,7 @@ class PlayerObject(GObject.GObject):
         """Change the audio sink while maintaining playback state.
 
         Args:
-            sink_type (int): The audio sink type (0=Auto, 1=PulseAudio, 2=ALSA)
+            sink_type (int): The audio sink `AudioSink` enum
         """
         was_playing: bool = self.playing
         position: int = self.query_position()
@@ -481,7 +481,7 @@ class PlayerObject(GObject.GObject):
         self.emit("song-added-to-queue")
 
     def add_next(self, track):
-        """Add a track to play next in the queue.
+        """Add a track to the top of the queue.
 
         Args:
             track: The Track object to play next

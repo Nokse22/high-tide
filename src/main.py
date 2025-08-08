@@ -203,5 +203,6 @@ class HighTideApplication(Adw.Application):
 
 
 def main(version: str) -> int:
+    """The application's entry point."""
     app: HighTideApplication = HighTideApplication()
     return app.run(sys.argv)

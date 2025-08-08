@@ -25,7 +25,7 @@ import tidalapi
 
 
 class SecretStore:
-    def __init__(self, session: Any) -> None:
+    def __init__(self, session: tidalapi.Session) -> None:
         super().__init__()
 
         print("initializing secret store")

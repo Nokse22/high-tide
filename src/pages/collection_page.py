@@ -24,7 +24,7 @@ from gettext import gettext as _
 
 
 class HTCollectionPage(Page):
-    """A page to display the collection"""
+    """A page to display the collection (the user's library)"""
 
     __gtype_name__ = "HTCollectionPage"
 
