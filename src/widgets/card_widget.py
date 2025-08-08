@@ -30,6 +30,7 @@ from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
+from tidalapi.page import PageItem
 
 from ..disconnectable_iface import IDisconnectable
 
@@ -95,6 +96,9 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         elif isinstance(self.item, Track):
             self._make_track_card()
             self.action = None
+        elif isinstance(self.item, PageItem):
+            self._make_page_item_card()
+            self.action = None
 
     def _make_track_card(self) -> None:
         """Configure the card to display a Track item"""
@@ -149,6 +153,22 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
+    def _make_page_item_card(self) -> None:
+        """Configure the card to display a PageItem"""
+        self.title_label.set_label(self.item.header)
+        self.title_label.set_tooltip_text(self.item.header)
+        self.detail_label.set_label(self.item.short_sub_header)
+        self.track_artist_label.set_visible(False)
+
+        self.item.id = self.item.artifact_id
+
+        if self.item.type == "PLAYLIST":
+            self.action = "win.push-playlist-page"
+        elif self.item.type == "ARTIST":
+            self.action = "win.push-artist-page"
+        elif self.item.type == "ALBUM":
+            self.action = "win.push-album-page"
+
     def _on_click(self, *args) -> None:
         """Handle click events on the card.
 
@@ -159,3 +179,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             self.activate_action(self.action, GLib.Variant("s", str(self.item.id)))
         elif isinstance(self.item, Track):
             utils.player_object.play_this(self.item)
+        elif isinstance(self.item, PageItem) and self.item.type == "TRACK":
+            def _get():
+                utils.player_object.play_this(self.item.get())
+            threading.Thread(target=_get).start()
