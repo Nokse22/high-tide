@@ -32,12 +32,12 @@ class HTMixPage(Page):
 
     tracks = None
 
-    def _load_async(self):
+    def _load_async(self) -> None:
         self.item = utils.get_mix(self.id)
 
         self.tracks = self.item.items()
 
-    def _load_finish(self):
+    def _load_finish(self) -> None:
         self.set_title(self.item.title)
 
         builder = Gtk.Builder.new_from_resource(

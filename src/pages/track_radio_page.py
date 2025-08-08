@@ -32,7 +32,7 @@ class HTHrackRadioPage(Page):
 
     radio_tracks = []
 
-    def _load_async(self):
+    def _load_async(self) -> None:
         self.item = utils.get_track(self.id)
 
         if isinstance(self.item, Track):
@@ -40,7 +40,7 @@ class HTHrackRadioPage(Page):
         else:
             self.radio_tracks = self.item.get_radio()
 
-    def _load_finish(self):
+    def _load_finish(self) -> None:
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui"
         )
@@ -85,17 +85,17 @@ class HTHrackRadioPage(Page):
 
         auto_load.set_items(self.radio_tracks)
 
-    def on_row_selected(self, list_box, row):
+    def on_row_selected(self, list_box, row) -> None:
         index = int(row.get_name())
 
         utils.player_object.play_this(self.radio_tracks, index)
 
-    def on_play_button_clicked(self, btn):
+    def on_play_button_clicked(self, btn) -> None:
         # overwritten to pass a list and not the Track or Artist
         # (that is the self.item for the radio page)
         utils.player_object.play_this(self.radio_tracks)
 
-    def on_shuffle_button_clicked(self, btn):
+    def on_shuffle_button_clicked(self, btn) -> None:
         # overwritten to pass a list and not the Track or Artist
         # (that is the self.item for the radio page)
         utils.player_object.shuffle_this(self.radio_tracks)

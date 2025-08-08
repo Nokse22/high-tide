@@ -43,13 +43,13 @@ class HTFromFunctionPage(Page):
 
         self.append(self.auto_load)
 
-    def _load_async(self):
+    def _load_async(self) -> None:
         self.auto_load.th_load_items()
 
-    def _load_finish(self): ...
+    def _load_finish(self) -> None: ...
 
-    def set_function(self, function):
+    def set_function(self, function) -> None:
         self.auto_load.set_function(function)
 
-    def set_items(self, items):
+    def set_items(self, items) -> None:
         self.auto_load.set_items(items)

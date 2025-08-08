@@ -28,9 +28,9 @@ class HTCollectionPage(Page):
 
     __gtype_name__ = "HTCollectionPage"
 
-    def _load_async(self): ...
+    def _load_async(self) -> None: ...
 
-    def _load_finish(self):
+    def _load_finish(self) -> None:
         self.set_tag("collection")
         self.set_title(_("Collection"))
 

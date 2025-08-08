@@ -45,12 +45,12 @@ class HTSearchPage(Page):
 
         self.results = None
 
-    def _load_async(self):
+    def _load_async(self) -> None:
         self.results = utils.session.search(
             self.search, [Artist, Album, Playlist, Track], 10
         )
 
-    def _load_finish(self):
+    def _load_finish(self) -> None:
         self.append(HTTopHitWidget(self.results["top_hit"]))
 
         self.new_carousel_for(_("Artists"), self.results["artists"])

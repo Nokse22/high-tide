@@ -21,6 +21,7 @@ from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import GLib
 from gi.repository import Gdk
+from typing import Any
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/login.ui")
@@ -30,19 +31,19 @@ class LoginDialog(Adw.Dialog):
     link_button = Gtk.Template.Child()
     code_label = Gtk.Template.Child()
 
-    def __init__(self, _win, _session):
+    def __init__(self, _win: Any, _session: Any) -> None:
         super().__init__()
 
         self.session = _session
         self.win = _win
 
-        self.code = ""
+        self.code: str = ""
 
         login, future = self.session.login_oauth()
 
-        uri = login.verification_uri_complete
+        uri: str = login.verification_uri_complete
 
-        link = f"https://{uri}"
+        link: str = f"https://{uri}"
 
         self.code = uri[-5:]
 
@@ -52,7 +53,7 @@ class LoginDialog(Adw.Dialog):
 
         GLib.timeout_add(600, self.check_login)
 
-    def check_login(self):
+    def check_login(self) -> bool:
         """Check if we are logged in
 
         Returns:
@@ -66,6 +67,6 @@ class LoginDialog(Adw.Dialog):
         return True
 
     @Gtk.Template.Callback("on_copy_code_button_clicked")
-    def on_copy_code_button_clicked(self, btn):
-        clipboard = Gdk.Display().get_default().get_clipboard()
+    def on_copy_code_button_clicked(self, btn: Gtk.Button) -> None:
+        clipboard: Gdk.Clipboard = Gdk.Display().get_default().get_clipboard()
         clipboard.set(self.code)

@@ -18,6 +18,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
+from typing import List, Tuple, Any
+
+
 class IDisconnectable:
     """
     A class that provides automatic resource cleanup for GTK widgets and other objects.
@@ -39,9 +42,7 @@ class IDisconnectable:
     2. When connecting signals, store them in self.signals as a tuple of the object
         and the handler id:
 
-    >>> self.signals.append((
-    ...     some_object,
-    ...     some_object.connect("signal-name", callback)))
+    >>> self.signals.append((some_object, some_object.connect("signal-name", callback)))
 
     3. When creating bindings, store them in self.bindings:
 
@@ -56,11 +57,13 @@ class IDisconnectable:
     """
 
     def __init__(self) -> None:
-        self.signals = []
-        self.bindings = []
-        self.disconnectables = []
+        self.signals: List[Tuple[Any, int]] = []
+        self.bindings: List[Any] = []
+        self.disconnectables: List["IDisconnectable"] = []
 
-    def connect_signal(self, g_object, signal_name, callback_func, *args):
+    def connect_signal(
+        self, g_object: Any, signal_name: str, callback_func: Any, *args: Any
+    ) -> None:
         """Connect a signal and track it for later disconnection.
 
         Args:
@@ -105,7 +108,7 @@ class IDisconnectable:
         self.bindings = []
         self.disconnectables = []
 
-    def __repr__(self, *args):
+    def __repr__(self, *args: Any) -> str | None:
         return self.__gtype_name__ if self.__gtype_name__ else None
 
     # def __del__(self):

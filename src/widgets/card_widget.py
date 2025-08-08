@@ -21,6 +21,7 @@ from gi.repository import Adw
 from gi.repository import Gtk, GLib
 
 import threading
+from typing import Union, Any
 
 from ..lib import utils
 
@@ -54,7 +55,9 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
     track_artist_label = Gtk.Template.Child()
 
-    def __init__(self, _item):
+    def __init__(
+        self, _item: Union[Track, Album, Artist, Playlist, Mix, MixV2]
+    ) -> None:
         """Initialize the card widget with a TIDAL item.
 
         Args:
@@ -73,9 +76,9 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             self.click_gesture.connect("released", self._on_click),
         ))
 
-        self.item = _item
+        self.item: Union[Track, Album, Artist, Playlist, Mix, MixV2] = _item
 
-        self.action = None
+        self.action: str | None = None
 
         if isinstance(self.item, MixV2) or isinstance(self.item, Mix):
             self._make_mix_card()
@@ -93,7 +96,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             self._make_track_card()
             self.action = None
 
-    def _make_track_card(self):
+    def _make_track_card(self) -> None:
         """Configure the card to display a Track item"""
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
@@ -107,7 +110,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             target=utils.add_image, args=(self.image, self.item.album)
         ).start()
 
-    def _make_mix_card(self):
+    def _make_mix_card(self) -> None:
         """Configure the card to display a Mix item"""
         self.title_label.set_label(self.item.title)
         self.title_label.set_tooltip_text(self.item.title)
@@ -116,7 +119,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def _make_album_card(self):
+    def _make_album_card(self) -> None:
         """Configure the card to display an Album item"""
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
@@ -125,7 +128,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def _make_playlist_card(self):
+    def _make_playlist_card(self) -> None:
         """Configure the card to display a Playlist item"""
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
@@ -137,7 +140,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def _make_artist_card(self):
+    def _make_artist_card(self) -> None:
         """Configure the card to display an Artist item"""
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
@@ -146,7 +149,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def _on_click(self, *args):
+    def _on_click(self, *args: Any) -> None:
         """Handle click events on the card.
 
         For non-track items, activates the appropriate navigation action to show
@@ -157,5 +160,5 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         elif isinstance(self.item, Track):
             utils.player_object.play_this(self.item)
 
-    def __repr__(self, *args):
+    def __repr__(self, *args: Any) -> str:
         return "<CardWidget>"

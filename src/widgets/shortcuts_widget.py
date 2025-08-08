@@ -23,6 +23,7 @@ from tidalapi.mix import Mix, MixV2
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.playlist import Playlist
+from typing import Any, List, Union
 
 from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
@@ -44,12 +45,12 @@ class HTShorcutWidget(Gtk.FlowBoxChild, IDisconnectable):
     image = Gtk.Template.Child()
     click_gesture = Gtk.Template.Child()
 
-    def __init__(self, item):
+    def __init__(self, item: Union[Mix, MixV2, Album, Artist, Playlist]) -> None:
         IDisconnectable.__init__(self)
         super().__init__()
 
-        self.action = None
-        self.item = item
+        self.action: str | None = None
+        self.item: Union[Mix, MixV2, Album, Artist, Playlist] = item
 
         self.signals.append((
             self.click_gesture,
@@ -75,7 +76,7 @@ class HTShorcutWidget(Gtk.FlowBoxChild, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def _on_click(self, *args):
+    def _on_click(self, *args: Any) -> None:
         if self.action is None:
             return
 
@@ -92,12 +93,18 @@ class HTShorcutsWidget(Gtk.Box, IDisconnectable):
 
     shorcuts_flow_box = Gtk.Template.Child()
 
-    def __init__(self, items=None):
+    def __init__(
+        self, items: List[Union[Mix, MixV2, Album, Artist, Playlist]] | None = None
+    ) -> None:
         IDisconnectable.__init__(self)
         super().__init__()
 
         self.set_items(items)
 
-    def set_items(self, items_list):
+    def set_items(
+        self, items_list: List[Union[Mix, MixV2, Album, Artist, Playlist]] | None
+    ) -> None:
+        if items_list is None:
+            return
         for item in items_list:
             self.shorcuts_flow_box.append(HTShorcutWidget(item))

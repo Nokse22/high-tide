@@ -17,6 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from typing import List, Any
 from gi.repository import Gdk, Adw
 from gi.repository import GLib
 from gi.repository import Gio
@@ -46,16 +47,16 @@ from gettext import gettext as _
 
 from pathlib import Path
 
-favourite_mixes = []
-favourite_tracks = []
-favourite_artists = []
-favourite_albums = []
-favourite_playlists = []
-playlist_and_favorite_playlists = []
-user_playlists = []
+favourite_mixes: List[Mix] = []
+favourite_tracks: List[Track] = []
+favourite_artists: List[Artist] = []
+favourite_albums: List[Album] = []
+favourite_playlists: List[Playlist] = []
+playlist_and_favorite_playlists: List[Playlist] = []
+user_playlists: List[Playlist] = []
 
 
-def init():
+def init() -> None:
     """Initialize the utils module by setting up cache directories and global objects.
 
     Sets up the cache directory structure, creates necessary directories,
@@ -80,7 +81,7 @@ def init():
     cache = HTCache(session)
 
 
-def get_artist(artist_id):
+def get_artist(artist_id: str) -> Artist:
     """Get an artist object by ID from the cache.
 
     Args:
@@ -93,7 +94,7 @@ def get_artist(artist_id):
     return cache.get_artist(artist_id)
 
 
-def get_album(album_id):
+def get_album(album_id: str) -> Album:
     """Get an album object by ID from the cache.
 
     Args:
@@ -106,7 +107,7 @@ def get_album(album_id):
     return cache.get_album(album_id)
 
 
-def get_track(track_id):
+def get_track(track_id: str) -> Track:
     """Get a track object by ID from the cache.
 
     Args:
@@ -119,7 +120,7 @@ def get_track(track_id):
     return cache.get_track(track_id)
 
 
-def get_playlist(playlist_id):
+def get_playlist(playlist_id: str) -> Playlist:
     """Get a playlist object by ID from the cache.
 
     Args:
@@ -132,7 +133,7 @@ def get_playlist(playlist_id):
     return cache.get_playlist(playlist_id)
 
 
-def get_mix(mix_id):
+def get_mix(mix_id: str) -> Mix:
     """Get a mix object by ID from the cache.
 
     Args:
@@ -145,7 +146,7 @@ def get_mix(mix_id):
     return cache.get_mix(mix_id)
 
 
-def get_favourites():
+def get_favourites() -> None:
     """Load all user favorites from TIDAL API and cache them globally.
 
     Retrieves and caches the user's favorite mixes, tracks, artists, albums,
@@ -181,7 +182,7 @@ def get_favourites():
     print(f"User Playlists: {len(user_playlists)}")
 
 
-def is_favourited(item):
+def is_favourited(item: Any) -> bool:
     """Check if a TIDAL item is in the user's favorites.
 
     Args:
@@ -220,7 +221,7 @@ def is_favourited(item):
     return False
 
 
-def send_toast(toast_title, timeout):
+def send_toast(toast_title: str, timeout: int) -> None:
     """Display a toast notification to the user.
 
     Args:
@@ -230,7 +231,7 @@ def send_toast(toast_title, timeout):
     toast_overlay.add_toast(Adw.Toast(title=toast_title, timeout=timeout))
 
 
-def th_add_to_my_collection(btn, item):
+def th_add_to_my_collection(btn: Any, item: Any) -> None:
     """Thread function to add a TIDAL item to the user's favorites.
 
     Args:
@@ -259,7 +260,7 @@ def th_add_to_my_collection(btn, item):
         send_toast(_("Failed to add item to my collection"), 2)
 
 
-def th_remove_from_my_collection(btn, item):
+def th_remove_from_my_collection(btn: Any, item: Any) -> None:
     """Thread function to remove a TIDAL item from the user's favorites.
 
     Args:
@@ -287,7 +288,7 @@ def th_remove_from_my_collection(btn, item):
         send_toast(_("Failed to remove item from my collection"), 2)
 
 
-def on_in_to_my_collection_button_clicked(btn, item):
+def on_in_to_my_collection_button_clicked(btn: Any, item: Any) -> None:
     """Handle favorite/unfavorite button clicks by starting appropriate thread.
 
     Args:
@@ -300,15 +301,15 @@ def on_in_to_my_collection_button_clicked(btn, item):
         threading.Thread(target=th_remove_from_my_collection, args=(btn, item)).start()
 
 
-def share_this(item):
+def share_this(item: Any) -> None:
     """Copy a TIDAL item's share URL to the system clipboard.
 
     Args:
         item: A TIDAL object with a share_url attribute
     """
-    clipboard = Gdk.Display().get_default().get_clipboard()
+    clipboard: Gdk.Clipboard = Gdk.Display().get_default().get_clipboard()
 
-    share_url = None
+    share_url: str | None = None
 
     if isinstance(item, Track):
         share_url = item.share_url
@@ -327,7 +328,7 @@ def share_this(item):
         send_toast(_("Copied share URL in the clipboard"), 2)
 
 
-def get_type(item):
+def get_type(item: Any) -> str:
     """Get the string type identifier for a TIDAL item.
 
     Args:
@@ -348,7 +349,7 @@ def get_type(item):
         return "playlist"
 
 
-def open_uri(label, uri):
+def open_uri(label: str, uri: str) -> bool:
     """Open a URI by navigating to the appropriate page in the application.
 
     Args:
@@ -369,7 +370,7 @@ def open_uri(label, uri):
     return True
 
 
-def open_tidal_uri(uri):
+def open_tidal_uri(uri: str) -> None:
     """Handles opening uri like tidal://track/1234"""
 
     if not uri.startswith("tidal://"):
@@ -406,18 +407,18 @@ def open_tidal_uri(uri):
             return False
 
 
-def th_play_track(track_id):
+def th_play_track(track_id: str) -> None:
     """Thread function to play a specific track by ID.
 
     Args:
         track_id: The TIDAL track ID to play
     """
-    track = session.track(track_id)
+    track: Track = session.track(track_id)
 
     player_object.play_this([track])
 
 
-def pretty_duration(secs):
+def pretty_duration(secs: int | None) -> str:
     """Format a duration in seconds to a human-readable string.
 
     Args:
@@ -441,7 +442,7 @@ def pretty_duration(secs):
     return "00:00"
 
 
-def get_best_dimensions(widget):
+def get_best_dimensions(widget: Any) -> int:
     """Determine the best image dimensions for a widget.
 
     Args:
@@ -462,7 +463,7 @@ def get_best_dimensions(widget):
     return next((x for x in dimensions if x > (edge * scale)), dimensions[-1])
 
 
-def get_image_url(item, dimensions=320):
+def get_image_url(item: Any, dimensions: int = 320) -> str | None:
     """Get the local file path for an item's image, downloading if necessary.
 
     Args:
@@ -495,7 +496,9 @@ def get_image_url(item, dimensions=320):
     return str(file_path)
 
 
-def add_picture(widget, item, cancellable=Gio.Cancellable.new()):
+def add_picture(
+    widget: Any, item: Any, cancellable: Gio.Cancellable = Gio.Cancellable.new()
+) -> None:
     """Retrieve and set an image for a widget from a TIDAL item.
 
     Downloads the image if necessary and sets it on the widget using set_filename().
@@ -521,7 +524,9 @@ def add_picture(widget, item, cancellable=Gio.Cancellable.new()):
     )
 
 
-def add_image(widget, item, cancellable=Gio.Cancellable.new()):
+def add_image(
+    widget: Any, item: Any, cancellable: Gio.Cancellable = Gio.Cancellable.new()
+) -> None:
     """Retrieve and set an image for a widget from a TIDAL item.
 
     Downloads the image if necessary and sets it on the widget using set_from_file().
@@ -532,14 +537,16 @@ def add_image(widget, item, cancellable=Gio.Cancellable.new()):
         cancellable: Optional GCancellable for canceling the operation
     """
 
-    def _add_image(widget, file_path, cancellable):
+    def _add_image(
+        widget: Any, file_path: str | None, cancellable: Gio.Cancellable
+    ) -> None:
         if not cancellable.is_cancelled():
             widget.set_from_file(file_path)
 
     GLib.idle_add(_add_image, widget, get_image_url(item), cancellable)
 
 
-def get_video_cover_url(item, dimensions=640):
+def get_video_cover_url(item: Any, dimensions: int = 320) -> str | None:
     """Get the local file path for an item's video cover, downloading if necessary.
 
     Args:
@@ -573,8 +580,12 @@ def get_video_cover_url(item, dimensions=640):
 
 
 def add_video_cover(
-    widget, videoplayer, item, in_background, cancellable=Gio.Cancellable.new()
-):
+    widget: Any,
+    videoplayer: Any,
+    item: Any,
+    in_background: bool,
+    cancellable: Gio.Cancellable = Gio.Cancellable.new(),
+) -> None:
     """Retrieve and set a video cover for a video player widget from a TIDAL item.
 
     Downloads the video if necessary and configures the video player.
@@ -590,7 +601,13 @@ def add_video_cover(
     if cancellable is None:
         cancellable = Gio.Cancellable.new()
 
-    def _add_video_cover(widget, videoplayer, file_path, in_background, cancellable):
+    def _add_video_cover(
+        widget: Any,
+        videoplayer: Any,
+        file_path: str | None,
+        in_background: bool,
+        cancellable: Gio.Cancellable,
+    ) -> None:
         if not cancellable.is_cancelled() and file_path:
             videoplayer.set_loop(True)
             videoplayer.set_filename(file_path)
@@ -608,7 +625,9 @@ def add_video_cover(
     )
 
 
-def add_image_to_avatar(widget, item, cancellable=Gio.Cancellable.new()):
+def add_image_to_avatar(
+    widget: Any, item: Any, cancellable: Gio.Cancellable = Gio.Cancellable.new()
+) -> None:
     """Retrieve and set an image for an Adwaita Avatar widget from a TIDAL item.
 
     Args:
@@ -617,7 +636,9 @@ def add_image_to_avatar(widget, item, cancellable=Gio.Cancellable.new()):
         cancellable: Optional GCancellable for canceling the operation
     """
 
-    def _add_image_to_avatar(avatar_widget, file_path, cancellable):
+    def _add_image_to_avatar(
+        avatar_widget: Any, file_path: str | None, cancellable: Gio.Cancellable
+    ) -> None:
         if not cancellable.is_cancelled():
             file = Gio.File.new_for_path(file_path)
             image = Gdk.Texture.new_from_file(file)
@@ -626,7 +647,7 @@ def add_image_to_avatar(widget, item, cancellable=Gio.Cancellable.new()):
     GLib.idle_add(_add_image_to_avatar, widget, get_image_url(item), cancellable)
 
 
-def replace_links(text):
+def replace_links(text: str) -> str:
     """Replace TIDAL wimpLink tags in text with clickable HTML links.
 
     Converts [wimpLink artistId="123"]Artist Name[/wimpLink] format links
@@ -645,10 +666,10 @@ def replace_links(text):
     escaped_text = html.escape(text)
 
     # Define a function to replace the matched pattern with the desired format
-    def replace(match):
-        link_type = match.group(1)
-        id_value = match.group(2)
-        label = match.group(3)
+    def replace(match_obj: Any) -> str:
+        link_type = match_obj.group(1)
+        id_value = match_obj.group(2)
+        label = match_obj.group(3)
 
         if link_type == "artistId":
             return f'<a href="artist:{id_value}">{label}</a>'

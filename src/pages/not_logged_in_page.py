@@ -20,6 +20,7 @@
 from gi.repository import Adw
 from gi.repository import Gtk
 
+
 from .page import Page
 from gettext import gettext as _
 
@@ -27,13 +28,13 @@ from gettext import gettext as _
 class HTNotLoggedInPage(Page):
     __gtype_name__ = "HTNotLoggedInPage"
 
-    def _load_async(self):
+    def _load_async(self) -> None:
         pass
 
-    def _load_finish(self):
+    def _load_finish(self) -> None:
         self.set_title("Not Logged In")
 
-        login_button = Gtk.Button(
+        login_button: Gtk.Button = Gtk.Button(
             label=_("Login"),
             css_classes=["pill", "suggested-action"],
             action_name="app.log-in",

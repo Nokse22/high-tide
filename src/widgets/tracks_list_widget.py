@@ -17,10 +17,13 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from typing import Callable, List
 from gi.repository import Gtk
 from . import HTGenericTrackWidget
 from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
+
+from tidalapi import Track
 
 
 @Gtk.Template(
@@ -36,7 +39,7 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
     more_button = Gtk.Template.Child()
     title_label = Gtk.Template.Child()
 
-    def __init__(self, _title):
+    def __init__(self, title):
         IDisconnectable.__init__(self)
         super().__init__()
 
@@ -47,19 +50,19 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
 
         self.n_pages = 0
 
-        self.title_name = _title
-        self.title_label.set_label(_title)
+        self.title_name: str = title
+        self.title_label.set_label(title)
 
-        self.get_function = None
+        self.get_function: Callable = None
 
         self.signals.append((
             self.tracks_list_box,
             self.tracks_list_box.connect("row-activated", self._on_tracks_row_selected),
         ))
 
-        self.tracks = []
+        self.tracks: List[Track] = []
 
-    def set_more_function(self, function):
+    def set_more_function(self, function: Callable) -> None:
         """Set the function to fetch more items
 
         Args:
@@ -70,7 +73,7 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
 
         self._add_tracks()
 
-    def set_tracks_list(self, tracks_list):
+    def set_tracks_list(self, tracks_list: List[Track]) -> None:
         self.tracks = tracks_list
 
         self._add_tracks()
@@ -82,7 +85,7 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
             listing.set_name(str(index))
             self.tracks_list_box.append(listing)
 
-    def _on_more_clicked(self, *args):
+    def _on_more_clicked(self, *args) -> None:
         from ..pages import HTFromFunctionPage
 
         page = HTFromFunctionPage(self.title_name)
@@ -90,7 +93,7 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
         page.load()
         utils.navigation_view.push(page)
 
-    def _on_tracks_row_selected(self, list_box, row):
+    def _on_tracks_row_selected(self, list_box, row) -> None:
         index = int(row.get_name())
 
         utils.player_object.play_this(self.tracks, index)

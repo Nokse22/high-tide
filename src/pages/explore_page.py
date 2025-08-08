@@ -34,7 +34,7 @@ class HTExplorePage(HTGenericPage):
 
     tries = 0
 
-    def _load_async(self):
+    def _load_async(self) -> None:
         try:
             self.page = utils.session.explore()
         except Exception as e:
@@ -44,7 +44,7 @@ class HTExplorePage(HTGenericPage):
                 self._load_async()
             return
 
-    def _load_finish(self):
+    def _load_finish(self) -> None:
         self.set_tag("explore")
         self.set_title(_("Explore"))
 
@@ -61,7 +61,7 @@ class HTExplorePage(HTGenericPage):
 
         HTGenericPage._load_finish(self)
 
-    def on_search_activated(self, entry):
+    def on_search_activated(self, entry) -> None:
         query = entry.get_text()
         page = HTSearchPage(query).load()
         utils.navigation_view.push(page)

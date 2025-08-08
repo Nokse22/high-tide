@@ -33,11 +33,11 @@ class HTAlbumPage(Page):
 
     top_tracks = []
 
-    def _load_async(self):
+    def _load_async(self) -> None:
         self.item = utils.get_album(self.id)
         self.top_tracks = self.item.tracks(limit=50)
 
-    def _load_finish(self):
+    def _load_finish(self) -> None:
         self.set_title(self.item.name)
 
         builder = Gtk.Builder.new_from_resource(

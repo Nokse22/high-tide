@@ -110,7 +110,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
 
         return self
 
-    def _load_async(self):
+    def _load_async(self) -> None:
         """Fetch all data for the page in a background thread.
 
         This method should be overridden by subclasses to implement
@@ -121,7 +121,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
         """
         raise NotImplementedError
 
-    def _load_finish(self):
+    def _load_finish(self) -> None:
         """Update the UI with loaded data.
 
         This method should be overridden by subclasses to implement
@@ -133,7 +133,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
         """
         raise NotImplementedError
 
-    def append(self, widget):
+    def append(self, widget) -> None:
         """Append a widget to the page content.
 
         Automatically tracks disconnectable widgets for cleanup when the page
@@ -146,7 +146,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
             self.disconnectables.append(widget)
         self.content.append(widget)
 
-    def get_card(self, item):
+    def get_card(self, item) -> HTCardWidget:
         """Create a card widget for a TIDAL item.
 
         Args:
@@ -159,7 +159,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
         self.disconnectables.append(card)
         return card
 
-    def on_play_button_clicked(self, btn):
+    def on_play_button_clicked(self, btn) -> None:
         """Handle play button clicks by starting playback of the page's item.
 
         Args:
@@ -167,7 +167,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
         """
         utils.player_object.play_this(self.item)
 
-    def on_shuffle_button_clicked(self, btn):
+    def on_shuffle_button_clicked(self, btn) -> None:
         """Handle shuffle button clicks by starting shuffled playback.
 
         Args:
@@ -175,7 +175,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
         """
         utils.player_object.shuffle_this(self.item)
 
-    def new_link_carousel_for(self, title, items):
+    def new_link_carousel_for(self, title, items) -> None:
         """Create a carousel of page link buttons.
 
         Creates a horizontal scrollable carousel containing buttons that link
@@ -247,7 +247,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
             flow_box.append(button)
             buttons_for_page += 1
 
-    def carousel_go_prev(self, btn, carousel):
+    def carousel_go_prev(self, btn, carousel) -> None:
         pos = carousel.get_position()
         if pos + 2 >= carousel.get_n_pages():
             if pos + 1 == carousel.get_n_pages():
@@ -259,7 +259,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
         if next_page is not None:
             carousel.scroll_to(next_page, True)
 
-    def carousel_go_next(self, btn, carousel):
+    def carousel_go_next(self, btn, carousel) -> None:
         pos = carousel.get_position()
         if pos - 2 < 0:
             if pos - 1 < 0:

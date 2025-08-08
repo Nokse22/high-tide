@@ -17,6 +17,8 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from typing import Callable
+
 from gi.repository import Gtk
 
 from ..widgets import HTCardWidget
@@ -73,16 +75,16 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
 
         self.items = []
 
-    def set_more_function(self, _function):
+    def set_more_function(self, function: Callable) -> None:
         """Set the function to call when the "See More" button is clicked.
 
         Args:
-            _function: A callable that returns page content
+            function: A callable that returns page content
         """
         self.more_button.set_visible(True)
-        self.more_function = _function
+        self.more_function = function
 
-    def set_items(self, items_list):
+    def set_items(self, items_list) -> None:
         """Set the list of items to display in the carousel.
 
         Creates card widgets for each item in the list and adds them to the carousel.
@@ -118,7 +120,7 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         page.load()
         utils.navigation_view.push(page)
 
-    def carousel_go_next(self, btn):
+    def carousel_go_next(self, *args):
         """Navigate to the next page in the carousel"""
         pos = self.carousel.get_position()
         total_pages = self.carousel.get_n_pages()
@@ -135,7 +137,7 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         self.prev_button.set_sensitive(next_pos > 1)
         self.next_button.set_sensitive(next_pos < total_pages - 2)
 
-    def carousel_go_prev(self, btn):
+    def carousel_go_prev(self, *args):
         """Navigate to the previous page in the carousel"""
         pos = self.carousel.get_position()
         total_pages = self.carousel.get_n_pages()

@@ -79,11 +79,11 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
             self.click_gesture.connect("released", self._on_click),
         ))
 
-    def _on_click(self, *args):
+    def _on_click(self, *args) -> None:
         if self.action:
             self.activate_action(self.action, GLib.Variant("s", str(self.item.id)))
 
-    def _make_track(self):
+    def _make_track(self) -> None:
         self.primary_label.set_label(self.item.name)
         self.secondary_label.set_label(_("Track"))
 
@@ -103,7 +103,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
             target=utils.add_image, args=(self.image, self.item.album)
         ).start()
 
-    def _make_mix(self):
+    def _make_mix(self) -> None:
         self.primary_label.set_label(self.item.title)
         self.secondary_label.set_label(_("Mix"))
 
@@ -126,7 +126,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def _make_album(self):
+    def _make_album(self) -> None:
         self.primary_label.set_label(self.item.name)
         self.secondary_label.set_label(_("Album"))
 
@@ -149,7 +149,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def _make_playlist(self):
+    def _make_playlist(self) -> None:
         self.primary_label.set_label(self.item.name)
         self.secondary_label.set_visible(False)
 
@@ -176,7 +176,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def _make_artist(self):
+    def _make_artist(self) -> None:
         self.primary_label.set_label(self.item.name)
         self.secondary_label.set_label(_("Artist"))
 

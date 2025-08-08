@@ -37,16 +37,13 @@ class HTQueueWidget(Gtk.Box):
     queued_songs_box = Gtk.Template.Child()
     next_songs_box = Gtk.Template.Child()
 
-    def __init__(self):
-        super().__init__()
-
-    def update_all(self, player):
+    def update_all(self, player) -> None:
         """Updates played songs, queue and next songs"""
         self.update_played_songs(player)
         self.update_queue(player)
         self.update_next_songs(player)
 
-    def update_played_songs(self, player):
+    def update_played_songs(self, player) -> None:
         """Updates played songs"""
         child = self.played_songs_list.get_row_at_index(0)
         while child:
@@ -63,7 +60,7 @@ class HTQueueWidget(Gtk.Box):
         else:
             self.played_songs_box.set_visible(False)
 
-    def update_queue(self, player):
+    def update_queue(self, player) -> None:
         """Updates the queue"""
         child = self.queued_songs_list.get_row_at_index(0)
         while child:
@@ -80,7 +77,7 @@ class HTQueueWidget(Gtk.Box):
         else:
             self.queued_songs_box.set_visible(False)
 
-    def update_next_songs(self, player):
+    def update_next_songs(self, player) -> None:
         """Updates next songs"""
         child = self.next_songs_list.get_row_at_index(0)
         while child:

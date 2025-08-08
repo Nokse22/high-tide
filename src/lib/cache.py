@@ -17,6 +17,8 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from typing import Dict, Any
+
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.media import Track
@@ -25,16 +27,16 @@ from tidalapi.mix import Mix
 
 
 class HTCache:
-    artists = {}
-    albums = {}
-    tracks = {}
-    playlists = {}
-    mixes = {}
+    artists: Dict[str, Artist] = {}
+    albums: Dict[str, Album] = {}
+    tracks: Dict[str, Track] = {}
+    playlists: Dict[str, Playlist] = {}
+    mixes: Dict[str, Mix] = {}
 
-    def __init__(self, session):
+    def __init__(self, session: Any) -> None:
         self.session = session
 
-    def get_artist(self, artist_id):
+    def get_artist(self, artist_id: str) -> Artist:
         """Get an artist from cache or fetch from TIDAL API if not cached.
 
         Args:
@@ -49,7 +51,7 @@ class HTCache:
         self.artists[artist_id] = artist
         return artist
 
-    def get_album(self, album_id):
+    def get_album(self, album_id: str) -> Album:
         """Get an album from cache or fetch from TIDAL API if not cached.
 
         Args:
@@ -64,7 +66,7 @@ class HTCache:
         self.albums[album_id] = album
         return album
 
-    def get_track(self, track_id):
+    def get_track(self, track_id: str) -> Track:
         """Get a track from cache or fetch from TIDAL API if not cached.
 
         Args:
@@ -79,7 +81,7 @@ class HTCache:
         self.tracks[track_id] = track
         return track
 
-    def get_playlist(self, playlist_id):
+    def get_playlist(self, playlist_id: str) -> Playlist:
         """Get a playlist from cache or fetch from TIDAL API if not cached.
 
         Args:
@@ -94,7 +96,7 @@ class HTCache:
         self.playlists[playlist_id] = playlist
         return playlist
 
-    def get_mix(self, mix_id):
+    def get_mix(self, mix_id: str) -> Mix:
         """Get a mix from cache or fetch from TIDAL API if not cached.
 
         Args:

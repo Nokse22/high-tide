@@ -32,7 +32,7 @@ class HTArtistPage(Page):
 
     __gtype_name__ = "HTArtistPage"
 
-    def _load_async(self):
+    def _load_async(self) -> None:
         self.artist = utils.get_artist(self.id)
 
         self.top_tracks = self.artist.get_top_tracks(limit=5)
@@ -42,7 +42,7 @@ class HTArtistPage(Page):
         self.similar = self.artist.get_similar()
         self.bio = self.artist.get_bio()
 
-    def _load_finish(self):
+    def _load_finish(self) -> None:
         self.set_title(self.artist.name)
 
         builder = Gtk.Builder.new_from_resource(
@@ -131,13 +131,13 @@ class HTArtistPage(Page):
         )
         self.signals.append((label, label.connect("activate-link", utils.open_uri)))
 
-    def on_play_button_clicked(self, btn):
+    def on_play_button_clicked(self, btn) -> None:
         utils.player_object.play_this(self.top_tracks, 0)
 
-    def on_shuffle_button_clicked(self, btn):
+    def on_shuffle_button_clicked(self, btn) -> None:
         utils.player_object.shuffle_this(self.top_tracks, 0)
 
-    def on_artist_radio_button_clicked(self, btn):
+    def on_artist_radio_button_clicked(self, btn) -> None:
         from .track_radio_page import HTHrackRadioPage
 
         page = HTHrackRadioPage.new_from_id(

@@ -45,7 +45,7 @@ class HTGenericPage(Page):
     page = None
 
     @classmethod
-    def new_from_function(cls, function):
+    def new_from_function(cls, function) -> "HTGenericPage":
         """Create a new generic page instance from a function that returns page data.
 
         Args:
@@ -60,10 +60,10 @@ class HTGenericPage(Page):
 
         return instance
 
-    def _load_async(self):
+    def _load_async(self) -> None:
         self.page = self.function()
 
-    def _load_finish(self):
+    def _load_finish(self) -> None:
         if self.page.title:
             self.set_title(self.page.title)
         else:
