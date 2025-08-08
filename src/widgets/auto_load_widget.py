@@ -84,12 +84,15 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         if self.type is None:
             self.type = utils.get_type(self.items[0])
 
-        if self.type == "track":
-            GLib.idle_add(self._add_tracks, self.items)
-        elif self.type is not None:
-            GLib.idle_add(self._add_cards, self.items)
+        def _add():
+            if self.type == "track":
+                self._add_tracks(self.items)
+            elif self.type is not None:
+                self._add_cards(self.items)
 
-        self.items_n = len(self.items)
+            self.items_n = len(self.items)
+
+        GLib.idle_add(_add)
 
     def set_scrolled_window(self, scrolled_window) -> None:
         """
@@ -111,7 +114,7 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         self.is_loading = True
         self.spinner.set_visible(True)
         new_items = []
-        new_items = self.function(limit=self.items_limit, offset=(self.items_n))
+        new_items = self.function(limit=self.items_limit, offset=self.items_n)
         self.items.extend(new_items)
         if new_items == []:
             GObject.signal_handler_disconnect(self.scrolled_window, self.handler_id)
@@ -120,12 +123,17 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         elif self.type is None:
             self.type = utils.get_type(new_items[0])
 
-        if self.type == "track":
-            GLib.idle_add(self._add_tracks, new_items)
-        elif self.type is not None:
-            GLib.idle_add(self._add_cards, new_items)
+        def _add():
+            if self.type == "track":
+                self._add_tracks(new_items)
+            elif self.type is not None:
+                self._add_cards(new_items)
 
-        self.spinner.set_visible(False)
+            self.items_n += len(new_items)
+            self.spinner.set_visible(False)
+            self.is_loading = False
+
+        GLib.idle_add(_add)
 
     def _on_edge_reached(self, scrolled_window, pos):
         GObject.signal_handler_block(self.scrolled_window, self.handler_id)
@@ -145,12 +153,8 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         for index, track in enumerate(new_items):
             listing = HTGenericTrackWidget(track)
             self.disconnectables.append(listing)
-            listing.set_name(str(index + self.items_n))
+            listing.index = index + self.items_n
             self.parent.append(listing)
-
-        self.items_n += len(new_items)
-        self.spinner.set_visible(False)
-        self.is_loading = False
 
     def _add_cards(self, new_items):
         if self.parent is None:
@@ -159,13 +163,8 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
 
         for index, item in enumerate(new_items):
             card = HTCardWidget(item)
+            self.disconnectables.append(card)
             self.parent.append(card)
 
-        self.items_n += len(new_items)
-        self.spinner.set_visible(False)
-        self.is_loading = False
-
     def _on_tracks_row_selected(self, list_box, row):
-        index = int(row.get_name())
-
-        utils.player_object.play_this(self.items, index)
+        utils.player_object.play_this(self.items, row.index)

@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-from gi.repository import Gtk
+from gi.repository import Gtk, GObject
 from gi.repository import Gio, GLib
 from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
@@ -56,6 +56,8 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
 
     menu_button = Gtk.Template.Child()
     track_menu = Gtk.Template.Child()
+
+    index = GObject.Property(type=int, default=0)
 
     def __init__(self, track):
         IDisconnectable.__init__(self)
