@@ -21,7 +21,6 @@
 from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import GObject
-from typing import Any
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/new_playlist.ui")
@@ -50,12 +49,12 @@ class NewPlaylistWindow(Adw.Dialog):
         )
 
     @Gtk.Template.Callback("on_create_button_clicked")
-    def on_create_button_clicked_func(self, *args: Any) -> None:
+    def on_create_button_clicked_func(self, *args) -> None:
         playlist_title: str = self.playlist_name_entry.get_text()
         playlist_description: str = self.playlist_description_entry.get_text()
         self.emit("create-playlist", playlist_title, playlist_description)
 
-    def on_title_text_inserted_func(self, *args: Any) -> None:
+    def on_title_text_inserted_func(self, *args) -> None:
         playlist_title: str = self.playlist_name_entry.get_text()
         print(f"!{playlist_title}!")
         if playlist_title != "":

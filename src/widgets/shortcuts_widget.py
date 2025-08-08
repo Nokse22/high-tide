@@ -23,7 +23,7 @@ from tidalapi.mix import Mix, MixV2
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.playlist import Playlist
-from typing import Any, List, Union
+from typing import List, Union
 
 from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
@@ -76,7 +76,7 @@ class HTShorcutWidget(Gtk.FlowBoxChild, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def _on_click(self, *args: Any) -> None:
+    def _on_click(self, *args) -> None:
         if self.action is None:
             return
 

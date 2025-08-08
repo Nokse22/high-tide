@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import sys
-from typing import List, Any
+from typing import List, Any, Callable
 
 from gi.repository import Gtk, Gio, Adw
 from .window import HighTideWindow
@@ -66,11 +66,11 @@ class HighTideApplication(Adw.Application):
             else:
                 self.win.queued_uri = uri
 
-    def on_login_action(self, *args: Any) -> None:
+    def on_login_action(self, *args) -> None:
         """Handle the login action by initiating a new login process."""
         self.win.new_login()
 
-    def on_logout_action(self, *args: Any) -> None:
+    def on_logout_action(self, *args) -> None:
         """Handle the logout action by logging out the current user."""
         self.win.logout()
 
@@ -82,7 +82,7 @@ class HighTideApplication(Adw.Application):
 
         self.win.present()
 
-    def on_about_action(self, widget: Any, *args: Any) -> None:
+    def on_about_action(self, widget: Any, *args) -> None:
         """Display the about dialog with application information"""
         about = Adw.AboutDialog(
             application_name="High Tide",
@@ -107,7 +107,7 @@ class HighTideApplication(Adw.Application):
 
         about.present(self.props.active_window)
 
-    def on_preferences_action(self, *args: Any) -> None:
+    def on_preferences_action(self, *args) -> None:
         """Display the preferences window and bind settings to UI controls"""
 
         if not self.preferences:
@@ -167,26 +167,26 @@ class HighTideApplication(Adw.Application):
 
         self.preferences.present(self.win)
 
-    def on_quality_changed(self, widget: Any, *args: Any) -> None:
+    def on_quality_changed(self, widget: Any, *args) -> None:
         self.win.select_quality(widget.get_selected())
 
-    def on_sink_changed(self, widget: Any, *args: Any) -> None:
+    def on_sink_changed(self, widget: Any, *args) -> None:
         self.win.change_audio_sink(widget.get_selected())
 
-    def on_normalize_changed(self, widget: Any, *args: Any) -> None:
+    def on_normalize_changed(self, widget: Any, *args) -> None:
         self.win.change_normalization(widget.get_active())
 
-    def on_quadratic_volume_changed(self, widget: Any, *args: Any) -> None:
+    def on_quadratic_volume_changed(self, widget: Any, *args) -> None:
         self.win.change_quadratic_volume(widget.get_active())
 
-    def on_video_covers_changed(self, widget: Any, *args: Any) -> None:
+    def on_video_covers_changed(self, widget: Any, *args) -> None:
         self.win.change_video_covers_enabled(widget.get_active())
 
-    def on_discord_rpc_changed(self, widget: Any, *args: Any) -> None:
+    def on_discord_rpc_changed(self, widget: Any, *args) -> None:
         self.win.change_discord_rpc_enabled(widget.get_active())
 
     def create_action(
-        self, name: str, callback: Any, shortcuts: List[str] | None = None
+        self, name: str, callback: Callable, shortcuts: List[str] | None = None
     ) -> None:
         """Create a new application action with optional keyboard shortcuts.
 

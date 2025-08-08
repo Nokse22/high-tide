@@ -21,7 +21,7 @@ from gi.repository import Adw
 from gi.repository import Gtk, GLib
 
 import threading
-from typing import Union, Any
+from typing import Union
 
 from ..lib import utils
 
@@ -149,7 +149,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def _on_click(self, *args: Any) -> None:
+    def _on_click(self, *args) -> None:
         """Handle click events on the card.
 
         For non-track items, activates the appropriate navigation action to show

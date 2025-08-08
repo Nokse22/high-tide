@@ -214,7 +214,7 @@ class PlayerObject(GObject.GObject):
             self.pipeline.set_state(Gst.State.PLAYING)
             self.seek(position / duration)
 
-    def _on_bus_eos(self, *args: Any) -> None:
+    def _on_bus_eos(self, *args) -> None:
         """Handle end of stream."""
         GLib.idle_add(self.play_next)
 

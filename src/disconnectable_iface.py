@@ -62,7 +62,7 @@ class IDisconnectable:
         self.disconnectables: List["IDisconnectable"] = []
 
     def connect_signal(
-        self, g_object: Any, signal_name: str, callback_func: Any, *args: Any
+        self, g_object: Any, signal_name: str, callback_func: Any, *args
     ) -> None:
         """Connect a signal and track it for later disconnection.
 
@@ -108,7 +108,7 @@ class IDisconnectable:
         self.bindings = []
         self.disconnectables = []
 
-    def __repr__(self, *args: Any) -> str | None:
+    def __repr__(self, *args) -> str | None:
         return self.__gtype_name__ if self.__gtype_name__ else None
 
     # def __del__(self):
