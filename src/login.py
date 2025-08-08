@@ -21,7 +21,8 @@ from gi.repository import Adw
 from gi.repository import Gtk
 from gi.repository import GLib
 from gi.repository import Gdk
-from .window import HighTideWindow
+
+from typing import Any
 
 import tidalapi
 
@@ -33,7 +34,7 @@ class LoginDialog(Adw.Dialog):
     link_button = Gtk.Template.Child()
     code_label = Gtk.Template.Child()
 
-    def __init__(self, win: HighTideWindow, session: tidalapi.Session) -> None:
+    def __init__(self, win: Any, session: tidalapi.Session) -> None:
         super().__init__()
 
         self.session = session
