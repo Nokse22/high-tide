@@ -97,6 +97,3 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
         index = int(row.get_name())
 
         utils.player_object.play_this(self.tracks, index)
-
-    def __repr__(self, *args):
-        return "<HTTracksListWidget>"

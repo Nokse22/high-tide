@@ -153,6 +153,3 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
 
         self.prev_button.set_sensitive(prev_pos > 1)
         self.next_button.set_sensitive(prev_pos < total_pages - 2)
-
-    def __repr__(self, *args):
-        return "<HTCarouselWidget>"

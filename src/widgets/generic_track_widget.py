@@ -173,6 +173,3 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
 
     def _copy_share_url(self, *args):
         utils.share_this(self.track)
-
-    def __repr__(self, *args):
-        return "<TrackWidget>"

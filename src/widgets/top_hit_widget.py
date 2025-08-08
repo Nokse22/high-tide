@@ -184,6 +184,3 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         self.shuffle_button.set_visible(False)
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
-
-    def __repr__(self, *args):
-        return "<HTCardWidget>"

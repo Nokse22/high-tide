@@ -159,6 +159,3 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             self.activate_action(self.action, GLib.Variant("s", str(self.item.id)))
         elif isinstance(self.item, Track):
             utils.player_object.play_this(self.item)
-
-    def __repr__(self, *args: Any) -> str:
-        return "<CardWidget>"
