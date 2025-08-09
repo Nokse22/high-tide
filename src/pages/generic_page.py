@@ -19,9 +19,18 @@
 
 from gi.repository import Gtk
 
-from tidalapi.page import TextBlock, PageLinks, TrackList, HorizontalListWithContext
-from tidalapi.page import ItemList, ShortcutList, HorizontalList
+from tidalapi.page import TextBlock, PageLinks, ItemList
 from tidalapi.media import Track
+
+# Import newer classes with fallback for older versions
+try:
+    from tidalapi.page import TrackList, ShortcutList
+    from tidalapi.page import HorizontalListWithContext, HorizontalList
+except ImportError:
+    TrackList = None
+    ShortcutList = None
+    HorizontalListWithContext = None
+    HorizontalList = None
 
 from .page import Page
 from ..widgets import HTShorcutsWidget
@@ -69,7 +78,9 @@ class HTGenericPage(Page):
             self.set_title("")
 
         for index, category in enumerate(self.page.categories):
-            if isinstance(category.items[0], Track) or isinstance(category, TrackList):
+            if isinstance(category.items[0], Track) or (
+                TrackList and isinstance(category, TrackList)
+            ):
                 self.new_track_list_for(category.title, category.items)
             elif isinstance(category, TextBlock):
                 self.append(
@@ -88,11 +99,14 @@ class HTGenericPage(Page):
                 self.new_link_carousel_for(
                     category.title if category.title else _("More"), category.items
                 )
-            elif isinstance(category, ShortcutList):
+            elif ShortcutList and isinstance(category, ShortcutList):
                 self.append(HTShorcutsWidget(category.items))
             elif (
                 isinstance(category, ItemList)
-                or isinstance(category, HorizontalList)
-                or isinstance(category, HorizontalListWithContext)
+                or (HorizontalList and isinstance(category, HorizontalList))
+                or (
+                    HorizontalListWithContext
+                    and isinstance(category, HorizontalListWithContext)
+                )
             ):
                 self.new_carousel_for(category.title, category.items)
