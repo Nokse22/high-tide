@@ -244,7 +244,8 @@ class PlayerObject(GObject.GObject):
 
         self.emit("buffering", buffer_per)
 
-    def set_track(self, track = None):
+    def set_track(self, track: Track | None = None):
+        """Sets the currently Playing track"""
         if track:
             self.playing_track = track
         else: 
@@ -263,6 +264,7 @@ class PlayerObject(GObject.GObject):
 
 
     def _on_track_start(self, bus, message):
+        """This Method is called when a new track starts playing"""
         # apply replaygain first to avoid volume clipping
         # (Idk if that will happen but its the only thing that has effect on audio in here)
         if self.stream:
@@ -312,7 +314,6 @@ class PlayerObject(GObject.GObject):
         self.playing = True
         self.play_track(track)
         self.set_track(track)
-        # self.emit("song-changed")
 
     def shuffle_this(
         self, thing: Union[Mix, Album, Playlist, List[Track], Track]
@@ -386,10 +387,11 @@ class PlayerObject(GObject.GObject):
             self.play()
 
     def play_track(self, track: Track, gapless = False) -> None:
-        """Play a specific track immediately.
+        """Play a specific track immediately or enqueue it for gapless playback
 
         Args:
             track: The Track object to play
+            gapless: Whether to enqueue the track for gapless playback
         """
         threading.Thread(target=self._play_track_thread, args=(track, gapless)).start()
 
@@ -488,7 +490,11 @@ class PlayerObject(GObject.GObject):
 
 
     def play_next(self, gapless = False):
-        """Play the next track in the queue or playlist."""
+        """Play the next track in the queue or playlist.
+            
+        Args:
+            gapless: Whether to enqueue the track in gapless mode
+        """
 
         # A track is already enqueued from an about-to-finish
         if self.next_track:
