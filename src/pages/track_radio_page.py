@@ -26,27 +26,26 @@ from gettext import gettext as _
 
 
 class HTHrackRadioPage(Page):
-    __gtype_name__ = "HTHrackRadioPage"
-
     """It is used to display a radio from a track"""
 
-    # FIXME Fix the favourite hearth (Probably impossible because tidalapi doesn't
-    # store a radio as a mix, but maybe possible with some ID)
+    __gtype_name__ = "HTHrackRadioPage"
 
-    def __init__(self, _id):
-        super().__init__()
+    radio_tracks = []
 
-        self.id = _id
-        self.radio_tracks = []
+    def _load_async(self) -> None:
+        self.item = utils.get_track(self.id)
 
-    def _th_load_page(self):
-        self.item = Track(utils.session, self.id)
+        if isinstance(self.item, Track):
+            self.radio_tracks = self.item.get_track_radio()
+        else:
+            self.radio_tracks = self.item.get_radio()
 
+    def _load_finish(self) -> None:
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui"
         )
 
-        page_content = builder.get_object("_main")
+        self.append(builder.get_object("_main"))
 
         auto_load = builder.get_object("_auto_load")
         auto_load.set_scrolled_window(self.scrolled_window)
@@ -84,27 +83,19 @@ class HTHrackRadioPage(Page):
         else:
             threading.Thread(target=utils.add_image, args=(image, self.item)).start()
 
-        if isinstance(self.item, Track):
-            self.radio_tracks = self.item.get_track_radio()
-        else:
-            self.radio_tracks = self.item.get_radio()
-
         auto_load.set_items(self.radio_tracks)
 
-        self.page_content.append(page_content)
-        self._page_loaded()
-
-    def on_row_selected(self, list_box, row):
+    def on_row_selected(self, list_box, row) -> None:
         index = int(row.get_name())
 
         utils.player_object.play_this(self.radio_tracks, index)
 
-    def on_play_button_clicked(self, btn):
+    def on_play_button_clicked(self, btn) -> None:
         # overwritten to pass a list and not the Track or Artist
         # (that is the self.item for the radio page)
         utils.player_object.play_this(self.radio_tracks)
 
-    def on_shuffle_button_clicked(self, btn):
+    def on_shuffle_button_clicked(self, btn) -> None:
         # overwritten to pass a list and not the Track or Artist
         # (that is the self.item for the radio page)
         utils.player_object.shuffle_this(self.radio_tracks)

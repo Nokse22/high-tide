@@ -18,41 +18,41 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Gtk
-from ..lib import utils
-import threading
+
 from .page import Page
-from ..disconnectable_iface import IDisconnectable
-from tidalapi.playlist import Playlist
+from ..lib import utils
+
+import threading
+
 from gettext import gettext as _
 
 
 class HTPlaylistPage(Page):
-    __gtype_name__ = "HTPlaylistPage"
-
     """It is used to display a playlist with author,
     number of tracks and duration"""
 
-    def __init__(self, _id):
-        IDisconnectable.__init__(self)
-        super().__init__()
+    __gtype_name__ = "HTPlaylistPage"
 
-        self.id = _id
+    tracks = None
 
-    def _th_load_page(self):
-        self.item = Playlist(utils.session, self.id)
+    def _load_async(self) -> None:
+        self.item = utils.get_playlist(self.id)
 
+        self.tracks = self.item.tracks(limit=50)
+
+    def _load_finish(self) -> None:
         self.set_title(self.item.name)
 
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui"
         )
 
-        page_content = builder.get_object("_main")
+        self.append(builder.get_object("_main"))
 
         auto_load = builder.get_object("_auto_load")
         auto_load.set_scrolled_window(self.scrolled_window)
         auto_load.set_function(self.item.tracks)
-        auto_load.th_load_items()
+        auto_load.set_items(self.tracks)
 
         play_btn = builder.get_object("_play_button")
         self.signals.append((
@@ -100,10 +100,3 @@ class HTPlaylistPage(Page):
 
         image = builder.get_object("_image")
         threading.Thread(target=utils.add_image, args=(image, self.item)).start()
-
-        self.page_content.append(page_content)
-        self._page_loaded()
-
-    def on_row_selected(self, list_box, row):
-        index = int(row.get_name())
-        utils.player_object.play_this(self.item, index)

@@ -19,41 +19,36 @@
 
 from gi.repository import Gtk
 
-from tidalapi.mix import MixV2, Mix
-
 from ..lib import utils
-
-import threading
 from .page import Page
 
-from ..lib import utils
-
-from ..disconnectable_iface import IDisconnectable
+import threading
 
 
 class HTMixPage(Page):
+    """A page to display a mix"""
+
     __gtype_name__ = "HTMixPage"
 
-    def __init__(self, _id):
-        IDisconnectable.__init__(self)
-        super().__init__()
+    tracks = None
 
-        self.id = _id
+    def _load_async(self) -> None:
+        self.item = utils.get_mix(self.id)
 
-    def _th_load_page(self):
-        self.item = Mix(utils.session, self.id)
+        self.tracks = self.item.items()
 
+    def _load_finish(self) -> None:
         self.set_title(self.item.title)
 
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui"
         )
 
-        page_content = builder.get_object("_main")
+        self.append(builder.get_object("_main"))
 
         auto_load = builder.get_object("_auto_load")
         auto_load.set_scrolled_window(self.scrolled_window)
-        auto_load.set_items(self.item.items())
+        auto_load.set_items(self.tracks)
 
         builder.get_object("_title_label").set_label(self.item.title)
         builder.get_object("_first_subtitle_label").set_label(self.item.sub_title)
@@ -73,7 +68,9 @@ class HTMixPage(Page):
         in_my_collection_btn = builder.get_object("_in_my_collection_button")
         self.signals.append((
             in_my_collection_btn,
-            in_my_collection_btn.connect("clicked", self.th_add_to_my_collection),
+            in_my_collection_btn.connect(
+                "clicked", utils.on_in_to_my_collection_button_clicked, self.item
+            ),
         ))
 
         builder.get_object("_share_button").set_visible(False)
@@ -83,12 +80,3 @@ class HTMixPage(Page):
 
         image = builder.get_object("_image")
         threading.Thread(target=utils.add_image, args=(image, self.item)).start()
-
-        if isinstance(self.item, MixV2):
-            self.item = utils.session.mix(self.item.id)
-
-        self.page_content.append(page_content)
-        self._page_loaded()
-
-    def th_add_to_my_collection(self, btn):
-        utils.on_in_to_my_collection_button_clicked(btn, self.item)

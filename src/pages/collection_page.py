@@ -17,25 +17,20 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from tidalapi.artist import Artist
-from tidalapi.mix import MixV2
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
-
 from .page import Page
-
 from ..lib import utils
 
 from gettext import gettext as _
 
 
 class HTCollectionPage(Page):
+    """A page to display the collection (the user's library)"""
+
     __gtype_name__ = "HTCollectionPage"
 
-    """It is used for the collection"""
+    def _load_async(self) -> None: ...
 
-    def _th_load_page(self):
+    def _load_finish(self) -> None:
         self.set_tag("collection")
         self.set_title(_("Collection"))
 
@@ -44,23 +39,3 @@ class HTCollectionPage(Page):
         self.new_carousel_for(_("Albums"), utils.favourite_albums)
         self.new_carousel_for(_("Tracks"), utils.favourite_tracks)
         self.new_carousel_for(_("Artists"), utils.favourite_artists)
-
-        self._page_loaded()
-
-    def new_carousel_for(self, carousel_title, carousel_content):
-        if len(carousel_content) == 0:
-            return
-
-        carousel = self.get_carousel(carousel_title)
-        self.page_content.append(carousel)
-
-        if isinstance(carousel_content[0], MixV2):
-            carousel.set_items(carousel_content, "mix")
-        elif isinstance(carousel_content[0], Album):
-            carousel.set_items(carousel_content, "album")
-        elif isinstance(carousel_content[0], Artist):
-            carousel.set_items(carousel_content, "artist")
-        elif isinstance(carousel_content[0], Playlist):
-            carousel.set_items(carousel_content, "playlist")
-        elif isinstance(carousel_content[0], Track):
-            carousel.set_items(carousel_content, "track")

@@ -168,32 +168,49 @@ class MPRIS(Server):
         self.player.connect("volume-changed", self._on_volume_changed)
 
     def Raise(self):
+        """Bring the High Tide application window to the foreground"""
         utils.window.present_with_time(Gdk.CURRENT_TIME)
 
     def Quit(self):
+        """Quit the High Tide application"""
         utils.window.quit()
 
     def Next(self):
+        """Skip to the next track in the playlist or queue"""
         self.player.play_next()
 
     def Previous(self):
+        """Skip to the previous track or restart the current track"""
         self.player.play_previous()
 
     def PlayPause(self):
+        """Toggle between play and pause states"""
         self.player.play_pause()
 
     def Play(self):
+        """Start or resume playback"""
         self.player.play()
 
     def Pause(self):
+        """Pause the current playback"""
         self.player.pause()
 
     def Stop(self):
+        """Stop playback (implemented as pause for TIDAL streams)"""
         self.player.pause()
 
         self._on_playing_changed()
 
     def Get(self, interface, property_name):
+        """Get the value of a specific MPRIS property.
+
+        Args:
+            interface (str): The D-Bus interface name
+            property_name (str): The property name to retrieve
+
+        Returns:
+            GLib.Variant: The property value wrapped in a GVariant
+        """
         if property_name in [
             "CanQuit",
             "CanRaise",
@@ -222,6 +239,14 @@ class MPRIS(Server):
             return GLib.Variant("b", False)
 
     def GetAll(self, interface):
+        """Get all properties for a specific MPRIS interface.
+
+        Args:
+            interface (str): The D-Bus interface name
+
+        Returns:
+            dict: Dictionary containing all properties and their values
+        """
         ret = {}
         if interface == self.__MPRIS_IFACE:
             for property_name in ["CanQuit", "CanRaise", "Identity", "DesktopEntry"]:
@@ -242,12 +267,28 @@ class MPRIS(Server):
         return ret
 
     def Set(self, interface, property_name, new_value):
+        """Set the value of a specific MPRIS property.
+
+        Args:
+            interface (str): The D-Bus interface name
+            property_name (str): The property name to set
+            new_value: The new value for the property
+        """
         if property_name == "Volume":
             self.player.change_volume(new_value)
 
     def PropertiesChanged(
         self, interface_name, changed_properties, invalidated_properties
     ):
+        """Emit a PropertiesChanged signal on D-Bus.
+
+        Notifies other applications that MPRIS properties have changed.
+
+        Args:
+            interface_name (str): The interface that had properties changed
+            changed_properties (dict): Properties that changed with new values
+            invalidated_properties (list): Properties that were invalidated
+        """
         self.__bus.emit_signal(
             None,
             self.__MPRIS_PATH,
@@ -261,6 +302,11 @@ class MPRIS(Server):
         )
 
     def Introspect(self):
+        """Return the D-Bus introspection XML for this interface.
+
+        Returns:
+            str: The XML introspection data describing available methods and properties
+        """
         return self.__doc__
 
     def _get_status(self):

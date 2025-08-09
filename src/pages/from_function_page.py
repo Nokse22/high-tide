@@ -25,10 +25,10 @@ from ..widgets import HTAutoLoadWidget
 
 
 class HTFromFunctionPage(Page):
-    __gtype_name__ = "HTFromFunctionPage"
-
     """Used to display lists of albums/artists/mixes/playlists and tracks
     from a request function"""
+
+    __gtype_name__ = "HTFromFunctionPage"
 
     def __init__(self, _title=""):
         IDisconnectable.__init__(self)
@@ -37,21 +37,19 @@ class HTFromFunctionPage(Page):
         self.set_title(_title)
 
         self.auto_load = HTAutoLoadWidget(
-            margin_start=12,
-            margin_end=12,
-            margin_top=12,
-            margin_bottom=12
+            margin_start=12, margin_end=12, margin_top=12, margin_bottom=12
         )
         self.auto_load.set_scrolled_window(self.scrolled_window)
 
-        self.page_content.append(self.auto_load)
+        self.append(self.auto_load)
 
-    def _th_load_page(self):
+    def _load_async(self) -> None:
         self.auto_load.th_load_items()
-        self._page_loaded()
 
-    def set_function(self, function):
+    def _load_finish(self) -> None: ...
+
+    def set_function(self, function) -> None:
         self.auto_load.set_function(function)
 
-    def set_items(self, items):
+    def set_items(self, items) -> None:
         self.auto_load.set_items(items)

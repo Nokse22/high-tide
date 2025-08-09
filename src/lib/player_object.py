@@ -21,6 +21,7 @@ import random
 import threading
 from enum import IntEnum
 from pathlib import Path
+from typing import List, Union, Any
 
 from tidalapi.mix import Mix
 from tidalapi.artist import Artist
@@ -68,8 +69,11 @@ class PlayerObject(GObject.GObject):
     }
 
     def __init__(
-        self, preferred_sink=AudioSink.AUTO, normalize=False, quadratic_volume=False
-    ):
+        self,
+        preferred_sink: AudioSink = AudioSink.AUTO,
+        normalize: bool = False,
+        quadratic_volume: bool = False,
+    ) -> None:
         GObject.GObject.__init__(self)
 
         Gst.init(None)
@@ -107,36 +111,36 @@ class PlayerObject(GObject.GObject):
         self._playing = False
         self._repeat_type = RepeatType.NONE
 
-        self.id_list = []
+        self.id_list: List[str] = []
 
-        self.queue = []
-        self.current_mix_album_playlist = None
-        self._tracks_to_play = []
-        self.tracks_to_play = []
-        self._shuffled_tracks_to_play = []
-        self.played_songs = []
+        self.queue: List[Track] = []
+        self.current_mix_album_playlist: Union[Mix, Album, Playlist] | None = None
+        self._tracks_to_play: List[Track] = []
+        self.tracks_to_play: List[Track] = []
+        self._shuffled_tracks_to_play: List[Track] = []
+        self.played_songs: List[Track] = []
         self.playing_track: Track | None = None
-        self.song_album = None
+        self.song_album: Album | None = None
         self.duration = self.query_duration()
-        self.manifest = None
-        self.stream = None
-        self.update_timer = None
+        self.manifest: Any | None = None
+        self.stream: Any | None = None
+        self.update_timer: Any | None = None
 
     @GObject.Property(type=bool, default=False)
-    def playing(self):
+    def playing(self) -> bool:
         return self._playing
 
     @playing.setter
-    def playing(self, _playing):
+    def playing(self, _playing: bool) -> None:
         self._playing = _playing
         self.notify("playing")
 
     @GObject.Property(type=bool, default=False)
-    def shuffle(self):
+    def shuffle(self) -> bool:
         return self._shuffle
 
     @shuffle.setter
-    def shuffle(self, _shuffle):
+    def shuffle(self, _shuffle: bool) -> None:
         if self._shuffle == _shuffle:
             return
 
@@ -146,15 +150,15 @@ class PlayerObject(GObject.GObject):
         self.emit("song-changed")
 
     @GObject.Property(type=int, default=0)
-    def repeat_type(self):
+    def repeat_type(self) -> RepeatType:
         return self._repeat_type
 
     @repeat_type.setter
-    def repeat_type(self, _repeat_type):
+    def repeat_type(self, _repeat_type: RepeatType) -> None:
         self._repeat_type = _repeat_type
         self.notify("repeat-type")
 
-    def _setup_audio_sink(self, sink_type):
+    def _setup_audio_sink(self, sink_type: AudioSink) -> None:
         """Configure the audio sink using parse_launch for simplicity."""
         sink_map = {
             AudioSink.AUTO: "autoaudiosink",
@@ -193,11 +197,15 @@ class PlayerObject(GObject.GObject):
                 "audio-sink", Gst.ElementFactory.make("autoaudiosink", None)
             )
 
-    def change_audio_sink(self, sink_type):
-        """Change the audio sink while maintaining playback state."""
-        was_playing = self.playing
-        position = self.query_position()
-        duration = self.query_duration()
+    def change_audio_sink(self, sink_type: AudioSink) -> None:
+        """Change the audio sink while maintaining playback state.
+
+        Args:
+            sink_type (int): The audio sink `AudioSink` enum
+        """
+        was_playing: bool = self.playing
+        position: int = self.query_position()
+        duration: int = self.query_duration()
 
         self.pipeline.set_state(Gst.State.NULL)
         self._setup_audio_sink(sink_type)
@@ -206,26 +214,33 @@ class PlayerObject(GObject.GObject):
             self.pipeline.set_state(Gst.State.PLAYING)
             self.seek(position / duration)
 
-    def _on_bus_eos(self, *args):
+    def _on_bus_eos(self, *args) -> None:
         """Handle end of stream."""
         GLib.idle_add(self.play_next)
 
-    def _on_bus_error(self, bus, message):
+    def _on_bus_error(self, bus: Any, message: Any) -> None:
         """Handle pipeline errors."""
         err, debug = message.parse_error()
         print(f"Error: {err.message}")
         print(f"Debug info: {debug}")
 
-    def _on_buffering_message(self, bus, message):
-        buffer_per = message.parse_buffering()
+    def _on_buffering_message(self, bus: Any, message: Any) -> None:
+        buffer_per: int = message.parse_buffering()
         mode, avg_in, avg_out, buff_left = message.parse_buffering_stats()
 
         self.emit("buffering", buffer_per)
 
-    def play_this(self, thing, index=0):
-        """Play tracks from a mix, album, playlist, or artist."""
+    def play_this(
+        self, thing: Union[Mix, Album, Playlist, List[Track], Track], index: int = 0
+    ) -> None:
+        """Play tracks from a mix, album, playlist, or artist.
+
+        Args:
+            thing: An object (Mix, Album, Playlist, Artist, or list of Tracks) to play
+            index (int): The index of the track to start playing (default: 0)
+        """
         self.current_mix_album_playlist = thing
-        tracks = self.get_track_list(thing)
+        tracks: List[Track] = self.get_track_list(thing)
 
         if not tracks:
             print("No tracks found to play")
@@ -235,7 +250,7 @@ class PlayerObject(GObject.GObject):
         if not self._tracks_to_play:
             return
 
-        track = self._tracks_to_play.pop(0)
+        track: Track = self._tracks_to_play.pop(0)
         self.tracks_to_play = self._tracks_to_play
         self.played_songs = []
 
@@ -246,15 +261,30 @@ class PlayerObject(GObject.GObject):
         self.play()
         self.emit("song-changed")
 
-    def shuffle_this(self, thing):
-        """Same as play_this, but on shuffle"""
-        tracks = self.get_track_list(thing)
+    def shuffle_this(
+        self, thing: Union[Mix, Album, Playlist, List[Track], Track]
+    ) -> None:
+        """Same as play_this, but enables shuffle mode.
+
+        Args:
+            thing: An object (Mix, Album, Playlist, Artist, or list of Tracks) to play
+        """
+        tracks: List[Track] = self.get_track_list(thing)
         self.play_this(thing, random.randint(0, len(tracks)))
         self.shuffle = True
 
-    def get_track_list(self, thing):
-        """Convert various sources into a list of tracks."""
-        tracks_list = None
+    def get_track_list(
+        self, thing: Union[Mix, Album, Playlist, Artist, List[Track], Track]
+    ) -> List[Track]:
+        """Convert various sources into a list of tracks.
+
+        Args:
+            thing: A TIDAL object (Mix, Album, Playlist, Artist, or list of Tracks)
+
+        Returns:
+            list: List of Track objects, or None if conversion failed
+        """
+        tracks_list: List[Track] | None = None
 
         if isinstance(thing, Mix):
             tracks_list = thing.items()
@@ -273,8 +303,8 @@ class PlayerObject(GObject.GObject):
 
         return tracks_list
 
-    def play(self):
-        """Start playback."""
+    def play(self) -> None:
+        """Start playback of the current track."""
         self.playing = True
         self.pipeline.set_state(Gst.State.PLAYING)
         if self.update_timer:
@@ -286,26 +316,30 @@ class PlayerObject(GObject.GObject):
                 self.playing_track, self.query_position() / 1_000_000
             )
 
-    def pause(self):
-        """Pause playback."""
+    def pause(self) -> None:
+        """Pause playback of the current track."""
         self.playing = False
         self.pipeline.set_state(Gst.State.PAUSED)
 
         if self.discord_rpc_enabled:
             discord_rpc.set_activity()
 
-    def play_pause(self):
+    def play_pause(self) -> None:
         """Toggle between play and pause states."""
         if self.playing:
             self.pause()
         else:
             self.play()
 
-    def play_track(self, track):
-        """Play a specific track."""
+    def play_track(self, track: Track) -> None:
+        """Play a specific track immediately.
+
+        Args:
+            track: The Track object to play
+        """
         threading.Thread(target=self._play_track_thread, args=(track,)).start()
 
-    def _play_track_thread(self, track):
+    def _play_track_thread(self, track: Track) -> None:
         """Thread for loading and playing a track."""
 
         self.stream = None
@@ -340,6 +374,7 @@ class PlayerObject(GObject.GObject):
             print(f"Error getting track URL: {e}")
 
     def apply_replaygain_tags(self):
+        """Apply ReplayGain normalization tags to the current track if enabled."""
         audio_sink = self.playbin.get_property("audio-sink")
 
         if audio_sink:
@@ -379,7 +414,7 @@ class PlayerObject(GObject.GObject):
         self.emit("song-changed")
 
     def play_next(self):
-        """Play the next track."""
+        """Play the next track in the queue or playlist."""
         if self._repeat_type == RepeatType.SONG:
             self.seek(0)
             self.apply_replaygain_tags()
@@ -413,7 +448,7 @@ class PlayerObject(GObject.GObject):
             self.play_track(track)
 
     def play_previous(self):
-        """Play the previous track."""
+        """Play the previous track or restart current track if near beginning."""
         # if not in the first 2 seconds of the track restart song
         if self.query_position() > 2 * Gst.SECOND:
             self.seek(0)
@@ -437,14 +472,29 @@ class PlayerObject(GObject.GObject):
             self.tracks_to_play = self._tracks_to_play
 
     def add_to_queue(self, track):
+        """Add a track to the end of the play queue.
+
+        Args:
+            track: The Track object to add to the queue
+        """
         self.queue.append(track)
         self.emit("song-added-to-queue")
 
     def add_next(self, track):
+        """Add a track to the top of the queue.
+
+        Args:
+            track: The Track object to play next
+        """
         self.queue.insert(0, track)
         self.emit("song-added-to-queue")
 
     def query_volume(self):
+        """Get the current playback volume.
+
+        Returns:
+            float: Current volume level (0.0 to 1.0), adjusted for quadratic scaling if enabled
+        """
         volume = self.playbin.get_property("volume")
         if self.quadratic_volume:
             return volume ** (1 / 2)
@@ -452,6 +502,11 @@ class PlayerObject(GObject.GObject):
             return volume
 
     def change_volume(self, value):
+        """Set the playback volume.
+
+        Args:
+            value (float): Volume level (0.0 to 1.0), will be squared if quadratic volume is enabled
+        """
         if self.quadratic_volume:
             self.playbin.set_property("volume", value**2)
         else:
@@ -469,17 +524,32 @@ class PlayerObject(GObject.GObject):
         return self.playing
 
     def query_duration(self):
-        """Get the duration of the current track."""
+        """Get the duration of the current track.
+
+        Returns:
+            int: Duration in nanoseconds, or 0 if query failed
+        """
         success, duration = self.playbin.query_duration(Gst.Format.TIME)
         return duration if success else 0
 
     def query_position(self, default=0) -> int | None:
-        """Get the current playback position."""
+        """Get the current playback position.
+
+        Args:
+            default (int): Default value to return if query fails (default: 0)
+
+        Returns:
+            int: Position in nanoseconds, or default value if query failed
+        """
         success, position = self.playbin.query_position(Gst.Format.TIME)
         return position if success else default
 
     def seek(self, seek_fraction):
-        """Seek to a position in the current track."""
+        """Seek to a position in the current track.
+
+        Args:
+            seek_fraction (float): Position as a fraction of total duration (0.0 to 1.0)
+        """
 
         position = int(seek_fraction * self.query_duration())
         self.playbin.seek_simple(
@@ -490,6 +560,11 @@ class PlayerObject(GObject.GObject):
             discord_rpc.set_activity(self.playing_track, position / 1_000_000)
 
     def set_discord_rpc(self, enabled: bool = True):
+        """Enable or disable Discord Rich Presence integration.
+
+        Args:
+            enabled (bool): Whether to enable Discord RPC (default: True)
+        """
         self.discord_rpc_enabled = enabled
         if enabled and self.playing:
             discord_rpc.set_activity(
@@ -501,6 +576,11 @@ class PlayerObject(GObject.GObject):
             discord_rpc.disconnect()
 
     def get_index(self):
+        """Get the index of the currently playing track in the playlist.
+
+        Returns:
+            int: Index of current track, or 0 if not found
+        """
         for index, track_id in enumerate(self.id_list):
             if track_id == self.playing_track.id:
                 return index

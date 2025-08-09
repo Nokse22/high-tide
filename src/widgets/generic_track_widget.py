@@ -18,12 +18,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-from gi.repository import Gtk
+from gi.repository import Gtk, GObject
 from gi.repository import Gio, GLib
 from ..lib import utils
 from ..disconnectable_iface import IDisconnectable
 
-from tidalapi import UserPlaylist, Track
+from tidalapi import UserPlaylist
 
 import threading
 
@@ -34,7 +34,12 @@ from gettext import gettext as _
     resource_path="/io/github/nokse22/high-tide/ui/widgets/generic_track_widget.ui"
 )
 class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
-    """It is used to display a single track"""
+    """A widget for displaying a single track with playback and menu options.
+
+    This widget shows track information including title, artist, album, duration,
+    and cover art. It provides context menu actions for playing, adding to queue,
+    adding to playlists, and other track-related operations.
+    """
 
     __gtype_name__ = "HTGenericTrackWidget"
 
@@ -52,22 +57,15 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     menu_button = Gtk.Template.Child()
     track_menu = Gtk.Template.Child()
 
-    def __init__(self, _track=None, is_album=False):
+    index = GObject.Property(type=int, default=0)
+
+    def __init__(self, track):
         IDisconnectable.__init__(self)
         super().__init__()
-        if not _track:
-            return
 
         self.menu_activated = False
+        self.track = track
 
-        self.set_track(_track, is_album)
-
-    def set_track(self, track : Track, is_album=False):
-        """Set the track for HTGenericTrackWidget
-
-        Args:
-            track: the track
-            is_album (bool): if this track is in an album view"""
         self.signals.append((
             self.artist_label,
             self.artist_label.connect("activate-link", utils.open_uri),
@@ -85,8 +83,6 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             self.menu_button,
             self.menu_button.connect("notify::active", self._on_menu_activate),
         ))
-
-        self.track = track
 
         self.track_album_label.set_album(self.track.album)
         self.track_title_label.set_label(
@@ -179,6 +175,3 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
 
     def _copy_share_url(self, *args):
         utils.share_this(self.track)
-
-    def __repr__(self, *args):
-        return "<TrackWidget>"

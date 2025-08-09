@@ -18,6 +18,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
+from typing import List, Tuple, Any
+
+
 class IDisconnectable:
     """
     A class that provides automatic resource cleanup for GTK widgets and other objects.
@@ -32,16 +35,14 @@ class IDisconnectable:
     1. Inherit from IDisconnectable alongside your main class:
 
     >>> class MyWidget(Gtk.Box, IDisconnectable):
-    ...    def __init__(self):
-    ...        Gtk.Box.__init__(self)
-    ...        IDisconnectable.__init__(self)
+    ...     def __init__(self):
+    ...         Gtk.Box.__init__(self)
+    ...         IDisconnectable.__init__(self)
 
     2. When connecting signals, store them in self.signals as a tuple of the object
         and the handler id:
 
-    >>> self.signals.append((
-    ...     some_object,
-    ...     some_object.connect("signal-name", callback)))
+    >>> self.signals.append((some_object, some_object.connect("signal-name", callback)))
 
     3. When creating bindings, store them in self.bindings:
 
@@ -54,13 +55,35 @@ class IDisconnectable:
 
     5. Call disconnect_all() when the widget is being destroyed:
     """
+
     def __init__(self) -> None:
-        self.signals = []
-        self.bindings = []
-        self.disconnectables = []
+        self.signals: List[Tuple[Any, int]] = []
+        self.bindings: List[Any] = []
+        self.disconnectables: List["IDisconnectable"] = []
+
+    def connect_signal(
+        self, g_object: Any, signal_name: str, callback_func: Any, *args
+    ) -> None:
+        """Connect a signal and track it for later disconnection.
+
+        Args:
+            g_object: The GObject to connect the signal to
+            signal_name (str): Name of the signal to connect
+            callback_func: The callback function to execute when signal is emitted
+            *args: Additional arguments to pass to the callback function
+        """
+        self.signals.append((
+            g_object,
+            g_object.connect(signal_name, callback_func, *args),
+        ))
 
     def disconnect_all(self, *_args) -> None:
-        """Disconnects all signals so that the class can be deleted"""
+        """Disconnect all tracked signals and child disconnectable objects.
+
+        This method should be called when the widget is being removed to ensure
+        proper cleanup. It disconnects all tracked signal connections and
+        recursively calls disconnect_all on child disconnectable objects.
+        """
 
         for obj, signal_id in self.signals:
             if obj.handler_is_connected(signal_id):
@@ -84,6 +107,9 @@ class IDisconnectable:
         self.signals = []
         self.bindings = []
         self.disconnectables = []
+
+    def __repr__(self, *args) -> str | None:
+        return self.__gtype_name__ if self.__gtype_name__ else None
 
     # def __del__(self):
     #     print(f"DELETING {self}")

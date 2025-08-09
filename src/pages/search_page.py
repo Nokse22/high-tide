@@ -17,14 +17,11 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
-
 from tidalapi.artist import Artist
 from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
 
-from ..widgets.carousel_widget import HTCarouselWidget
 from ..widgets.top_hit_widget import HTTopHitWidget
 
 from .page import Page
@@ -36,9 +33,9 @@ from gettext import gettext as _
 
 
 class HTSearchPage(Page):
-    __gtype_name__ = "HTSearchPage"
-
     """It is used to display the search results"""
+
+    __gtype_name__ = "HTSearchPage"
 
     def __init__(self, _search):
         IDisconnectable.__init__(self)
@@ -46,39 +43,17 @@ class HTSearchPage(Page):
 
         self.search = _search
 
-    def _th_load_page(self):
-        results = utils.session.search(
+        self.results = None
+
+    def _load_async(self) -> None:
+        self.results = utils.session.search(
             self.search, [Artist, Album, Playlist, Track], 10
         )
 
-        top_hit = results["top_hit"]
-        top_hit_widget = HTTopHitWidget(top_hit)
-        self.page_content.append(top_hit_widget)
+    def _load_finish(self) -> None:
+        self.append(HTTopHitWidget(self.results["top_hit"]))
 
-        # Adds a carousel with artists, albums and playlists
-
-        carousel = self.get_carousel(_("Artists"))
-        artists = results["artists"]
-        if len(artists) > 0:
-            self.page_content.append(carousel)
-            carousel.set_items(artists, "artist")
-
-        carousel = self.get_carousel(_("Albums"))
-        albums = results["albums"]
-        if len(albums) > 0:
-            self.page_content.append(carousel)
-            carousel.set_items(albums, "album")
-
-        carousel = self.get_carousel(_("Playlists"))
-        playlists = results["playlists"]
-        if len(playlists) > 0:
-            self.page_content.append(carousel)
-            carousel.set_items(playlists, "playlist")
-
-        carousel = self.get_carousel(_("Tracks"))
-        tracks = results["tracks"]
-        if len(tracks) > 0:
-            self.page_content.append(carousel)
-            carousel.set_items(tracks, "track")
-
-        self._page_loaded()
+        self.new_carousel_for(_("Artists"), self.results["artists"])
+        self.new_carousel_for(_("Albums"), self.results["albums"])
+        self.new_carousel_for(_("Playlists"), self.results["playlists"])
+        self.new_carousel_for(_("Tracks"), self.results["tracks"])

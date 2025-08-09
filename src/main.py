@@ -18,21 +18,24 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import sys
+from typing import List, Any, Callable
 
 from gi.repository import Gtk, Gio, Adw
 from .window import HighTideWindow
 
 from .lib import utils
 
-import threading
-
 from gettext import gettext as _
 
 
-class TidalApplication(Adw.Application):
-    """The main application singleton class."""
+class HighTideApplication(Adw.Application):
+    """The main application singleton class.
 
-    def __init__(self):
+    This class handles the main application lifecycle, manages global actions,
+    preferences, and provides the entry point for the High Tide TIDAL music player.
+    """
+
+    def __init__(self) -> None:
         super().__init__(
             application_id="io.github.nokse22.high-tide",
             flags=Gio.ApplicationFlags.HANDLES_OPEN,
@@ -44,43 +47,43 @@ class TidalApplication(Adw.Application):
         )
         self.create_action("log-in", self.on_login_action)
         self.create_action("log-out", self.on_logout_action)
-        self.create_action("download", self.on_download, ["<primary>d"])
 
         utils.init()
 
-        self.settings = Gio.Settings.new("io.github.nokse22.high-tide")
+        self.settings: Gio.Settings = Gio.Settings.new("io.github.nokse22.high-tide")
 
-        self.preferences = None
+        self.preferences: Gtk.Window | None = None
 
-    def do_open(self, files, n_files, hint):
-        self.win = self.props.active_window
+    def do_open(self, files: List[Gio.File], n_files: int, hint: str) -> None:
+        self.win: HighTideWindow | None = self.props.active_window
         if not self.win:
             self.do_activate()
 
-        uri = files[0].get_uri()
+        uri: str = files[0].get_uri()
         if uri:
             if self.win.is_logged_in:
                 utils.open_tidal_uri(uri)
             else:
                 self.win.queued_uri = uri
 
-    def on_download(self, *args):
-        threading.Thread(target=self.win.th_download_song).start()
-
-    def on_login_action(self, *args):
+    def on_login_action(self, *args) -> None:
+        """Handle the login action by initiating a new login process."""
         self.win.new_login()
 
-    def on_logout_action(self, *args):
+    def on_logout_action(self, *args) -> None:
+        """Handle the logout action by logging out the current user."""
         self.win.logout()
 
-    def do_activate(self):
-        self.win = self.props.active_window
+    def do_activate(self) -> None:
+        """Activate the application by creating and presenting the main window."""
+        self.win: HighTideWindow | None = self.props.active_window
         if not self.win:
             self.win = HighTideWindow(application=self)
 
         self.win.present()
 
-    def on_about_action(self, widget, *args):
+    def on_about_action(self, widget: Any, *args) -> None:
+        """Display the about dialog with application information"""
         about = Adw.AboutDialog(
             application_name="High Tide",
             application_icon="io.github.nokse22.high-tide",
@@ -104,11 +107,11 @@ class TidalApplication(Adw.Application):
 
         about.present(self.props.active_window)
 
-    def on_preferences_action(self, widget, _):
-        """Callback for the app.preferences action."""
+    def on_preferences_action(self, *args) -> None:
+        """Display the preferences window and bind settings to UI controls"""
 
         if not self.preferences:
-            builder = Gtk.Builder.new_from_resource(
+            builder: Gtk.Builder = Gtk.Builder.new_from_resource(
                 "/io/github/nokse22/high-tide/ui/preferences.ui"
             )
 
@@ -126,7 +129,7 @@ class TidalApplication(Adw.Application):
                 "notify::selected", self.on_sink_changed
             )
 
-            bg_row = builder.get_object("_background_row")
+            bg_row: Gtk.Widget = builder.get_object("_background_row")
             bg_row.set_active(self.settings.get_boolean("run-background"))
             self.settings.bind(
                 "run-background", bg_row, "active", Gio.SettingsBindFlags.DEFAULT
@@ -164,33 +167,42 @@ class TidalApplication(Adw.Application):
 
         self.preferences.present(self.win)
 
-    def on_quality_changed(self, widget, *args):
+    def on_quality_changed(self, widget: Any, *args) -> None:
         self.win.select_quality(widget.get_selected())
 
-    def on_sink_changed(self, widget, *args):
+    def on_sink_changed(self, widget: Any, *args) -> None:
         self.win.change_audio_sink(widget.get_selected())
 
-    def on_normalize_changed(self, widget, *args):
+    def on_normalize_changed(self, widget: Any, *args) -> None:
         self.win.change_normalization(widget.get_active())
 
-    def on_quadratic_volume_changed(self, widget, *args):
+    def on_quadratic_volume_changed(self, widget: Any, *args) -> None:
         self.win.change_quadratic_volume(widget.get_active())
 
-    def on_video_covers_changed(self, widget, *args):
+    def on_video_covers_changed(self, widget: Any, *args) -> None:
         self.win.change_video_covers_enabled(widget.get_active())
 
-    def on_discord_rpc_changed(self, widget, *args):
+    def on_discord_rpc_changed(self, widget: Any, *args) -> None:
         self.win.change_discord_rpc_enabled(widget.get_active())
 
-    def create_action(self, name, callback, shortcuts=None):
-        action = Gio.SimpleAction.new(name, None)
+    def create_action(
+        self, name: str, callback: Callable, shortcuts: List[str] | None = None
+    ) -> None:
+        """Create a new application action with optional keyboard shortcuts.
+
+        Args:
+            name: The action name
+            callback: The callback function to execute when action is triggered
+            shortcuts: Optional list of keyboard shortcut strings
+        """
+        action: Gio.SimpleAction = Gio.SimpleAction.new(name, None)
         action.connect("activate", callback)
         self.add_action(action)
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
 
 
-def main(version):
+def main(version: str) -> int:
     """The application's entry point."""
-    app = TidalApplication()
+    app: HighTideApplication = HighTideApplication()
     return app.run(sys.argv)

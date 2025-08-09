@@ -18,8 +18,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import threading
-import requests
 import tidalapi
+
+from typing import Callable
 
 from gi.repository import Adw
 from gi.repository import Gtk
@@ -31,12 +32,12 @@ from .mpris import MPRIS
 
 from tidalapi.media import Quality
 
-from .lib import PlayerObject, RepeatType, SecretStore, utils
+from .lib import PlayerObject, RepeatType, SecretStore, utils, HTCache
 
 from .login import LoginDialog
 # from .new_playlist import NewPlaylistWindow
 
-from .pages import HTHomePage, HTExplorePage, HTNotLoggedInPage
+from .pages import HTNotLoggedInPage, HTGenericPage, HTExplorePage
 from .pages import HTCollectionPage
 from .pages import HTArtistPage, HTMixPage, HTHrackRadioPage, HTPlaylistPage
 from .pages import HTAlbumPage
@@ -181,6 +182,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         utils.session = self.session
         utils.navigation_view = self.navigation_view
         utils.toast_overlay = self.toast_overlay
+        utils.cache = HTCache(self.session)
 
         self.user = self.session.user
 
@@ -236,13 +238,12 @@ class HighTideWindow(Adw.ApplicationWindow):
     #
 
     def new_login(self):
-        """Opens a LoginDialog"""
+        """Open a new login dialog for user authentication"""
 
         login_dialog = LoginDialog(self, self.session)
         login_dialog.present(self)
 
     def th_login(self):
-        """Logs the user in, if it doesn't work it calls on_login_failed()"""
         try:
             self.session.load_oauth_session(
                 self.secret_store.token_dictionary["token-type"],
@@ -258,15 +259,22 @@ class HighTideWindow(Adw.ApplicationWindow):
             GLib.idle_add(self.on_logged_in)
 
     def logout(self):
+        """Log out the current user and return to login screen.
+
+        Clears stored authentication tokens and navigates back to the
+        not logged in page.
+        """
         self.secret_store.clear()
 
         page = HTNotLoggedInPage().load()
         self.navigation_view.replace([page])
 
     def on_logged_in(self):
+        """Handle successful user login"""
         print("logged in")
 
-        page = HTHomePage().load()
+        page = HTGenericPage.new_from_function(utils.session.home).load()
+        page.set_tag("home")
         self.navigation_view.replace([page])
 
         self.player_lyrics_queue.set_sensitive(True)
@@ -280,6 +288,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             utils.open_tidal_uri(self.queued_uri)
 
     def on_login_failed(self):
+        """Handle failed login attempts"""
         print("login failed")
 
         page = HTNotLoggedInPage().load()
@@ -315,6 +324,11 @@ class HighTideWindow(Adw.ApplicationWindow):
     #
 
     def on_song_changed(self, *args):
+        """Handle song change events from the player.
+
+        Updates the UI elements when the currently playing song changes,
+        including album art, track information, and video covers.
+        """
         print("song changed")
         album = self.player_object.song_album
         track = self.player_object.playing_track
@@ -379,6 +393,11 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.queue_widget_updated = False
 
     def save_last_playing_thing(self):
+        """Save the current playing context to settings for persistence.
+
+        Stores information about the currently playing track and its source
+        (album, playlist, mix, etc.) so playback can resume on app restart.
+        """
         mix_album_playlist = self.player_object.current_mix_album_playlist
         track = self.player_object.playing_track
 
@@ -404,6 +423,11 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.videoplayer.pause()
 
     def set_quality_label(self):
+        """Update the quality label with current track's audio information.
+
+        Displays information about the current track's codec, bit depth,
+        sample rate, and audio quality in the UI.
+        """
         codec = None
         bit_depth = None
         sample_rate = None
@@ -448,13 +472,15 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.quality_label.set_label(quality_text)
         self.quality_label.set_visible(True)
 
-    def update_controls(self, player, *args):
-        if player.playing:
+    def update_controls(self, *args):
+        """Update playback control button states based on player status"""
+        if self.player_object.playing:
             self.play_button.set_icon_name("media-playback-pause-symbolic")
         else:
             self.play_button.set_icon_name("media-playback-start-symbolic")
 
     def update_repeat_button(self, player, repeat_type):
+        """Update the repeat button icon based on current repeat mode"""
         if player.repeat_type == RepeatType.NONE:
             self.repeat_button.set_icon_name("media-playlist-consecutive-symbolic")
         elif player.repeat_type == RepeatType.LIST:
@@ -485,13 +511,13 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_track_radio_button_clicked")
     def on_track_radio_button_clicked_func(self, widget):
         track = self.player_object.playing_track
-        page = HTHrackRadioPage(track.id).load()
+        page = HTHrackRadioPage.new_from_id(track.id).load()
         self.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_album_button_clicked")
     def on_album_button_clicked_func(self, widget):
         track = self.player_object.playing_track
-        page = HTAlbumPage(track.album.id).load()
+        page = HTAlbumPage.new_from_id(track.album.id).load()
         self.navigation_view.push(page)
 
     @Gtk.Template.Callback("on_skip_forward_button_clicked")
@@ -613,8 +639,8 @@ class HighTideWindow(Adw.ApplicationWindow):
     def update_slider(self, *args):
         """Update the progress bar and playback information.
 
-        Called periodically to update the progress bar, song duration,
-        current position and volume level.
+        Called periodically to update the progress bar, song duration, current position
+        and volume level.
         """
         self.duration = self.player_object.query_duration()
         end_value = self.duration / Gst.SECOND
@@ -648,21 +674,6 @@ class HighTideWindow(Adw.ApplicationWindow):
                 self.lyrics_widget.clear()
         except Exception:
             self.lyrics_widget.clear()
-
-    def th_download_song(self):
-        """Added to check the streamed song quality, triggered with ctrl+d"""
-
-        song = self.player_object.playing_track
-        song_url = song.get_url()
-        try:
-            response = requests.get(song_url)
-        except Exception:
-            return
-        if response.status_code == 200:
-            image_data = response.content
-            file_path = f"{song.id}.flac"
-            with open(file_path, "wb") as file:
-                file.write(image_data)
 
     def select_quality(self, pos):
         match pos:
@@ -734,31 +745,39 @@ class HighTideWindow(Adw.ApplicationWindow):
     #
 
     def on_push_artist_page(self, action, parameter):
-        page = HTArtistPage(parameter.get_string()).load()
+        page = HTArtistPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_album_page(self, action, parameter):
-        page = HTAlbumPage(parameter.get_string()).load()
+        page = HTAlbumPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_playlist_page(self, action, parameter):
-        page = HTPlaylistPage(parameter.get_string()).load()
+        page = HTPlaylistPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_mix_page(self, action, parameter):
-        page = HTMixPage(parameter.get_string()).load()
+        page = HTMixPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_track_radio_page(self, action, parameter):
-        page = HTHrackRadioPage(parameter.get_string()).load()
+        page = HTHrackRadioPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     #
     #
     #
 
-    def create_action_with_target(self, name, target_type, callback):
-        """Used to create a new action with a target"""
+    def create_action_with_target(
+        self, name: str, target_type: GLib.VariantType, callback: Callable
+    ):
+        """Create a new GAction with a target parameter.
+
+        Args:
+            name (str): The action name
+            target_type: The GVariant type for the target parameter
+            callback: The callback function to execute when action is triggered
+        """
 
         action = Gio.SimpleAction.new(name, target_type)
         action.connect("activate", callback)
