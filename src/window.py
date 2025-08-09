@@ -433,9 +433,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         sample_rate = None
 
         stream = self.player_object.stream
-        # I don't know why this is needed for startup
-        if not stream:
-            stream = self.player_object.playing_track.get_stream()
         if stream:
             if stream.bit_depth:
                 bit_depth = f"{stream.bit_depth}-bit"
