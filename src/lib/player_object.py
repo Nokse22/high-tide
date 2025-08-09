@@ -256,6 +256,8 @@ class PlayerObject(GObject.GObject):
         """
         if track:
             self.playing_track = track
+            # Set the stream for quality label
+            self.stream = self.playing_track.get_stream()
         else:
             self.playing_track = self.next_track
             self.next_track = None
@@ -270,7 +272,7 @@ class PlayerObject(GObject.GObject):
         self.notify("can-go-next")
         self.emit("song-changed")
 
-    def _on_track_start(self, bus, message):
+    def _on_track_start(self, bus: Any, message: Any):
         """This Method is called when a new track starts playing
 
         Args:
@@ -496,7 +498,7 @@ class PlayerObject(GObject.GObject):
         if not gapless:
             self.use_about_to_finish = True
 
-    def play_next_gapless(self, playbin):
+    def play_next_gapless(self, playbin: Any):
         """Enqueue the next track for gapless playback.
 
         Args:
