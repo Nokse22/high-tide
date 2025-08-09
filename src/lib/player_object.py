@@ -108,10 +108,10 @@ class PlayerObject(GObject.GObject):
         # Set up message bus
         self._bus = self.pipeline.get_bus()
         self._bus.add_signal_watch()
-        self._bus.connect('message::eos', self._on_bus_eos)
-        self._bus.connect('message::error', self._on_bus_error)
-        self._bus.connect('message::buffering', self._on_buffering_message)
-        self._bus.connect('message::stream-start', self._on_track_start)
+        self._bus.connect("message::eos", self._on_bus_eos)
+        self._bus.connect("message::error", self._on_bus_error)
+        self._bus.connect("message::buffering", self._on_buffering_message)
+        self._bus.connect("message::stream-start", self._on_track_start)
 
         # Initialize state utils
         self._shuffle = False
@@ -248,7 +248,7 @@ class PlayerObject(GObject.GObject):
         """Sets the currently Playing track"""
         if track:
             self.playing_track = track
-        else: 
+        else:
             self.playing_track = self.next_track
             self.next_track = None
         self.song_album = self.playing_track.album
@@ -262,7 +262,6 @@ class PlayerObject(GObject.GObject):
         self.notify("can-go-next")
         self.emit("song-changed")
 
-
     def _on_track_start(self, bus, message):
         """This Method is called when a new track starts playing"""
         # apply replaygain first to avoid volume clipping
@@ -272,7 +271,9 @@ class PlayerObject(GObject.GObject):
         self.set_track()
 
         if self.discord_rpc_enabled and self.playing_track:
-            discord_rpc.set_activity(self.playing_track, self.query_position() / 1_000_000)
+            discord_rpc.set_activity(
+                self.playing_track, self.query_position() / 1_000_000
+            )
 
         if self.update_timer:
             GLib.source_remove(self.update_timer)
@@ -281,7 +282,6 @@ class PlayerObject(GObject.GObject):
         if self.seek_after_sink_reload:
             self.seek(self.seek_after_sink_reload)
             self.seek_after_sink_reload = None
-    
 
     def play_this(
         self, thing: Union[Mix, Album, Playlist, List[Track], Track], index: int = 0
@@ -370,7 +370,6 @@ class PlayerObject(GObject.GObject):
             GLib.source_remove(self.update_timer)
         self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
 
-
     def pause(self) -> None:
         """Pause playback of the current track."""
         self.playing = False
@@ -386,7 +385,7 @@ class PlayerObject(GObject.GObject):
         else:
             self.play()
 
-    def play_track(self, track: Track, gapless = False) -> None:
+    def play_track(self, track: Track, gapless=False) -> None:
         """Play a specific track immediately or enqueue it for gapless playback
 
         Args:
@@ -395,7 +394,7 @@ class PlayerObject(GObject.GObject):
         """
         threading.Thread(target=self._play_track_thread, args=(track, gapless)).start()
 
-    def _play_track_thread(self, track: Track, gapless = False) -> None:
+    def _play_track_thread(self, track: Track, gapless=False) -> None:
         """Thread for loading and playing a track."""
 
         self.stream = None
@@ -461,7 +460,7 @@ class PlayerObject(GObject.GObject):
         # toggling the option
         self.most_recent_rg_tags = f"tags={tags}"
 
-    def _play_track_url(self, track, music_url, gapless = False):
+    def _play_track_url(self, track, music_url, gapless=False):
         """Set up and play track from URL."""
         if not gapless:
             self.use_about_to_finish = False
@@ -479,7 +478,6 @@ class PlayerObject(GObject.GObject):
         if not gapless:
             self.use_about_to_finish = True
 
-        
     def play_next_gapless(self, playbin):
         # playbin is need as arg but we access it later over self
         if self.use_about_to_finish and self._tracks_to_play:
@@ -488,10 +486,9 @@ class PlayerObject(GObject.GObject):
         else:
             print("Ignoring about to finish event")
 
-
-    def play_next(self, gapless = False):
+    def play_next(self, gapless=False):
         """Play the next track in the queue or playlist.
-            
+
         Args:
             gapless: Whether to enqueue the track in gapless mode
         """
@@ -503,12 +500,12 @@ class PlayerObject(GObject.GObject):
             self.next_track = None
             self.play_track(track, gapless=gapless)
             return
-        
+
         if self._repeat_type == RepeatType.SONG and not gapless:
             self.seek(0)
             self.apply_replaygain_tags()
             return
-        if self._repeat_type == RepeatType.SONG: 
+        if self._repeat_type == RepeatType.SONG:
             self.play_track(self.playing_track, gapless=True)
             return
 
@@ -534,7 +531,6 @@ class PlayerObject(GObject.GObject):
             track_list = self._shuffled_tracks_to_play
         else:
             track_list = self._tracks_to_play
-
 
         if track_list and len(track_list) > 0:
             track = track_list.pop(0)
