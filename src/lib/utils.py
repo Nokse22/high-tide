@@ -594,7 +594,7 @@ def add_video_cover(
         widget: The container widget
         videoplayer: The GtkMediaFile
         item: A TIDAL object with video data
-        in_background (bool): Whether the video should play in the background
+        in_background (bool): Whether the window is currently not in focus
         cancellable: Optional GCancellable for canceling the operation
     """
 
