@@ -384,7 +384,7 @@ class PlayerObject(GObject.GObject):
         else:
             self.play()
 
-    def play_track(self, track: Track) -> None:
+    def play_track(self, track: Track, gapless = False) -> None:
         """Play a specific track immediately.
 
         Args:
