@@ -84,9 +84,13 @@ class PlayerObject(GObject.GObject):
         self.pipeline = Gst.Pipeline.new("dash-player")
 
         self.playbin = Gst.ElementFactory.make("playbin3", "playbin")
-        if not self.playbin:
+        if self.playbin:
+            self.playbin.connect("about-to-finish", self.play_next_gapless)
+            self.gapless_enabled = True
+        else:
             print("Could not create playbin3 element, trying playbin...")
             self.playbin = Gst.ElementFactory.make("playbin", "playbin")
+            self.gapless_enabled = False
 
         self.pipeline.add(self.playbin)
 
@@ -102,9 +106,11 @@ class PlayerObject(GObject.GObject):
         # Set up message bus
         self._bus = self.pipeline.get_bus()
         self._bus.add_signal_watch()
-        self._bus.connect("message::eos", self._on_bus_eos)
-        self._bus.connect("message::error", self._on_bus_error)
-        self._bus.connect("message::buffering", self._on_buffering_message)
+        if not self.gapless_enabled:
+            self._bus.connect('message::eos', self._on_bus_eos)
+        self._bus.connect('message::error', self._on_bus_error)
+        self._bus.connect('message::buffering', self._on_buffering_message)
+        self._bus.connect('message::stream-start', self._on_track_start)
 
         # Initialize state utils
         self._shuffle = False
@@ -125,6 +131,9 @@ class PlayerObject(GObject.GObject):
         self.manifest: Any | None = None
         self.stream: Any | None = None
         self.update_timer: Any | None = None
+
+        # next track variables for gapless
+        self.next_track = None
 
     @GObject.Property(type=bool, default=False)
     def playing(self) -> bool:
@@ -229,6 +238,30 @@ class PlayerObject(GObject.GObject):
         mode, avg_in, avg_out, buff_left = message.parse_buffering_stats()
 
         self.emit("buffering", buffer_per)
+
+
+    def _on_track_start(self, bus, message):
+        # apply replaygain first to avoid volume clipping
+        # (Idk if that will happen but its the only thing that has effect on audio in here)
+        if self.stream:
+            self.apply_replaygain_tags()
+        self.playing_track = self.next_track
+        self.song_album = self.playing_track.album
+        self.can_go_next = len(self._tracks_to_play) > 0
+        self.can_go_prev = len(self.played_songs) > 0
+        self.duration = self.query_duration()
+        self.notify("can-go-prev")
+        self.notify("can-go-next")
+
+        self.emit("song-changed")
+
+        if self.discord_rpc_enabled and self.playing_track:
+            discord_rpc.set_activity(self.playing_track, self.query_position() / 1_000_000)
+
+        if self.update_timer:
+            GLib.source_remove(self.update_timer)
+        self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
+    
 
     def play_this(
         self, thing: Union[Mix, Album, Playlist, List[Track], Track], index: int = 0
@@ -337,9 +370,9 @@ class PlayerObject(GObject.GObject):
         Args:
             track: The Track object to play
         """
-        threading.Thread(target=self._play_track_thread, args=(track,)).start()
+        threading.Thread(target=self._play_track_thread, args=(track, gapless)).start()
 
-    def _play_track_thread(self, track: Track) -> None:
+    def _play_track_thread(self, track: Track, gapless = False) -> None:
         """Thread for loading and playing a track."""
 
         self.stream = None
@@ -350,7 +383,9 @@ class PlayerObject(GObject.GObject):
             self.manifest = self.stream.get_stream_manifest()
             urls = self.manifest.get_urls()
 
-            self.apply_replaygain_tags()
+            # When not gapless there is a race condition between get_stream() and on_track_start
+            if not gapless:
+                self.apply_replaygain_tags()
 
             if self.stream.manifest_mime_type == ManifestMimeType.MPD:
                 data = self.stream.get_manifest_data()
@@ -369,7 +404,7 @@ class PlayerObject(GObject.GObject):
                 else:
                     music_url = urls
 
-            GLib.idle_add(self._play_track_url, track, music_url)
+            GLib.idle_add(self._play_track_url, track, music_url, gapless)
         except Exception as e:
             print(f"Error getting track URL: {e}")
 
@@ -403,29 +438,30 @@ class PlayerObject(GObject.GObject):
         # toggling the option
         self.most_recent_rg_tags = f"tags={tags}"
 
-    def _play_track_url(self, track, music_url):
+    def _play_track_url(self, track, music_url, gapless = False):
         """Set up and play track from URL."""
-        self.pipeline.set_state(Gst.State.NULL)
+        print(f"{gapless=}")
+        if not gapless:
+            self.pipeline.set_state(Gst.State.NULL)
+            self.playbin.set_property("volume", self.playbin.get_property("volume"))
         self.playbin.set_property("uri", music_url)
-        self.playbin.set_property("volume", self.playbin.get_property("volume"))
-        self.duration = self.query_duration()
 
         print(music_url)
 
-        self.playing_track = track
-        self.song_album = track.album
+        self.next_track = track
 
-        if self.playing:
+        if not gapless and self.playing:
             self.play()
 
-        self.can_go_next = len(self._tracks_to_play) > 0
-        self.can_go_prev = len(self.played_songs) > 0
-        self.notify("can-go-prev")
-        self.notify("can-go-next")
 
-        self.emit("song-changed")
+        
+    def play_next_gapless(self, playbin):
+        # playbin is need as arg but we access it later over self
+        self.play_next(gapless=True)
+        print("Trying gapless playbck")
 
-    def play_next(self):
+
+    def play_next(self, gapless = False):
         """Play the next track in the queue or playlist."""
         if self._repeat_type == RepeatType.SONG:
             self.seek(0)
@@ -437,7 +473,7 @@ class PlayerObject(GObject.GObject):
 
         if self.queue:
             track = self.queue.pop(0)
-            self.play_track(track)
+            self.play_track(track, gapless=gapless)
             return
 
         if not self._tracks_to_play and self._repeat_type == RepeatType.LIST:
@@ -457,7 +493,7 @@ class PlayerObject(GObject.GObject):
 
         if track_list and len(track_list) > 0:
             track = track_list.pop(0)
-            self.play_track(track)
+            self.play_track(track, gapless=gapless)
 
     def play_previous(self):
         """Play the previous track or restart current track if near beginning."""
