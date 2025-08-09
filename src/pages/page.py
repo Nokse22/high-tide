@@ -225,12 +225,12 @@ class Page(Adw.NavigationPage, IDisconnectable):
 
         self.signals.append((
             prev_button,
-            prev_button.connect("clicked", self.carousel_go_prev, cards_box, 1),
+            prev_button.connect("clicked", self.carousel_go_prev, cards_box),
         ))
 
         self.signals.append((
             next_button,
-            next_button.connect("clicked", self.carousel_go_next, cards_box, 1),
+            next_button.connect("clicked", self.carousel_go_next, cards_box),
         ))
 
         buttons_for_page = 0
