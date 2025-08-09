@@ -583,7 +583,7 @@ def add_video_cover(
     widget: Any,
     videoplayer: Any,
     item: Any,
-    in_background: bool,
+    in_bg: bool,
     cancellable: Gio.Cancellable = Gio.Cancellable.new(),
 ) -> None:
     """Retrieve and set a video cover for a video player widget from a TIDAL item.
@@ -594,7 +594,7 @@ def add_video_cover(
         widget: The container widget
         videoplayer: The GtkMediaFile
         item: A TIDAL object with video data
-        in_background (bool): Whether the window is currently not in focus
+        in_bg (bool): Whether the window is currently in background (not in focus)
         cancellable: Optional GCancellable for canceling the operation
     """
 
@@ -605,14 +605,14 @@ def add_video_cover(
         widget: Any,
         videoplayer: Any,
         file_path: str | None,
-        in_background: bool,
+        in_bg: bool,
         cancellable: Gio.Cancellable,
     ) -> None:
         if not cancellable.is_cancelled() and file_path:
             videoplayer.set_loop(True)
             videoplayer.set_filename(file_path)
             widget.set_paintable(videoplayer)
-            if not in_background:
+            if not in_bg:
                 videoplayer.play()
 
     GLib.idle_add(
@@ -620,7 +620,7 @@ def add_video_cover(
         widget,
         videoplayer,
         get_video_cover_url(item, get_best_dimensions(widget)),
-        in_background,
+        in_bg,
         cancellable,
     )
 
