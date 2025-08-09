@@ -215,6 +215,8 @@ class PlayerObject(GObject.GObject):
             sink_type (int): The audio sink `AudioSink` enum
         """
         self.use_about_to_finish = False
+        # Play the same track again after reload
+        self.next_track = self.playing_track
         was_playing: bool = self.playing
         position: int = self.query_position()
         duration: int = self.query_duration()
