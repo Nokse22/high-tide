@@ -56,13 +56,11 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
     track_artist_label = Gtk.Template.Child()
 
-    def __init__(
-        self, _item: Union[Track, Album, Artist, Playlist, Mix, MixV2]
-    ) -> None:
+    def __init__(self, item: Union[Track, Album, Artist, Playlist, Mix, MixV2]) -> None:
         """Initialize the card widget with a TIDAL item.
 
         Args:
-            _item: A TIDAL object (Track, Album, Artist, Playlist, or Mix) to display
+            item: A TIDAL object (Track, Album, Artist, Playlist, or Mix) to display
         """
         IDisconnectable.__init__(self)
         super().__init__()
@@ -77,10 +75,13 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             self.click_gesture.connect("released", self._on_click),
         ))
 
-        self.item: Union[Track, Album, Artist, Playlist, Mix, MixV2] = _item
+        self.item: Union[Track, Album, Artist, Playlist, Mix, MixV2] = item
 
         self.action: str | None = None
 
+        self._populate()
+
+    def _populate(self):
         if isinstance(self.item, MixV2) or isinstance(self.item, Mix):
             self._make_mix_card()
             self.action = "win.push-mix-page"
@@ -95,10 +96,8 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             self.action = "win.push-artist-page"
         elif isinstance(self.item, Track):
             self._make_track_card()
-            self.action = None
         elif isinstance(self.item, PageItem):
             self._make_page_item_card()
-            self.action = None
 
     def _make_track_card(self) -> None:
         """Configure the card to display a Track item"""
@@ -155,19 +154,20 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
     def _make_page_item_card(self) -> None:
         """Configure the card to display a PageItem"""
-        self.title_label.set_label(self.item.header)
-        self.title_label.set_tooltip_text(self.item.header)
-        self.detail_label.set_label(self.item.short_sub_header)
-        self.track_artist_label.set_visible(False)
 
-        self.item.id = self.item.artifact_id
+        def _get_item():
+            if self.item.type == "PLAYLIST":
+                self.item = utils.get_playlist(self.item.artifact_id)
+            elif self.item.type == "TRACK":
+                self.item = utils.get_track(self.item.artifact_id)
+            elif self.item.type == "ARTIST":
+                self.item = utils.get_artist(self.item.artifact_id)
+            elif self.item.type == "ALBUM":
+                self.item = utils.get_album(self.item.artifact_id)
 
-        if self.item.type == "PLAYLIST":
-            self.action = "win.push-playlist-page"
-        elif self.item.type == "ARTIST":
-            self.action = "win.push-artist-page"
-        elif self.item.type == "ALBUM":
-            self.action = "win.push-album-page"
+            GLib.idle_add(self._populate)
+
+        threading.Thread(target=_get_item).start()
 
     def _on_click(self, *args) -> None:
         """Handle click events on the card.
@@ -180,6 +180,8 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         elif isinstance(self.item, Track):
             utils.player_object.play_this(self.item)
         elif isinstance(self.item, PageItem) and self.item.type == "TRACK":
+
             def _get():
                 utils.player_object.play_this(self.item.get())
+
             threading.Thread(target=_get).start()

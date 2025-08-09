@@ -22,6 +22,7 @@ from gi.repository import Gtk
 from gi.repository import GLib
 
 import threading
+from tidalapi import Video
 
 from ..widgets import HTCarouselWidget
 from ..widgets import HTCardWidget
@@ -279,7 +280,9 @@ class Page(Adw.NavigationPage, IDisconnectable):
             carousel_content: List of items to display in the carousel
             more_function: Optional function to call when "See More" is clicked
         """
-        if len(carousel_content) == 0:
+        if len(carousel_content) == 0 or all(
+            isinstance(item, Video) for item in carousel_content
+        ):
             return
 
         carousel = HTCarouselWidget(carousel_title)
