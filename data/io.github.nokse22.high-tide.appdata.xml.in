@@ -53,12 +53,22 @@
   <screenshots>
     <screenshot type="default">
       <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%201.png</image>
-      <caption>High Tide in a large window format playing the album `Dreams` by Fleetwood Mac</caption>
+      <caption>High Tide in a large window format playing the `Song 2` by Blur</caption>
     </screenshot>
 
     <screenshot>
       <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%202.png</image>
-      <caption>High Tide in a small window format playing `Let It Happen` by Tame Impala</caption>
+      <caption>High Tide in a large window format playing `Sultan Of Swing` by Dire Straits</caption>
+    </screenshot>
+
+    <screenshot>
+      <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%203.png</image>
+      <caption>High Tide in a small window format playing `Elenore` by The Turtles and showing the queue</caption>
+    </screenshot>
+
+    <screenshot>
+      <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%204.png</image>
+      <caption>High Tide in a small window format playing `Light My Fire` by The Doors</caption>
     </screenshot>
   </screenshots>
 
