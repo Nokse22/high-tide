@@ -73,6 +73,14 @@
   </screenshots>
 
   <releases>
+    <release version="1.0.0" date="2025-08-10">
+      <description translate="no">
+        <p>Improve app responsiveness</p>
+        <p>Apply Track replay gain if album gain is missing</p>
+        <p>Add fallback replay gain</p>
+        <p>Bug fixes</p>
+      </description>
+    </release>
     <release version="0.1.8" date="2025-08-01">
       <description translate="no">
         <p>Add Pipewire sink</p>
