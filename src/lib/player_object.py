@@ -135,7 +135,7 @@ class PlayerObject(GObject.GObject):
         self.seek_after_sink_reload: int | None = None
 
         # next track variables for gapless
-        self.next_track = None
+        self.next_track: Any | None = None
 
     @GObject.Property(type=bool, default=False)
     def playing(self) -> bool:
@@ -249,6 +249,7 @@ class PlayerObject(GObject.GObject):
             self.playing_track = track
         else: 
             self.playing_track = self.next_track
+            self.next_track = None
         self.song_album = self.playing_track.album
         self.can_go_next = len(self._tracks_to_play) > 0
         self.can_go_prev = len(self.played_songs) > 0
@@ -488,6 +489,15 @@ class PlayerObject(GObject.GObject):
 
     def play_next(self, gapless = False):
         """Play the next track in the queue or playlist."""
+
+        # A track is already enqueued from an about-to-finish
+        if self.next_track:
+            print("Using already enqueued track from gapless")
+            track = self.next_track
+            self.next_track = None
+            self.play_track(track, gapless=gapless)
+            return
+        
         if self._repeat_type == RepeatType.SONG and not gapless:
             self.seek(0)
             self.apply_replaygain_tags()
@@ -518,6 +528,7 @@ class PlayerObject(GObject.GObject):
             track_list = self._shuffled_tracks_to_play
         else:
             track_list = self._tracks_to_play
+
 
         if track_list and len(track_list) > 0:
             track = track_list.pop(0)
