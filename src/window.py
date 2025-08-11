@@ -642,7 +642,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         Called periodically to update the progress bar, song duration, current position
         and volume level.
         """
-        self.duration = self.player_object.query_duration()
+        # Just copy the duration from player here to avoid ui desync from player object
+        self.duration = self.player_object.duration
         end_value = self.duration / Gst.SECOND
 
         self.volume_button.get_adjustment().set_value(self.player_object.query_volume())
