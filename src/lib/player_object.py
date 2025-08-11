@@ -94,6 +94,9 @@ class PlayerObject(GObject.GObject):
             self.playbin = Gst.ElementFactory.make("playbin", "playbin")
             self.gapless_enabled = False
 
+        if preferred_sink == AudioSink.PIPEWIRE:
+            self.gapless_enabled = False
+
         self.use_about_to_finish = True
 
         self.pipeline.add(self.playbin)
@@ -197,6 +200,11 @@ class PlayerObject(GObject.GObject):
         pipeline_str = (
             f"queue ! audioconvert ! {normalization} audioresample ! {sink_name}"
         )
+
+        if sink_type == AudioSink.PIPEWIRE:
+            self.gapless_enabled = False
+        else:
+            self.gapless_enabled = True
 
         try:
             audio_bin = Gst.parse_bin_from_description(pipeline_str, True)
@@ -508,7 +516,7 @@ class PlayerObject(GObject.GObject):
             playbin: required by Gst
         """
         # playbin is need as arg but we access it later over self
-        if self.use_about_to_finish and self._tracks_to_play:
+        if self.gapless_enabled and self.use_about_to_finish and self._tracks_to_play:
             GLib.idle_add(self.play_next, True)
             logger.info("Trying gapless playbck")
         else:
