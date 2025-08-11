@@ -288,7 +288,7 @@ class PlayerObject(GObject.GObject):
 
         if self.discord_rpc_enabled and self.playing_track:
             discord_rpc.set_activity(
-                self.playing_track, self.query_position() / 1_000_000
+                self.playing_track, 0
             )
 
         if self.update_timer:
