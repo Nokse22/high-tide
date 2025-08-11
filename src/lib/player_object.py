@@ -254,10 +254,11 @@ class PlayerObject(GObject.GObject):
             track: If set, the playing track is set to it.
             Otherwise self.next_track is used 
         """
+        if not track and not self.next_track:
+            # This method has already been called in _play_track_url
+            return
         if track:
             self.playing_track = track
-            # Set the stream for quality label
-            self.stream = self.playing_track.get_stream()
         else:
             self.playing_track = self.next_track
             self.next_track = None
@@ -328,7 +329,6 @@ class PlayerObject(GObject.GObject):
         # Will result in play() call later
         self.playing = True
         self.play_track(track)
-        self.set_track(track)
 
     def shuffle_this(
         self, thing: Union[Mix, Album, Playlist, List[Track], Track]
@@ -490,7 +490,10 @@ class PlayerObject(GObject.GObject):
 
         print(music_url)
 
-        self.next_track = track
+        if gapless:
+            self.next_track = track
+        else:
+            self.set_track(track)
 
         if not gapless and self.playing:
             self.play()
