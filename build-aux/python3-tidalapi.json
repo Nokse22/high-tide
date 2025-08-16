@@ -48,8 +48,8 @@
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/db/a6/efe5044ab4e84e945a3b84e40af3e4ff68f17de20c1fe2d58ed821b1d267/tidalapi-0.8.3-py3-none-any.whl",
-            "sha256": "b6698e308cc9f4edac4b9c1bc22773f040d4de0bbac212defcbe33a93f66b3c7"
+            "url": "https://github.com/EbbLabs/python-tidal/releases/download/v0.8.5/tidalapi-0.8.5-py3-none-any.whl",
+            "sha256": "208f9ca47d012563f7038764a44ae46d68ae38d6c2a527e15fab50f5670bda9f"
         },
         {
             "type": "file",

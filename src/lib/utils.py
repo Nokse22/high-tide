@@ -29,6 +29,7 @@ from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
 from tidalapi.mix import Mix
+from tidalapi.types import ItemOrder, OrderDirection
 
 from ..pages import HTArtistPage
 from ..pages import HTAlbumPage
@@ -146,7 +147,7 @@ def get_mix(mix_id: str) -> Mix:
     return cache.get_mix(mix_id)
 
 
-def get_favourites() -> None:
+def get_favourites(sort_favourite_tracks=False) -> None:
     """Load all user favorites from TIDAL API and cache them globally.
 
     Retrieves and caches the user's favorite mixes, tracks, artists, albums,
@@ -164,8 +165,11 @@ def get_favourites() -> None:
 
     try:
         favourite_artists = user.favorites.artists()
-        favourite_tracks = user.favorites.tracks()
         favourite_albums = user.favorites.albums()
+        favourite_tracks = user.favorites.tracks(
+            order=ItemOrder.Date if sort_favourite_tracks else ItemOrder.Name,
+            order_direction=OrderDirection.Descending if sort_favourite_tracks else OrderDirection.Ascending,
+        )
         favourite_playlists = user.favorites.playlists()
         favourite_mixes = user.favorites.mixes()
         playlist_and_favorite_playlists = user.playlist_and_favorite_playlists()
@@ -180,6 +184,10 @@ def get_favourites() -> None:
     print(f"Favorite Mixes: {len(favourite_mixes)}")
     print(f"Playlist and Favorite Playlists: {len(playlist_and_favorite_playlists)}")
     print(f"User Playlists: {len(user_playlists)}")
+
+    # if sort_favourite_tracks:
+    #    print("Sorting favorite tracks by date_added...")
+    #    favourite_tracks.sort(key=lambda el: el.user_date_added, reverse=True)
 
 
 def is_favourited(item: Any) -> bool:

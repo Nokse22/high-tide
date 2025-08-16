@@ -255,7 +255,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             print(f"error! {e}")
             GLib.idle_add(self.on_login_failed)
         else:
-            utils.get_favourites()
+            utils.get_favourites(sort_favourite_tracks=True)
             GLib.idle_add(self.on_logged_in)
 
     def logout(self):
