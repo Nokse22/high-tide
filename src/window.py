@@ -255,7 +255,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             print(f"error! {e}")
             GLib.idle_add(self.on_login_failed)
         else:
-            utils.get_favourites(sort_favourite_tracks=True)
+            utils.get_favourites()
             GLib.idle_add(self.on_logged_in)
 
     def logout(self):
@@ -739,6 +739,11 @@ class HighTideWindow(Adw.ApplicationWindow):
         if self.settings.get_boolean("discord-rpc") != state:
             self.settings.set_boolean("discord-rpc", state)
             self.player_object.set_discord_rpc(state)
+    
+    def sort_favourites_by_added_toggled(self, state):
+        if self.settings.get_boolean("sort-favourites-by-added") != state:
+            self.settings.set_boolean("sort-favourites-by-added", state)
+            # show restarting the app is necessary
 
     #
     #   PAGES ACTIONS CALLBACKS

@@ -47,5 +47,8 @@
 	  <key name="discord-rpc" type="b">
       <default>true</default>
     </key>
+    <key name="sort-favourites-by-added" type="b">
+      <default>false</default>
+    </key>
 	</schema>
 </schemalist>

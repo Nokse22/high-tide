@@ -51,6 +51,7 @@ class HighTideApplication(Adw.Application):
         utils.init()
 
         self.settings: Gio.Settings = Gio.Settings.new("io.github.nokse22.high-tide")
+        utils.sort_favourites_by_added = self.settings.get_boolean("sort-favourites-by-added")
 
         self.preferences: Gtk.Window | None = None
 
@@ -163,6 +164,13 @@ class HighTideApplication(Adw.Application):
                 "notify::active", self.on_discord_rpc_changed
             )
 
+            builder.get_object("_sort_favourites_by_added").set_active(
+                self.settings.get_boolean("sort-favourites-by-added")
+            )
+            builder.get_object("_sort_favourites_by_added").connect(
+                "notify::active", self.on_sort_changed
+            )
+
             self.preferences = builder.get_object("_preference_window")
 
         self.preferences.present(self.win)
@@ -184,6 +192,9 @@ class HighTideApplication(Adw.Application):
 
     def on_discord_rpc_changed(self, widget: Any, *args) -> None:
         self.win.change_discord_rpc_enabled(widget.get_active())
+    
+    def on_sort_changed(self, widget: Any, *args) -> None:
+        self.win.sort_favourites_by_added_toggled(widget.get_active())
 
     def create_action(
         self, name: str, callback: Callable, shortcuts: List[str] | None = None

@@ -55,6 +55,7 @@ favourite_albums: List[Album] = []
 favourite_playlists: List[Playlist] = []
 playlist_and_favorite_playlists: List[Playlist] = []
 user_playlists: List[Playlist] = []
+sort_favourites_by_added = False
 
 
 def init() -> None:
@@ -147,7 +148,7 @@ def get_mix(mix_id: str) -> Mix:
     return cache.get_mix(mix_id)
 
 
-def get_favourites(sort_favourite_tracks=False) -> None:
+def get_favourites() -> None:
     """Load all user favorites from TIDAL API and cache them globally.
 
     Retrieves and caches the user's favorite mixes, tracks, artists, albums,
@@ -160,18 +161,33 @@ def get_favourites(sort_favourite_tracks=False) -> None:
     global favourite_playlists
     global playlist_and_favorite_playlists
     global user_playlists
+    global sort_favourites_by_added
 
     user = session.user
 
+    order = ItemOrder.Date if sort_favourites_by_added else ItemOrder.Name
+    order_direction = (
+        OrderDirection.Descending
+        if sort_favourites_by_added
+        else OrderDirection.Ascending
+    )
+
     try:
-        favourite_artists = user.favorites.artists()
-        favourite_albums = user.favorites.albums()
-        favourite_tracks = user.favorites.tracks(
-            order=ItemOrder.Date if sort_favourite_tracks else ItemOrder.Name,
-            order_direction=OrderDirection.Descending if sort_favourite_tracks else OrderDirection.Ascending,
+        favourite_artists = user.favorites.artists(
+            order=order, order_direction=order_direction
         )
-        favourite_playlists = user.favorites.playlists()
-        favourite_mixes = user.favorites.mixes()
+        favourite_albums = user.favorites.albums(
+            order=order, order_direction=order_direction
+        )
+        favourite_tracks = user.favorites.tracks(
+            order=order, order_direction=order_direction
+        )
+        favourite_playlists = user.favorites.playlists(
+            order=order, order_direction=order_direction
+        )
+        favourite_mixes = user.favorites.mixes(
+            order=order, order_direction=order_direction
+        )
         playlist_and_favorite_playlists = user.playlist_and_favorite_playlists()
         user_playlists = user.playlists()
     except Exception as e:
@@ -184,10 +200,6 @@ def get_favourites(sort_favourite_tracks=False) -> None:
     print(f"Favorite Mixes: {len(favourite_mixes)}")
     print(f"Playlist and Favorite Playlists: {len(playlist_and_favorite_playlists)}")
     print(f"User Playlists: {len(user_playlists)}")
-
-    # if sort_favourite_tracks:
-    #    print("Sorting favorite tracks by date_added...")
-    #    favourite_tracks.sort(key=lambda el: el.user_date_added, reverse=True)
 
 
 def is_favourited(item: Any) -> bool:
