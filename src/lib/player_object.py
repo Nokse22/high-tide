@@ -299,7 +299,7 @@ class PlayerObject(GObject.GObject):
         elif isinstance(thing, Track):
             tracks_list = [thing]
 
-        self.id_list = [track.id for track in tracks_list]
+        self.id_list = [track.id for track in tracks_list or []]
 
         return tracks_list
 
