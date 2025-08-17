@@ -39,8 +39,14 @@ class HTArtistPage(Page):
         self.albums = self.artist.get_albums(limit=10)
         self.albums_ep_singles = self.artist.get_albums_ep_singles(limit=10)
         self.albums_other = self.artist.get_albums_other(limit=10)
-        self.similar = self.artist.get_similar()
-        self.bio = self.artist.get_bio()
+
+        # tidalapi-0.8.5 breaks loading similar and bio of artists apparently
+        # self.similar = self.artist.get_similar()
+        # print('similar')
+        # self.bio = self.artist.get_bio()
+        # print('bio')
+        self.similar = None
+        self.bio = None
 
     def _load_finish(self) -> None:
         self.set_title(self.artist.name)
@@ -104,7 +110,7 @@ class HTArtistPage(Page):
             _("Appears On"), self.albums_other, self.artist.get_albums_other
         )
 
-        self.new_carousel_for(_("Similar Artists"), self.similar)
+        # self.new_carousel_for(_("Similar Artists"), self.similar)
 
         if self.bio is None:
             return

@@ -272,10 +272,16 @@ class HighTideWindow(Adw.ApplicationWindow):
     def on_logged_in(self):
         """Handle successful user login"""
         print("logged in")
-
+        show_my_collection_on_login = True
         page = HTGenericPage.new_from_function(utils.session.home).load()
+        # broken with tidalapi-0.8.5
         page.set_tag("home")
         self.navigation_view.replace([page])
+        if show_my_collection_on_login:
+            page = HTCollectionPage().load()
+            page.set_tag("collection")
+            self.navigation_view.push(page)
+        print("replacing home page, is broken I think")
 
         self.player_lyrics_queue.set_sensitive(True)
         self.navigation_buttons.set_sensitive(True)
