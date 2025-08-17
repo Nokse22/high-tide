@@ -509,9 +509,9 @@ class PlayerObject(GObject.GObject):
         """
         volume = self.playbin.get_property("volume")
         if self.quadratic_volume:
-            return volume ** (1 / 2)
+            return round(volume ** (1 / 2), 1)
         else:
-            return volume
+            return round(volume, 1)
 
     def change_volume(self, value):
         """Set the playback volume.
