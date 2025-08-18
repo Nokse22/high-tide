@@ -280,6 +280,7 @@ class PlayerObject(GObject.GObject):
         self.duration = self.query_duration()
         # Should only trigger when track is enqued on start without playback
         if not self.duration:
+            # self.duration is microseconds, but self.playing_track.duration is seconds
             self.duration = self.playing_track.duration * 1_000_000_000
         self.notify("can-go-prev")
         self.notify("can-go-next")
@@ -647,7 +648,7 @@ class PlayerObject(GObject.GObject):
         """Update playback slider and duration."""
         self.update_timer = None
         if not self.duration:
-            print("Duration missing, trying again")
+            logger.warn("Duration missing, trying again")
             self.duration = self.query_duration()
         self.emit("update-slider")
         return self.playing
@@ -680,6 +681,8 @@ class PlayerObject(GObject.GObject):
             seek_fraction (float): Position as a fraction of total duration (0.0 to 1.0)
         """
 
+        # If a seek close to the end is performed then skip
+        # Avoids UI desync and stuck tracks
         if not self.seeked_to_end and seek_fraction > 0.98:
             self.use_about_to_finish = False
             self.seeked_to_end = True
