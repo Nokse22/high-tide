@@ -138,6 +138,7 @@ class PlayerObject(GObject.GObject):
         self.stream: Any | None = None
         self.update_timer: Any | None = None
         self.seek_after_sink_reload: int | None = None
+        self.seeked_to_end = False
 
         # next track variables for gapless
         self.next_track: Any | None = None
@@ -241,7 +242,8 @@ class PlayerObject(GObject.GObject):
 
     def _on_bus_eos(self, *args) -> None:
         """Handle end of stream."""
-        GLib.idle_add(self.play_next)
+        if not self.gapless_enabled:
+            GLib.idle_add(self.play_next)
 
     def _on_bus_error(self, bus: Any, message: Any) -> None:
         """Handle pipeline errors."""
@@ -303,6 +305,7 @@ class PlayerObject(GObject.GObject):
             GLib.source_remove(self.update_timer)
         self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
 
+        self.seeked_to_end = False
         if self.seek_after_sink_reload:
             self.seek(self.seek_after_sink_reload)
             self.seek_after_sink_reload = None
@@ -516,7 +519,7 @@ class PlayerObject(GObject.GObject):
             playbin: required by Gst
         """
         # playbin is need as arg but we access it later over self
-        if self.gapless_enabled and self.use_about_to_finish and self._tracks_to_play:
+        if self.gapless_enabled and self.use_about_to_finish and self.tracks_to_play:
             GLib.idle_add(self.play_next, True)
             logger.info("Trying gapless playbck")
         else:
@@ -675,6 +678,11 @@ class PlayerObject(GObject.GObject):
             seek_fraction (float): Position as a fraction of total duration (0.0 to 1.0)
         """
 
+        if not self.seeked_to_end and seek_fraction > 0.98:
+            self.use_about_to_finish = False
+            self.seeked_to_end = True
+            self.play_next()
+            return
         position = int(seek_fraction * self.query_duration())
         self.playbin.seek_simple(
             Gst.Format.TIME, Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, position
