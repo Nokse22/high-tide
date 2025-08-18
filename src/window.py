@@ -37,6 +37,7 @@ from .lib import PlayerObject, RepeatType, SecretStore, utils, HTCache
 from .login import LoginDialog
 # from .new_playlist import NewPlaylistWindow
 
+from .pages import HTGenericPage
 from .pages import HTExplorePage
 from .pages import HTNotLoggedInPage
 from .pages import HTCollectionPage
@@ -766,12 +767,12 @@ class HighTideWindow(Adw.ApplicationWindow):
         page = HTMixPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
-    def on_push_artist_radio_page(self, action, parameter):
-        page = HTMixPage(parameter.get_string(), "artist").load()
+    def on_push_track_radio_page(self, action, parameter):
+        page = HTMixPage.new_from_track(parameter.get_string()).load()
         self.navigation_view.push(page)
 
-    def on_push_track_radio_page(self, action, parameter):
-        page = HTHrackRadioPage.new_from_id(parameter.get_string()).load()
+    def on_push_artist_radio_page(self, action, parameter):
+        page = HTMixPage.new_from_artist(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     #

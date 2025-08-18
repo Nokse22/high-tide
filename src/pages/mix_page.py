@@ -30,10 +30,50 @@ class HTMixPage(Page):
 
     __gtype_name__ = "HTMixPage"
 
+    id_type = None
     tracks = None
 
+    @classmethod
+    def new_from_track(cls, id):
+        """Create a new HTMixPage instance from a Track id.
+
+        Args:
+            id: The track id
+
+        Returns:
+            HTMixPage: A new instance configured with the provided id
+        """
+        instance = cls()
+
+        instance.id = id
+        instance.id_type = "track"
+
+        return instance
+
+    @classmethod
+    def new_from_artist(cls, id):
+        """Create a new HTMixPage instance from an Artist id.
+
+        Args:
+            id: The artist id
+
+        Returns:
+            HTMixPage: A new instance configured with the provided id
+        """
+        instance = cls()
+
+        instance.id = id
+        instance.id_type = "artist"
+
+        return instance
+
     def _load_async(self) -> None:
-        self.item = utils.get_mix(self.id)
+        if self.id_type is None:
+            self.item = utils.get_mix(self.id)
+        elif self.id_type == "track":
+            self.item = utils.get_track(self.id).get_radio_mix()
+        elif self.id_type == "artist":
+            self.item = utils.get_artist(self.id).get_radio_mix()
 
         self.tracks = self.item.items()
 
