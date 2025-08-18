@@ -242,6 +242,8 @@ class PlayerObject(GObject.GObject):
 
     def _on_bus_eos(self, *args) -> None:
         """Handle end of stream."""
+        if not self.tracks_to_play or not self.queue:
+            self.pause()
         if not self.gapless_enabled:
             GLib.idle_add(self.play_next)
 
