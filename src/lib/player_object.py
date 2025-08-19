@@ -38,6 +38,7 @@ from . import discord_rpc
 
 logger = logging.getLogger(__name__)
 
+
 class RepeatType(IntEnum):
     NONE = 0
     SONG = 1
@@ -264,7 +265,7 @@ class PlayerObject(GObject.GObject):
 
         Args:
             track: If set, the playing track is set to it.
-            Otherwise self.next_track is used 
+            Otherwise self.next_track is used
         """
         if not track and not self.next_track:
             # This method has already been called in _play_track_url
@@ -300,9 +301,7 @@ class PlayerObject(GObject.GObject):
         self.set_track()
 
         if self.discord_rpc_enabled and self.playing_track:
-            discord_rpc.set_activity(
-                self.playing_track, 0
-            )
+            discord_rpc.set_activity(self.playing_track, 0)
 
         if self.update_timer:
             GLib.source_remove(self.update_timer)
