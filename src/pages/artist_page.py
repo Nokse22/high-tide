@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 
 from .page import Page
 from ..lib import utils
@@ -106,6 +106,10 @@ class HTArtistPage(Page):
 
         self.new_carousel_for(_("Similar Artists"), self.similar)
 
+        builder.get_object("_radio_button").set_action_target_value(
+            GLib.Variant("s", str(self.artist.id))
+        )
+
         if self.bio is None:
             return
 
@@ -137,12 +141,3 @@ class HTArtistPage(Page):
 
     def on_shuffle_button_clicked(self, btn) -> None:
         utils.player_object.shuffle_this(self.top_tracks, 0)
-
-    def on_artist_radio_button_clicked(self, btn) -> None:
-        from .track_radio_page import HTHrackRadioPage
-
-        page = HTHrackRadioPage.new_from_id(
-            self.artist, _("Radio of {}").format(self.artist.name)
-        )
-        page.load()
-        utils.navigation_view.push(page)
