@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 
 from .page import Page
 from ..lib import utils
@@ -106,8 +106,8 @@ class HTArtistPage(Page):
 
         self.new_carousel_for(_("Similar Artists"), self.similar)
 
-        builder.get_object("_radio_button").set_detailed_action_name(
-            f"win.push-mix-page::{self.artist.get_radio_mix().id}"
+        builder.get_object("_radio_button").set_action_target_value(
+            GLib.Variant("s", str(self.artist.id))
         )
 
         if self.bio is None:

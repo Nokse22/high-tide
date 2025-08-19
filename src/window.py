@@ -752,26 +752,38 @@ class HighTideWindow(Adw.ApplicationWindow):
     #
 
     def on_push_artist_page(self, action, parameter):
+        if parameter.get_string() == "":
+            return
         page = HTArtistPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_album_page(self, action, parameter):
+        if parameter.get_string() == "":
+            return
         page = HTAlbumPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_playlist_page(self, action, parameter):
+        if parameter.get_string() == "":
+            return
         page = HTPlaylistPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_mix_page(self, action, parameter):
+        if parameter.get_string() == "":
+            return
         page = HTMixPage.new_from_id(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_track_radio_page(self, action, parameter):
+        if parameter.get_string() == "":
+            return
         page = HTMixPage.new_from_track(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_artist_radio_page(self, action, parameter):
+        if parameter.get_string() == "":
+            return
         page = HTMixPage.new_from_artist(parameter.get_string()).load()
         self.navigation_view.push(page)
 
