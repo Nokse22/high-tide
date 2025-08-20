@@ -71,10 +71,10 @@ class HTShorcutWidget(Gtk.FlowBoxChild, IDisconnectable):
             self.action = "win.push-artist-page"
         elif isinstance(self.item, Playlist):
             self.title_label.set_label(self.item.name)
-            if self.item.creator and self.item.creator.name:
-                self.subtitle_label.set_label(self.item.creator.name)
-            else:
-                self.subtitle_label.set_visible(False)
+            creator_name = "TIDAL"
+            if self.item.creator is not None and self.item.creator.name is not None:
+                creator_name = self.item.creator.name
+            self.subtitle_label.set_label(_("By {}").format(creator_name))
             self.action = "win.push-playlist-page"
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
