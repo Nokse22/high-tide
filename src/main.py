@@ -88,11 +88,12 @@ class HighTideApplication(Adw.Application):
             application_name="High Tide",
             application_icon="io.github.nokse22.high-tide",
             developer_name="The High Tide Contributors",
-            version="0.1.8",
+            version="1.0.0",
             developers=[
                 "Nokse https://github.com/Nokse22",
                 "Nila The Dragon https://github.com/nilathedragon",
                 "Dråfølin https://github.com/drafolin",
+                "Plamper https://github.com/Plamper",
             ],
             copyright="© 2023-2025 Nokse",
             license_type="GTK_LICENSE_GPL_3_0",

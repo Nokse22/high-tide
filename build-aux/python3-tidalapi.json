@@ -42,13 +42,13 @@
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/7c/e4/56027c4a6b4ae70ca9de302488c5ca95ad4a39e190093d6c1a8ace08341b/requests-2.32.4-py3-none-any.whl",
-            "sha256": "27babd3cda2a6d50b30443204ee89830707d396671944c998b5975b031ac2b2c"
+            "url": "https://files.pythonhosted.org/packages/1e/db/4254e3eabe8020b458f1a747140d32277ec7a271daf1d235b70dc0b4e6e3/requests-2.32.5-py3-none-any.whl",
+            "sha256": "2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6"
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/7e/fc/8612dde17f43b8358e872ad2dcc23c6d295fcf030389adf4012e71f4a271/tidalapi-0.8.5-py3-none-any.whl",
-            "sha256": "208f9ca47d012563f7038764a44ae46d68ae38d6c2a527e15fab50f5670bda9f"
+            "url": "https://files.pythonhosted.org/packages/fb/03/b0702b54f6eb34e8016ef0e6cde1bfde2f72a7bacd95dec196f033a7f784/tidalapi-0.8.6-py3-none-any.whl",
+            "sha256": "a55f54ff4110398cd3a565b6cfc8bcbf8e104442e06db0eab8372abcd653a3d6"
         },
         {
             "type": "file",
