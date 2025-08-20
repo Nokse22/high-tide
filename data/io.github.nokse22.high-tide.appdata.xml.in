@@ -73,11 +73,13 @@
   </screenshots>
 
   <releases>
-    <release version="1.0.0" date="2025-08-10">
+    <release version="1.0.0" date="2025-08-20">
       <description translate="no">
         <p>Improve app responsiveness</p>
         <p>Apply Track replay gain if album gain is missing</p>
         <p>Add fallback replay gain</p>
+        <p>Gapless playback</p>
+        <p>Add support for home page shortcuts</p>
         <p>Bug fixes</p>
       </description>
     </release>
