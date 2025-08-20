@@ -93,6 +93,7 @@ class HighTideApplication(Adw.Application):
                 "Nokse https://github.com/Nokse22",
                 "Nila The Dragon https://github.com/nilathedragon",
                 "Dråfølin https://github.com/drafolin",
+                "Plamper https://github.com/Plamper",
             ],
             copyright="© 2023-2025 Nokse",
             license_type="GTK_LICENSE_GPL_3_0",
