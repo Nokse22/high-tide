@@ -74,6 +74,7 @@ class PlayerObject(GObject.GObject):
     def __init__(
         self,
         preferred_sink: AudioSink = AudioSink.AUTO,
+        alsa_device: str = "default",
         normalize: bool = False,
         quadratic_volume: bool = False,
     ) -> None:
@@ -108,6 +109,8 @@ class PlayerObject(GObject.GObject):
 
         self.discord_rpc_enabled = True
 
+        
+        self.alsa_device: str = alsa_device
         # Configure audio sink
         self._setup_audio_sink(preferred_sink)
 
@@ -181,7 +184,7 @@ class PlayerObject(GObject.GObject):
         sink_map = {
             AudioSink.AUTO: "autoaudiosink",
             AudioSink.PULSE: "pulsesink",
-            AudioSink.ALSA: "alsasink",
+            AudioSink.ALSA: f"alsasink device={self.alsa_device}",
             AudioSink.JACK: "jackaudiosink",
             AudioSink.OSS: "osssink",
             AudioSink.PIPEWIRE: "pipewiresink",

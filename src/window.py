@@ -149,6 +149,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.player_object = PlayerObject(
             self.settings.get_int("preferred-sink"),
+            self.settings.get_string("alsa-device"),
             self.settings.get_boolean("normalize"),
             self.settings.get_boolean("quadratic-volume"),
         )
@@ -699,6 +700,14 @@ class HighTideWindow(Adw.ApplicationWindow):
         if self.settings.get_int("preferred-sink") != sink:
             self.player_object.change_audio_sink(sink)
             self.settings.set_int("preferred-sink", sink)
+
+    def change_alsa_device(self, device: str):
+        if self.settings.get_string("alsa-device") != device:
+            self.settings.set_string("alsa-device", device)
+            self.player_object.alsa_device = device
+            self.player_object.change_audio_sink(
+                self.settings.get_int("preferred-sink")
+            )
 
     def change_normalization(self, state):
         if self.player_object.normalize != state:

@@ -81,6 +81,41 @@ def init() -> None:
     cache = HTCache(session)
 
 
+def get_alsa_devices_from_proc() -> List[dict]:
+    """Get ALSA devices from files in /proc/asound"""
+    cards = {}
+    with open("/proc/asound/cards", "r") as f:
+        for line in f:
+            # Example String:  3 [KA13           ]: USB-Audio - FiiO KA13
+            match = re.match(r"^\s*(\d+)\s+\[[^\]]+\]\s*:\s*.+?\s-\s(.+)$", line)
+            if match:
+                cards[int(match.group(1))] = match.group(2).strip()
+
+    devices = [
+        {
+            "hw_device": "default",
+            "name": "Default",
+        }
+    ]
+    with open("/proc/asound/devices", "r") as f:
+        for line in f:
+            # Example String:  19: [ 3- 0]: digital audio playback
+            match = re.match(
+                r"^\s*\d+:\s+\[\s*(\d+)-\s*(\d+)\]:\s*digital audio playback", line
+            )
+            if match:
+                card, device = int(match.group(1)), int(match.group(2))
+                hw_string = f"hw:{card},{device}"
+                card_name = cards.get(card, f"Card {card}")
+
+                devices.append({
+                    "hw_device": hw_string,
+                    "name": f"{card_name} ({hw_string})",
+                })
+
+    return devices
+
+
 def get_artist(artist_id: str) -> Artist:
     """Get an artist object by ID from the cache.
 

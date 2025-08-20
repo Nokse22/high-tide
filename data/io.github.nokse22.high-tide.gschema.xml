@@ -47,5 +47,8 @@
 	  <key name="discord-rpc" type="b">
       <default>true</default>
     </key>
+	  <key name="alsa-device" type="s">
+      <default>'default'</default>
+    </key>
 	</schema>
 </schemalist>
