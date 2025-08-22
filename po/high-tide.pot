@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-22 13:35+0200\n"
+"POT-Creation-Date: 2025-08-22 15:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -129,26 +129,34 @@ msgid ""
 msgstr ""
 
 #: data/ui/preferences.blp:36
+msgid "ALSA Device"
+msgstr ""
+
+#: data/ui/preferences.blp:37
+msgid "Device used for exclusive ALSA access"
+msgstr ""
+
+#: data/ui/preferences.blp:40
 msgid "Normalize volume"
 msgstr ""
 
-#: data/ui/preferences.blp:41
+#: data/ui/preferences.blp:45
 msgid "App"
 msgstr ""
 
-#: data/ui/preferences.blp:43
+#: data/ui/preferences.blp:47
 msgid "Run in the background"
 msgstr ""
 
-#: data/ui/preferences.blp:46
+#: data/ui/preferences.blp:50
 msgid "Use quadratic volume control"
 msgstr ""
 
-#: data/ui/preferences.blp:49
+#: data/ui/preferences.blp:53
 msgid "Display animated covers"
 msgstr ""
 
-#: data/ui/preferences.blp:52
+#: data/ui/preferences.blp:56
 msgid "Enable Discord Rich Presence"
 msgstr ""
 
@@ -333,12 +341,12 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: src/pages/album_page.py:64 src/pages/playlist_page.py:79
+#: src/pages/album_page.py:64 src/pages/playlist_page.py:78
 msgid "{} tracks ({})"
 msgstr ""
 
-#: src/pages/artist_page.py:91 src/widgets/card_widget.py:150
-#: src/widgets/top_hit_widget.py:181
+#: src/pages/artist_page.py:91 src/widgets/card_widget.py:151
+#: src/widgets/top_hit_widget.py:179
 msgid "Artist"
 msgstr ""
 
@@ -395,7 +403,7 @@ msgstr ""
 msgid "To be able to use this app, you need to login with your TIDAL account."
 msgstr ""
 
-#: src/pages/playlist_page.py:76
+#: src/pages/playlist_page.py:75
 msgid "by {}"
 msgstr ""
 
@@ -403,7 +411,7 @@ msgstr ""
 msgid "Track by {}"
 msgstr ""
 
-#: src/widgets/card_widget.py:141
+#: src/widgets/card_widget.py:143 src/widgets/top_hit_widget.py:159
 msgid "By {}"
 msgstr ""
 
@@ -415,14 +423,38 @@ msgstr ""
 msgid "Mix"
 msgstr ""
 
-#: src/main.py:103
+#: src/main.py:106
 msgid "Donate with Ko-Fi"
 msgstr ""
 
-#: src/main.py:104
+#: src/main.py:107
 msgid "Donate with Github"
 msgstr ""
 
-#: src/window.py:230
+#: src/window.py:231
 msgid "Playing Music"
+msgstr ""
+
+#: src/lib/utils.py:102
+msgid "Default"
+msgstr ""
+
+#: src/lib/utils.py:300
+msgid "Successfully added to my collection"
+msgstr ""
+
+#: src/lib/utils.py:303
+msgid "Failed to add item to my collection"
+msgstr ""
+
+#: src/lib/utils.py:329
+msgid "Successfully removed from my collection"
+msgstr ""
+
+#: src/lib/utils.py:331
+msgid "Failed to remove item from my collection"
+msgstr ""
+
+#: src/lib/utils.py:371
+msgid "Copied share URL in the clipboard"
 msgstr ""

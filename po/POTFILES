@@ -34,4 +34,5 @@ src/widgets/top_hit_widget.py
 src/login.py
 src/main.py
 src/window.py
+src/lib/utils.py
 
