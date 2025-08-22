@@ -16,6 +16,19 @@ If you have any questions, we'd be happy to help you.
 
 Contributions should be licensed under the **GPL-3**. 
 
+## Translations
+
+Translations are managed through the `gettext` library. The files that are used for translation are located in `/po`.
+
+Translation tools such as [PoEdit](https://poedit.net/) exist, that allow you to update translation strings in a more intuitive way.
+
+### Updating the .pot file
+<!-- TODO: Make a github action that does this automatically -->
+If you've made an update that moves translations around, or you added translations, you can use the following command to update the Portable Object Template (.pot) file : 
+```sh
+xgettext --files-from=po/POTFILES --output=po/high-tide.pot --from-code=UTF-8 --add-comments --keyword=_ --keyword=C_:1c,2
+```
+
 ## Coding Style and Best Practices
 
 This project follows a specific coding style. Please adhere to these guidelines when contributing code.

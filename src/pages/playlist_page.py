@@ -67,14 +67,13 @@ class HTPlaylistPage(Page):
         ))
 
         builder.get_object("_title_label").set_label(self.item.name)
-        creator = self.item.creator
-        if creator:
-            creator = creator.name
-        else:
-            creator = "TIDAL"
-        builder.get_object("_first_subtitle_label").set_label(
-            _("by {}").format(creator)
-        )
+
+        subtitle_label = builder.get_object("_first_subtitle_label")
+        creator_name = "TIDAL"
+        if self.item.creator is not None and self.item.creator.name is not None:
+            creator_name = self.item.creator.name
+        subtitle_label.set_label(_("by {}").format(creator_name))
+
         builder.get_object("_second_subtitle_label").set_label(
             _("{} tracks ({})").format(
                 self.item.num_tracks, utils.pretty_duration(self.item.duration)
