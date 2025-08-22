@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-22 15:02+0200\n"
+"POT-Creation-Date: 2025-08-22 20:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -423,11 +423,11 @@ msgstr ""
 msgid "Mix"
 msgstr ""
 
-#: src/main.py:106
+#: src/main.py:107
 msgid "Donate with Ko-Fi"
 msgstr ""
 
-#: src/main.py:107
+#: src/main.py:108
 msgid "Donate with Github"
 msgstr ""
 
@@ -457,4 +457,8 @@ msgstr ""
 
 #: src/lib/utils.py:371
 msgid "Copied share URL in the clipboard"
+msgstr ""
+
+#: src/lib/player_object.py:268
+msgid "ALSA Audio Device is not available"
 msgstr ""

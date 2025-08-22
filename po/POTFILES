@@ -35,4 +35,5 @@ src/login.py
 src/main.py
 src/window.py
 src/lib/utils.py
+src/lib/player_object.py
 
