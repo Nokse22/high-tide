@@ -1,0 +1,17 @@
+{
+  "name": "alsa-utils",
+  "config-opts": [
+    "--with-udev-rules-dir=${FLATPAK_DEST}/lib/udev/rules.d"
+  ],
+  "sources": [
+    {
+      "type": "archive",
+      "url": "http://www.alsa-project.org/files/pub/utils/alsa-utils-1.2.14.tar.bz2",
+      "sha256": "0794c74d33fed943e7c50609c13089e409312b6c403d6ae8984fc429c0960741"
+    }
+  ],
+  "cleanup": ["*"],
+  "modules": [
+    "libasound.json"
+  ]
+}

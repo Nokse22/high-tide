@@ -55,7 +55,7 @@ class HighTideApplication(Adw.Application):
 
         self.preferences: Gtk.Window | None = None
 
-        self.alsa_devices = utils.get_alsa_devices_from_proc()
+        self.alsa_devices = utils.get_alsa_devices()
 
     def do_open(self, files: List[Gio.File], n_files: int, hint: str) -> None:
         self.win: HighTideWindow | None = self.props.active_window
