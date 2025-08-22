@@ -84,17 +84,22 @@ def init() -> None:
 def get_alsa_devices_from_proc() -> List[dict]:
     """Get ALSA devices from files in /proc/asound"""
     cards = {}
+    card_names = {}
     with open("/proc/asound/cards", "r") as f:
         for line in f:
             # Example String:  3 [KA13           ]: USB-Audio - FiiO KA13
-            match = re.match(r"^\s*(\d+)\s+\[[^\]]+\]\s*:\s*.+?\s-\s(.+)$", line)
+            match = re.match(r"^\s*(\d+)\s+\[([^\]]+)\]\s*:\s*.+?\s-\s(.+)$", line)
             if match:
-                cards[int(match.group(1))] = match.group(2).strip()
+                index = int(match.group(1))
+                shortname = match.group(2).strip()
+                fullname = match.group(3).strip()
+                cards[index] = fullname
+                card_names[index] = shortname
 
     devices = [
         {
             "hw_device": "default",
-            "name": "Default",
+            "name": _("Default"),
         }
     ]
     with open("/proc/asound/devices", "r") as f:
@@ -105,8 +110,11 @@ def get_alsa_devices_from_proc() -> List[dict]:
             )
             if match:
                 card, device = int(match.group(1)), int(match.group(2))
-                hw_string = f"hw:{card},{device}"
                 card_name = cards.get(card, f"Card {card}")
+                short_name = card_names.get(card, f"{card}")
+
+                # Persistent device string
+                hw_string = f"hw:CARD={short_name},DEV={device}"
 
                 devices.append({
                     "hw_device": hw_string,
