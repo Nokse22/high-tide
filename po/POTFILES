@@ -25,12 +25,10 @@ src/pages/album_page.py
 src/pages/artist_page.py
 src/pages/collection_page.py
 src/pages/explore_page.py
-src/pages/home_page.py
 src/pages/not_logged_in_page.py
 src/pages/page.py
 src/pages/playlist_page.py
 src/pages/search_page.py
-src/pages/track_radio_page.py
 src/widgets/card_widget.py
 src/widgets/top_hit_widget.py
 src/login.py
