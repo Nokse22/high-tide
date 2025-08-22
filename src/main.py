@@ -27,6 +27,7 @@ from .lib import utils
 
 from gettext import gettext as _
 
+from .lib.player_object import AudioSink
 
 class HighTideApplication(Adw.Application):
     """The main application singleton class.
@@ -166,7 +167,7 @@ class HighTideApplication(Adw.Application):
                 "notify::active", self.on_discord_rpc_changed
             )
 
-            alsa_row = builder.get_object("_alsa_device_row")
+            self.alsa_row = builder.get_object("_alsa_device_row")
 
             # Create a new label factory to just set max_width
             # Idk how to add the tickmark back
@@ -185,11 +186,11 @@ class HighTideApplication(Adw.Application):
             factory.connect("setup", setup)
             factory.connect("bind", bind)
 
-            alsa_row.set_factory(factory)
+            self.alsa_row.set_factory(factory)
 
             
             names = Gtk.StringList.new([d["name"] for d in self.alsa_devices])
-            alsa_row.set_model(names)
+            self.alsa_row.set_model(names)
 
             last_used_device = self.settings.get_string("alsa-device")
             
@@ -197,12 +198,21 @@ class HighTideApplication(Adw.Application):
                 (i for i, d in enumerate(self.alsa_devices) if d["hw_device"] == last_used_device),
                 0
             )
-            alsa_row.set_selected(selected_index)
+            self.alsa_row.set_selected(selected_index)
             builder.get_object("_alsa_device_row").set_selected(
                 selected_index
             )
-            builder.get_object("_alsa_device_row").connect(
+            self.alsa_row.connect(
                 "notify::selected", self.on_alsa_device_changed
+            )
+
+            alsa_used = AudioSink.ALSA == self.settings.get_int("preferred-sink")
+            self.alsa_row.set_sensitive(alsa_used)
+            if not alsa_used:
+                self.alsa_row.set_selected(0)
+
+            builder.get_object("_sink_row").connect(
+                "notify::selected-item", self.deactive_alsa_device_row
             )
 
             self.preferences = builder.get_object("_preference_window")
@@ -231,6 +241,12 @@ class HighTideApplication(Adw.Application):
 
     def on_discord_rpc_changed(self, widget: Any, *args) -> None:
         self.win.change_discord_rpc_enabled(widget.get_active())
+
+    def deactive_alsa_device_row(self, widget: Any, *args) -> None:
+        alsa_used = widget.get_selected() == AudioSink.ALSA
+        self.alsa_row.set_sensitive(alsa_used)
+        if not alsa_used:
+            self.alsa_row.set_selected(0)
 
     def create_action(
         self, name: str, callback: Callable, shortcuts: List[str] | None = None
