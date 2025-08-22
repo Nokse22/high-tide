@@ -1,9 +1,5 @@
 {
   "name": "alsa-lib",
-  "build-commands": [
-    "make",
-    "make install DESTDIR=${FLATPAK_DEST}"
-  ],
   "sources": [
     {
       "type": "archive",
