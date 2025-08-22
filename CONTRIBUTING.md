@@ -20,7 +20,7 @@ Contributions should be licensed under the **GPL-3**.
 
 Translations are managed through the `gettext` library. The files that are used for translation are located in `/po`.
 
-There exists tools, such as [PoEdit](https://poedit.net/) that allow you to update translation strings in a more intuitive way.
+Translation tools such as [PoEdit](https://poedit.net/) exist, that allow you to update translation strings in a more intuitive way.
 
 ### Updating the .pot file
 <!-- TODO: Make a github action that does this automatically -->
