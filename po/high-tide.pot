@@ -122,6 +122,10 @@ msgstr ""
 msgid "Preferred Audio Sink"
 msgstr ""
 
+#: data/ui/preferences.blp:33
+msgid "Gapless playback is disabled for the native Pipewire Sink due to a bug. Use 'Automatic' for gapless playback."
+msgstr ""
+
 #: data/ui/preferences.blp:34
 msgid "Normalize volume"
 msgstr ""
