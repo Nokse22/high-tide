@@ -29,6 +29,7 @@
         "gstreamer.json",
         "libportal.json",
         "blueprint-compiler.json",
+        "alsa-utils.json",
         "python3-pypresence.json",
         "python3-tidalapi.json",
         {
