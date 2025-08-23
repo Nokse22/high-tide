@@ -108,7 +108,7 @@ class SecretStore:
             "expiry-time": str(expiry_time),
         }
 
-        json_data: str = json.dumps(self.token_dictionary, indent=2)
+        json_data: str = json.dumps(self.token_dictionary)
 
         Secret.password_store_sync(
             self.schema, {}, Secret.COLLECTION_DEFAULT, self.key, json_data, None
