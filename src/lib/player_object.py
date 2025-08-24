@@ -36,6 +36,8 @@ from gi.repository import Gst, GLib
 from . import utils
 from . import discord_rpc
 
+from gettext import gettext as _
+
 logger = logging.getLogger(__name__)
 
 
@@ -74,6 +76,7 @@ class PlayerObject(GObject.GObject):
     def __init__(
         self,
         preferred_sink: AudioSink = AudioSink.AUTO,
+        alsa_device: str = "default",
         normalize: bool = False,
         quadratic_volume: bool = False,
     ) -> None:
@@ -108,6 +111,8 @@ class PlayerObject(GObject.GObject):
 
         self.discord_rpc_enabled = True
 
+        
+        self.alsa_device: str = alsa_device
         # Configure audio sink
         self._setup_audio_sink(preferred_sink)
 
@@ -181,7 +186,7 @@ class PlayerObject(GObject.GObject):
         sink_map = {
             AudioSink.AUTO: "autoaudiosink",
             AudioSink.PULSE: "pulsesink",
-            AudioSink.ALSA: "alsasink",
+            AudioSink.ALSA: f"alsasink device={self.alsa_device}",
             AudioSink.JACK: "jackaudiosink",
             AudioSink.OSS: "osssink",
             AudioSink.PIPEWIRE: "pipewiresink",
@@ -254,6 +259,16 @@ class PlayerObject(GObject.GObject):
         print(f"Error: {err.message}")
         print(f"Debug info: {debug}")
 
+        # Use string compare instead of error codes (Seems be just generic error)
+        if "Internal data stream error" in err.message and "not-linked" in debug:
+            logger.error("Stream error: Element not linked. Attempting to restart pipeline...")
+            self.play_track(self.playing_track)
+
+        elif "Error outputting to audio device" in err.message and "disconnected" in err.message:
+            utils.send_toast(_("ALSA Audio Device is not available"), 5)
+            self.pause()
+            self.pipeline.set_state(Gst.State.NULL)
+    
     def _on_buffering_message(self, bus: Any, message: Any) -> None:
         buffer_per: int = message.parse_buffering()
         mode, avg_in, avg_out, buff_left = message.parse_buffering_stats()

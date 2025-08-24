@@ -26,7 +26,7 @@
       <default>0</default>
     </key>
 	  <key name="preferred-sink" type="i">
-	    <range min="0" max="5"/>
+	    <range min="0" max="6"/>
       <default>0</default>
     </key>
 	  <key name="run-background" type="b">
@@ -46,6 +46,9 @@
     </key>
 	  <key name="discord-rpc" type="b">
       <default>true</default>
+    </key>
+	  <key name="alsa-device" type="s">
+      <default>'default'</default>
     </key>
 	</schema>
 </schemalist>

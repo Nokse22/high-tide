@@ -42,6 +42,7 @@ import requests
 import uuid
 import re
 import html
+import subprocess
 
 from gettext import gettext as _
 
@@ -79,6 +80,89 @@ def init() -> None:
     global cache
     session = None
     cache = HTCache(session)
+
+def get_alsa_devices() -> List[dict]:
+    """Get ALSA devices"""
+    try:
+        alsa_devices = get_alsa_devices_from_aplay()
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+        alsa_devices = get_alsa_devices_from_proc()
+    return alsa_devices
+        
+def get_alsa_devices_from_aplay() -> List[dict]:
+    """Get ALSA devices from aplay -l"""
+    result = subprocess.run(['aplay', '-l'], capture_output=True, text=True)
+
+    devices = [
+        {
+            "hw_device": "default",
+            "name": _("Default"),
+        }
+    ]
+    for line in result.stdout.split('\n'):
+        # Example String: card 3: KA13 [FiiO KA13], device 0: USB Audio [USB Audio]
+        match = re.match(
+            r"^card\s+\d+:\s+([^[]+)\s+\[([^\]]+)\],\s+device\s+(\d+):\s+([^[]+)\s+\[([^\]]+)\]", 
+            line
+        )
+        if match:
+            card_short_name = match.group(1).strip()    # "KA13"
+            card_full_name = match.group(2).strip()     # "FiiO KA13"
+            device = int(match.group(3))                # 0
+            device_short_name = match.group(4).strip()  # "USB Audio"
+            device_full_name = match.group(5).strip()   # "USB Audio"
+        
+            # Persistent device string
+            hw_string = f"hw:CARD={card_short_name},DEV={device}"
+            devices.append({
+                "hw_device": hw_string,
+                "name": f"{card_full_name} - {device_full_name} ({hw_string})",
+            })
+    
+    return devices
+
+
+def get_alsa_devices_from_proc() -> List[dict]:
+    """Get ALSA devices from files in /proc/asound"""
+    cards = {}
+    card_names = {}
+    with open("/proc/asound/cards", "r") as f:
+        for line in f:
+            # Example String:  3 [KA13           ]: USB-Audio - FiiO KA13
+            match = re.match(r"^\s*(\d+)\s+\[([^\]]+)\]\s*:\s*.+?\s-\s(.+)$", line)
+            if match:
+                index = int(match.group(1))
+                shortname = match.group(2).strip()
+                fullname = match.group(3).strip()
+                cards[index] = fullname
+                card_names[index] = shortname
+
+    devices = [
+        {
+            "hw_device": "default",
+            "name": _("Default"),
+        }
+    ]
+    with open("/proc/asound/devices", "r") as f:
+        for line in f:
+            # Example String:  19: [ 3- 0]: digital audio playback
+            match = re.match(
+                r"^\s*\d+:\s+\[\s*(\d+)-\s*(\d+)\]:\s*digital audio playback", line
+            )
+            if match:
+                card, device = int(match.group(1)), int(match.group(2))
+                card_name = cards.get(card, f"Card {card}")
+                short_name = card_names.get(card, f"{card}")
+
+                # Persistent device string
+                hw_string = f"hw:CARD={short_name},DEV={device}"
+
+                devices.append({
+                    "hw_device": hw_string,
+                    "name": f"{card_name} ({hw_string})",
+                })
+
+    return devices
 
 
 def get_artist(artist_id: str) -> Artist:
