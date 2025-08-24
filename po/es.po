@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-22 13:35+0200\n"
-"PO-Revision-Date: 2025-08-24 09:29+0200\n"
+"POT-Creation-Date: 2025-08-22 20:42+0200\n"
+"PO-Revision-Date: 2025-08-24 18:00+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -78,8 +78,8 @@ msgid ""
 "Go to this website and login with your account, if it asks for a code insert "
 "the code provided below."
 msgstr ""
-"Navegar a éste sitio e iniciar sesión con tu cuenta, si solicita un código, "
-"ingresar el código mencionado abajo."
+"Debe navegar a éste sitio e iniciar sesión con tu cuenta, si solicita un "
+"código, ingresar el código mencionado abajo."
 
 #: data/ui/new_playlist.blp:29
 msgid "Playlist Name"
@@ -135,26 +135,34 @@ msgstr ""
 "sin interrupciones."
 
 #: data/ui/preferences.blp:36
+msgid "ALSA Device"
+msgstr "Dispositivo ALSA"
+
+#: data/ui/preferences.blp:37
+msgid "Device used for exclusive ALSA access"
+msgstr "Dispositivo usado exclusivamente para uso de ALSA"
+
+#: data/ui/preferences.blp:40
 msgid "Normalize volume"
 msgstr "Normalizar el volumen"
 
-#: data/ui/preferences.blp:41
+#: data/ui/preferences.blp:45
 msgid "App"
 msgstr "App"
 
-#: data/ui/preferences.blp:43
+#: data/ui/preferences.blp:47
 msgid "Run in the background"
 msgstr "Ejecutar en segundo plano"
 
-#: data/ui/preferences.blp:46
+#: data/ui/preferences.blp:50
 msgid "Use quadratic volume control"
 msgstr "Usar control de volumen cuadrático"
 
-#: data/ui/preferences.blp:49
+#: data/ui/preferences.blp:53
 msgid "Display animated covers"
 msgstr "Mostrar portadas animadas"
 
-#: data/ui/preferences.blp:52
+#: data/ui/preferences.blp:56
 msgid "Enable Discord Rich Presence"
 msgstr "Habilitar la actualización de presencia en Discord Rich"
 
@@ -225,7 +233,7 @@ msgstr "Copiar la liga para compartir"
 
 #: data/ui/window.blp:614
 msgid "Toggle Shuffle"
-msgstr "Copiar la URL para compartir"
+msgstr "Alternar modo aleatorio"
 
 #: data/ui/window.blp:627
 msgid "Skip Backward"
@@ -250,7 +258,7 @@ msgstr "Radio"
 #: data/ui/pages_ui/artist_page_template.blp:196
 #: data/ui/pages_ui/tracks_list_template.blp:205
 msgid "Copy Share URL"
-msgstr "Display animated covers"
+msgstr "Copiar la url para compartir"
 
 #: data/ui/pages_ui/page_template.blp:10
 msgid "Main Menu"
@@ -278,7 +286,7 @@ msgstr "_Salir"
 
 #: data/ui/widgets/generic_track_widget.blp:175
 msgid "Copy share url"
-msgstr "Copiar la liga para compartir"
+msgstr "Copiar la url para compartir"
 
 #: data/ui/widgets/generic_track_widget.blp:179
 msgid "Add to a playlist"
@@ -351,12 +359,12 @@ msgstr ""
 msgid "Unknown"
 msgstr "Desconocido"
 
-#: src/pages/album_page.py:64 src/pages/playlist_page.py:79
+#: src/pages/album_page.py:64 src/pages/playlist_page.py:78
 msgid "{} tracks ({})"
 msgstr "{} canciones ({})"
 
-#: src/pages/artist_page.py:91 src/widgets/card_widget.py:150
-#: src/widgets/top_hit_widget.py:181
+#: src/pages/artist_page.py:91 src/widgets/card_widget.py:151
+#: src/widgets/top_hit_widget.py:179
 msgid "Artist"
 msgstr "Artista"
 
@@ -415,7 +423,7 @@ msgstr ""
 "Debes iniciar sesión con tu cuenta TIDAL para poder utilizar esta "
 "aplicaición."
 
-#: src/pages/playlist_page.py:76
+#: src/pages/playlist_page.py:75
 msgid "by {}"
 msgstr "por {}"
 
@@ -423,7 +431,7 @@ msgstr "por {}"
 msgid "Track by {}"
 msgstr "Canción por {}"
 
-#: src/widgets/card_widget.py:141
+#: src/widgets/card_widget.py:143 src/widgets/top_hit_widget.py:159
 msgid "By {}"
 msgstr "Por {}"
 
@@ -435,14 +443,42 @@ msgstr "Canción"
 msgid "Mix"
 msgstr "Mezcla"
 
-#: src/main.py:103
+#: src/main.py:107
 msgid "Donate with Ko-Fi"
 msgstr "Donar con Ko-Fi"
 
-#: src/main.py:104
+#: src/main.py:108
 msgid "Donate with Github"
 msgstr "Donar con Github"
 
-#: src/window.py:230
+#: src/window.py:231
 msgid "Playing Music"
 msgstr "Reproduciendo música"
+
+#: src/lib/utils.py:102
+msgid "Default"
+msgstr "Por defecto"
+
+#: src/lib/utils.py:300
+msgid "Successfully added to my collection"
+msgstr "Agregado correctamente a mi colección"
+
+#: src/lib/utils.py:303
+msgid "Failed to add item to my collection"
+msgstr "No se pudo agregar el elemento a mi colección"
+
+#: src/lib/utils.py:329
+msgid "Successfully removed from my collection"
+msgstr "Eliminado correctamente de mi colección"
+
+#: src/lib/utils.py:331
+msgid "Failed to remove item from my collection"
+msgstr "No se pudo eliminar el elemento a mi colección"
+
+#: src/lib/utils.py:371
+msgid "Copied share URL in the clipboard"
+msgstr "Copiar la url para compartir al portapapeles"
+
+#: src/lib/player_object.py:268
+msgid "ALSA Audio Device is not available"
+msgstr "No esta disponible el dispositivo ALSA"
