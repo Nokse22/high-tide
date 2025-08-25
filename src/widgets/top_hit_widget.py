@@ -17,19 +17,14 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk, GLib
-
-from tidalapi.mix import Mix
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
-
-from ..lib import utils
-from ..disconnectable_iface import IDisconnectable
 import threading
-
 from gettext import gettext as _
+
+from gi.repository import GLib, Gtk
+from tidalapi import Album, Artist, Mix, Playlist, Track
+
+from ..disconnectable_iface import IDisconnectable
+from ..lib import utils
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/top_hit_widget.ui")

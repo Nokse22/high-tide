@@ -12,9 +12,10 @@
 # Copyright (c) 2023 Nokse22
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gio, GLib, Gdk
-
 from random import randint
+
+from gi.repository import Gdk, Gio, GLib
+
 from .lib import utils
 
 

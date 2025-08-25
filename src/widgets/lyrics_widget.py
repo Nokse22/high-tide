@@ -17,11 +17,11 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk, GObject, Gio, Adw
+import re
+
+from gi.repository import Adw, Gio, GObject, Gtk
 
 from ..disconnectable_iface import IDisconnectable
-
-import re
 
 
 class HTLine(GObject.Object):

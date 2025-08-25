@@ -17,18 +17,15 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
-
-from tidalapi.page import TextBlock, PageLinks, ItemList
-from tidalapi.media import Track
-
-from tidalapi.page import TrackList, ShortcutList
-from tidalapi.page import HorizontalListWithContext, HorizontalList
-
-from .page import Page
-from ..widgets import HTShorcutsWidget
-
 from gettext import gettext as _
+
+from gi.repository import Gtk
+from tidalapi import Track
+from tidalapi.page import (HorizontalList, HorizontalListWithContext, ItemList,
+                           PageLinks, ShortcutList, TextBlock, TrackList)
+
+from ..widgets import HTShorcutsWidget
+from .page import Page
 
 
 class HTGenericPage(Page):

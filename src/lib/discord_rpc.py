@@ -1,8 +1,9 @@
 import logging
-from tidalapi.media import Track
+import threading
 import time
 from enum import Enum
-import threading
+
+from tidalapi import Track
 
 logger = logging.getLogger(__name__)
 

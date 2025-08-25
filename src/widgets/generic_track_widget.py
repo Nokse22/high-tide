@@ -18,16 +18,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-from gi.repository import Gtk, GObject
-from gi.repository import Gio, GLib
-from ..lib import utils
-from ..disconnectable_iface import IDisconnectable
+import threading
+from gettext import gettext as _
 
+from gi.repository import Gio, GLib, GObject, Gtk
 from tidalapi import UserPlaylist
 
-import threading
-
-from gettext import gettext as _
+from ..disconnectable_iface import IDisconnectable
+from ..lib import utils
 
 
 @Gtk.Template(

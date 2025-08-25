@@ -17,24 +17,16 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
-from gi.repository import Gtk, GLib
-
 import threading
+from gettext import gettext as _
 from typing import Union
 
-from ..lib import utils
-
-from tidalapi.mix import MixV2, Mix
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
+from gi.repository import Adw, GLib, Gtk
+from tidalapi import Album, Artist, Mix, MixV2, Playlist, Track
 from tidalapi.page import PageItem
 
 from ..disconnectable_iface import IDisconnectable
-
-from gettext import gettext as _
+from ..lib import utils
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/card_widget.ui")

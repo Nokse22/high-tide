@@ -17,11 +17,11 @@
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
-from gi.repository import Secret, Xdp
-from typing import Dict, Any, Tuple
-
 import json
+from typing import Any, Dict, Tuple
+
 import tidalapi
+from gi.repository import Secret, Xdp
 
 
 class SecretStore:

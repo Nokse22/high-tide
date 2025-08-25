@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-from typing import List, Tuple, Any
+from typing import Any, List, Tuple
 
 
 class IDisconnectable:

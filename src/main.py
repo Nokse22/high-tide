@@ -18,16 +18,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import sys
-from typing import List, Any, Callable
+from gettext import gettext as _
+from typing import Any, Callable, List
 
-from gi.repository import Gtk, Gio, Adw
-from .window import HighTideWindow
+from gi.repository import Adw, Gio, Gtk
 
 from .lib import utils
-
-from gettext import gettext as _
-
 from .lib.player_object import AudioSink
+from .window import HighTideWindow
 
 
 class HighTideApplication(Adw.Application):

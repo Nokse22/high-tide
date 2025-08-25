@@ -17,14 +17,10 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
-from gi.repository import Gtk
-from gi.repository import GLib
-from gi.repository import Gdk
-
 from typing import Any
 
 import tidalapi
+from gi.repository import Adw, Gdk, GLib, Gtk
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/login.ui")

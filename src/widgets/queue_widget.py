@@ -19,7 +19,7 @@
 
 from gi.repository import Gtk
 
-from ..widgets import HTGenericTrackWidget
+from ..widgets.generic_track_widget import HTGenericTrackWidget
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/queue_widget.ui")

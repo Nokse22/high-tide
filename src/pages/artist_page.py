@@ -17,19 +17,16 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk, GLib
-
-from .page import Page
-from ..lib import utils
-
+import logging
+import threading
+from gettext import gettext as _
 from typing import List
 
-from tidalapi import Track, Album, Artist
+from gi.repository import GLib, Gtk
+from tidalapi import Album, Artist, Track
 
-import threading
-import logging
-
-from gettext import gettext as _
+from ..lib import utils
+from .page import Page
 
 logger = logging.getLogger(__name__)
 

@@ -17,36 +17,22 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from typing import List, Any
-from gi.repository import Gdk, Adw
-from gi.repository import GLib
-from gi.repository import Gio
-
-import os
-
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
-from tidalapi.mix import Mix
-
-from ..pages import HTArtistPage
-from ..pages import HTAlbumPage
-from ..pages import HTMixPage
-from ..pages import HTPlaylistPage
-
-from .cache import HTCache
-
-import threading
-import requests
-import uuid
-import re
 import html
+import os
+import re
 import subprocess
-
+import threading
+import uuid
 from gettext import gettext as _
-
 from pathlib import Path
+from typing import Any, List
+
+import requests
+from gi.repository import Adw, Gdk, Gio, GLib
+from tidalapi import Album, Artist, Mix, Playlist, Track
+
+from ..pages import HTAlbumPage, HTArtistPage, HTMixPage, HTPlaylistPage
+from .cache import HTCache
 
 favourite_mixes: List[Mix] = []
 favourite_tracks: List[Track] = []

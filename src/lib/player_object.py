@@ -17,26 +17,19 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import logging
 import random
 import threading
-import logging
 from enum import IntEnum
-from pathlib import Path
-from typing import List, Union, Any
-
-from tidalapi.mix import Mix
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.playlist import Playlist
-from tidalapi.media import ManifestMimeType, Track
-
-from gi.repository import GObject
-from gi.repository import Gst, GLib
-
-from . import utils
-from . import discord_rpc
-
 from gettext import gettext as _
+from pathlib import Path
+from typing import Any, List, Union
+
+from gi.repository import GLib, GObject, Gst
+from tidalapi import Album, Artist, Mix, Playlist, Track
+from tidalapi.media import ManifestMimeType
+
+from . import discord_rpc, utils
 
 logger = logging.getLogger(__name__)
 

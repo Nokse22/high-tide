@@ -18,40 +18,23 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import threading
-import tidalapi
-
+from gettext import gettext as _
 from typing import Callable
 
-from gi.repository import Adw
-from gi.repository import Gtk
-from gi.repository import Gio
-from gi.repository import Gst, GLib
-from gi.repository import Xdp, GObject
+import tidalapi
+from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Xdp
+from tidalapi import Quality
 
-from .mpris import MPRIS
-
-from tidalapi.media import Quality
-
-from .lib import PlayerObject, RepeatType, SecretStore, utils, HTCache
-
+from .lib import HTCache, PlayerObject, RepeatType, SecretStore, utils
 from .login import LoginDialog
+from .mpris import MPRIS
+from .pages import (HTAlbumPage, HTArtistPage, HTCollectionPage, HTExplorePage,
+                    HTGenericPage, HTMixPage, HTNotLoggedInPage,
+                    HTPlaylistPage)
+from .widgets import (HTGenericTrackWidget, HTLinkLabelWidget, HTLyricsWidget,
+                      HTQueueWidget)
+
 # from .new_playlist import NewPlaylistWindow
-
-from .pages import HTGenericPage
-from .pages import HTExplorePage
-from .pages import HTNotLoggedInPage
-from .pages import HTCollectionPage
-from .pages import HTArtistPage
-from .pages import HTMixPage
-from .pages import HTPlaylistPage
-from .pages import HTAlbumPage
-
-from .widgets import HTGenericTrackWidget
-from .widgets import HTLinkLabelWidget
-from .widgets import HTQueueWidget
-from .widgets import HTLyricsWidget
-
-from gettext import gettext as _
 
 GObject.type_register(HTGenericTrackWidget)
 GObject.type_register(HTLinkLabelWidget)
