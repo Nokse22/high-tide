@@ -25,7 +25,7 @@ import re
 
 
 class HTLine(GObject.Object):
-    def __init__(self, text="", time=0):
+    def __init__(self, text="", time=None):
         super().__init__()
         self.text = text
         self.time = time
@@ -69,10 +69,12 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
 
     __gtype_name__ = "HTLyricsWidget"
 
+    __gsignals__ = {"seek": (GObject.SignalFlags.RUN_FIRST, None, (int,))}
+
     list_view = Gtk.Template.Child()
     stack = Gtk.Template.Child()
 
-    __gsignals__ = {"seek": (GObject.SignalFlags.RUN_FIRST, None, (int,))}
+    has_timestamps = False
 
     def __init__(self, _item=None):
         IDisconnectable.__init__(self)
@@ -80,53 +82,73 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
 
         self.list_store = Gio.ListStore.new(HTLine)
         self.factory = LineItemFactory()
-        self.selection_model = Gtk.SingleSelection.new(self.list_store)
+        self.selection_model = None
+        self.handler_id = None
 
         self.list_view.set_factory(self.factory)
-        self.list_view.set_model(self.selection_model)
 
         self.adjustment = self.list_view.get_vadjustment()
 
         self.prev_index = 0
         self.prev_value = 0
 
-        self.handler_id = self.selection_model.connect(
-            "selection-changed", self._on_selection_changed
-        )
-
     def set_lyrics(self, lyrics_text: str):
-        """Set the lyrics
+        """Set the lyrics.
 
         Args:
-            lyrics_text (str): the lyrics"""
+            lyrics_text (str): The lyrics (may or may not contain timestamps).
+        """
         self.stack.set_visible_child_name("lyrics_page")
         self.list_store.remove_all()
 
         lines = lyrics_text.splitlines()
-        for line in lines:
-            match = re.match(r"\[(\d+):(\d+\.\d+)\](.*)", line)
-            if match:
-                minutes = int(match.group(1))
-                seconds = float(match.group(2))
-                text = match.group(3).strip()
+        timestamp_pattern = re.compile(r"\[(\d+):(\d+\.\d+)\](.*)")
 
-                time_ms = int((minutes * 60 + seconds) * 1000)
+        self.has_timestamps = any(timestamp_pattern.match(line) for line in lines)
 
-                self.list_store.append(HTLine(text, time_ms))
-            else:
-                self.list_store.append(HTLine("", 0))
+        if self.has_timestamps:
+            self.selection_model = Gtk.SingleSelection.new(self.list_store)
+            self.handler_id = self.selection_model.connect(
+                "selection-changed", self._on_selection_changed
+            )
+            self.selection_model.set_selected(0)
+        else:
+            self.selection_model = Gtk.NoSelection.new(self.list_store)
+            self.handler_id = None
+
+        self.list_view.set_model(self.selection_model)
+
+        if self.has_timestamps:
+            for line in lines:
+                match = timestamp_pattern.match(line)
+                if match:
+                    minutes = int(match.group(1))
+                    seconds = float(match.group(2))
+                    text = match.group(3).strip()
+                    time_ms = int((minutes * 60 + seconds) * 1000)
+                    self.list_store.append(HTLine(text, time_ms))
+        else:
+            for line in lines:
+                text = line.strip()
+                if text:
+                    self.list_store.append(HTLine(text))
 
     def clear(self):
         """Clears the lyrics"""
         self.stack.set_visible_child_name("status_page")
         self.list_store.remove_all()
 
+        # Reset selection model
+        self.selection_model = None
+        self.handler_id = None
+        self.has_timestamps = False
+
     def set_time(self, time_seconds: float):
         """Updates the time of the widget to highlight the correct line
 
         Args:
             time_seconds (float): the time"""
-        if self.list_store.get_n_items() == 0:
+        if self.list_store.get_n_items() == 0 or not self.has_timestamps:
             return
 
         time_ms = time_seconds * 1000
@@ -156,9 +178,10 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
 
             self._scroll_to(target_position)
 
-        self.selection_model.handler_block(self.handler_id)
-        self.selection_model.select_item(new_index, True)
-        self.selection_model.handler_unblock(self.handler_id)
+        if self.has_timestamps and self.handler_id:
+            self.selection_model.handler_block(self.handler_id)
+            self.selection_model.select_item(new_index, True)
+            self.selection_model.handler_unblock(self.handler_id)
 
     def _scroll_to(self, value):
         target = Adw.PropertyAnimationTarget.new(self.adjustment, "value")
@@ -170,6 +193,9 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
         self.prev_value = value
 
     def _on_selection_changed(self, selection_model, position, n_items):
+        if not self.has_timestamps:
+            return
+
         selected_index = selection_model.get_selected()
         if selected_index < self.list_store.get_n_items():
             selected_line = self.list_store.get_item(selected_index)
