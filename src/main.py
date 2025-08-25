@@ -90,7 +90,7 @@ class HighTideApplication(Adw.Application):
             application_name="High Tide",
             application_icon="io.github.nokse22.high-tide",
             developer_name="The High Tide Contributors",
-            version="1.0.0",
+            version="1.1.0",
             developers=[
                 "Nokse https://github.com/Nokse22",
                 "Nila The Dragon https://github.com/nilathedragon",
