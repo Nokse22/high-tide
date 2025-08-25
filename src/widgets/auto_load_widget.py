@@ -17,17 +17,14 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
-from gi.repository import GLib, GObject
-
 import threading
 
-from . import HTCardWidget
-from . import HTGenericTrackWidget
-
-from ..lib import utils
+from gi.repository import GLib, GObject, Gtk
 
 from ..disconnectable_iface import IDisconnectable
+from ..lib import utils
+from .card_widget import HTCardWidget
+from .generic_track_widget import HTGenericTrackWidget
 
 
 @Gtk.Template(

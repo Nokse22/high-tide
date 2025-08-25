@@ -17,12 +17,11 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
-
-from tidalapi import Artist, Album
+import html
 from typing import List
 
-import html
+from gi.repository import Gtk
+from tidalapi import Album, Artist
 
 
 class HTLinkLabelWidget(Gtk.Label):

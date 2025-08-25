@@ -17,19 +17,15 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk, GLib
-
-from tidalapi.mix import Mix, MixV2
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.playlist import Playlist
+import threading
+from gettext import gettext as _
 from typing import List, Union
 
-from ..lib import utils
-from ..disconnectable_iface import IDisconnectable
-import threading
+from gi.repository import GLib, Gtk
+from tidalapi import Album, Artist, Mix, MixV2, Playlist
 
-from gettext import gettext as _
+from ..disconnectable_iface import IDisconnectable
+from ..lib import utils
 
 
 @Gtk.Template(

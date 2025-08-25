@@ -17,36 +17,22 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from typing import List, Any
-from gi.repository import Gdk, Adw
-from gi.repository import GLib
-from gi.repository import Gio
-
-import os
-
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
-from tidalapi.mix import Mix
-
-from ..pages import HTArtistPage
-from ..pages import HTAlbumPage
-from ..pages import HTMixPage
-from ..pages import HTPlaylistPage
-
-from .cache import HTCache
-
-import threading
-import requests
-import uuid
-import re
 import html
+import os
+import re
 import subprocess
-
+import threading
+import uuid
 from gettext import gettext as _
-
 from pathlib import Path
+from typing import Any, List
+
+import requests
+from gi.repository import Adw, Gdk, Gio, GLib
+from tidalapi import Album, Artist, Mix, Playlist, Track
+
+from ..pages import HTAlbumPage, HTArtistPage, HTMixPage, HTPlaylistPage
+from .cache import HTCache
 
 favourite_mixes: List[Mix] = []
 favourite_tracks: List[Track] = []
@@ -81,17 +67,23 @@ def init() -> None:
     session = None
     cache = HTCache(session)
 
+
 def get_alsa_devices() -> List[dict]:
     """Get ALSA devices"""
     try:
         alsa_devices = get_alsa_devices_from_aplay()
-    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+    except (
+        subprocess.CalledProcessError,
+        FileNotFoundError,
+        subprocess.TimeoutExpired,
+    ):
         alsa_devices = get_alsa_devices_from_proc()
     return alsa_devices
-        
+
+
 def get_alsa_devices_from_aplay() -> List[dict]:
     """Get ALSA devices from aplay -l"""
-    result = subprocess.run(['aplay', '-l'], capture_output=True, text=True)
+    result = subprocess.run(["aplay", "-l"], capture_output=True, text=True)
 
     devices = [
         {
@@ -99,26 +91,26 @@ def get_alsa_devices_from_aplay() -> List[dict]:
             "name": _("Default"),
         }
     ]
-    for line in result.stdout.split('\n'):
+    for line in result.stdout.split("\n"):
         # Example String: card 3: KA13 [FiiO KA13], device 0: USB Audio [USB Audio]
         match = re.match(
-            r"^card\s+\d+:\s+([^[]+)\s+\[([^\]]+)\],\s+device\s+(\d+):\s+([^[]+)\s+\[([^\]]+)\]", 
-            line
+            r"^card\s+\d+:\s+([^[]+)\s+\[([^\]]+)\],\s+device\s+(\d+):\s+([^[]+)\s+\[([^\]]+)\]",
+            line,
         )
         if match:
-            card_short_name = match.group(1).strip()    # "KA13"
-            card_full_name = match.group(2).strip()     # "FiiO KA13"
-            device = int(match.group(3))                # 0
+            card_short_name = match.group(1).strip()  # "KA13"
+            card_full_name = match.group(2).strip()  # "FiiO KA13"
+            device = int(match.group(3))  # 0
             device_short_name = match.group(4).strip()  # "USB Audio"
-            device_full_name = match.group(5).strip()   # "USB Audio"
-        
+            device_full_name = match.group(5).strip()  # "USB Audio"
+
             # Persistent device string
             hw_string = f"hw:CARD={card_short_name},DEV={device}"
             devices.append({
                 "hw_device": hw_string,
                 "name": f"{card_full_name} - {device_full_name} ({hw_string})",
             })
-    
+
     return devices
 
 

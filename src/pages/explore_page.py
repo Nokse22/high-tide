@@ -17,14 +17,13 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from gettext import gettext as _
+
 from gi.repository import Gtk
 
-from . import HTGenericPage
-from .search_page import HTSearchPage
-
 from ..lib import utils
-
-from gettext import gettext as _
+from .generic_page import HTGenericPage
+from .search_page import HTSearchPage
 
 
 class HTExplorePage(HTGenericPage):

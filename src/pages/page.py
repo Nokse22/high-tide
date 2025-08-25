@@ -17,23 +17,16 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
-from gi.repository import Gtk
-from gi.repository import GLib
-
 import threading
+from gettext import gettext as _
+
+from gi.repository import Adw, GLib, Gtk
 from tidalapi import Video
 
-from ..widgets import HTCarouselWidget
-from ..widgets import HTCardWidget
-from ..widgets import HTTracksListWidget
-from ..widgets import HTAutoLoadWidget
-
-from ..lib import utils
-
 from ..disconnectable_iface import IDisconnectable
-
-from gettext import gettext as _
+from ..lib import utils
+from ..widgets import (HTAutoLoadWidget, HTCardWidget, HTCarouselWidget,
+                       HTTracksListWidget)
 
 
 class Page(Adw.NavigationPage, IDisconnectable):

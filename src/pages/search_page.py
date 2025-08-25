@@ -17,19 +17,14 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
+from gettext import gettext as _
 
-from ..widgets.top_hit_widget import HTTopHitWidget
-
-from .page import Page
-
-from ..lib import utils
+from tidalapi import Album, Artist, Playlist, Track
 
 from ..disconnectable_iface import IDisconnectable
-from gettext import gettext as _
+from ..lib import utils
+from ..widgets import HTTopHitWidget
+from .page import Page
 
 
 class HTSearchPage(Page):

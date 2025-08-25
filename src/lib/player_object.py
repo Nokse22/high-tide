@@ -17,26 +17,19 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import logging
 import random
 import threading
-import logging
 from enum import IntEnum
-from pathlib import Path
-from typing import List, Union, Any
-
-from tidalapi.mix import Mix
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.playlist import Playlist
-from tidalapi.media import ManifestMimeType, Track
-
-from gi.repository import GObject
-from gi.repository import Gst, GLib
-
-from . import utils
-from . import discord_rpc
-
 from gettext import gettext as _
+from pathlib import Path
+from typing import Any, List, Union
+
+from gi.repository import GLib, GObject, Gst
+from tidalapi import Album, Artist, Mix, Playlist, Track
+from tidalapi.media import ManifestMimeType
+
+from . import discord_rpc, utils
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +104,6 @@ class PlayerObject(GObject.GObject):
 
         self.discord_rpc_enabled = True
 
-        
         self.alsa_device: str = alsa_device
         # Configure audio sink
         self._setup_audio_sink(preferred_sink)
@@ -261,14 +253,19 @@ class PlayerObject(GObject.GObject):
 
         # Use string compare instead of error codes (Seems be just generic error)
         if "Internal data stream error" in err.message and "not-linked" in debug:
-            logger.error("Stream error: Element not linked. Attempting to restart pipeline...")
+            logger.error(
+                "Stream error: Element not linked. Attempting to restart pipeline..."
+            )
             self.play_track(self.playing_track)
 
-        elif "Error outputting to audio device" in err.message and "disconnected" in err.message:
+        elif (
+            "Error outputting to audio device" in err.message
+            and "disconnected" in err.message
+        ):
             utils.send_toast(_("ALSA Audio Device is not available"), 5)
             self.pause()
             self.pipeline.set_state(Gst.State.NULL)
-    
+
     def _on_buffering_message(self, bus: Any, message: Any) -> None:
         buffer_per: int = message.parse_buffering()
         mode, avg_in, avg_out, buff_left = message.parse_buffering_stats()

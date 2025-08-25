@@ -18,9 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-from gi.repository import Adw
-from gi.repository import Gtk
-from gi.repository import GObject
+from gi.repository import Adw, GObject, Gtk
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/new_playlist.ui")
