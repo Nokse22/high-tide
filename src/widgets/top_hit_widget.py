@@ -151,12 +151,11 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
     def _make_playlist(self) -> None:
         self.primary_label.set_label(self.item.name)
-        self.secondary_label.set_visible(False)
 
         creator_name = "TIDAL"
         if self.item.creator is not None and self.item.creator.name is not None:
             creator_name = self.item.creator.name
-        self.detail_label.set_label(_("By {}").format(creator_name))
+        self.secondary_label.set_label(_("By {}").format(creator_name))
 
         self.signals.append((
             self.play_button,
