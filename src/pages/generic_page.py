@@ -71,7 +71,9 @@ class HTGenericPage(Page):
             self.set_title("")
 
         for index, category in enumerate(self.page.categories):
-            if isinstance(category.items[0], Track) or isinstance(category, TrackList):
+            if all(isinstance(item, Track) for item in category.items) or isinstance(
+                category, TrackList
+            ):
                 self.new_track_list_for(category.title, category.items)
             elif isinstance(category, TextBlock):
                 self.append(
