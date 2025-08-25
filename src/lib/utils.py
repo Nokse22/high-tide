@@ -81,17 +81,23 @@ def init() -> None:
     session = None
     cache = HTCache(session)
 
+
 def get_alsa_devices() -> List[dict]:
     """Get ALSA devices"""
     try:
         alsa_devices = get_alsa_devices_from_aplay()
-    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+    except (
+        subprocess.CalledProcessError,
+        FileNotFoundError,
+        subprocess.TimeoutExpired,
+    ):
         alsa_devices = get_alsa_devices_from_proc()
     return alsa_devices
-        
+
+
 def get_alsa_devices_from_aplay() -> List[dict]:
     """Get ALSA devices from aplay -l"""
-    result = subprocess.run(['aplay', '-l'], capture_output=True, text=True)
+    result = subprocess.run(["aplay", "-l"], capture_output=True, text=True)
 
     devices = [
         {
@@ -99,26 +105,26 @@ def get_alsa_devices_from_aplay() -> List[dict]:
             "name": _("Default"),
         }
     ]
-    for line in result.stdout.split('\n'):
+    for line in result.stdout.split("\n"):
         # Example String: card 3: KA13 [FiiO KA13], device 0: USB Audio [USB Audio]
         match = re.match(
-            r"^card\s+\d+:\s+([^[]+)\s+\[([^\]]+)\],\s+device\s+(\d+):\s+([^[]+)\s+\[([^\]]+)\]", 
-            line
+            r"^card\s+\d+:\s+([^[]+)\s+\[([^\]]+)\],\s+device\s+(\d+):\s+([^[]+)\s+\[([^\]]+)\]",
+            line,
         )
         if match:
-            card_short_name = match.group(1).strip()    # "KA13"
-            card_full_name = match.group(2).strip()     # "FiiO KA13"
-            device = int(match.group(3))                # 0
+            card_short_name = match.group(1).strip()  # "KA13"
+            card_full_name = match.group(2).strip()  # "FiiO KA13"
+            device = int(match.group(3))  # 0
             device_short_name = match.group(4).strip()  # "USB Audio"
-            device_full_name = match.group(5).strip()   # "USB Audio"
-        
+            device_full_name = match.group(5).strip()  # "USB Audio"
+
             # Persistent device string
             hw_string = f"hw:CARD={card_short_name},DEV={device}"
             devices.append({
                 "hw_device": hw_string,
                 "name": f"{card_full_name} - {device_full_name} ({hw_string})",
             })
-    
+
     return devices
 
 

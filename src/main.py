@@ -29,6 +29,7 @@ from gettext import gettext as _
 
 from .lib.player_object import AudioSink
 
+
 class HighTideApplication(Adw.Application):
     """The main application singleton class.
 
@@ -188,23 +189,22 @@ class HighTideApplication(Adw.Application):
 
             self.alsa_row.set_factory(factory)
 
-            
             names = Gtk.StringList.new([d["name"] for d in self.alsa_devices])
             self.alsa_row.set_model(names)
 
             last_used_device = self.settings.get_string("alsa-device")
-            
+
             selected_index = next(
-                (i for i, d in enumerate(self.alsa_devices) if d["hw_device"] == last_used_device),
-                0
+                (
+                    i
+                    for i, d in enumerate(self.alsa_devices)
+                    if d["hw_device"] == last_used_device
+                ),
+                0,
             )
             self.alsa_row.set_selected(selected_index)
-            builder.get_object("_alsa_device_row").set_selected(
-                selected_index
-            )
-            self.alsa_row.connect(
-                "notify::selected", self.on_alsa_device_changed
-            )
+            builder.get_object("_alsa_device_row").set_selected(selected_index)
+            self.alsa_row.connect("notify::selected", self.on_alsa_device_changed)
 
             alsa_used = AudioSink.ALSA == self.settings.get_int("preferred-sink")
             self.alsa_row.set_sensitive(alsa_used)

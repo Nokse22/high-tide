@@ -133,13 +133,13 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.create_action_with_target(
             "push-track-radio-page",
             GLib.VariantType.new("s"),
-            self.on_push_track_radio_page
+            self.on_push_track_radio_page,
         )
 
         self.create_action_with_target(
             "push-artist-radio-page",
             GLib.VariantType.new("s"),
-            self.on_push_artist_radio_page
+            self.on_push_artist_radio_page,
         )
 
         # self.create_action_with_target(
@@ -359,9 +359,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.set_quality_label()
 
         self.track_radio_button.set_action_target_value(
-            GLib.Variant("s", str(track.id)))
-        self.album_button.set_action_target_value(
-            GLib.Variant("s", str(album.id)))
+            GLib.Variant("s", str(track.id))
+        )
+        self.album_button.set_action_target_value(GLib.Variant("s", str(album.id)))
 
         if utils.is_favourited(track):
             self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
