@@ -6,14 +6,18 @@
 
   outputs = { self, nixpkgs, flake-utils }: flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs { inherit system; };
       native_build_inputs = with pkgs; [ meson ninja pkg-config blueprint-compiler desktop-file-utils ];
       build_inputs = with pkgs; [ glib-networking libadwaita libportal libsecret pipewire ] ++ (with pkgs.gst_all_1; [ gstreamer gst-plugins-base gst-plugins-good ]);
-      python_dependencies = with pkgs.python313Packages; [ pygobject3 tidalapi requests mpd2 pypresence ];
+      dependencies = with pkgs; [ alsa-utils ] ++ (with pkgs.python313Packages; [ pygobject3 tidalapi requests mpd2 pypresence ]);
     in {
       devShells.default = pkgs.mkShell {
         name = "high-tide-dev-shell";
-        packages = native_build_inputs ++ build_inputs ++ python_dependencies;
+        packages = with pkgs; [ ruff gettext basedpyright ]
+          ++ (with pkgs.python313Packages; [ python-lsp-server flake8 ])
+          ++ native_build_inputs
+          ++ build_inputs
+          ++ dependencies;
       };
 
       packages.high-tide = pkgs.python313Packages.buildPythonApplication {
@@ -23,7 +27,7 @@
         
         nativeBuildInputs = with pkgs; [ wrapGAppsHook4 ] ++ native_build_inputs;
         buildInputs = build_inputs;
-        dependencies = python_dependencies;
+        dependencies = dependencies;
 
         dontWrapGApps = true;
         makeWrapperArgs = [ "\${gappsWrapperArgs[@]}" ];
