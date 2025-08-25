@@ -73,6 +73,14 @@
   </screenshots>
 
   <releases>
+    <release version="1.1.0" date="2025-08-25">
+      <description translate="no">
+        <p>ALSA device setting for exclusive hardware access</p>
+        <p>Spanish translation</p>
+        <p>Translation fixes</p>
+        <p>Bug fixes</p>
+      </description>
+    </release>
     <release version="1.0.0" date="2025-08-20">
       <description translate="no">
         <p>Improve app responsiveness</p>
