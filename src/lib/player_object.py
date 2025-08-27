@@ -348,15 +348,19 @@ class PlayerObject(GObject.GObject):
             return
 
         track: Track = self._tracks_to_play.pop(0)
-        self.tracks_to_play = self._tracks_to_play
-        self.played_songs = []
 
-        if self.shuffle:
-            self._update_shuffle_queue()
+        if not track.available:
+            self.play_this(thing, index+1)
+        else:
+            self.tracks_to_play = self._tracks_to_play
+            self.played_songs = []
 
-        # Will result in play() call later
-        self.playing = True
-        self.play_track(track)
+            if self.shuffle:
+                self._update_shuffle_queue()
+
+            # Will result in play() call later
+            self.playing = True
+            self.play_track(track)
 
     def shuffle_this(
         self, thing: Union[Mix, Album, Playlist, List[Track], Track]
