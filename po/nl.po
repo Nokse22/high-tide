@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-14 19:11+0200\n"
-"PO-Revision-Date: 2025-08-02 14:20+0200\n"
+"POT-Creation-Date: 2025-08-22 20:42+0200\n"
+"PO-Revision-Date: 2025-08-27 11:00+0200\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -38,7 +38,7 @@ msgctxt "shortcut window"
 msgid "Quit"
 msgstr "Afsluiten"
 
-#: data/ui/detailed_track_listing.blp:46 src/widgets/top_hit_widget.py:133
+#: data/ui/detailed_track_listing.blp:46 src/widgets/top_hit_widget.py:131
 msgid "Album"
 msgstr "Album"
 
@@ -121,31 +121,47 @@ msgstr "Kwaliteit"
 msgid "Automatic"
 msgstr "Automatisch"
 
-#: data/ui/preferences.blp:31
+#: data/ui/preferences.blp:32
 msgid "Preferred Audio Sink"
 msgstr "Voorkeursgeluidssysteem"
 
-#: data/ui/preferences.blp:34
+#: data/ui/preferences.blp:33
+msgid ""
+"Gapless playback is disabled for the native Pipewire Sink due to a bug. Use "
+"'Automatic' for gapless playback."
+msgstr ""
+"Naadloze overgangen zijn wegens een bug uitgeschakeld voor het Pipewire-"
+"systeem. Gebruik de instelling ‘automatisch’."
+
+#: data/ui/preferences.blp:36
+msgid "ALSA Device"
+msgstr "ALSA-apparaat"
+
+#: data/ui/preferences.blp:37
+msgid "Device used for exclusive ALSA access"
+msgstr "Het apparaat dat ALSA-toegang dient te krijgen"
+
+#: data/ui/preferences.blp:40
 msgid "Normalize volume"
 msgstr "Volumeniveau normaliseren"
 
-#: data/ui/preferences.blp:39
+#: data/ui/preferences.blp:45
 msgid "App"
 msgstr "Toepassing"
 
-#: data/ui/preferences.blp:41
+#: data/ui/preferences.blp:47
 msgid "Run in the background"
 msgstr "Uitvoeren op achtergrond"
 
-#: data/ui/preferences.blp:44
+#: data/ui/preferences.blp:50
 msgid "Use quadratic volume control"
 msgstr "Kwadratische volumeregeling gebruiken"
 
-#: data/ui/preferences.blp:47
+#: data/ui/preferences.blp:53
 msgid "Display animated covers"
 msgstr "Hoezen voorzien van animaties"
 
-#: data/ui/preferences.blp:51
+#: data/ui/preferences.blp:56
 msgid "Enable Discord Rich Presence"
 msgstr "Discord-integratie inschakelen"
 
@@ -178,19 +194,19 @@ msgstr "Afspelen/Pauzeren"
 msgid "Skip Forward"
 msgstr "Vooruitspoelen"
 
-#: data/ui/window.blp:214 src/pages/page.py:47
+#: data/ui/window.blp:214 src/pages/page.py:73
 msgid "Loading..."
 msgstr "Bezig met laden…"
 
-#: data/ui/window.blp:240 src/pages/home_page.py:40
+#: data/ui/window.blp:240
 msgid "Home"
 msgstr "Startscherm"
 
-#: data/ui/window.blp:265 src/pages/explore_page.py:50
+#: data/ui/window.blp:265 src/pages/explore_page.py:49
 msgid "Explore"
 msgstr "Verkennen"
 
-#: data/ui/window.blp:290 src/pages/collection_page.py:40
+#: data/ui/window.blp:290 src/pages/collection_page.py:35
 msgid "Collection"
 msgstr "Collectie"
 
@@ -234,7 +250,11 @@ msgstr "Songtekst"
 msgid "Queue"
 msgstr "Wachtrij"
 
-#: data/ui/pages_ui/artist_page_template.blp:174
+#: data/ui/pages_ui/artist_page_template.blp:182
+msgid "Radio"
+msgstr "Radiostation"
+
+#: data/ui/pages_ui/artist_page_template.blp:196
 #: data/ui/pages_ui/tracks_list_template.blp:205
 msgid "Copy Share URL"
 msgstr "Deellink kopiëren"
@@ -309,122 +329,155 @@ msgstr ""
 "Linux in de hoogste kwaliteit, of dat nu op je desktop is of je mobiel."
 
 #: data/io.github.nokse22.high-tide.appdata.xml.in:56
-msgid ""
-"High Tide in a large window format playing the album `Dreams` by Fleetwood "
-"Mac"
-msgstr "High Tide in een groot venster, met `Dreams` van Fleetwood Mac"
+msgid "High Tide in a large window format playing the `Song 2` by Blur"
+msgstr "High Tide in een groot venster, met `Song 2` van Blur"
 
 #: data/io.github.nokse22.high-tide.appdata.xml.in:61
 msgid ""
-"High Tide in a small window format playing `Let It Happen` by Tame Impala"
-msgstr "High Tide in een klein venster, met `Let It Happen` van Tame Impala"
+"High Tide in a large window format playing `Sultan Of Swing` by Dire Straits"
+msgstr ""
+"High Tide in een groot venster, met `Sultans of Swing` van Dire Straits"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:66
+msgid ""
+"High Tide in a small window format playing `Elenore` by The Turtles and "
+"showing the queue"
+msgstr ""
+"High Tide in een klein venster, met `Elenore` van The Turtles en de "
+"afspeelwachtrij"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:71
+msgid "High Tide in a small window format playing `Light My Fire` by The Doors"
+msgstr "High Tide in een klein venster, met `Light My Fire` van The Doors"
 
 #: src/pages/album_page.py:60
 msgid "Unknown"
 msgstr "Onbekend"
 
-#: src/pages/album_page.py:62 src/pages/playlist_page.py:79
+#: src/pages/album_page.py:64 src/pages/playlist_page.py:78
 msgid "{} tracks ({})"
 msgstr "{} nummers ({})"
 
-#: src/pages/artist_page.py:101 src/widgets/card_widget.py:139
-#: src/widgets/top_hit_widget.py:183
+#: src/pages/artist_page.py:91 src/widgets/card_widget.py:151
+#: src/widgets/top_hit_widget.py:179
 msgid "Artist"
 msgstr "Artiest"
 
-#: src/pages/artist_page.py:105
+#: src/pages/artist_page.py:94
 msgid "Top Tracks"
 msgstr "Topnummers"
 
-#: src/pages/artist_page.py:117 src/pages/collection_page.py:49
-#: src/pages/search_page.py:65
+#: src/pages/artist_page.py:97 src/pages/collection_page.py:39
+#: src/pages/search_page.py:57
 msgid "Albums"
 msgstr "Albums"
 
-#: src/pages/artist_page.py:128
+#: src/pages/artist_page.py:100
 msgid "EP & Singles"
 msgstr "Ep's en singles"
 
-#: src/pages/artist_page.py:140
+#: src/pages/artist_page.py:104
 msgid "Appears On"
 msgstr "Als gastmuzikant op"
 
-#: src/pages/artist_page.py:151
+#: src/pages/artist_page.py:107
 msgid "Similar Artists"
 msgstr "Vergelijkbare artiesten"
 
-#: src/pages/artist_page.py:180
+#: src/pages/artist_page.py:130
 msgid "Bio"
 msgstr "Biografie"
 
-#: src/pages/artist_page.py:201 src/pages/track_radio_page.py:55
-msgid "Radio of {}"
-msgstr "Radiostation van {}"
-
-#: src/pages/collection_page.py:45
+#: src/pages/collection_page.py:37
 msgid "My Mixes and Radios"
 msgstr "Mijn mixen en radio's"
 
-#: src/pages/collection_page.py:47 src/pages/search_page.py:71
+#: src/pages/collection_page.py:38 src/pages/search_page.py:58
 msgid "Playlists"
 msgstr "Afspeellijsten"
 
-#: src/pages/collection_page.py:51 src/pages/search_page.py:77
+#: src/pages/collection_page.py:40 src/pages/search_page.py:59
 msgid "Tracks"
 msgstr "Nummers"
 
-#. Adds a carousel with artists, albums and playlists
-#: src/pages/collection_page.py:53 src/pages/search_page.py:59
+#: src/pages/collection_page.py:41 src/pages/search_page.py:56
 msgid "Artists"
 msgstr "Artiesten"
 
-#: src/pages/explore_page.py:78
-msgid "More"
-msgstr "Meer"
-
-#: src/pages/not_logged_in_page.py:34
+#: src/pages/not_logged_in_page.py:38
 msgid "Login"
 msgstr "Inloggen"
 
-#: src/pages/not_logged_in_page.py:40
+#: src/pages/not_logged_in_page.py:45
 msgid "Login first"
 msgstr "Log in"
 
-#: src/pages/not_logged_in_page.py:41
-msgid "To be able to use this app you need to login with your TIDAL account."
+#: src/pages/not_logged_in_page.py:47
+msgid "To be able to use this app, you need to login with your TIDAL account."
 msgstr "Log in op je TIDAL-account om deze toepassing te kunnen gebruiken."
 
-#: src/pages/playlist_page.py:77 src/pages/track_radio_page.py:62
+#: src/pages/playlist_page.py:75
 msgid "by {}"
 msgstr "van {}"
 
-#: src/widgets/card_widget.py:91
+#: src/widgets/card_widget.py:108
 msgid "Track by {}"
 msgstr "Nummer van {}"
 
-#: src/widgets/card_widget.py:130
+#: src/widgets/card_widget.py:143 src/widgets/top_hit_widget.py:159
 msgid "By {}"
 msgstr "Van {}"
 
-#: src/widgets/top_hit_widget.py:91
+#: src/widgets/top_hit_widget.py:88
 msgid "Track"
 msgstr "Nummer"
 
-#: src/widgets/top_hit_widget.py:110
+#: src/widgets/top_hit_widget.py:108
 msgid "Mix"
 msgstr "Mix"
 
-#: src/main.py:93
+#: src/main.py:107
 msgid "Donate with Ko-Fi"
 msgstr "Doneren via Ko-Fi"
 
-#: src/main.py:95
+#: src/main.py:108
 msgid "Donate with Github"
 msgstr "Doneren via GitHub"
 
-#: src/window.py:217
+#: src/window.py:231
 msgid "Playing Music"
 msgstr "Muziek aan het afspelen"
+
+#: src/lib/utils.py:102
+msgid "Default"
+msgstr "Standaard"
+
+#: src/lib/utils.py:300
+msgid "Successfully added to my collection"
+msgstr "Toegevoegd aan collectie"
+
+#: src/lib/utils.py:303
+msgid "Failed to add item to my collection"
+msgstr "Het toevoegen is mislukt"
+
+#: src/lib/utils.py:329
+msgid "Successfully removed from my collection"
+msgstr "Verwijderd uit collectie"
+
+#: src/lib/utils.py:331
+msgid "Failed to remove item from my collection"
+msgstr "Het verwijderen is mislukt"
+
+#: src/lib/utils.py:371
+msgid "Copied share URL in the clipboard"
+msgstr "De deel-url is gekopieerd naar het klembord"
+
+#: src/lib/player_object.py:268
+msgid "ALSA Audio Device is not available"
+msgstr "Het ALSA-apparaat is niet beschikbaar"
+
+#~ msgid "More"
+#~ msgstr "Meer"
 
 #~ msgid "Sail away"
 #~ msgstr "Recht zo die gaat"
