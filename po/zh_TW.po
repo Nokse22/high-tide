@@ -342,7 +342,7 @@ msgstr "未知"
 
 #: src/pages/album_page.py:64 src/pages/playlist_page.py:78
 msgid "{} tracks ({})"
-msgstr "第 {} 首歌曲 ({})"
+msgstr "共 {} 音軌 ({})"
 
 #: src/pages/artist_page.py:91 src/widgets/card_widget.py:151
 #: src/widgets/top_hit_widget.py:179
