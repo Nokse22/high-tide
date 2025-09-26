@@ -171,24 +171,33 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
                 view_height = self.adjustment.get_page_size()
                 max_height = self.adjustment.get_upper()
                 row_height = max_height / lines
-                position = new_index * row_height
-                target_position = position - (view_height / 2) + row_height
+                line_position = new_index * row_height
+                target_position = line_position - (view_height / 2) + row_height
 
                 target_position = max(0, min(target_position, max_height - view_height))
 
-            self._scroll_to(target_position)
+            if abs(target_position - self.adjustment.get_value()) < 75:
+                user_scrolled = False
+            else:
+                user_scrolled = True
+
+            self._scroll_to(target_position, user_scrolled)
 
         if self.has_timestamps and self.handler_id:
             self.selection_model.handler_block(self.handler_id)
             self.selection_model.select_item(new_index, True)
             self.selection_model.handler_unblock(self.handler_id)
 
-    def _scroll_to(self, value):
+    def _scroll_to(self, value, user_scrolled):
         target = Adw.PropertyAnimationTarget.new(self.adjustment, "value")
         animation = Adw.TimedAnimation.new(
             self, self.adjustment.get_value(), value, 200, target
         )
-        animation.play()
+        if not user_scrolled:
+            scrolled_window = self.list_view.get_ancestor(Gtk.ScrolledWindow)
+            scrolled_window.set_kinetic_scrolling(False)
+            animation.play()
+            scrolled_window.set_kinetic_scrolling(True)
 
         self.prev_value = value
 
