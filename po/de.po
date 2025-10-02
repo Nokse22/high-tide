@@ -465,7 +465,7 @@ msgstr "Erfolgreich zu meiner Sammlung hinzugefügt"
 
 #: src/lib/utils.py:303
 msgid "Failed to add item to my collection"
-msgstr "Fehler beim hinzufügen zu meiner Sammlung"
+msgstr "Fehler beim Hinzufügen zu meiner Sammlung"
 
 #: src/lib/utils.py:329
 msgid "Successfully removed from my collection"
@@ -473,7 +473,7 @@ msgstr "Erfolgreich aus meiner Sammlung entfernt"
 
 #: src/lib/utils.py:331
 msgid "Failed to remove item from my collection"
-msgstr "Fehler beim entfernen aus meiner Sammlung"
+msgstr "Fehler beim Entfernen aus meiner Sammlung"
 
 #: src/lib/utils.py:371
 msgid "Copied share URL in the clipboard"
