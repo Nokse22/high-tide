@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-08-22 20:42+0200\n"
-"PO-Revision-Date: 2025-09-13 12:16+0800\n"
+"PO-Revision-Date: 2025-10-02 22:16+0800\n"
 "Last-Translator: Bruce-awareit <bruce at mail.kh.edu.tw>\n"
 "Language-Team:\n"
 "Language: zh_TW\n"
@@ -48,7 +48,7 @@ msgstr "標題"
 #: data/ui/detailed_track_listing.blp:137
 #: data/ui/detailed_track_listing.blp:162 data/ui/window.blp:528
 msgid "Go to track radio"
-msgstr "前往歌曲電台"
+msgstr "前往曲目電台"
 
 #: data/ui/detailed_track_listing.blp:142
 #: data/ui/detailed_track_listing.blp:167
@@ -211,7 +211,7 @@ msgstr "無人"
 
 #: data/ui/window.blp:516
 msgid "Add/Remove from favorites"
-msgstr "加入/移除收藏"
+msgstr "加入/移除 收藏"
 
 #: data/ui/window.blp:540
 msgid "Go to album"
@@ -351,7 +351,7 @@ msgstr "藝人"
 
 #: src/pages/artist_page.py:94
 msgid "Top Tracks"
-msgstr "熱門歌曲"
+msgstr "熱門音訊"
 
 #: src/pages/artist_page.py:97 src/pages/collection_page.py:39
 #: src/pages/search_page.py:57
@@ -408,7 +408,7 @@ msgstr "由 {}"
 
 #: src/widgets/card_widget.py:108
 msgid "Track by {}"
-msgstr "由 {} 的歌曲"
+msgstr "由 {} 的音訊"
 
 #: src/widgets/card_widget.py:143 src/widgets/top_hit_widget.py:159
 msgid "By {}"
@@ -416,7 +416,7 @@ msgstr "由 {}"
 
 #: src/widgets/top_hit_widget.py:88
 msgid "Track"
-msgstr "歌曲"
+msgstr "音訊"
 
 #: src/widgets/top_hit_widget.py:108
 msgid "Mix"
