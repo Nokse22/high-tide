@@ -28,6 +28,9 @@ from ..lib import utils
 from ..widgets import (HTAutoLoadWidget, HTCardWidget, HTCarouselWidget,
                        HTTracksListWidget)
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class Page(Adw.NavigationPage, IDisconnectable):
     """Base class for all types of pages in the High Tide application.
@@ -94,8 +97,8 @@ class Page(Adw.NavigationPage, IDisconnectable):
         def _load():
             try:
                 self._load_async()
-            except Exception as e:
-                print(e)
+            except Exception:
+                logger.exception("Error while getting Page")
                 return
 
             GLib.idle_add(_loaded)

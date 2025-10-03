@@ -35,6 +35,8 @@ from tidalapi import Album, Artist, Mix, Playlist, Track
 from ..pages import HTAlbumPage, HTArtistPage, HTMixPage, HTPlaylistPage
 from .cache import HTCache
 
+logger = logging.getLogger(__name__)
+
 favourite_mixes: List[Mix] = []
 favourite_tracks: List[Track] = []
 favourite_artists: List[Artist] = []
@@ -247,16 +249,16 @@ def get_favourites() -> None:
         favourite_mixes = user.favorites.mixes()
         playlist_and_favorite_playlists = user.playlist_and_favorite_playlists()
         user_playlists = user.playlists()
-    except Exception as e:
-        print(e)
+    except Exception:
+        logger.exception("Error while getting Favourites")
 
-    print(f"Favorite Artists: {len(favourite_artists)}")
-    print(f"Favorite Tracks: {len(favourite_tracks)}")
-    print(f"Favorite Albums: {len(favourite_albums)}")
-    print(f"Favorite Playlists: {len(favourite_playlists)}")
-    print(f"Favorite Mixes: {len(favourite_mixes)}")
-    print(f"Playlist and Favorite Playlists: {len(playlist_and_favorite_playlists)}")
-    print(f"User Playlists: {len(user_playlists)}")
+    logger.info(f"Favorite Artists: {len(favourite_artists)}")
+    logger.info(f"Favorite Tracks: {len(favourite_tracks)}")
+    logger.info(f"Favorite Albums: {len(favourite_albums)}")
+    logger.info(f"Favorite Playlists: {len(favourite_playlists)}")
+    logger.info(f"Favorite Mixes: {len(favourite_mixes)}")
+    logger.info(f"Playlist and Favorite Playlists: {len(playlist_and_favorite_playlists)}")
+    logger.info(f"User Playlists: {len(user_playlists)}")
 
 
 def is_favourited(item: Any) -> bool:
@@ -480,7 +482,7 @@ def open_tidal_uri(uri: str) -> None:
             page = HTPlaylistPage(content_id).load()
             navigation_view.push(page)
         case _:
-            print(f"Unsupported content type: {content_type}")
+            logger.warning(f"Unsupported content type: {content_type}")
             return False
 
 
@@ -561,8 +563,8 @@ def get_image_url(item: Any, dimensions: int = 320) -> str | None:
     try:
         picture_url = item.image(dimensions=dimensions)
         response = requests.get(picture_url)
-    except Exception as e:
-        print(e)
+    except Exception:
+        logger.exception("Could not get image")
         return None
     if response.status_code == 200:
         picture_data = response.content
@@ -644,8 +646,8 @@ def get_video_cover_url(item: Any, dimensions: int = 320) -> str | None:
     try:
         video_url = item.video(dimensions=dimensions)
         response = requests.get(video_url)
-    except Exception as e:
-        print(e)
+    except Exception:
+        logger.exception("Could not get video")
         return None
     if response.status_code == 200:
         picture_data = response.content

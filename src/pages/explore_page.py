@@ -25,6 +25,9 @@ from ..lib import utils
 from .generic_page import HTGenericPage
 from .search_page import HTSearchPage
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class HTExplorePage(HTGenericPage):
     """A page to display the explore page"""
@@ -36,8 +39,8 @@ class HTExplorePage(HTGenericPage):
     def _load_async(self) -> None:
         try:
             self.page = utils.session.explore()
-        except Exception as e:
-            print(e)
+        except Exception:
+            logger.exception("Error while loading Explore page")
             self.tries += 1
             if self.tries < 5:
                 self._load_async()

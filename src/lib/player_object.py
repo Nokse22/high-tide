@@ -78,7 +78,7 @@ class PlayerObject(GObject.GObject):
         Gst.init(None)
 
         version_str = Gst.version_string()
-        print(f"GStreamer version: {version_str}")
+        logger.info(f"GStreamer version: {version_str}")
 
         self.pipeline = Gst.Pipeline.new("dash-player")
 
@@ -87,7 +87,7 @@ class PlayerObject(GObject.GObject):
             self.playbin.connect("about-to-finish", self.play_next_gapless)
             self.gapless_enabled = True
         else:
-            print("Could not create playbin3 element, trying playbin...")
+            logger.error("Could not create playbin3 element, trying playbin...")
             self.playbin = Gst.ElementFactory.make("playbin", "playbin")
             self.gapless_enabled = False
 
@@ -211,8 +211,8 @@ class PlayerObject(GObject.GObject):
                 raise RuntimeError("Failed to create audio bin")
 
             self.playbin.set_property("audio-sink", audio_bin)
-        except GLib.Error as e:
-            print(f"Error creating pipeline: {e}")
+        except GLib.Error:
+            logger.exception("Error creating pipeline")
             self.playbin.set_property(
                 "audio-sink", Gst.ElementFactory.make("autoaudiosink", None)
             )
@@ -248,8 +248,8 @@ class PlayerObject(GObject.GObject):
     def _on_bus_error(self, bus: Any, message: Any) -> None:
         """Handle pipeline errors."""
         err, debug = message.parse_error()
-        print(f"Error: {err.message}")
-        print(f"Debug info: {debug}")
+        logger.error(f"Error: {err.message}")
+        logger.error(f"Debug info: {debug}")
 
         # Use string compare instead of error codes (Seems be just generic error)
         if "Internal data stream error" in err.message and "not-linked" in debug:
@@ -337,7 +337,7 @@ class PlayerObject(GObject.GObject):
         tracks: List[Track] = self.get_track_list(thing)
 
         if not tracks:
-            print("No tracks found to play")
+            logger.info("No tracks found to play")
             return
 
         self._tracks_to_play = tracks[index:] + tracks[:index]
@@ -472,8 +472,8 @@ class PlayerObject(GObject.GObject):
                     music_url = urls
 
             GLib.idle_add(self._play_track_url, track, music_url, gapless)
-        except Exception as e:
-            print(f"Error getting track URL: {e}")
+        except Exception:
+            logger.exception("Error getting track URL")
 
     def apply_replaygain_tags(self):
         """Apply ReplayGain normalization tags to the current track if enabled."""
@@ -500,7 +500,7 @@ class PlayerObject(GObject.GObject):
 
         if rgtags:
             rgtags.set_property("tags", tags)
-            print(f"Applied RG Tags: {tags}")
+            logger.info("Applied RG Tags")
         # Save replaygain tags for every song to avoid missing tags when
         # toggling the option
         self.most_recent_rg_tags = f"tags={tags}"
@@ -513,7 +513,7 @@ class PlayerObject(GObject.GObject):
             self.playbin.set_property("volume", self.playbin.get_property("volume"))
         self.playbin.set_property("uri", music_url)
 
-        print(music_url)
+        logger.info(music_url)
 
         if gapless:
             self.next_track = track

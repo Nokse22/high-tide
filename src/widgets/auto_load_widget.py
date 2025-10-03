@@ -26,6 +26,9 @@ from ..lib import utils
 from .card_widget import HTCardWidget
 from .generic_track_widget import HTGenericTrackWidget
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 @Gtk.Template(
     resource_path="/io/github/nokse22/high-tide/ui/widgets/auto_load_widget.ui"
@@ -73,7 +76,7 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
             items (list): the list of items
         """
         if len(self.items) > 0:
-            print("You can't set items for HTAutoLoadWidget twice")
+            logger.warning("You can't set items for HTAutoLoadWidget twice")
             return
 
         self.items = items

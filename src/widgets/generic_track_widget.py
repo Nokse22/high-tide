@@ -27,6 +27,9 @@ from tidalapi import UserPlaylist
 from ..disconnectable_iface import IDisconnectable
 from ..lib import utils
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 @Gtk.Template(
     resource_path="/io/github/nokse22/high-tide/ui/widgets/generic_track_widget.ui"
@@ -169,7 +172,7 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         if isinstance(selected_playlist, UserPlaylist):
             selected_playlist.add([self.track.id])
 
-            print(f"Added to playlist: {selected_playlist.name}")
+            logger.info(f"Added to playlist: {selected_playlist.name}")
 
     def _copy_share_url(self, *args):
         utils.share_this(self.track)
