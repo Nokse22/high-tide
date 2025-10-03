@@ -49,6 +49,7 @@ class HighTideApplication(Adw.Application):
         self.create_action("log-out", self.on_logout_action)
 
         utils.init()
+        utils.setup_logging()
 
         self.settings: Gio.Settings = Gio.Settings.new("io.github.nokse22.high-tide")
 
