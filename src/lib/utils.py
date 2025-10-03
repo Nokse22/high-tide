@@ -247,8 +247,18 @@ def get_favourites() -> None:
         favourite_albums = user.favorites.albums()
         favourite_playlists = user.favorites.playlists()
         favourite_mixes = user.favorites.mixes()
-        playlist_and_favorite_playlists = user.playlist_and_favorite_playlists()
         user_playlists = user.playlists()
+
+        count = user.favorites.get_playlists_count()
+        limit = 50
+        offset = 0
+        pages = []
+
+        while offset < count:
+            pages += user.playlist_and_favorite_playlists(offset = offset)
+            offset += limit
+
+        playlist_and_favorite_playlists = pages
     except Exception:
         logger.exception("Error while getting Favourites")
 
