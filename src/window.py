@@ -576,7 +576,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         if abs(seek_fraction - self.previous_fraction) == 0.0:
             return
 
-        logger.info("seeking: ", abs(seek_fraction - self.previous_fraction))
+        logger.info(f"seeking: {abs(seek_fraction - self.previous_fraction)}")
 
         self.player_object.seek(seek_fraction)
         self.previous_fraction = seek_fraction
