@@ -52,8 +52,8 @@ def th_function(self):
     """This function will always be called in a thread"""
     try:
         self.this_call_might_fail()
-    except Exception as e:
-        print(f"Error while ...: {e}")
+    except Exception:
+        logger.exception(f"Error while ...")
         GLib.idle_add(self.on_failed)
     else:
         utils.get_favourites()
@@ -65,14 +65,14 @@ threading.Thread(target=self.th_function, args=()).start()
 ### Error Handling
 
 - Always include appropriate exception handling for external API calls
-- Use descriptive error messages or at least write the error to the console
+- Use descriptive error messages or at least write the error to the console using a logger
 - Provide fallback behavior when operations fail
 
 ```python
 try:
     self.this_call_might_fail()
-except Exception as e:
-    print(e)
+except Exception:
+    logger.exception("<Description>")
 ```
 
 ### Signals and memory management
