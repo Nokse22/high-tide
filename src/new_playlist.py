@@ -20,6 +20,9 @@
 
 from gi.repository import Adw, GObject, Gtk
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/new_playlist.ui")
 class NewPlaylistWindow(Adw.Dialog):
@@ -54,7 +57,7 @@ class NewPlaylistWindow(Adw.Dialog):
 
     def on_title_text_inserted_func(self, *args) -> None:
         playlist_title: str = self.playlist_name_entry.get_text()
-        print(f"!{playlist_title}!")
+        logger.info(f"!{playlist_title}!")
         if playlist_title != "":
             self.create_button.set_sensitive(True)
             return

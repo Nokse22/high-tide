@@ -34,6 +34,9 @@ from .pages import (HTAlbumPage, HTArtistPage, HTCollectionPage, HTExplorePage,
 from .widgets import (HTGenericTrackWidget, HTLinkLabelWidget, HTLyricsWidget,
                       HTQueueWidget)
 
+import logging
+logger = logging.getLogger(__name__)
+
 # from .new_playlist import NewPlaylistWindow
 
 GObject.type_register(HTGenericTrackWidget)
@@ -248,8 +251,8 @@ class HighTideWindow(Adw.ApplicationWindow):
                 self.secret_store.token_dictionary["refresh-token"],
                 self.secret_store.token_dictionary["expiry-time"],
             )
-        except Exception as e:
-            print(f"error! {e}")
+        except Exception:
+            logger.exception("Error while logging in!")
             GLib.idle_add(self.on_login_failed)
         else:
             utils.get_favourites()
@@ -268,7 +271,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def on_logged_in(self):
         """Handle successful user login"""
-        print("logged in")
+        logger.info("logged in")
 
         page = HTGenericPage.new_from_function(utils.session.home).load()
         page.set_tag("home")
@@ -286,7 +289,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def on_login_failed(self):
         """Handle failed login attempts"""
-        print("login failed")
+        logger.error("login failed")
 
         page = HTNotLoggedInPage().load()
         self.navigation_view.replace([page])
@@ -296,7 +299,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         thing_id = self.settings.get_string("last-playing-thing-id")
         thing_type = self.settings.get_string("last-playing-thing-type")
 
-        print(f"Last playing: {thing_id} of type {thing_type} index: {index}")
+        logger.info(f"Last playing: {thing_id} of type {thing_type} index: {index}")
 
         thing = None
 
@@ -309,8 +312,8 @@ class HighTideWindow(Adw.ApplicationWindow):
                 thing = self.session.playlist(thing_id)
             elif thing_type == "track":
                 thing = self.session.track(thing_id)
-        except Exception as e:
-            print(e)
+        except Exception:
+            logger.exception("Error while setting last played song")
 
         self.player_object.play_this(thing, index)
 
@@ -326,7 +329,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         Updates the UI elements when the currently playing song changes,
         including album art, track information, and video covers.
         """
-        print("song changed")
+        logger.info("song changed")
         album = self.player_object.song_album
         track = self.player_object.playing_track
 
@@ -573,7 +576,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         if abs(seek_fraction - self.previous_fraction) == 0.0:
             return
 
-        print("seeking: ", abs(seek_fraction - self.previous_fraction))
+        logger.info("seeking: ", abs(seek_fraction - self.previous_fraction))
 
         self.player_object.seek(seek_fraction)
         self.previous_fraction = seek_fraction
