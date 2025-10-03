@@ -124,7 +124,7 @@ msgstr "Automatisch"
 
 #: data/ui/preferences.blp:32
 msgid "Preferred Audio Sink"
-msgstr "Bevorzugter Audio Ausgabe"
+msgstr "Bevorzugte Audio Ausgabe"
 
 #: data/ui/preferences.blp:33
 msgid ""
