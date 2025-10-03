@@ -23,6 +23,7 @@ import re
 import subprocess
 import threading
 import uuid
+import logging
 from gettext import gettext as _
 from pathlib import Path
 from typing import Any, List
@@ -761,3 +762,20 @@ def replace_links(text: str) -> str:
     replaced_text = re.sub(pattern, replace, escaped_text)
 
     return replaced_text
+
+def setup_logging():
+    global CACHE_DIR
+
+    log_to_file = os.getenv("LOG_TO_FILE")
+    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+
+    handlers = []
+    if log_to_file:
+        handlers.append(logging.FileHandler(CACHE_DIR + "/high-tide.log"))
+    handlers.append(logging.StreamHandler())
+
+    logging.basicConfig(
+        level=getattr(logging, log_level, logging.INFO),
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        handlers=handlers,
+    )
