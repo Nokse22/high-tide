@@ -31,6 +31,7 @@
         "blueprint-compiler.json",
         "alsa-utils.json",
         "python3-pypresence.json",
+        "python3-six.json",
         "python3-tidalapi.json",
         {
             "name": "high-tide",
