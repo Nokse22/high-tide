@@ -10,3 +10,7 @@ node_modules/
 /build-aux/.flatpak-builder/
 
 /subprojects/blueprint-compiler
+
+# nix dirs
+/result
+/.direnv
