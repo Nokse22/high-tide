@@ -100,7 +100,6 @@ def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
     try:
         if track is None:
             rpc.update(
-                activity_type=pypresence.ActivityType.LISTENING,
                 details="High Tide",
                 state="TIDAL gnome client",
                 large_image="hightide_x1024",
@@ -133,7 +132,6 @@ def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
                 artists = None
 
             rpc.update(
-                activity_type=pypresence.ActivityType.LISTENING,
                 details=track.name,
                 state=", ".join(artists) if artists else "Unknown Artist",
                 large_image=track.album.image() if track.album else "hightide_x1024",
