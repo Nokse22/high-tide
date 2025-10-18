@@ -2,23 +2,23 @@
     "name": "python3-tidalapi",
     "buildsystem": "simple",
     "build-commands": [
-        "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"urllib3[socks]\" \"tidalapi\" --no-build-isolation"
+        "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"tidalapi\" --no-build-isolation"
     ],
     "sources": [
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/e5/48/1549795ba7742c948d2ad169c1c8cdbae65bc450d6cd753d124b17c8cd32/certifi-2025.8.3-py3-none-any.whl",
-            "sha256": "f6c12493cfb1b06ba2ff328595af9350c65d6644968e5d3a2ffd78699af217a5"
+            "url": "https://files.pythonhosted.org/packages/e4/37/af0d2ef3967ac0d6113837b44a4f0bfe1328c2b9763bd5b1744520e5cfed/certifi-2025.10.5-py3-none-any.whl",
+            "sha256": "0f212c2744a9bb6de0c56639a6f68afe01ecd92d91f14ae897c4fe7bbeeef0de"
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/83/2d/5fd176ceb9b2fc619e63405525573493ca23441330fcdaee6bef9460e924/charset_normalizer-3.4.3.tar.gz",
-            "sha256": "6fce4b8500244f6fcb71465d4a4930d132ba9ab8e71a7859e6a5d59851068d14"
+            "url": "https://files.pythonhosted.org/packages/13/69/33ddede1939fdd074bce5434295f38fae7136463422fe4fd3e0e89b98062/charset_normalizer-3.4.4.tar.gz",
+            "sha256": "94537985111c35f28720e43603b8e7b43a6ecfb2ce1d3058bbe955b73404e21a"
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/76/c6/c88e154df9c4e1a2a66ccf0005a88dfb2650c1dffb6f5ce603dfbd452ce3/idna-3.10-py3-none-any.whl",
-            "sha256": "946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3"
+            "url": "https://files.pythonhosted.org/packages/0e/61/66938bbb5fc52dbdf84594873d5b51fb1f7c7794e9c0f5bd885f30bc507b/idna-3.11-py3-none-any.whl",
+            "sha256": "771a87f49d9defaf64091e6e6fe9c18d4833f140bd19464795bc32d966ca37ea"
         },
         {
             "type": "file",
@@ -29,6 +29,11 @@
             "type": "file",
             "url": "https://files.pythonhosted.org/packages/ab/1a/5be778993af7c2079e7a24dc208424af6fe1b6392dfaac268a8cf42ba842/mpegdash-0.4.0-py3-none-any.whl",
             "sha256": "d07f6e1f2a67ddce1be501e3ad7abc29a2d6a7b1830b4da974b49c2ebe99cf2a"
+        },
+        {
+            "type": "file",
+            "url": "https://files.pythonhosted.org/packages/44/66/2c17bae31c906613795711fc78045c285048168919ace2220daa372c7d72/pyaes-1.6.1.tar.gz",
+            "sha256": "02c1b1405c38d3c370b085fb952dd8bea3fadcee6411ad99f312cc129c536d8f"
         },
         {
             "type": "file",
@@ -47,18 +52,13 @@
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/fb/03/b0702b54f6eb34e8016ef0e6cde1bfde2f72a7bacd95dec196f033a7f784/tidalapi-0.8.6-py3-none-any.whl",
-            "sha256": "a55f54ff4110398cd3a565b6cfc8bcbf8e104442e06db0eab8372abcd653a3d6"
+            "url": "https://files.pythonhosted.org/packages/d0/c0/27fafcbaf426954d405ce426947312bf732f3c4ae9c758078a2a157208dc/tidalapi-0.8.8-py3-none-any.whl",
+            "sha256": "70e5ccebf608ad3fb9e17bde5fe36783322f993e1d4efb25a0ae970d898669fc"
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/b5/00/d631e67a838026495268c2f6884f3711a15a9a2a96cd244fdaea53b823fb/typing_extensions-4.14.1-py3-none-any.whl",
-            "sha256": "d1e1e3b58374dc93031d6eda2420a48ea44a36c2b4766a4fdeb3710755731d76"
-        },
-        {
-            "type": "file",
-            "url": "https://files.pythonhosted.org/packages/8d/59/b4572118e098ac8e46e399a1dd0f2d85403ce8bbaad9ec79373ed6badaf9/PySocks-1.7.1-py3-none-any.whl",
-            "sha256": "2725bd0a9925919b9b51739eea5f9e2bae91e83288108a9ad338b2e3a4435ee5"
+            "url": "https://files.pythonhosted.org/packages/18/67/36e9267722cc04a6b9f15c7f3441c2363321a3ea07da7ae0c0707beb2a9c/typing_extensions-4.15.0-py3-none-any.whl",
+            "sha256": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"
         },
         {
             "type": "file",

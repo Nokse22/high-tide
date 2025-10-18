@@ -17,23 +17,19 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
-from gi.repository import Gtk
-from gi.repository import GLib
-
 import threading
+from gettext import gettext as _
+
+from gi.repository import Adw, GLib, Gtk
 from tidalapi import Video
 
-from ..widgets import HTCarouselWidget
-from ..widgets import HTCardWidget
-from ..widgets import HTTracksListWidget
-from ..widgets import HTAutoLoadWidget
-
-from ..lib import utils
-
 from ..disconnectable_iface import IDisconnectable
+from ..lib import utils
+from ..widgets import (HTAutoLoadWidget, HTCardWidget, HTCarouselWidget,
+                       HTTracksListWidget)
 
-from gettext import gettext as _
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Page(Adw.NavigationPage, IDisconnectable):
@@ -101,8 +97,8 @@ class Page(Adw.NavigationPage, IDisconnectable):
         def _load():
             try:
                 self._load_async()
-            except Exception as e:
-                print(e)
+            except Exception:
+                logger.exception("Error while getting Page")
                 return
 
             GLib.idle_add(_loaded)

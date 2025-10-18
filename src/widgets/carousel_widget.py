@@ -21,10 +21,9 @@ from typing import Callable
 
 from gi.repository import Gtk
 
-from ..widgets import HTCardWidget
-from ..lib import utils
-
 from ..disconnectable_iface import IDisconnectable
+from ..lib import utils
+from ..widgets.card_widget import HTCardWidget
 
 
 @Gtk.Template(

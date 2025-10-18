@@ -17,11 +17,9 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from .page import Page
-
 from ..disconnectable_iface import IDisconnectable
-
 from ..widgets import HTAutoLoadWidget
+from .page import Page
 
 
 class HTFromFunctionPage(Page):

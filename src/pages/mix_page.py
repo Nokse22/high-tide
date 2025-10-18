@@ -17,12 +17,12 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import threading
+
 from gi.repository import Gtk
 
 from ..lib import utils
 from .page import Page
-
-import threading
 
 
 class HTMixPage(Page):

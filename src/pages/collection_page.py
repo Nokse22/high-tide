@@ -17,10 +17,10 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from .page import Page
-from ..lib import utils
-
 from gettext import gettext as _
+
+from ..lib import utils
+from .page import Page
 
 
 class HTCollectionPage(Page):

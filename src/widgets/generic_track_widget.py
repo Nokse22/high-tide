@@ -18,16 +18,17 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-from gi.repository import Gtk, GObject
-from gi.repository import Gio, GLib
-from ..lib import utils
-from ..disconnectable_iface import IDisconnectable
+import threading
+from gettext import gettext as _
 
+from gi.repository import Gio, GLib, GObject, Gtk
 from tidalapi import UserPlaylist
 
-import threading
+from ..disconnectable_iface import IDisconnectable
+from ..lib import utils
 
-from gettext import gettext as _
+import logging
+logger = logging.getLogger(__name__)
 
 
 @Gtk.Template(
@@ -171,7 +172,7 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         if isinstance(selected_playlist, UserPlaylist):
             selected_playlist.add([self.track.id])
 
-            print(f"Added to playlist: {selected_playlist.name}")
+            logger.info(f"Added to playlist: {selected_playlist.name}")
 
     def _copy_share_url(self, *args):
         utils.share_this(self.track)

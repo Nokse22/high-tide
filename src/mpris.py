@@ -12,10 +12,14 @@
 # Copyright (c) 2023 Nokse22
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gio, GLib, Gdk
-
 from random import randint
+
+from gi.repository import Gdk, Gio, GLib
+
 from .lib import utils
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Server:
@@ -71,8 +75,8 @@ class Server:
                 invocation.return_value(variant)
             else:
                 invocation.return_value(None)
-        except Exception as e:
-            print(e)
+        except Exception:
+            logger.exception("MPRIS Error")
 
 
 class MPRIS(Server):

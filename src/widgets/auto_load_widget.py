@@ -17,17 +17,17 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
-from gi.repository import GLib, GObject
-
 import threading
 
-from . import HTCardWidget
-from . import HTGenericTrackWidget
-
-from ..lib import utils
+from gi.repository import GLib, GObject, Gtk
 
 from ..disconnectable_iface import IDisconnectable
+from ..lib import utils
+from .card_widget import HTCardWidget
+from .generic_track_widget import HTGenericTrackWidget
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 @Gtk.Template(
@@ -76,7 +76,7 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
             items (list): the list of items
         """
         if len(self.items) > 0:
-            print("You can't set items for HTAutoLoadWidget twice")
+            logger.warning("You can't set items for HTAutoLoadWidget twice")
             return
 
         self.items = items

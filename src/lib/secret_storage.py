@@ -17,18 +17,21 @@
 #
 # SPDX-License-Identifier: LGPL-3.0-or-later
 
-from gi.repository import Secret, Xdp
-from typing import Dict, Any, Tuple
-
 import json
+from typing import Any, Dict, Tuple
+
 import tidalapi
+from gi.repository import Secret, Xdp
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class SecretStore:
     def __init__(self, session: tidalapi.Session) -> None:
         super().__init__()
 
-        print("initializing secret store")
+        logger.info("initializing secret store")
 
         self.version = "0.0"
         self.session: tidalapi.Session = session
@@ -53,7 +56,7 @@ class SecretStore:
                     service, Secret.COLLECTION_DEFAULT, Secret.CollectionFlags.NONE
                 )
                 if collection and collection.get_locked():
-                    print("Collection is locked, attempting to unlock")
+                    logger.info("Collection is locked, attempting to unlock")
                     service.unlock_sync([collection])
 
         password = Secret.password_lookup_sync(self.schema, {}, None)
@@ -62,8 +65,8 @@ class SecretStore:
                 json_data = json.loads(password)
                 self.token_dictionary = json_data
 
-        except Exception as error:
-            print("Failed to load secret store, resetting", error)
+        except Exception:
+            logger.exception("Failed to load secret store, resetting")
 
             self.token_dictionary = {}
 

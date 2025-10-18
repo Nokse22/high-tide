@@ -18,40 +18,26 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import threading
-import tidalapi
-
+from gettext import gettext as _
 from typing import Callable
 
-from gi.repository import Adw
-from gi.repository import Gtk
-from gi.repository import Gio
-from gi.repository import Gst, GLib
-from gi.repository import Xdp, GObject
+import tidalapi
+from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Xdp
+from tidalapi import Quality
 
-from .mpris import MPRIS
-
-from tidalapi.media import Quality
-
-from .lib import PlayerObject, RepeatType, SecretStore, utils, HTCache
-
+from .lib import HTCache, PlayerObject, RepeatType, SecretStore, utils
 from .login import LoginDialog
+from .mpris import MPRIS
+from .pages import (HTAlbumPage, HTArtistPage, HTCollectionPage, HTExplorePage,
+                    HTGenericPage, HTMixPage, HTNotLoggedInPage,
+                    HTPlaylistPage)
+from .widgets import (HTGenericTrackWidget, HTLinkLabelWidget, HTLyricsWidget,
+                      HTQueueWidget)
+
+import logging
+logger = logging.getLogger(__name__)
+
 # from .new_playlist import NewPlaylistWindow
-
-from .pages import HTGenericPage
-from .pages import HTExplorePage
-from .pages import HTNotLoggedInPage
-from .pages import HTCollectionPage
-from .pages import HTArtistPage
-from .pages import HTMixPage
-from .pages import HTPlaylistPage
-from .pages import HTAlbumPage
-
-from .widgets import HTGenericTrackWidget
-from .widgets import HTLinkLabelWidget
-from .widgets import HTQueueWidget
-from .widgets import HTLyricsWidget
-
-from gettext import gettext as _
 
 GObject.type_register(HTGenericTrackWidget)
 GObject.type_register(HTLinkLabelWidget)
@@ -133,13 +119,13 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.create_action_with_target(
             "push-track-radio-page",
             GLib.VariantType.new("s"),
-            self.on_push_track_radio_page
+            self.on_push_track_radio_page,
         )
 
         self.create_action_with_target(
             "push-artist-radio-page",
             GLib.VariantType.new("s"),
-            self.on_push_artist_radio_page
+            self.on_push_artist_radio_page,
         )
 
         # self.create_action_with_target(
@@ -265,8 +251,8 @@ class HighTideWindow(Adw.ApplicationWindow):
                 self.secret_store.token_dictionary["refresh-token"],
                 self.secret_store.token_dictionary["expiry-time"],
             )
-        except Exception as e:
-            print(f"error! {e}")
+        except Exception:
+            logger.exception("Error while logging in!")
             GLib.idle_add(self.on_login_failed)
         else:
             utils.get_favourites()
@@ -285,7 +271,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def on_logged_in(self):
         """Handle successful user login"""
-        print("logged in")
+        logger.info("logged in")
 
         page = HTGenericPage.new_from_function(utils.session.home).load()
         page.set_tag("home")
@@ -303,7 +289,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def on_login_failed(self):
         """Handle failed login attempts"""
-        print("login failed")
+        logger.error("login failed")
 
         page = HTNotLoggedInPage().load()
         self.navigation_view.replace([page])
@@ -313,7 +299,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         thing_id = self.settings.get_string("last-playing-thing-id")
         thing_type = self.settings.get_string("last-playing-thing-type")
 
-        print(f"Last playing: {thing_id} of type {thing_type} index: {index}")
+        logger.info(f"Last playing: {thing_id} of type {thing_type} index: {index}")
 
         thing = None
 
@@ -326,8 +312,8 @@ class HighTideWindow(Adw.ApplicationWindow):
                 thing = self.session.playlist(thing_id)
             elif thing_type == "track":
                 thing = self.session.track(thing_id)
-        except Exception as e:
-            print(e)
+        except Exception:
+            logger.exception("Error while setting last played song")
 
         self.player_object.play_this(thing, index)
 
@@ -343,7 +329,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         Updates the UI elements when the currently playing song changes,
         including album art, track information, and video covers.
         """
-        print("song changed")
+        logger.info("song changed")
         album = self.player_object.song_album
         track = self.player_object.playing_track
 
@@ -359,9 +345,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.set_quality_label()
 
         self.track_radio_button.set_action_target_value(
-            GLib.Variant("s", str(track.id)))
-        self.album_button.set_action_target_value(
-            GLib.Variant("s", str(album.id)))
+            GLib.Variant("s", str(track.id))
+        )
+        self.album_button.set_action_target_value(GLib.Variant("s", str(album.id)))
 
         if utils.is_favourited(track):
             self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
@@ -590,7 +576,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         if abs(seek_fraction - self.previous_fraction) == 0.0:
             return
 
-        print("seeking: ", abs(seek_fraction - self.previous_fraction))
+        logger.info(f"seeking: {abs(seek_fraction - self.previous_fraction)}")
 
         self.player_object.seek(seek_fraction)
         self.previous_fraction = seek_fraction
@@ -676,8 +662,11 @@ class HighTideWindow(Adw.ApplicationWindow):
     def th_add_lyrics_to_page(self):
         try:
             lyrics = self.player_object.playing_track.lyrics()
-            if lyrics and lyrics.subtitles:
-                GLib.idle_add(self.lyrics_widget.set_lyrics, lyrics.subtitles)
+            if lyrics:
+                if lyrics.subtitles:
+                    GLib.idle_add(self.lyrics_widget.set_lyrics, lyrics.subtitles)
+                elif lyrics.text:
+                    GLib.idle_add(self.lyrics_widget.set_lyrics, lyrics.text)
             else:
                 self.lyrics_widget.clear()
         except Exception:

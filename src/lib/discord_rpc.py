@@ -1,8 +1,9 @@
 import logging
-from tidalapi.media import Track
+import threading
 import time
 from enum import Enum
-import threading
+
+from tidalapi import Track
 
 logger = logging.getLogger(__name__)
 
@@ -157,7 +158,7 @@ def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
             set_activity(track, offset_ms)
         else:
             state = State.DISCONNECTED
-            logger.error("Connection with discord IPC lost.")
+            logger.exception("Connection with discord IPC lost.")
 
 
 if has_pypresence:

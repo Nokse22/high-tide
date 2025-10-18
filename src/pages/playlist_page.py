@@ -17,14 +17,13 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import threading
+from gettext import gettext as _
+
 from gi.repository import Gtk
 
-from .page import Page
 from ..lib import utils
-
-import threading
-
-from gettext import gettext as _
+from .page import Page
 
 
 class HTPlaylistPage(Page):

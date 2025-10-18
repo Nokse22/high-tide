@@ -18,12 +18,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from typing import Callable, List
-from gi.repository import Gtk
-from . import HTGenericTrackWidget
-from ..lib import utils
-from ..disconnectable_iface import IDisconnectable
 
+from gi.repository import Gtk
 from tidalapi import Track
+
+from ..disconnectable_iface import IDisconnectable
+from ..lib import utils
+from .generic_track_widget import HTGenericTrackWidget
 
 
 @Gtk.Template(

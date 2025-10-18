@@ -17,14 +17,16 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from gettext import gettext as _
+
 from gi.repository import Gtk
 
-from . import HTGenericPage
+from ..lib import utils
+from .generic_page import HTGenericPage
 from .search_page import HTSearchPage
 
-from ..lib import utils
-
-from gettext import gettext as _
+import logging
+logger = logging.getLogger(__name__)
 
 
 class HTExplorePage(HTGenericPage):
@@ -37,8 +39,8 @@ class HTExplorePage(HTGenericPage):
     def _load_async(self) -> None:
         try:
             self.page = utils.session.explore()
-        except Exception as e:
-            print(e)
+        except Exception:
+            logger.exception("Error while loading Explore page")
             self.tries += 1
             if self.tries < 5:
                 self._load_async()
