@@ -47,7 +47,7 @@ class HTArtistPage(Page):
         try:
             self.artist = utils.get_artist(self.id)
         except Exception as e:
-            logger.error(f"Failed to load artist with id {self.id}: {e}")
+            logger.exception(f"Failed to load artist with id {self.id}: {e}")
             self.artist = None
             return  # can't continue if artist is missing
 

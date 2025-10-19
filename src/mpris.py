@@ -18,6 +18,9 @@ from gi.repository import Gdk, Gio, GLib
 
 from .lib import utils
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class Server:
     def __init__(self, con, path):
@@ -72,8 +75,8 @@ class Server:
                 invocation.return_value(variant)
             else:
                 invocation.return_value(None)
-        except Exception as e:
-            print(e)
+        except Exception:
+            logger.exception("MPRIS Error")
 
 
 class MPRIS(Server):
