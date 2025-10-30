@@ -324,7 +324,7 @@ msgid ""
 "from your desktop or mobile Linux device at the highest quality."
 msgstr ""
 "Client di terze parti non ufficiale per TIDAL. Ascolta la tua musica preferita "
-"dal tuo desktop o dispositivo Linux mobile alla massima qualità"
+"dal tuo desktop o dispositivo Linux mobile alla massima qualità."
 
 #: data/io.github.nokse22.high-tide.appdata.xml.in:56
 msgid "High Tide in a large window format playing the `Song 2` by Blur"
