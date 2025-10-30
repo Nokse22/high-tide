@@ -295,7 +295,7 @@ msgstr "Nessun testo"
 
 #: data/ui/widgets/lyrics_widget.blp:17
 msgid "Lyrics are not available for this song"
-msgstr "Il testo non è disponibile per questa canzone"
+msgstr "Il testo non è disponibile per questo brano"
 
 #: data/ui/widgets/queue_widget.blp:36
 msgid "Played Songs"
@@ -323,7 +323,7 @@ msgid ""
 "Third party unofficial TIDAL music client. Listen to your favorite music "
 "from your desktop or mobile Linux device at the highest quality."
 msgstr ""
-"client di terze parti non ufficiale per TIDAL. Ascolta la tua musica preferita "
+"Client di terze parti non ufficiale per TIDAL. Ascolta la tua musica preferita "
 "dal tuo desktop o dispositivo Linux mobile alla massima qualità"
 
 #: data/io.github.nokse22.high-tide.appdata.xml.in:56
