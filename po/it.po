@@ -354,7 +354,7 @@ msgstr "Sconosciuto"
 
 #: src/pages/album_page.py:64 src/pages/playlist_page.py:78
 msgid "{} tracks ({})"
-msgstr "{} traccie ({})"
+msgstr "{} tracce ({})"
 
 #: src/pages/artist_page.py:91 src/widgets/card_widget.py:151
 #: src/widgets/top_hit_widget.py:179
@@ -363,7 +363,7 @@ msgstr "Artista"
 
 #: src/pages/artist_page.py:94
 msgid "Top Tracks"
-msgstr "Traccie top"
+msgstr "Tracce top"
 
 #: src/pages/artist_page.py:97 src/pages/collection_page.py:39
 #: src/pages/search_page.py:57
@@ -396,7 +396,7 @@ msgstr "Playlist"
 
 #: src/pages/collection_page.py:40 src/pages/search_page.py:59
 msgid "Tracks"
-msgstr "Traccie"
+msgstr "Tracce"
 
 #: src/pages/collection_page.py:41 src/pages/search_page.py:56
 msgid "Artists"
