@@ -43,6 +43,7 @@
     <file preprocess="xml-stripblanks">icons/16x16/actions/view-list-ordered-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/missing-lyrics-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/share-alt-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/16x16/actions/object-flip-vertical-symbolic.svg</file>
   </gresource>
 </gresources>
 

@@ -22,17 +22,32 @@ template $HTLyricsWidget: Box {
       title: _("Lyrics");
       name: "lyrics_page";
 
-      child: ScrolledWindow {
-        hscrollbar-policy: never;
-        ListView list_view {
-          vexpand: true;
-          overflow: visible;
-          margin-bottom: 12;
+      child: Overlay {
+        child: ScrolledWindow {
+          ListView list_view {
+            vexpand: true;
+            overflow: visible;
+            margin-bottom: 12;
 
-          styles [
-            "lyrics-widget",
-          ]
-        }
+            styles [
+              "lyrics-widget",
+            ]
+          }
+        };
+
+        [overlay]
+          Button sync_button {
+            label: _("Your Button Label");
+            icon-name: "object-flip-vertical-symbolic";
+            halign: end;
+            valign: end;
+            margin-end: 12;
+            margin-bottom: 12;
+
+            styles [
+              "card-bg"
+            ]
+          }
       };
     }
   }

@@ -73,6 +73,7 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
 
     list_view = Gtk.Template.Child()
     stack = Gtk.Template.Child()
+    sync_button = Gtk.Template.Child()
 
     has_timestamps = False
 
@@ -88,7 +89,10 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
         self.list_view.set_factory(self.factory)
 
         self.adjustment = self.list_view.get_vadjustment()
+        self.adjustment.connect("value-changed", self._on_scroll)
 
+        self.sync_button.connect("clicked", self._on_sync_button_click)
+        
         self.prev_index = 0
         self.prev_value = 0
 
@@ -100,6 +104,8 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
         """
         self.stack.set_visible_child_name("lyrics_page")
         self.list_store.remove_all()
+        self.autoscroll_enabled = True
+        self.scroll_error_count = 0
 
         lines = lyrics_text.splitlines()
         timestamp_pattern = re.compile(r"\[(\d+):(\d+\.\d+)\](.*)")
@@ -163,9 +169,7 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
             else:
                 break
         if self.get_mapped():
-            if self.prev_index == new_index:
-                target_position = self.prev_value
-            elif new_index == 0:
+            if new_index == 0:
                 target_position = 0
             else:
                 view_height = self.adjustment.get_page_size()
@@ -176,7 +180,9 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
 
                 target_position = max(0, min(target_position, max_height - view_height))
 
-            self._scroll_to(target_position)
+            if self.autoscroll_enabled:
+                self.scroll_error_count = 0
+                self._scroll_to(target_position)
 
         if self.has_timestamps and self.handler_id:
             self.selection_model.handler_block(self.handler_id)
@@ -184,14 +190,35 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
             self.selection_model.handler_unblock(self.handler_id)
 
     def _scroll_to(self, value):
+        self.animation_is_playing = True
         target = Adw.PropertyAnimationTarget.new(self.adjustment, "value")
-        animation = Adw.TimedAnimation.new(
+        self.scroll_animation = Adw.TimedAnimation.new(
             self, self.adjustment.get_value(), value, 200, target
         )
-        animation.play()
+        self.scrolled_window = self.list_view.get_ancestor(Gtk.ScrolledWindow)
+        self.scrolled_window.set_kinetic_scrolling(False)
+        self.scroll_animation.play()
+        self.scrolled_window.set_kinetic_scrolling(True)
 
         self.prev_value = value
 
+    def _on_sync_button_click(self, clicked):
+        if clicked:
+            self.autoscroll_enabled = True
+            self.scroll_error_count = 0
+            self.sync_button.set_visible(False)
+
+    def _on_scroll(self, scrolling):
+        if self.animation_is_playing:
+            if self.scroll_animation.get_state() == 3:
+                self.animation_is_playing = False
+        elif self.scroll_error_count > 1: 
+            self.autoscroll_enabled = False
+            self.sync_button.set_visible(True)
+        else:
+            self.scroll_error_count += 1
+
+    
     def _on_selection_changed(self, selection_model, position, n_items):
         if not self.has_timestamps:
             return
