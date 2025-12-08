@@ -1,0 +1,21 @@
+using Gtk 4.0;
+using Adw 1;
+
+Adw.ShortcutsDialog shortcuts_dialog {
+  Adw.ShortcutsSection {
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Show Shortcuts");
+      action-name: 'app.shortcuts';
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Edit preferences");
+      action-name: 'app.preferences';
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Quit");
+      action-name: 'app.quit';
+    }
+  }
+}
