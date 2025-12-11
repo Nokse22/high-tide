@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the PACKAGE package."
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
@@ -19,7 +19,7 @@ msgstr ""
 "X-Generator: Poedit 3.8\n"
 
 #: data/gtk/help-overlay.blp:11
-msgctxt "shortcut window"
+msgctxt "shortcut window""
 msgid "General"
 msgstr "Ogólne"
 
@@ -464,11 +464,11 @@ msgstr "Dodanie elementu do mojej kolekcji nie powiodło się"
 
 #: src/lib/utils.py:329
 msgid "Successfully removed from my collection"
-msgstr "Usunięcie elementu do mojej kolekcji powiodło się"
+msgstr "Usunięcie elementu z mojej kolekcji powiodło się"
 
 #: src/lib/utils.py:331
 msgid "Failed to remove item from my collection"
-msgstr "Usunięcie elementu do mojej kolekcji nie powiodło się"
+msgstr "Usunięcie elementu z mojej kolekcji nie powiodło się"
 
 #: src/lib/utils.py:371
 msgid "Copied share URL in the clipboard"
