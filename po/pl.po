@@ -19,7 +19,7 @@ msgstr ""
 "X-Generator: Poedit 3.8\n"
 
 #: data/gtk/help-overlay.blp:11
-msgctxt "shortcut window""
+msgctxt "shortcut window"
 msgid "General"
 msgstr "Ogólne"
 
