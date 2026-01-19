@@ -2,7 +2,7 @@
     "name": "python3-pypresence",
     "buildsystem": "simple",
     "build-commands": [
-        "pip3 install --prefix=${FLATPAK_DEST} --no-deps ."
+        "pip3 install --prefix=${FLATPAK_DEST} --no-deps --no-build-isolation ."
     ],
     "sources": [
         {
