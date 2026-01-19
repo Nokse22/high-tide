@@ -27,8 +27,8 @@
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/ab/1a/5be778993af7c2079e7a24dc208424af6fe1b6392dfaac268a8cf42ba842/mpegdash-0.4.0-py3-none-any.whl",
-            "sha256": "d07f6e1f2a67ddce1be501e3ad7abc29a2d6a7b1830b4da974b49c2ebe99cf2a"
+            "url": "https://files.pythonhosted.org/packages/ca/a0/7a2734a7d734d81b6627ac1c470ce388f5a80e5669d9803a5c3c179ca84f/mpegdash-0.4.1-py3-none-any.whl",
+            "sha256": "788e559b73acbf9175422548c58a4c441486c0ce0633fa10f77097bfffeaad4d"
         },
         {
             "type": "file",
