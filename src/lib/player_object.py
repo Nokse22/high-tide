@@ -20,6 +20,7 @@
 import logging
 import random
 import threading
+import base64
 from enum import IntEnum
 from gettext import gettext as _
 from pathlib import Path
@@ -463,15 +464,24 @@ class PlayerObject(GObject.GObject):
             # When not gapless there is a race condition between get_stream() and on_track_start
             if not gapless:
                 self.apply_replaygain_tags()
-
             if self.stream.manifest_mime_type == ManifestMimeType.MPD:
                 data = self.stream.get_manifest_data()
+                major, minor, micro, nano = Gst.version()
                 if data:
-                    mpd_path = Path(utils.CACHE_DIR, "manifest.mpd")
-                    with open(mpd_path, "w") as file:
-                        file.write(data)
+                    # file:// MPD support in adaptivedemux2 landed in 1.26
+                    if (major, minor) >= (1, 26):
+                        mpd_path = Path(utils.CACHE_DIR, "manifest.mpd")
+                        with open(mpd_path, "w") as file:
+                            file.write(data)
 
-                    music_url = "file://{}".format(mpd_path)
+                        music_url = "file://{}".format(mpd_path)
+                    else:
+                        if isinstance(data, str):
+                            mpd_bytes = data.encode("utf-8")
+                        else:
+                            mpd_bytes = data
+                        mpd_b64 = base64.b64encode(mpd_bytes).decode("ascii")
+                        music_url = "data:application/dash+xml;base64," + mpd_b64
                 else:
                     raise AttributeError("No MPD manifest available!")
             elif self.stream.manifest_mime_type == ManifestMimeType.BTS:
