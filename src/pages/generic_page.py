@@ -20,9 +20,17 @@
 from gettext import gettext as _
 
 from gi.repository import Gtk
-from tidalapi import Track
-from tidalapi.page import (HorizontalList, HorizontalListWithContext, ItemList,
-                           PageLinks, ShortcutList, TextBlock, TrackList)
+
+from tidalapi.media import Track
+from tidalapi.page import (
+    HorizontalList,
+    HorizontalListWithContext,
+    ItemList,
+    PageLinks,
+    ShortcutList,
+    TextBlock,
+    TrackList,
+)
 
 from ..widgets import HTShorcutsWidget
 from .page import Page

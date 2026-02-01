@@ -19,7 +19,10 @@
 
 from gettext import gettext as _
 
-from tidalapi import Album, Artist, Playlist, Track
+from tidalapi.album import Album
+from tidalapi.artist import Artist
+from tidalapi.playlist import Playlist
+from tidalapi.media import Track
 
 from ..disconnectable_iface import IDisconnectable
 from ..lib import utils

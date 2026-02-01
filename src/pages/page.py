@@ -21,14 +21,19 @@ import threading
 from gettext import gettext as _
 
 from gi.repository import Adw, GLib, Gtk
-from tidalapi import Video
+from tidalapi.media import Video
 
 from ..disconnectable_iface import IDisconnectable
 from ..lib import utils
-from ..widgets import (HTAutoLoadWidget, HTCardWidget, HTCarouselWidget,
-                       HTTracksListWidget)
+from ..widgets import (
+    HTAutoLoadWidget,
+    HTCardWidget,
+    HTCarouselWidget,
+    HTTracksListWidget,
+)
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -219,15 +224,19 @@ class Page(Adw.NavigationPage, IDisconnectable):
         cards_box.set_overflow(Gtk.Overflow.VISIBLE)
         box.append(cards_box)
 
-        self.signals.append((
-            prev_button,
-            prev_button.connect("clicked", self.carousel_go_prev, cards_box),
-        ))
+        self.signals.append(
+            (
+                prev_button,
+                prev_button.connect("clicked", self.carousel_go_prev, cards_box),
+            )
+        )
 
-        self.signals.append((
-            next_button,
-            next_button.connect("clicked", self.carousel_go_next, cards_box),
-        ))
+        self.signals.append(
+            (
+                next_button,
+                next_button.connect("clicked", self.carousel_go_next, cards_box),
+            )
+        )
 
         buttons_for_page = 0
 
@@ -348,10 +357,12 @@ class Page(Adw.NavigationPage, IDisconnectable):
             width_request=200,
             vexpand=True,
         )
-        self.signals.append((
-            button,
-            button.connect("clicked", self.on_page_link_clicked, page_link),
-        ))
+        self.signals.append(
+            (
+                button,
+                button.connect("clicked", self.on_page_link_clicked, page_link),
+            )
+        )
 
         return button
 

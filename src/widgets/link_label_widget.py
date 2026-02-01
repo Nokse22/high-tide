@@ -21,7 +21,9 @@ import html
 from typing import List
 
 from gi.repository import Gtk
-from tidalapi import Album, Artist
+
+from tidalapi.album import Album
+from tidalapi.artist import Artist
 
 
 class HTLinkLabelWidget(Gtk.Label):

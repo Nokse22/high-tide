@@ -22,12 +22,13 @@ import threading
 from gettext import gettext as _
 
 from gi.repository import Gio, GLib, GObject, Gtk
-from tidalapi import UserPlaylist
+from tidalapi.playlist import UserPlaylist
 
 from ..disconnectable_iface import IDisconnectable
 from ..lib import utils
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -67,23 +68,31 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         self.menu_activated = False
         self.track = track
 
-        self.signals.append((
-            self.artist_label,
-            self.artist_label.connect("activate-link", utils.open_uri),
-        ))
-        self.signals.append((
-            self.artist_label_2,
-            self.artist_label_2.connect("activate-link", utils.open_uri),
-        ))
-        self.signals.append((
-            self.track_album_label,
-            self.track_album_label.connect("activate-link", utils.open_uri),
-        ))
+        self.signals.append(
+            (
+                self.artist_label,
+                self.artist_label.connect("activate-link", utils.open_uri),
+            )
+        )
+        self.signals.append(
+            (
+                self.artist_label_2,
+                self.artist_label_2.connect("activate-link", utils.open_uri),
+            )
+        )
+        self.signals.append(
+            (
+                self.track_album_label,
+                self.track_album_label.connect("activate-link", utils.open_uri),
+            )
+        )
 
-        self.signals.append((
-            self.menu_button,
-            self.menu_button.connect("notify::active", self._on_menu_activate),
-        ))
+        self.signals.append(
+            (
+                self.menu_button,
+                self.menu_button.connect("notify::active", self._on_menu_activate),
+            )
+        )
 
         self.track_album_label.set_album(self.track.album)
         self.track_title_label.set_label(
@@ -132,10 +141,12 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         add_to_playlist_action = Gio.SimpleAction.new(
             "add-to-playlist", GLib.VariantType.new("n")
         )
-        self.signals.append((
-            add_to_playlist_action,
-            add_to_playlist_action.connect("activate", self._add_to_playlist),
-        ))
+        self.signals.append(
+            (
+                add_to_playlist_action,
+                add_to_playlist_action.connect("activate", self._add_to_playlist),
+            )
+        )
         self.action_group.add_action(add_to_playlist_action)
 
         for index, playlist in enumerate(utils.user_playlists):

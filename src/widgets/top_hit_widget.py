@@ -21,7 +21,12 @@ import threading
 from gettext import gettext as _
 
 from gi.repository import GLib, Gtk
-from tidalapi import Album, Artist, Mix, Playlist, Track
+
+from tidalapi.album import Album
+from tidalapi.artist import Artist
+from tidalapi.mix import Mix
+from tidalapi.playlist import Playlist
+from tidalapi.media import Track
 
 from ..disconnectable_iface import IDisconnectable
 from ..lib import utils
@@ -45,10 +50,12 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         IDisconnectable.__init__(self)
         super().__init__()
 
-        self.signals.append((
-            self.artist_label,
-            self.artist_label.connect("activate-link", utils.open_uri),
-        ))
+        self.signals.append(
+            (
+                self.artist_label,
+                self.artist_label.connect("activate-link", utils.open_uri),
+            )
+        )
 
         self.item = _item
 
@@ -69,10 +76,12 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         elif isinstance(_item, Track):
             self._make_track()
 
-        self.signals.append((
-            self.click_gesture,
-            self.click_gesture.connect("released", self._on_click),
-        ))
+        self.signals.append(
+            (
+                self.click_gesture,
+                self.click_gesture.connect("released", self._on_click),
+            )
+        )
 
     def _on_click(self, *args) -> None:
         if self.action:
@@ -87,12 +96,14 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
         self.shuffle_button.set_visible(False)
 
-        self.signals.append((
-            self.play_button,
-            self.play_button.connect(
-                "clicked", lambda *args: utils.player_object.play_track(self.item)
-            ),
-        ))
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect(
+                    "clicked", lambda *args: utils.player_object.play_track(self.item)
+                ),
+            )
+        )
 
         threading.Thread(
             target=utils.add_image, args=(self.image, self.item.album)
@@ -105,19 +116,23 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         self.artist_label.set_visible(True)
         self.artist_label.set_label(self.item.sub_title)
 
-        self.signals.append((
-            self.play_button,
-            self.play_button.connect(
-                "clicked", lambda *_: utils.player_object.play_this(self.item)
-            ),
-        ))
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect(
+                    "clicked", lambda *_: utils.player_object.play_this(self.item)
+                ),
+            )
+        )
 
-        self.signals.append((
-            self.play_button,
-            self.play_button.connect(
-                "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
-            ),
-        ))
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect(
+                    "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
+                ),
+            )
+        )
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
@@ -128,19 +143,23 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         self.artist_label.set_visible(True)
         self.artist_label.set_artists([self.item.artist])
 
-        self.signals.append((
-            self.play_button,
-            self.play_button.connect(
-                "clicked", lambda *_: utils.player_object.play_this(self.item)
-            ),
-        ))
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect(
+                    "clicked", lambda *_: utils.player_object.play_this(self.item)
+                ),
+            )
+        )
 
-        self.signals.append((
-            self.play_button,
-            self.play_button.connect(
-                "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
-            ),
-        ))
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect(
+                    "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
+                ),
+            )
+        )
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
@@ -152,19 +171,23 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
             creator_name = self.item.creator.name
         self.secondary_label.set_label(_("By {}").format(creator_name))
 
-        self.signals.append((
-            self.play_button,
-            self.play_button.connect(
-                "clicked", lambda *_: utils.player_object.play_this(self.item)
-            ),
-        ))
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect(
+                    "clicked", lambda *_: utils.player_object.play_this(self.item)
+                ),
+            )
+        )
 
-        self.signals.append((
-            self.play_button,
-            self.play_button.connect(
-                "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
-            ),
-        ))
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect(
+                    "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
+                ),
+            )
+        )
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 

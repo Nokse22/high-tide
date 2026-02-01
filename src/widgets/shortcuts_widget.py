@@ -22,7 +22,11 @@ from gettext import gettext as _
 from typing import List, Union
 
 from gi.repository import GLib, Gtk
-from tidalapi import Album, Artist, Mix, MixV2, Playlist
+
+from tidalapi.album import Album
+from tidalapi.artist import Artist
+from tidalapi.mix import Mix, MixV2
+from tidalapi.playlist import Playlist
 
 from ..disconnectable_iface import IDisconnectable
 from ..lib import utils
@@ -48,10 +52,12 @@ class HTShorcutWidget(Gtk.FlowBoxChild, IDisconnectable):
         self.action: str | None = None
         self.item: Union[Mix, MixV2, Album, Artist, Playlist] = item
 
-        self.signals.append((
-            self.click_gesture,
-            self.click_gesture.connect("released", self._on_click),
-        ))
+        self.signals.append(
+            (
+                self.click_gesture,
+                self.click_gesture.connect("released", self._on_click),
+            )
+        )
 
         if isinstance(self.item, Mix) or isinstance(self.item, MixV2):
             self.title_label.set_label(self.item.title)
