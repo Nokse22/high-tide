@@ -30,7 +30,12 @@ from typing import Any, List
 
 import requests
 from gi.repository import Adw, Gdk, Gio, GLib
-from tidalapi import Album, Artist, Mix, Playlist, Track
+
+from tidalapi.album import Album
+from tidalapi.artist import Artist
+from tidalapi.mix import Mix
+from tidalapi.playlist import Playlist
+from tidalapi.media import Track
 
 from ..pages import HTAlbumPage, HTArtistPage, HTMixPage, HTPlaylistPage
 from .cache import HTCache
@@ -109,10 +114,12 @@ def get_alsa_devices_from_aplay() -> List[dict]:
 
             # Persistent device string
             hw_string = f"hw:CARD={card_short_name},DEV={device}"
-            devices.append({
-                "hw_device": hw_string,
-                "name": f"{card_full_name} - {device_full_name} ({hw_string})",
-            })
+            devices.append(
+                {
+                    "hw_device": hw_string,
+                    "name": f"{card_full_name} - {device_full_name} ({hw_string})",
+                }
+            )
 
     return devices
 
@@ -152,10 +159,12 @@ def get_alsa_devices_from_proc() -> List[dict]:
                 # Persistent device string
                 hw_string = f"hw:CARD={short_name},DEV={device}"
 
-                devices.append({
-                    "hw_device": hw_string,
-                    "name": f"{card_name} ({hw_string})",
-                })
+                devices.append(
+                    {
+                        "hw_device": hw_string,
+                        "name": f"{card_name} ({hw_string})",
+                    }
+                )
 
     return devices
 
@@ -255,7 +264,7 @@ def get_favourites() -> None:
         pages = []
 
         while offset < count:
-            pages += user.playlist_and_favorite_playlists(offset = offset)
+            pages += user.playlist_and_favorite_playlists(offset=offset)
             offset += limit
 
         playlist_and_favorite_playlists = pages
@@ -267,7 +276,9 @@ def get_favourites() -> None:
     logger.info(f"Favorite Albums: {len(favourite_albums)}")
     logger.info(f"Favorite Playlists: {len(favourite_playlists)}")
     logger.info(f"Favorite Mixes: {len(favourite_mixes)}")
-    logger.info(f"Playlist and Favorite Playlists: {len(playlist_and_favorite_playlists)}")
+    logger.info(
+        f"Playlist and Favorite Playlists: {len(playlist_and_favorite_playlists)}"
+    )
     logger.info(f"User Playlists: {len(user_playlists)}")
 
 
@@ -774,6 +785,7 @@ def replace_links(text: str) -> str:
     replaced_text = re.sub(pattern, replace, escaped_text)
 
     return replaced_text
+
 
 def setup_logging():
     global CACHE_DIR

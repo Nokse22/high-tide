@@ -22,7 +22,12 @@ from gettext import gettext as _
 from typing import Union
 
 from gi.repository import Adw, GLib, Gtk
-from tidalapi import Album, Artist, Mix, MixV2, Playlist, Track
+
+from tidalapi.album import Album
+from tidalapi.artist import Artist
+from tidalapi.mix import Mix, MixV2
+from tidalapi.playlist import Playlist
+from tidalapi.media import Track
 from tidalapi.page import PageItem
 
 from ..disconnectable_iface import IDisconnectable
@@ -57,15 +62,19 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         IDisconnectable.__init__(self)
         super().__init__()
 
-        self.signals.append((
-            self.track_artist_label,
-            self.track_artist_label.connect("activate-link", utils.open_uri),
-        ))
+        self.signals.append(
+            (
+                self.track_artist_label,
+                self.track_artist_label.connect("activate-link", utils.open_uri),
+            )
+        )
 
-        self.signals.append((
-            self.click_gesture,
-            self.click_gesture.connect("released", self._on_click),
-        ))
+        self.signals.append(
+            (
+                self.click_gesture,
+                self.click_gesture.connect("released", self._on_click),
+            )
+        )
 
         self.item: Union[Track, Album, Artist, Playlist, Mix, MixV2] = item
 
