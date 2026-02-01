@@ -27,7 +27,6 @@ import logging
 from gettext import gettext as _
 from pathlib import Path
 from typing import Any, List
-from operator import attrgetter
 
 import requests
 from gi.repository import Adw, Gdk, Gio, GLib
