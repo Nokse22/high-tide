@@ -19,6 +19,7 @@ from gi.repository import Gdk, Gio, GLib
 from .lib import utils
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -123,6 +124,13 @@ class MPRIS(Server):
             <method name="Play"/>
             <method name="Pause"/>
             <method name="Stop"/>
+            <method name="Seek">
+                <arg name="Offset" direction="in" type="x"/>
+            </method>
+            <method name="SetPosition">
+                <arg name="TrackId" direction="in" type="o"/>
+                <arg name="Position" direction="in" type="x"/>
+            </method>
             <property name="PlaybackStatus" type="s" access="read"/>
             <property name="Metadata" type="a{sv}" access="read">
             </property>
@@ -132,6 +140,7 @@ class MPRIS(Server):
             <property name="CanGoPrevious" type="b" access="read"/>
             <property name="CanPlay" type="b" access="read"/>
             <property name="CanPause" type="b" access="read"/>
+            <property name="CanSeek" type="b" access="read"/>
             <property name="CanControl" type="b" access="read"/>
         </interface>
     </node>
@@ -171,6 +180,43 @@ class MPRIS(Server):
         self.player.connect("notify::playing", self._on_playing_changed)
         self.player.connect("volume-changed", self._on_volume_changed)
 
+        self.start_position_updates()
+
+    def start_position_updates(self):
+        """Start a repeating timer to update the MPRIS Position property."""
+        GLib.timeout_add(500, self._update_position)  # update every 500ms
+
+    def _update_position(self):
+        if self.player.playing_track:
+            duration = self.player.query_duration() / 1000
+
+            if (
+                duration > 0
+                and self.__metadata.get(
+                    "mpris:length", GLib.Variant("x", 0)
+                ).get_int64()
+                != duration
+            ):
+                self.__metadata["mpris:length"] = GLib.Variant("x", int(duration))
+                self.PropertiesChanged(
+                    self.__MPRIS_PLAYER_IFACE,
+                    {
+                        "Metadata": GLib.Variant("a{sv}", self.__metadata),
+                    },
+                    [],
+                )
+
+            self.PropertiesChanged(
+                self.__MPRIS_PLAYER_IFACE,
+                {
+                    "Position": GLib.Variant(
+                        "x", int(self.player.query_position() / 1000)
+                    )
+                },
+                [],
+            )
+        return True
+
     def Raise(self):
         """Bring the High Tide application window to the foreground"""
         utils.window.present_with_time(Gdk.CURRENT_TIME)
@@ -202,8 +248,42 @@ class MPRIS(Server):
     def Stop(self):
         """Stop playback (implemented as pause for TIDAL streams)"""
         self.player.pause()
-
         self._on_playing_changed()
+
+    def Seek(self, offset):
+        """Seek forward or backward by the given offset (offset in microseconds)"""
+        current_pos_us = self.player.query_position() / 1000
+        duration_us = self.player.query_duration() / 1000
+
+        new_pos_us = current_pos_us + offset
+
+        new_pos_us = max(0, min(new_pos_us, duration_us))
+
+        seek_fraction = new_pos_us / duration_us if duration_us > 0 else 0
+
+        self.player.seek(seek_fraction)
+
+        self.PropertiesChanged(
+            self.__MPRIS_PLAYER_IFACE,
+            {"Position": GLib.Variant("x", int(new_pos_us))},
+            [],
+        )
+
+    def SetPosition(self, track_id, position):
+        """Set the playback position to a specific point (position in microseconds)"""
+        duration_us = self.player.query_duration() / 1000
+
+        position = max(0, min(position, duration_us))
+
+        seek_fraction = position / duration_us if duration_us > 0 else 0
+
+        self.player.seek(seek_fraction)
+
+        self.PropertiesChanged(
+            self.__MPRIS_PLAYER_IFACE,
+            {"Position": GLib.Variant("x", int(position))},
+            [],
+        )
 
     def Get(self, interface, property_name):
         """Get the value of a specific MPRIS property.
@@ -227,6 +307,8 @@ class MPRIS(Server):
             return GLib.Variant("b", self.player.can_go_next)
         elif property_name == "CanGoPrevious":
             return GLib.Variant("b", self.player.can_go_prev)
+        elif property_name == "CanSeek":
+            return GLib.Variant("b", True)
         elif property_name == "Identity":
             return GLib.Variant("s", "High Tide")
         elif property_name == "DesktopEntry":
@@ -266,6 +348,7 @@ class MPRIS(Server):
                 "CanPlay",
                 "CanPause",
                 "CanControl",
+                "CanSeek",
             ]:
                 ret[property_name] = self.Get(interface, property_name)
         return ret
