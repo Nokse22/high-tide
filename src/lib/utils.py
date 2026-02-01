@@ -27,6 +27,7 @@ import logging
 from gettext import gettext as _
 from pathlib import Path
 from typing import Any, List
+from operator import attrgetter
 
 import requests
 from gi.repository import Adw, Gdk, Gio, GLib
@@ -36,6 +37,7 @@ from tidalapi.artist import Artist
 from tidalapi.mix import Mix
 from tidalapi.playlist import Playlist
 from tidalapi.media import Track
+from tidalapi.types import ItemOrder, OrderDirection
 
 from ..pages import HTAlbumPage, HTArtistPage, HTMixPage, HTPlaylistPage
 from .cache import HTCache
@@ -252,7 +254,10 @@ def get_favourites() -> None:
 
     try:
         favourite_artists = user.favorites.artists()
-        favourite_tracks = user.favorites.tracks()
+        favourite_tracks = user.favorites.tracks(
+            order=ItemOrder.Date, 
+            order_direction=OrderDirection.Descending
+        )
         favourite_albums = user.favorites.albums()
         favourite_playlists = user.favorites.playlists()
         favourite_mixes = user.favorites.mixes()
