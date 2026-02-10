@@ -17,6 +17,7 @@ from random import randint
 from gi.repository import Gdk, Gio, GLib
 
 from .lib import utils
+from .lib.player_object import RepeatType
 
 import logging
 
@@ -132,10 +133,11 @@ class MPRIS(Server):
                 <arg name="Position" direction="in" type="x"/>
             </method>
             <property name="PlaybackStatus" type="s" access="read"/>
-            <property name="Metadata" type="a{sv}" access="read">
-            </property>
+            <property name="Metadata" type="a{sv}" access="read"/>
             <property name="Position" type="x" access="read"/>
             <property name="Volume" type="d" access="readwrite"/>
+            <property name="Shuffle" type="b" access="readwrite"/>
+            <property name="LoopStatus" type="s" access="readwrite"/>
             <property name="CanGoNext" type="b" access="read"/>
             <property name="CanGoPrevious" type="b" access="read"/>
             <property name="CanPlay" type="b" access="read"/>
@@ -151,23 +153,31 @@ class MPRIS(Server):
     __MPRIS_HIGH_TIDE = "org.mpris.MediaPlayer2.io.github.nokse22.high-tide"
     __MPRIS_PATH = "/org/mpris/MediaPlayer2"
 
+    REPEAT_TYPE_TO_MPRIS_LOOP = {
+        RepeatType.NONE: 'None',
+        RepeatType.SONG: 'Track',
+        RepeatType.LIST: 'Playlist',
+    }
+
+    MPRIS_LOOP_TO_REPEAT_TYPE = {
+        'None': RepeatType.NONE,
+        'Track': RepeatType.SONG,
+        'Playlist': RepeatType.LIST,
+    }
+
     def __init__(self, player):
         self.player = player
 
         self.__metadata = {}
 
-        track_id = 0 + randint(10000000, 90000000)
-        self.__metadata["mpris:trackid"] = GLib.Variant("o", f"/Track/{track_id}")
-
         track = self.player.playing_track
 
         if track:
+            self.__metadata["mpris:trackid"] = GLib.Variant("o", f"/Track/{track.id}")
             self.__metadata["xesam:title"] = GLib.Variant("s", track.name)
             self.__metadata["xesam:album"] = GLib.Variant("s", track.album)
             self.__metadata["xesam:artist"] = GLib.Variant("as", [track.artist])
-            self.__metadata["mpris:length"] = GLib.Variant(
-                "x", self.player.query_duration() / 1000
-            )
+            self.__metadata["mpris:length"] = GLib.Variant("x", track.duration * 1_000_000)
 
         self.__bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
         Gio.bus_own_name_on_connection(
@@ -178,6 +188,8 @@ class MPRIS(Server):
         self.player.connect("song-changed", self._on_preset_changed)
         self.player.connect("duration-changed", self._on_preset_changed)
         self.player.connect("notify::playing", self._on_playing_changed)
+        self.player.connect("notify::shuffle", self._on_shuffle_changed)
+        self.player.connect("notify::repeat-type", self._on_repeat_changed)
         self.player.connect("volume-changed", self._on_volume_changed)
 
         self.start_position_updates()
@@ -321,6 +333,11 @@ class MPRIS(Server):
             return GLib.Variant("x", self.player.query_position() / 1000)
         elif property_name == "Volume":
             return GLib.Variant("d", self.player.query_volume())
+        elif property_name == "Shuffle":
+            return GLib.Variant("b", self.player.shuffle)
+        elif property_name == "LoopStatus":
+            status = self.REPEAT_TYPE_TO_MPRIS_LOOP[self.player.repeat_type]
+            return GLib.Variant("s", status)
         else:
             return GLib.Variant("b", False)
 
@@ -343,6 +360,8 @@ class MPRIS(Server):
                 "Metadata",
                 "Position",
                 "Volume",
+                "Shuffle",
+                "LoopStatus",
                 "CanGoNext",
                 "CanGoPrevious",
                 "CanPlay",
@@ -363,6 +382,10 @@ class MPRIS(Server):
         """
         if property_name == "Volume":
             self.player.change_volume(new_value)
+        elif property_name == "Shuffle":
+            self.player.shuffle = new_value
+        elif property_name == "LoopStatus":
+            self.player.repeat_type = self.MPRIS_LOOP_TO_REPEAT_TYPE[new_value]
 
     def PropertiesChanged(
         self, interface_name, changed_properties, invalidated_properties
@@ -407,21 +430,25 @@ class MPRIS(Server):
         if self.player.playing_track is None:
             return
 
+        track = self.player.playing_track
+        self.__metadata["mpris:trackid"] = GLib.Variant(
+            "o", f"/Track/{track.id}"
+        )
         self.__metadata["xesam:title"] = GLib.Variant(
-            "s", self.player.playing_track.name
+            "s", track.name
         )
         self.__metadata["xesam:album"] = GLib.Variant(
-            "s", self.player.playing_track.album.name
+            "s", track.album.name
         )
         self.__metadata["xesam:artist"] = GLib.Variant(
-            "as", [self.player.playing_track.artist.name]
+            "as", [track.artist.name]
         )
         self.__metadata["mpris:length"] = GLib.Variant(
-            "x", self.player.query_duration() / 1000
+            "x", track.duration * 1_000_000
         )
 
         # 320 px should always be fetched for example by queue logic
-        url = f"file://{utils.IMG_DIR}/{self.player.playing_track.album.id}_320.jpg"
+        url = f"file://{utils.IMG_DIR}/{track.album.id}_320.jpg"
 
         self.__metadata["mpris:artUrl"] = GLib.Variant("s", url)
 
@@ -441,3 +468,13 @@ class MPRIS(Server):
     def _on_playing_changed(self, *args):
         properties = {"PlaybackStatus": GLib.Variant("s", self._get_status())}
         self.PropertiesChanged(self.__MPRIS_PLAYER_IFACE, properties, [])
+
+    def _on_shuffle_changed(self, *args):
+        properties = {"Shuffle": GLib.Variant("b", self.player.shuffle)}
+        self.PropertiesChanged(self.__MPRIS_PLAYER_IFACE, properties, [])
+
+    def _on_repeat_changed(self, *args):
+        status = self.REPEAT_TYPE_TO_MPRIS_LOOP[self.player.repeat_type]
+        properties = {"LoopStatus": GLib.Variant("s", status)}
+        self.PropertiesChanged(self.__MPRIS_PLAYER_IFACE, properties, [])
+
