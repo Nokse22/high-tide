@@ -27,8 +27,12 @@ from pathlib import Path
 from typing import Any, List, Union
 
 from gi.repository import GLib, GObject, Gst
-from tidalapi import Album, Artist, Mix, Playlist, Track
-from tidalapi.media import ManifestMimeType
+
+from tidalapi.album import Album
+from tidalapi.artist import Artist
+from tidalapi.mix import Mix
+from tidalapi.playlist import Playlist
+from tidalapi.media import Track, ManifestMimeType
 
 from . import discord_rpc, utils
 
@@ -354,7 +358,7 @@ class PlayerObject(GObject.GObject):
         track: Track = self._tracks_to_play.pop(0)
 
         if not track.available:
-            self.play_this(thing, index+1)
+            self.play_this(thing, index + 1)
         else:
             self.tracks_to_play = self._tracks_to_play
             self.played_songs = []
@@ -415,7 +419,7 @@ class PlayerObject(GObject.GObject):
 
         if self.discord_rpc_enabled and self.playing_track:
             discord_rpc.set_activity(
-                self.playing_track, self.query_position() / 1_000_000
+                self.playing_track, self.query_position() / 1_000_000_000
             )
         if self.update_timer:
             GLib.source_remove(self.update_timer)
@@ -735,7 +739,7 @@ class PlayerObject(GObject.GObject):
         )
 
         if self.discord_rpc_enabled:
-            discord_rpc.set_activity(self.playing_track, position / 1_000_000)
+            discord_rpc.set_activity(self.playing_track, position // 1_000_000_000)
 
     def set_discord_rpc(self, enabled: bool = True):
         """Enable or disable Discord Rich Presence integration.
@@ -746,7 +750,7 @@ class PlayerObject(GObject.GObject):
         self.discord_rpc_enabled = enabled
         if enabled and self.playing:
             discord_rpc.set_activity(
-                self.playing_track, self.query_position() / 1_000_000
+                self.playing_track, int(self.query_duration()) // 1_000_000_000
             )
         elif enabled:
             discord_rpc.set_activity()

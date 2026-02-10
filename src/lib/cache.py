@@ -19,7 +19,11 @@
 
 from typing import Any, Dict
 
-from tidalapi import Album, Artist, Mix, Playlist, Track
+from tidalapi.album import Album
+from tidalapi.artist import Artist
+from tidalapi.mix import Mix
+from tidalapi.playlist import Playlist
+from tidalapi.media import Track
 
 
 class HTCache:

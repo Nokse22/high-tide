@@ -3,7 +3,10 @@ import threading
 import time
 from enum import Enum
 
-from tidalapi import Track
+from tidalapi.media import Track
+
+from pypresence.presence import Presence
+from pypresence.types import ActivityType
 
 logger = logging.getLogger(__name__)
 
@@ -93,37 +96,22 @@ def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
     if not has_pypresence:
         return
 
+    if track is None:
+        try:
+            if state != State.DISCONNECTED:
+                rpc.clear()
+                rpc.close()
+        except Exception:
+            pass
+        state = State.DISCONNECTED
+        return
+
     if state == State.DISCONNECTED:
         if not connect():
             return
 
     try:
-        if track is None:
-            rpc.update(
-                activity_type=pypresence.ActivityType.LISTENING,
-                details="High Tide",
-                state="TIDAL gnome client",
-                large_image="hightide_x1024",
-                large_text="High Tide",
-                buttons=[
-                    {
-                        "label": "Get High Tide",
-                        "url": "https://github.com/nokse22/high-tide",
-                    }
-                ],
-            )
-            state = State.IDLE
-
-            def disconnect_function() -> None:
-                for _ in range(5 * 60):
-                    time.sleep(1)
-                    if state != State.IDLE:
-                        return
-                disconnect()
-
-            disconnect_thread = threading.Thread(target=disconnect_function)
-            disconnect_thread.start()
-        else:
+        if track is not None:
             artists = (
                 [artist.name for artist in track.artists if artist.name is not None]
                 if track.artists
@@ -133,24 +121,14 @@ def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
                 artists = None
 
             rpc.update(
-                activity_type=pypresence.ActivityType.LISTENING,
+                activity_type=ActivityType.LISTENING,
                 details=track.name,
+                name=", ".join(artists) if artists else "Unknown Artist",
                 state=", ".join(artists) if artists else "Unknown Artist",
                 large_image=track.album.image() if track.album else "hightide_x1024",
-                large_text=track.album.name if track.album else "High Tide",
-                small_image="hightide_x1024" if track.album else None,
                 small_text="High Tide" if track.album else None,
-                start=int(time.time() * 1_000 - offset_ms),
-                end=int(time.time() * 1_000 - offset_ms + track.duration * 1_000)
-                if track.duration
-                else None,
-                buttons=[
-                    {"label": "Listen to this song", "url": f"{track.share_url}?u"},
-                    {
-                        "label": "Get High Tide",
-                        "url": "https://github.com/nokse22/high-tide",
-                    },
-                ],
+                start=int(time.time() - offset_ms),
+                end=int(time.time() - offset_ms + track.duration),
             )
             state = State.PLAYING
     except pypresence.exceptions.PipeClosed:
@@ -162,5 +140,5 @@ def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
 
 
 if has_pypresence:
-    rpc: pypresence.Presence = pypresence.Presence(client_id=1379096506065223680)
+    rpc: Presence = Presence(client_id=1379096506065223680)
     connect()

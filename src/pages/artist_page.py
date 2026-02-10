@@ -23,7 +23,10 @@ from gettext import gettext as _
 from typing import List
 
 from gi.repository import GLib, Gtk
-from tidalapi import Album, Artist, Track
+
+from tidalapi.album import Album
+from tidalapi.artist import Artist
+from tidalapi.media import Track
 
 from ..lib import utils
 from .page import Page
@@ -99,30 +102,40 @@ class HTArtistPage(Page):
         builder.get_object("_name_label").set_label(self.artist.name)
 
         play_btn = builder.get_object("_play_button")
-        self.signals.append((
-            play_btn,
-            play_btn.connect("clicked", self.on_play_button_clicked),
-        ))
+        self.signals.append(
+            (
+                play_btn,
+                play_btn.connect("clicked", self.on_play_button_clicked),
+            )
+        )
 
         shuffle_btn = builder.get_object("_shuffle_button")
-        self.signals.append((
-            shuffle_btn,
-            shuffle_btn.connect("clicked", self.on_shuffle_button_clicked),
-        ))
+        self.signals.append(
+            (
+                shuffle_btn,
+                shuffle_btn.connect("clicked", self.on_shuffle_button_clicked),
+            )
+        )
 
         follow_button = builder.get_object("_follow_button")
-        self.signals.append((
-            follow_button,
-            follow_button.connect(
-                "clicked", utils.on_in_to_my_collection_button_clicked, self.artist
-            ),
-        ))
+        self.signals.append(
+            (
+                follow_button,
+                follow_button.connect(
+                    "clicked", utils.on_in_to_my_collection_button_clicked, self.artist
+                ),
+            )
+        )
 
         share_button = builder.get_object("_share_button")
-        self.signals.append((
-            share_button,
-            share_button.connect("clicked", lambda *_: utils.share_this(self.artist)),
-        ))
+        self.signals.append(
+            (
+                share_button,
+                share_button.connect(
+                    "clicked", lambda *_: utils.share_this(self.artist)
+                ),
+            )
+        )
 
         if utils.is_favourited(self.artist):
             follow_button.set_icon_name("heart-filled-symbolic")

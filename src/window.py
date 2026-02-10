@@ -23,7 +23,7 @@ from typing import Callable
 
 import tidalapi
 from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Xdp
-from tidalapi import Quality
+from tidalapi.media import Quality
 
 from .lib import HTCache, PlayerObject, RepeatType, SecretStore, utils
 from .login import LoginDialog

@@ -20,7 +20,7 @@
 from typing import Callable, List
 
 from gi.repository import Gtk
-from tidalapi import Track
+from tidalapi.media import Track
 
 from ..disconnectable_iface import IDisconnectable
 from ..lib import utils
@@ -44,10 +44,12 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
         IDisconnectable.__init__(self)
         super().__init__()
 
-        self.signals.append((
-            self.more_button,
-            self.more_button.connect("clicked", self._on_more_clicked),
-        ))
+        self.signals.append(
+            (
+                self.more_button,
+                self.more_button.connect("clicked", self._on_more_clicked),
+            )
+        )
 
         self.n_pages = 0
 
@@ -56,10 +58,14 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
 
         self.get_function: Callable = None
 
-        self.signals.append((
-            self.tracks_list_box,
-            self.tracks_list_box.connect("row-activated", self._on_tracks_row_selected),
-        ))
+        self.signals.append(
+            (
+                self.tracks_list_box,
+                self.tracks_list_box.connect(
+                    "row-activated", self._on_tracks_row_selected
+                ),
+            )
+        )
 
         self.tracks: List[Track] = []
 
