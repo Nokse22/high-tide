@@ -690,8 +690,14 @@ class PlayerObject(GObject.GObject):
         Returns:
             int: Duration in nanoseconds, or 0 if query failed
         """
+        logger.info("query_duration")
         success, duration = self.playbin.query_duration(Gst.Format.TIME)
-        return duration if success else 0
+        if success:
+            logger.info(f"success, duration: {duration}")
+            self.emit("duration-changed")
+            return duration
+        else:
+            return 0
 
     def query_position(self, default=0) -> int | None:
         """Get the current playback position.
