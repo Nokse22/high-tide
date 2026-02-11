@@ -1,0 +1,475 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-22 20:42+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: data/gtk/help-overlay.blp:11
+msgctxt "shortcut window"
+msgid "General"
+msgstr "Generali"
+
+#: data/gtk/help-overlay.blp:14
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "Mostra scorciatoie"
+
+#: data/gtk/help-overlay.blp:19
+msgctxt "shortcut window"
+msgid "Edit preferences"
+msgstr "Modifica preferenze"
+
+#: data/gtk/help-overlay.blp:24
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr "Esci"
+
+#: data/ui/detailed_track_listing.blp:46 src/widgets/top_hit_widget.py:131
+msgid "Album"
+msgstr "Album"
+
+#: data/ui/detailed_track_listing.blp:62 data/ui/detailed_track_listing.blp:93
+#: data/ui/widgets/generic_track_widget.blp:68
+msgid "Title"
+msgstr "Titolo"
+
+#: data/ui/detailed_track_listing.blp:137
+#: data/ui/detailed_track_listing.blp:162 data/ui/window.blp:528
+msgid "Go to track radio"
+msgstr "Vai alla radio della traccia"
+
+#: data/ui/detailed_track_listing.blp:142
+#: data/ui/detailed_track_listing.blp:167
+#: data/ui/widgets/generic_track_widget.blp:160
+msgid "Play next"
+msgstr "Riproduci successivamente"
+
+#: data/ui/detailed_track_listing.blp:147
+#: data/ui/detailed_track_listing.blp:177
+#: data/ui/widgets/generic_track_widget.blp:170
+msgid "Add to my collection"
+msgstr "Aggiungi alla libreria"
+
+#: data/ui/detailed_track_listing.blp:172
+#: data/ui/widgets/generic_track_widget.blp:165
+msgid "Add to queue"
+msgstr "Aggiungi alla coda"
+
+#: data/ui/login.blp:5
+msgid "Log In"
+msgstr "Accedi"
+
+#: data/ui/login.blp:23
+msgid ""
+"Go to this website and login with your account, if it asks for a code insert "
+"the code provided below."
+msgstr ""
+"Vai a questo sito ed effettua il login con il tuo account, se ti chiede un codice inserisci "
+"il codice fornito qui sotto."
+
+#: data/ui/new_playlist.blp:29
+msgid "Playlist Name"
+msgstr "Nome playlist"
+
+#: data/ui/new_playlist.blp:33
+msgid "Playlist Description"
+msgstr "Descrizione playlist"
+
+#: data/ui/new_playlist.blp:47
+msgid "Create"
+msgstr "Crea"
+
+#: data/ui/preferences.blp:7
+msgid "Audio"
+msgstr "Audio"
+
+#: data/ui/preferences.blp:11
+msgid "Low 96k"
+msgstr "Bassa 96k"
+
+#: data/ui/preferences.blp:12
+msgid "High 320k"
+msgstr "Alta"
+
+#: data/ui/preferences.blp:13
+msgid "Lossless"
+msgstr "Lossless"
+
+#: data/ui/preferences.blp:14
+msgid "Hi-res Lossless"
+msgstr ""
+
+#: data/ui/preferences.blp:18
+msgid "Quality"
+msgstr "Qualità"
+
+#: data/ui/preferences.blp:23
+msgid "Automatic"
+msgstr "Automatico"
+
+#: data/ui/preferences.blp:32
+msgid "Preferred Audio Sink"
+msgstr "Audio sink preferito"
+
+#: data/ui/preferences.blp:33
+msgid ""
+"Gapless playback is disabled for the native Pipewire Sink due to a bug. Use "
+"'Automatic' for gapless playback."
+msgstr ""
+"La riproduzione gapless è disabilita per il sink nativo di Pipewire per via di un bug. Usa "
+"'Automatico' per la riproduzione gapless."
+
+#: data/ui/preferences.blp:36
+msgid "ALSA Device"
+msgstr "Dispositivo ALSA"
+
+#: data/ui/preferences.blp:37
+msgid "Device used for exclusive ALSA access"
+msgstr "Dispositivo usato per l'accesso esclusivo ALSA"
+
+#: data/ui/preferences.blp:40
+msgid "Normalize volume"
+msgstr "Normalizza volume"
+
+#: data/ui/preferences.blp:45
+msgid "App"
+msgstr "App"
+
+#: data/ui/preferences.blp:47
+msgid "Run in the background"
+msgstr "Esegui in background"
+
+#: data/ui/preferences.blp:50
+msgid "Use quadratic volume control"
+msgstr "Use il controllo del volume quadratico"
+
+#: data/ui/preferences.blp:53
+msgid "Display animated covers"
+msgstr "Mostra le copertine animate"
+
+#: data/ui/preferences.blp:56
+msgid "Enable Discord Rich Presence"
+msgstr "Abilita la rich presence di Discord"
+
+#: data/ui/search_entry.blp:4
+msgid "Search..."
+msgstr "Cerca..."
+
+#: data/ui/window.blp:5
+msgid "We Changed App ID"
+msgstr "Abbiamo cambiato l'App ID"
+
+#: data/ui/window.blp:6
+msgid ""
+"We had to change the app ID for High Tide, if you had it installed before as "
+"Flatpak make sure to remove the old version with this command:"
+msgstr ""
+"Abbiamo dovuto cambiare l'ID dell'app per High Tide, se lo avevi installato prima come "
+"Flatpak assicurati di rimuovere la versione vecchia con questo comando:"
+
+#: data/ui/window.blp:18
+msgid "I understood"
+msgstr "Ho capito"
+
+#: data/ui/window.blp:158 data/ui/window.blp:394 data/ui/window.blp:639
+msgid "Play/Pause"
+msgstr "Riproduci/Pausa"
+
+#: data/ui/window.blp:169 data/ui/window.blp:406 data/ui/window.blp:652
+msgid "Skip Forward"
+msgstr "Salta avanti"
+
+#: data/ui/window.blp:214 src/pages/page.py:73
+msgid "Loading..."
+msgstr "Caricamento..."
+
+#: data/ui/window.blp:240
+msgid "Home"
+msgstr "Home"
+
+#: data/ui/window.blp:265 src/pages/explore_page.py:49
+msgid "Explore"
+msgstr "Esplora"
+
+#: data/ui/window.blp:290 src/pages/collection_page.py:35
+msgid "Collection"
+msgstr "Libreria"
+
+#: data/ui/window.blp:469
+msgid "No Song"
+msgstr "Nessun brano"
+
+#: data/ui/window.blp:491
+msgid "Nobody"
+msgstr "Nessuno"
+
+#: data/ui/window.blp:516
+msgid "Add/Remove from favorites"
+msgstr "Aggiungi/Rimuovi dai preferiti"
+
+#: data/ui/window.blp:540
+msgid "Go to album"
+msgstr "Vai all'album"
+
+#: data/ui/window.blp:552
+msgid "Copy Share Link"
+msgstr "Copia link di condivisione"
+
+#: data/ui/window.blp:614
+msgid "Toggle Shuffle"
+msgstr "Attiva/Disattiva shuffle"
+
+#: data/ui/window.blp:627
+msgid "Skip Backward"
+msgstr "Salta indietro"
+
+#: data/ui/window.blp:680
+msgid "Player"
+msgstr "Player"
+
+#: data/ui/window.blp:690 data/ui/widgets/lyrics_widget.blp:22
+msgid "Lyrics"
+msgstr "Testo"
+
+#: data/ui/window.blp:700 data/ui/widgets/queue_widget.blp:58
+msgid "Queue"
+msgstr "Coda"
+
+#: data/ui/pages_ui/artist_page_template.blp:182
+msgid "Radio"
+msgstr "Radio"
+
+#: data/ui/pages_ui/artist_page_template.blp:196
+#: data/ui/pages_ui/tracks_list_template.blp:205
+msgid "Copy Share URL"
+msgstr "Copia URL di condivisione"
+
+#: data/ui/pages_ui/page_template.blp:10
+msgid "Main Menu"
+msgstr "Menù principale"
+
+#: data/ui/pages_ui/page_template.blp:56
+msgid "Logout"
+msgstr "Logout"
+
+#: data/ui/pages_ui/page_template.blp:63
+msgid "_Preferences"
+msgstr "_Preferenze"
+
+#: data/ui/pages_ui/page_template.blp:68
+msgid "_Keyboard Shortcuts"
+msgstr "_Scorciatoie da tastiera"
+
+#: data/ui/pages_ui/page_template.blp:73
+msgid "_About High Tide"
+msgstr "_Informazioni su High Tide"
+
+#: data/ui/pages_ui/page_template.blp:80
+msgid "_Quit"
+msgstr "_Esci"
+
+#: data/ui/widgets/generic_track_widget.blp:175
+msgid "Copy share url"
+msgstr "Copia url di condivisione"
+
+#: data/ui/widgets/generic_track_widget.blp:179
+msgid "Add to a playlist"
+msgstr "Aggiungi ad una playlist"
+
+#: data/ui/widgets/lyrics_widget.blp:11 data/ui/widgets/lyrics_widget.blp:15
+msgid "No Lyrics"
+msgstr "Nessun testo"
+
+#: data/ui/widgets/lyrics_widget.blp:17
+msgid "Lyrics are not available for this song"
+msgstr "Il testo non è disponibile per questo brano"
+
+#: data/ui/widgets/queue_widget.blp:36
+msgid "Played Songs"
+msgstr "Brani riprodotti"
+
+#: data/ui/widgets/queue_widget.blp:80
+msgid "Next Songs"
+msgstr "Prossimi brani"
+
+#: data/ui/widgets/top_hit_widget.blp:18
+msgid "Top Hit"
+msgstr "Top Hit"
+
+#: data/io.github.nokse22.high-tide.desktop.in:2
+#: data/io.github.nokse22.high-tide.appdata.xml.in:9
+msgid "High Tide"
+msgstr "High Tide"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:10
+msgid "TIDAL client"
+msgstr "Client per TIDAL"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:12
+msgid ""
+"Third party unofficial TIDAL music client. Listen to your favorite music "
+"from your desktop or mobile Linux device at the highest quality."
+msgstr ""
+"Client di terze parti non ufficiale per TIDAL. Ascolta la tua musica preferita "
+"dal tuo desktop o dispositivo Linux mobile alla massima qualità."
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:56
+msgid "High Tide in a large window format playing the `Song 2` by Blur"
+msgstr "High Tide in una finestra larga mentre riproduce `Song 2` dei Blur"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:61
+msgid ""
+"High Tide in a large window format playing `Sultan Of Swing` by Dire Straits"
+msgstr ""
+"High Tide in una finestra larga mentre riproduce `Sultan Of Swing` dei Dire Straits"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:66
+msgid ""
+"High Tide in a small window format playing `Elenore` by The Turtles and "
+"showing the queue"
+msgstr ""
+"High Tide in una finestra piccola mentre riproduce `Elenore` dei Turtles e "
+"mentre mostra la coda"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:71
+msgid "High Tide in a small window format playing `Light My Fire` by The Doors"
+msgstr "High Tide in una finestra piccola mentre riproduce `Light My Fire` dei Doors"
+
+#: src/pages/album_page.py:60
+msgid "Unknown"
+msgstr "Sconosciuto"
+
+#: src/pages/album_page.py:64 src/pages/playlist_page.py:78
+msgid "{} tracks ({})"
+msgstr "{} tracce ({})"
+
+#: src/pages/artist_page.py:91 src/widgets/card_widget.py:151
+#: src/widgets/top_hit_widget.py:179
+msgid "Artist"
+msgstr "Artista"
+
+#: src/pages/artist_page.py:94
+msgid "Top Tracks"
+msgstr "Tracce top"
+
+#: src/pages/artist_page.py:97 src/pages/collection_page.py:39
+#: src/pages/search_page.py:57
+msgid "Albums"
+msgstr "Album"
+
+#: src/pages/artist_page.py:100
+msgid "EP & Singles"
+msgstr "EP & Singoli"
+
+#: src/pages/artist_page.py:104
+msgid "Appears On"
+msgstr "Appare in"
+
+#: src/pages/artist_page.py:107
+msgid "Similar Artists"
+msgstr "Artisti simili"
+
+#: src/pages/artist_page.py:130
+msgid "Bio"
+msgstr "Biografia"
+
+#: src/pages/collection_page.py:37
+msgid "My Mixes and Radios"
+msgstr "I miei mix e le mie Radio"
+
+#: src/pages/collection_page.py:38 src/pages/search_page.py:58
+msgid "Playlists"
+msgstr "Playlist"
+
+#: src/pages/collection_page.py:40 src/pages/search_page.py:59
+msgid "Tracks"
+msgstr "Tracce"
+
+#: src/pages/collection_page.py:41 src/pages/search_page.py:56
+msgid "Artists"
+msgstr "Artisti"
+
+#: src/pages/not_logged_in_page.py:38
+msgid "Login"
+msgstr "Login"
+
+#: src/pages/not_logged_in_page.py:45
+msgid "Login first"
+msgstr ""
+
+#: src/pages/not_logged_in_page.py:47
+msgid "To be able to use this app, you need to login with your TIDAL account."
+msgstr "Per usare questa app, devi effettuare il login con il tuo account TIDAL."
+
+#: src/pages/playlist_page.py:75
+msgid "by {}"
+msgstr "di {}"
+
+#: src/widgets/card_widget.py:108
+msgid "Track by {}"
+msgstr "Traccia di {}"
+
+#: src/widgets/card_widget.py:143 src/widgets/top_hit_widget.py:159
+msgid "By {}"
+msgstr "Di {}"
+
+#: src/widgets/top_hit_widget.py:88
+msgid "Track"
+msgstr "Traccia"
+
+#: src/widgets/top_hit_widget.py:108
+msgid "Mix"
+msgstr "Mix"
+
+#: src/main.py:107
+msgid "Donate with Ko-Fi"
+msgstr "Dona con Ko-Fi"
+
+#: src/main.py:108
+msgid "Donate with Github"
+msgstr "Dona con GitHub"
+
+#: src/window.py:231
+msgid "Playing Music"
+msgstr "Riproducento musica"
+
+#: src/lib/utils.py:102
+msgid "Default"
+msgstr "Default"
+
+#: src/lib/utils.py:300
+msgid "Successfully added to my collection"
+msgstr "Aggiunto alla libreria con successo"
+
+#: src/lib/utils.py:303
+msgid "Failed to add item to my collection"
+msgstr "Impossibile agiungere l'elemento alla libreria"
+
+#: src/lib/utils.py:329
+msgid "Successfully removed from my collection"
+msgstr "Rimosso dalla libreria con successo"
+
+#: src/lib/utils.py:331
+msgid "Failed to remove item from my collection"
+msgstr "Impossibile rimuovere l'elemento dalla libreria"
+
+#: src/lib/utils.py:371
+msgid "Copied share URL in the clipboard"
+msgstr "URL di condivisione copiato negli appunti"
+
+#: src/lib/player_object.py:268
+msgid "ALSA Audio Device is not available"
+msgstr "Il dispositivo audio di ALSA non è disponibile"

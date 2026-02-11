@@ -18,17 +18,20 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
-from gi.repository import Adw
-from gi.repository import Gtk
-from gi.repository import GLib, GObject
+from gi.repository import Adw, GObject, Gtk
 
-import tidalapi
-
-from .lib import utils
+import logging
+logger = logging.getLogger(__name__)
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/new_playlist.ui")
 class NewPlaylistWindow(Adw.Dialog):
+    """Dialog window for creating new playlists.
+
+    Provides a form interface for users to enter playlist name and description.
+    Emits a 'create-playlist' signal when the user confirms creation.
+    """
+
     __gtype_name__ = "NewPlaylistWindow"
 
     __gsignals__ = {
@@ -39,7 +42,7 @@ class NewPlaylistWindow(Adw.Dialog):
     playlist_description_entry = Gtk.Template.Child()
     create_button = Gtk.Template.Child()
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.playlist_name_entry.connect(
@@ -47,14 +50,14 @@ class NewPlaylistWindow(Adw.Dialog):
         )
 
     @Gtk.Template.Callback("on_create_button_clicked")
-    def on_create_button_clicked_func(self, *args):
-        playlist_title = self.playlist_name_entry.get_text()
-        playlist_description = self.playlist_description_entry.get_text()
+    def on_create_button_clicked_func(self, *args) -> None:
+        playlist_title: str = self.playlist_name_entry.get_text()
+        playlist_description: str = self.playlist_description_entry.get_text()
         self.emit("create-playlist", playlist_title, playlist_description)
 
-    def on_title_text_inserted_func(self, *args):
-        playlist_title = self.playlist_name_entry.get_text()
-        print(f"!{playlist_title}!")
+    def on_title_text_inserted_func(self, *args) -> None:
+        playlist_title: str = self.playlist_name_entry.get_text()
+        logger.info(f"!{playlist_title}!")
         if playlist_title != "":
             self.create_button.set_sensitive(True)
             return

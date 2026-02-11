@@ -17,76 +17,91 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from gettext import gettext as _
+
 from gi.repository import Gtk
 
-from tidalapi.page import PageItem, PageLink, TextBlock
-from tidalapi.artist import Artist
-from tidalapi.mix import Mix
-from tidalapi.album import Album
 from tidalapi.media import Track
-from tidalapi.playlist import Playlist
+from tidalapi.page import (
+    HorizontalList,
+    HorizontalListWithContext,
+    ItemList,
+    PageLinks,
+    ShortcutList,
+    TextBlock,
+    TrackList,
+)
 
+from ..widgets import HTShorcutsWidget
 from .page import Page
-from ..widgets import HTTracksListWidget
-
-from ..disconnectable_iface import IDisconnectable
 
 
-class genericPage(Page):
-    __gtype_name__ = "genericPage"
+class HTGenericPage(Page):
+    """A generic page that can display any TIDAL API page content.
 
-    """It is used for explore page categories page"""
+    This page dynamically renders content from TIDAL API page objects,
+    automatically creating appropriate widgets based on the content type
+    (tracks, carousels, shortcuts, etc.). It's used for displaying various
+    TIDAL pages like home, explore, genres, and search results.
+    """
 
-    def __init__(self, _page_link):
-        IDisconnectable.__init__(self)
-        super().__init__()
+    __gtype_name__ = "HTGenericPage"
 
-        self.item = _page_link
+    function = None
+    page = None
 
-    def _th_load_page(self):
-        self.set_title(self.item.title)
-        generic_content = self.item.get()
+    @classmethod
+    def new_from_function(cls, function) -> "HTGenericPage":
+        """Create a new generic page instance from a function that returns page data.
 
-        for index, category in enumerate(generic_content.categories):
-            if isinstance(category, PageItem):
-                continue
-            items = []
+        Args:
+            function: A callable that returns a TIDAL API page object when called
 
-            if isinstance(category.items[0], Track):
-                tracks_list_widget = HTTracksListWidget(category.title)
-                self.disconnectables.append(tracks_list_widget)
-                tracks_list_widget.set_tracks_list(category.items)
-                self.page_content.append(tracks_list_widget)
+        Returns:
+            HTGenericPage: A new instance configured with the provided function
+        """
+        instance = cls()
+
+        instance.function = function
+
+        return instance
+
+    def _load_async(self) -> None:
+        self.page = self.function()
+
+    def _load_finish(self) -> None:
+        if self.page.title:
+            self.set_title(self.page.title)
+        else:
+            self.set_title("")
+
+        for index, category in enumerate(self.page.categories):
+            if isinstance(category, TrackList) or all(
+                isinstance(item, Track) for item in category.items
+            ):
+                self.new_track_list_for(category.title, category.items)
             elif isinstance(category, TextBlock):
-                label = Gtk.Label(
-                    justify=0,
-                    xalign=0,
-                    wrap=True,
-                    margin_start=12,
-                    margin_top=12,
-                    margin_bottom=12,
-                    margin_end=12,
-                    label=category.text,
+                self.append(
+                    Gtk.Label(
+                        justify=0,
+                        xalign=0,
+                        wrap=True,
+                        margin_start=12,
+                        margin_top=12,
+                        margin_bottom=12,
+                        margin_end=12,
+                        label=category.text,
+                    )
                 )
-                self.page_content.append(label)
-            else:
-                carousel = self.get_carousel(category.title)
-                self.page_content.append(carousel)
-
-                for item in category.items:
-                    if isinstance(item, PageItem):  # Featured
-                        carousel.append_card(self.get_card(item.get()))
-                    elif isinstance(item, PageLink):  # Generes and moods
-                        items.append("\t" + item.title)
-                        button = self.get_page_link_card(item)
-                        carousel.append_card(button)
-                    elif isinstance(item, Mix):  # Mixes and for you
-                        carousel.append_card(self.get_card(item))
-                    elif isinstance(item, Album):
-                        carousel.append_card(self.get_card(item))
-                    elif isinstance(item, Artist):
-                        carousel.append_card(self.get_card(item))
-                    elif isinstance(item, Playlist):
-                        carousel.append_card(self.get_card(item))
-
-        self._page_loaded()
+            elif isinstance(category, PageLinks):
+                self.new_link_carousel_for(
+                    category.title if category.title else _("More"), category.items
+                )
+            elif isinstance(category, ShortcutList):
+                self.append(HTShorcutsWidget(category.items))
+            elif (
+                isinstance(category, ItemList)
+                or isinstance(category, HorizontalList)
+                or isinstance(category, HorizontalListWithContext)
+            ):
+                self.new_carousel_for(category.title, category.items)

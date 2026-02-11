@@ -17,29 +17,26 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk, GLib
-
-from tidalapi.page import PageItem
-from tidalapi.mix import Mix, MixV2
-from tidalapi.artist import Artist
-from tidalapi.album import Album
-from tidalapi.media import Track
-from tidalapi.playlist import Playlist
-
-from ..lib import utils
-from ..lib import utils
-from ..disconnectable_iface import IDisconnectable
 import threading
-
 from gettext import gettext as _
+
+from gi.repository import GLib, Gtk
+
+from tidalapi.album import Album
+from tidalapi.artist import Artist
+from tidalapi.mix import Mix
+from tidalapi.playlist import Playlist
+from tidalapi.media import Track
+
+from ..disconnectable_iface import IDisconnectable
+from ..lib import utils
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/top_hit_widget.ui")
 class HTTopHitWidget(Gtk.Box, IDisconnectable):
-    __gtype_name__ = "HTTopHitWidget"
+    """A widget to display the top hit when searching"""
 
-    """It is used to display the top hit when searching regardless
-    of the type"""
+    __gtype_name__ = "HTTopHitWidget"
 
     image = Gtk.Template.Child()
     primary_label = Gtk.Template.Child()
@@ -53,40 +50,44 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         IDisconnectable.__init__(self)
         super().__init__()
 
-        self.signals.append((
-            self.artist_label,
-            self.artist_label.connect("activate-link", utils.open_uri),
-        ))
+        self.signals.append(
+            (
+                self.artist_label,
+                self.artist_label.connect("activate-link", utils.open_uri),
+            )
+        )
 
         self.item = _item
 
         self.action = None
 
         if isinstance(_item, Mix):
-            self.make_mix()
+            self._make_mix()
             self.action = "win.push-mix-page"
         elif isinstance(_item, Album):
-            self.make_album()
+            self._make_album()
             self.action = "win.push-album-page"
         elif isinstance(_item, Playlist):
-            self.make_playlist()
+            self._make_playlist()
             self.action = "win.push-playlist-page"
         if isinstance(_item, Artist):
-            self.make_artist()
+            self._make_artist()
             self.action = "win.push-artist-page"
         elif isinstance(_item, Track):
-            self.make_track()
+            self._make_track()
 
-        self.signals.append((
-            self.click_gesture,
-            self.click_gesture.connect("released", self.on_click),
-        ))
+        self.signals.append(
+            (
+                self.click_gesture,
+                self.click_gesture.connect("released", self._on_click),
+            )
+        )
 
-    def on_click(self, *args):
+    def _on_click(self, *args) -> None:
         if self.action:
             self.activate_action(self.action, GLib.Variant("s", str(self.item.id)))
 
-    def make_track(self):
+    def _make_track(self) -> None:
         self.primary_label.set_label(self.item.name)
         self.secondary_label.set_label(_("Track"))
 
@@ -95,91 +96,102 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
         self.shuffle_button.set_visible(False)
 
-        self.signals.append((
-            self.play_button,
-            self.play_button.connect(
-                "clicked", lambda *args: utils.player_object.play_track(self.item)
-            ),
-        ))
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect(
+                    "clicked", lambda *args: utils.player_object.play_track(self.item)
+                ),
+            )
+        )
 
         threading.Thread(
             target=utils.add_image, args=(self.image, self.item.album)
         ).start()
 
-    def make_mix(self):
+    def _make_mix(self) -> None:
         self.primary_label.set_label(self.item.title)
         self.secondary_label.set_label(_("Mix"))
 
         self.artist_label.set_visible(True)
         self.artist_label.set_label(self.item.sub_title)
 
-        self.signals.append((
-            self.play_button,
-            self.play_button.connect(
-                "clicked", lambda *_: utils.player_object.play_this(self.item)
-            ),
-        ))
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect(
+                    "clicked", lambda *_: utils.player_object.play_this(self.item)
+                ),
+            )
+        )
 
-        self.signals.append((
-            self.play_button,
-            self.play_button.connect(
-                "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
-            ),
-        ))
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect(
+                    "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
+                ),
+            )
+        )
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def make_album(self):
+    def _make_album(self) -> None:
         self.primary_label.set_label(self.item.name)
         self.secondary_label.set_label(_("Album"))
 
         self.artist_label.set_visible(True)
         self.artist_label.set_artists([self.item.artist])
 
-        self.signals.append((
-            self.play_button,
-            self.play_button.connect(
-                "clicked", lambda *_: utils.player_object.play_this(self.item)
-            ),
-        ))
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect(
+                    "clicked", lambda *_: utils.player_object.play_this(self.item)
+                ),
+            )
+        )
 
-        self.signals.append((
-            self.play_button,
-            self.play_button.connect(
-                "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
-            ),
-        ))
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect(
+                    "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
+                ),
+            )
+        )
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def make_playlist(self):
+    def _make_playlist(self) -> None:
         self.primary_label.set_label(self.item.name)
-        self.secondary_label.set_visible(False)
 
-        creator = self.item.creator
-        if creator:
-            creator = creator.name
-        else:
-            creator = "TIDAL"
-        # self.detail_label.set_label(f"by {creator}")
+        creator_name = "TIDAL"
+        if self.item.creator is not None and self.item.creator.name is not None:
+            creator_name = self.item.creator.name
+        self.secondary_label.set_label(_("By {}").format(creator_name))
 
-        self.signals.append((
-            self.play_button,
-            self.play_button.connect(
-                "clicked", lambda *_: utils.player_object.play_this(self.item)
-            ),
-        ))
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect(
+                    "clicked", lambda *_: utils.player_object.play_this(self.item)
+                ),
+            )
+        )
 
-        self.signals.append((
-            self.play_button,
-            self.play_button.connect(
-                "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
-            ),
-        ))
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect(
+                    "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
+                ),
+            )
+        )
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def make_artist(self):
+    def _make_artist(self) -> None:
         self.primary_label.set_label(self.item.name)
         self.secondary_label.set_label(_("Artist"))
 
@@ -187,6 +199,3 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         self.shuffle_button.set_visible(False)
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
-
-    def __repr__(self, *args):
-        return "<HTCardWidget>"

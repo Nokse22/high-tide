@@ -16,6 +16,19 @@ If you have any questions, we'd be happy to help you.
 
 Contributions should be licensed under the **GPL-3**. 
 
+## Translations
+
+Translations are managed through the `gettext` library. The files that are used for translation are located in `/po`.
+
+Translation tools such as [PoEdit](https://poedit.net/) exist, that allow you to update translation strings in a more intuitive way.
+
+### Updating the .pot file
+<!-- TODO: Make a github action that does this automatically -->
+If you've made an update that moves translations around, or you added translations, you can use the following command to update the Portable Object Template (.pot) file : 
+```sh
+xgettext --files-from=po/POTFILES --output=po/high-tide.pot --from-code=UTF-8 --add-comments --keyword=_ --keyword=C_:1c,2
+```
+
 ## Coding Style and Best Practices
 
 This project follows a specific coding style. Please adhere to these guidelines when contributing code.
@@ -39,8 +52,8 @@ def th_function(self):
     """This function will always be called in a thread"""
     try:
         self.this_call_might_fail()
-    except Exception as e:
-        print(f"Error while ...: {e}")
+    except Exception:
+        logger.exception(f"Error while ...")
         GLib.idle_add(self.on_failed)
     else:
         utils.get_favourites()
@@ -52,14 +65,14 @@ threading.Thread(target=self.th_function, args=()).start()
 ### Error Handling
 
 - Always include appropriate exception handling for external API calls
-- Use descriptive error messages or at least write the error to the console
+- Use descriptive error messages or at least write the error to the console using a logger
 - Provide fallback behavior when operations fail
 
 ```python
 try:
     self.this_call_might_fail()
-except Exception as e:
-    print(e)
+except Exception:
+    logger.exception("<Description>")
 ```
 
 ### Signals and memory management

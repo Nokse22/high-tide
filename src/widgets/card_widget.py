@@ -17,30 +17,34 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
-from gi.repository import Gtk, GLib
-
 import threading
+from gettext import gettext as _
+from typing import Union
 
-from ..lib import utils
+from gi.repository import Adw, GLib, Gtk
 
-from tidalapi.mix import MixV2, Mix
-from tidalapi.artist import Artist
 from tidalapi.album import Album
-from tidalapi.media import Track
+from tidalapi.artist import Artist
+from tidalapi.mix import Mix, MixV2
 from tidalapi.playlist import Playlist
+from tidalapi.media import Track
+from tidalapi.page import PageItem
 
 from ..disconnectable_iface import IDisconnectable
-
-from gettext import gettext as _
+from ..lib import utils
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/card_widget.ui")
 class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
-    __gtype_name__ = "HTCardWidget"
+    """A card widget that adapts to display different types of TIDAL content.
 
-    """It is card that adapts to the content it needs to display,
-    it is used when listing artists, albums, mixes and so on"""
+    This widget automatically configures itself based on the type of TIDAL item
+    it receives (Track, Album, Artist, Playlist, Mix) and displays appropriate
+    information and imagery. It handles click events to navigate to detail pages
+    or start playback for tracks.
+    """
+
+    __gtype_name__ = "HTCardWidget"
 
     image = Gtk.Template.Child()
     click_gesture = Gtk.Template.Child()
@@ -49,41 +53,55 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
     track_artist_label = Gtk.Template.Child()
 
-    def __init__(self, _item):
+    def __init__(self, item: Union[Track, Album, Artist, Playlist, Mix, MixV2]) -> None:
+        """Initialize the card widget with a TIDAL item.
+
+        Args:
+            item: A TIDAL object (Track, Album, Artist, Playlist, or Mix) to display
+        """
         IDisconnectable.__init__(self)
         super().__init__()
 
-        self.signals.append((
-            self.track_artist_label,
-            self.track_artist_label.connect("activate-link", utils.open_uri),
-        ))
+        self.signals.append(
+            (
+                self.track_artist_label,
+                self.track_artist_label.connect("activate-link", utils.open_uri),
+            )
+        )
 
-        self.signals.append((
-            self.click_gesture,
-            self.click_gesture.connect("released", self.on_click),
-        ))
+        self.signals.append(
+            (
+                self.click_gesture,
+                self.click_gesture.connect("released", self._on_click),
+            )
+        )
 
-        self.item = _item
+        self.item: Union[Track, Album, Artist, Playlist, Mix, MixV2] = item
 
-        self.action = None
+        self.action: str | None = None
 
+        self._populate()
+
+    def _populate(self):
         if isinstance(self.item, MixV2) or isinstance(self.item, Mix):
-            self.make_mix_card()
+            self._make_mix_card()
             self.action = "win.push-mix-page"
         elif isinstance(self.item, Album):
-            self.make_album_card()
+            self._make_album_card()
             self.action = "win.push-album-page"
         elif isinstance(self.item, Playlist):
-            self.make_playlist_card()
+            self._make_playlist_card()
             self.action = "win.push-playlist-page"
         elif isinstance(self.item, Artist):
-            self.make_artist_card()
+            self._make_artist_card()
             self.action = "win.push-artist-page"
         elif isinstance(self.item, Track):
-            self.make_track_card()
-            self.action = "win.push-album-page"
+            self._make_track_card()
+        elif isinstance(self.item, PageItem):
+            self._make_page_item_card()
 
-    def make_track_card(self):
+    def _make_track_card(self) -> None:
+        """Configure the card to display a Track item"""
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_artists(self.item.artists)
@@ -92,11 +110,12 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         )
         self.detail_label.set_visible(False)
 
-        self.item = self.item.album
+        threading.Thread(
+            target=utils.add_image, args=(self.image, self.item.album)
+        ).start()
 
-        threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
-
-    def make_mix_card(self):
+    def _make_mix_card(self) -> None:
+        """Configure the card to display a Mix item"""
         self.title_label.set_label(self.item.title)
         self.title_label.set_tooltip_text(self.item.title)
         self.detail_label.set_label(self.item.sub_title)
@@ -104,7 +123,8 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def make_album_card(self):
+    def _make_album_card(self) -> None:
+        """Configure the card to display an Album item"""
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_artists(self.item.artists)
@@ -112,21 +132,21 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def make_playlist_card(self):
+    def _make_playlist_card(self) -> None:
+        """Configure the card to display a Playlist item"""
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_visible(False)
 
-        creator = self.item.creator
-        if creator:
-            creator = creator.name
-        else:
-            creator = "TIDAL"
-        self.detail_label.set_label(_("By {}").format(creator.title()))
+        creator_name = "TIDAL"
+        if self.item.creator is not None and self.item.creator.name is not None:
+            creator_name = self.item.creator.name
+        self.detail_label.set_label(_("By {}").format(creator_name))
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def make_artist_card(self):
+    def _make_artist_card(self) -> None:
+        """Configure the card to display an Artist item"""
         self.title_label.set_label(self.item.name)
         self.title_label.set_tooltip_text(self.item.name)
         self.detail_label.set_label(_("Artist"))
@@ -134,9 +154,36 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
-    def on_click(self, *args):
+    def _make_page_item_card(self) -> None:
+        """Configure the card to display a PageItem"""
+
+        def _get_item():
+            if self.item.type == "PLAYLIST":
+                self.item = utils.get_playlist(self.item.artifact_id)
+            elif self.item.type == "TRACK":
+                self.item = utils.get_track(self.item.artifact_id)
+            elif self.item.type == "ARTIST":
+                self.item = utils.get_artist(self.item.artifact_id)
+            elif self.item.type == "ALBUM":
+                self.item = utils.get_album(self.item.artifact_id)
+
+            GLib.idle_add(self._populate)
+
+        threading.Thread(target=_get_item).start()
+
+    def _on_click(self, *args) -> None:
+        """Handle click events on the card.
+
+        For non-track items, activates the appropriate navigation action to show
+        the detail page. For track items, starts playback immediately.
+        """
         if self.action:
             self.activate_action(self.action, GLib.Variant("s", str(self.item.id)))
+        elif isinstance(self.item, Track):
+            utils.player_object.play_this(self.item)
+        elif isinstance(self.item, PageItem) and self.item.type == "TRACK":
 
-    def __repr__(self, *args):
-        return "<CardWidget>"
+            def _get():
+                utils.player_object.play_this(self.item.get())
+
+            threading.Thread(target=_get).start()

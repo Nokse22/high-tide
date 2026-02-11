@@ -1,0 +1,463 @@
+# Translation file for Traditional Chinese.
+# Copyright (C) 2025 Bruce-awareit
+# This file is distributed under the same license as the PACKAGE package.
+# Bruce-awareit <bruce at mail.kh.edu.tw>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-22 20:42+0200\n"
+"PO-Revision-Date: 2025-10-02 22:16+0800\n"
+"Last-Translator: Bruce-awareit <bruce at mail.kh.edu.tw>\n"
+"Language-Team:\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: data/gtk/help-overlay.blp:11
+msgctxt "shortcut window"
+msgid "General"
+msgstr "一般"
+
+#: data/gtk/help-overlay.blp:14
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "顯示快捷鍵"
+
+#: data/gtk/help-overlay.blp:19
+msgctxt "shortcut window"
+msgid "Edit preferences"
+msgstr "編輯偏好設定"
+
+#: data/gtk/help-overlay.blp:24
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr "退出"
+
+#: data/ui/detailed_track_listing.blp:46 src/widgets/top_hit_widget.py:131
+msgid "Album"
+msgstr "專輯"
+
+#: data/ui/detailed_track_listing.blp:62 data/ui/detailed_track_listing.blp:93
+#: data/ui/widgets/generic_track_widget.blp:68
+msgid "Title"
+msgstr "標題"
+
+#: data/ui/detailed_track_listing.blp:137
+#: data/ui/detailed_track_listing.blp:162 data/ui/window.blp:528
+msgid "Go to track radio"
+msgstr "前往曲目電台"
+
+#: data/ui/detailed_track_listing.blp:142
+#: data/ui/detailed_track_listing.blp:167
+#: data/ui/widgets/generic_track_widget.blp:160
+msgid "Play next"
+msgstr "播放下一首"
+
+#: data/ui/detailed_track_listing.blp:147
+#: data/ui/detailed_track_listing.blp:177
+#: data/ui/widgets/generic_track_widget.blp:170
+msgid "Add to my collection"
+msgstr "加入我的收藏"
+
+#: data/ui/detailed_track_listing.blp:172
+#: data/ui/widgets/generic_track_widget.blp:165
+msgid "Add to queue"
+msgstr "加入播放清單"
+
+#: data/ui/login.blp:5
+msgid "Log In"
+msgstr "登入"
+
+#: data/ui/login.blp:23
+msgid ""
+"Go to this website and login with your account, if it asks for a code insert "
+"the code provided below."
+msgstr "前往此網站並使用您的帳戶登入，若需要輸入代碼，請輸入下方提供的代碼。"
+
+#: data/ui/new_playlist.blp:29
+msgid "Playlist Name"
+msgstr "播放清單名稱"
+
+#: data/ui/new_playlist.blp:33
+msgid "Playlist Description"
+msgstr "播放清單描述"
+
+#: data/ui/new_playlist.blp:47
+msgid "Create"
+msgstr "建立"
+
+#: data/ui/preferences.blp:7
+msgid "Audio"
+msgstr "音訊"
+
+#: data/ui/preferences.blp:11
+msgid "Low 96k"
+msgstr "低品質 96k"
+
+#: data/ui/preferences.blp:12
+msgid "High 320k"
+msgstr "高品質 320k"
+
+#: data/ui/preferences.blp:13
+msgid "Lossless"
+msgstr "無損音質"
+
+#: data/ui/preferences.blp:14
+msgid "Hi-res Lossless"
+msgstr "高解析無損音質"
+
+#: data/ui/preferences.blp:18
+msgid "Quality"
+msgstr "音質"
+
+#: data/ui/preferences.blp:23
+msgid "Automatic"
+msgstr "自動"
+
+#: data/ui/preferences.blp:32
+msgid "Preferred Audio Sink"
+msgstr "首選音訊輸出"
+
+#: data/ui/preferences.blp:33
+msgid ""
+"Gapless playback is disabled for the native Pipewire Sink due to a bug. Use "
+"'Automatic' for gapless playback."
+msgstr "由於程式錯誤，原生 Pipewire 輸出已禁用無縫播放。請選擇使用「自動」以啟用無縫播放。"
+
+#: data/ui/preferences.blp:36
+msgid "ALSA Device"
+msgstr "ALSA 設備"
+
+#: data/ui/preferences.blp:37
+msgid "Device used for exclusive ALSA access"
+msgstr "用於獨佔 ALSA 存取的設備"
+
+#: data/ui/preferences.blp:40
+msgid "Normalize volume"
+msgstr "標準化音量"
+
+#: data/ui/preferences.blp:45
+msgid "App"
+msgstr "應用程式"
+
+#: data/ui/preferences.blp:47
+msgid "Run in the background"
+msgstr "在背景執行"
+
+#: data/ui/preferences.blp:50
+msgid "Use quadratic volume control"
+msgstr "採用二次曲面式音量調節"
+
+#: data/ui/preferences.blp:53
+msgid "Display animated covers"
+msgstr "顯示動態封面"
+
+#: data/ui/preferences.blp:56
+msgid "Enable Discord Rich Presence"
+msgstr "啟用 Discord 多媒體狀態顯示"
+
+#: data/ui/search_entry.blp:4
+msgid "Search..."
+msgstr "搜尋..."
+
+#: data/ui/window.blp:5
+msgid "We Changed App ID"
+msgstr "我們已更改應用程式 ID"
+
+#: data/ui/window.blp:6
+msgid ""
+"We had to change the app ID for High Tide, if you had it installed before as "
+"Flatpak make sure to remove the old version with this command:"
+msgstr "我們已更改 High Tide 的應用程式 ID，若您之前以 Flatpak 方式安裝，請使用以下指令移除舊版本："
+
+#: data/ui/window.blp:18
+msgid "I understood"
+msgstr "我了解"
+
+#: data/ui/window.blp:158 data/ui/window.blp:394 data/ui/window.blp:639
+msgid "Play/Pause"
+msgstr "播放/暫停"
+
+#: data/ui/window.blp:169 data/ui/window.blp:406 data/ui/window.blp:652
+msgid "Skip Forward"
+msgstr "下一首"
+
+#: data/ui/window.blp:214 src/pages/page.py:73
+msgid "Loading..."
+msgstr "載入中..."
+
+#: data/ui/window.blp:240
+msgid "Home"
+msgstr "首頁"
+
+#: data/ui/window.blp:265 src/pages/explore_page.py:49
+msgid "Explore"
+msgstr "探索"
+
+#: data/ui/window.blp:290 src/pages/collection_page.py:35
+msgid "Collection"
+msgstr "收藏"
+
+#: data/ui/window.blp:469
+msgid "No Song"
+msgstr "無歌曲"
+
+#: data/ui/window.blp:491
+msgid "Nobody"
+msgstr "無人"
+
+#: data/ui/window.blp:516
+msgid "Add/Remove from favorites"
+msgstr "加入/移除 收藏"
+
+#: data/ui/window.blp:540
+msgid "Go to album"
+msgstr "前往專輯"
+
+#: data/ui/window.blp:552
+msgid "Copy Share Link"
+msgstr "複製分享連結"
+
+#: data/ui/window.blp:614
+msgid "Toggle Shuffle"
+msgstr "切換隨機播放"
+
+#: data/ui/window.blp:627
+msgid "Skip Backward"
+msgstr "上一首"
+
+#: data/ui/window.blp:680
+msgid "Player"
+msgstr "播放器"
+
+#: data/ui/window.blp:690 data/ui/widgets/lyrics_widget.blp:22
+msgid "Lyrics"
+msgstr "歌詞"
+
+#: data/ui/window.blp:700 data/ui/widgets/queue_widget.blp:58
+msgid "Queue"
+msgstr "播放清單"
+
+#: data/ui/pages_ui/artist_page_template.blp:182
+msgid "Radio"
+msgstr "電台"
+
+#: data/ui/pages_ui/artist_page_template.blp:196
+#: data/ui/pages_ui/tracks_list_template.blp:205
+msgid "Copy Share URL"
+msgstr "複製分享網址"
+
+#: data/ui/pages_ui/page_template.blp:10
+msgid "Main Menu"
+msgstr "主選單"
+
+#: data/ui/pages_ui/page_template.blp:56
+msgid "Logout"
+msgstr "登出"
+
+#: data/ui/pages_ui/page_template.blp:63
+msgid "_Preferences"
+msgstr "_P 偏好設定"
+
+#: data/ui/pages_ui/page_template.blp:68
+msgid "_Keyboard Shortcuts"
+msgstr "_K 鍵盤快捷鍵"
+
+#: data/ui/pages_ui/page_template.blp:73
+msgid "_About High Tide"
+msgstr "_A 關於 High Tide"
+
+#: data/ui/pages_ui/page_template.blp:80
+msgid "_Quit"
+msgstr "_Q 結束"
+
+#: data/ui/widgets/generic_track_widget.blp:175
+msgid "Copy share url"
+msgstr "複製分享網址"
+
+#: data/ui/widgets/generic_track_widget.blp:179
+msgid "Add to a playlist"
+msgstr "加入播放清單"
+
+#: data/ui/widgets/lyrics_widget.blp:11 data/ui/widgets/lyrics_widget.blp:15
+msgid "No Lyrics"
+msgstr "無歌詞"
+
+#: data/ui/widgets/lyrics_widget.blp:17
+msgid "Lyrics are not available for this song"
+msgstr "沒有找到此歌曲的歌詞"
+
+#: data/ui/widgets/queue_widget.blp:36
+msgid "Played Songs"
+msgstr "已播放歌曲"
+
+#: data/ui/widgets/queue_widget.blp:80
+msgid "Next Songs"
+msgstr "下一首歌曲"
+
+#: data/ui/widgets/top_hit_widget.blp:18
+msgid "Top Hit"
+msgstr "熱門歌曲"
+
+#: data/io.github.nokse22.high-tide.desktop.in:2
+#: data/io.github.nokse22.high-tide.appdata.xml.in:9
+msgid "High Tide"
+msgstr "High Tide"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:10
+msgid "TIDAL client"
+msgstr "TIDAL 客戶端"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:12
+msgid ""
+"Third party unofficial TIDAL music client. Listen to your favorite music "
+"from your desktop or mobile Linux device at the highest quality."
+msgstr "非官方的第三方 TIDAL 音樂客戶端。在你的 Linux 桌面或行動裝置上以最高品質音訊聆聽您喜愛的音樂。"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:56
+msgid "High Tide in a large window format playing the `Song 2` by Blur"
+msgstr "High Tide 以 Blur 方式在大視窗格式播放`Song 2`"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:61
+msgid ""
+"High Tide in a large window format playing `Sultan Of Swing` by Dire Straits"
+msgstr "High Tide 以 Dire Straits 方式在大視窗格式播放 `Sultan Of Swing`"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:66
+msgid ""
+"High Tide in a small window format playing `Elenore` by The Turtles and "
+"showing the queue"
+msgstr "High Tide 以 The Turtles 方式在小視窗格式播放 `Elenore` 並顯示播放清單"
+
+#: data/io.github.nokse22.high-tide.appdata.xml.in:71
+msgid "High Tide in a small window format playing `Light My Fire` by The Doors"
+msgstr "High Tide 以The Doors 方式在小視窗格式播放 `Light My Fire`"
+
+#: src/pages/album_page.py:60
+msgid "Unknown"
+msgstr "未知"
+
+#: src/pages/album_page.py:64 src/pages/playlist_page.py:78
+msgid "{} tracks ({})"
+msgstr "共 {} 音軌 ({})"
+
+#: src/pages/artist_page.py:91 src/widgets/card_widget.py:151
+#: src/widgets/top_hit_widget.py:179
+msgid "Artist"
+msgstr "藝人"
+
+#: src/pages/artist_page.py:94
+msgid "Top Tracks"
+msgstr "熱門音訊"
+
+#: src/pages/artist_page.py:97 src/pages/collection_page.py:39
+#: src/pages/search_page.py:57
+msgid "Albums"
+msgstr "專輯"
+
+#: src/pages/artist_page.py:100
+msgid "EP & Singles"
+msgstr "迷你專輯與單曲"
+
+#: src/pages/artist_page.py:104
+msgid "Appears On"
+msgstr "出現在"
+
+#: src/pages/artist_page.py:107
+msgid "Similar Artists"
+msgstr "相似的藝人"
+
+#: src/pages/artist_page.py:130
+msgid "Bio"
+msgstr "簡介"
+
+#: src/pages/collection_page.py:37
+msgid "My Mixes and Radios"
+msgstr "我的選曲與電台"
+
+#: src/pages/collection_page.py:38 src/pages/search_page.py:58
+msgid "Playlists"
+msgstr "播放清單"
+
+#: src/pages/collection_page.py:40 src/pages/search_page.py:59
+msgid "Tracks"
+msgstr "歌曲"
+
+#: src/pages/collection_page.py:41 src/pages/search_page.py:56
+msgid "Artists"
+msgstr "藝人"
+
+#: src/pages/not_logged_in_page.py:38
+msgid "Login"
+msgstr "登入"
+
+#: src/pages/not_logged_in_page.py:45
+msgid "Login first"
+msgstr "請先登入"
+
+#: src/pages/not_logged_in_page.py:47
+msgid "To be able to use this app, you need to login with your TIDAL account."
+msgstr "要使用此應用程式，需要以你的 TIDAL 帳戶登入。"
+
+#: src/pages/playlist_page.py:75
+msgid "by {}"
+msgstr "由 {}"
+
+#: src/widgets/card_widget.py:108
+msgid "Track by {}"
+msgstr "由 {} 的音訊"
+
+#: src/widgets/card_widget.py:143 src/widgets/top_hit_widget.py:159
+msgid "By {}"
+msgstr "由 {}"
+
+#: src/widgets/top_hit_widget.py:88
+msgid "Track"
+msgstr "音訊"
+
+#: src/widgets/top_hit_widget.py:108
+msgid "Mix"
+msgstr "選曲"
+
+#: src/main.py:107
+msgid "Donate with Ko-Fi"
+msgstr "透過 Ko-Fi 捐款"
+
+#: src/main.py:108
+msgid "Donate with Github"
+msgstr "透過 Github 捐款"
+
+#: src/window.py:231
+msgid "Playing Music"
+msgstr "正在播放音樂"
+
+#: src/lib/utils.py:102
+msgid "Default"
+msgstr "預設"
+
+#: src/lib/utils.py:300
+msgid "Successfully added to my collection"
+msgstr "成功加入我的收藏"
+
+#: src/lib/utils.py:303
+msgid "Failed to add item to my collection"
+msgstr "無法加入我的收藏"
+
+#: src/lib/utils.py:329
+msgid "Successfully removed from my collection"
+msgstr "成功從我的收藏移除"
+
+#: src/lib/utils.py:331
+msgid "Failed to remove item from my collection"
+msgstr "無法從我的收藏移除"
+
+#: src/lib/utils.py:371
+msgid "Copied share URL in the clipboard"
+msgstr "已將分享網址複製到剪貼簿"
+
+#: src/lib/player_object.py:268
+msgid "ALSA Audio Device is not available"
+msgstr "ALSA 音訊設備不可用"

@@ -17,46 +17,41 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Gtk
-from ..lib import utils
 import threading
-from .page import Page
-from ..lib import utils
-from ..disconnectable_iface import IDisconnectable
-from tidalapi.playlist import Playlist
 from gettext import gettext as _
+
+from gi.repository import Gtk
+
+from ..lib import utils
+from .page import Page
 
 
 class HTPlaylistPage(Page):
-    __gtype_name__ = "HTPlaylistPage"
-
     """It is used to display a playlist with author,
     number of tracks and duration"""
 
-    # FIXME Fix the favorite hearth
-    # FIXME After playing shuffle the next track is not found
+    __gtype_name__ = "HTPlaylistPage"
 
-    def __init__(self, _id):
-        IDisconnectable.__init__(self)
-        super().__init__()
+    tracks = None
 
-        self.id = _id
+    def _load_async(self) -> None:
+        self.item = utils.get_playlist(self.id)
 
-    def _th_load_page(self):
-        self.item = Playlist(utils.session, self.id)
+        self.tracks = self.item.tracks(limit=50)
 
+    def _load_finish(self) -> None:
         self.set_title(self.item.name)
 
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui"
         )
 
-        page_content = builder.get_object("_main")
-        tracks_list_box = builder.get_object("_list_box")
-        self.signals.append((
-            tracks_list_box,
-            tracks_list_box.connect("row-activated", self.on_row_selected),
-        ))
+        self.append(builder.get_object("_main"))
+
+        auto_load = builder.get_object("_auto_load")
+        auto_load.set_scrolled_window(self.scrolled_window)
+        auto_load.set_function(self.item.tracks)
+        auto_load.set_items(self.tracks)
 
         play_btn = builder.get_object("_play_button")
         self.signals.append((
@@ -71,14 +66,13 @@ class HTPlaylistPage(Page):
         ))
 
         builder.get_object("_title_label").set_label(self.item.name)
-        creator = self.item.creator
-        if creator:
-            creator = creator.name
-        else:
-            creator = "TIDAL"
-        builder.get_object("_first_subtitle_label").set_label(
-            _("by {}").format(creator)
-        )
+
+        subtitle_label = builder.get_object("_first_subtitle_label")
+        creator_name = "TIDAL"
+        if self.item.creator is not None and self.item.creator.name is not None:
+            creator_name = self.item.creator.name
+        subtitle_label.set_label(_("by {}").format(creator_name))
+
         builder.get_object("_second_subtitle_label").set_label(
             _("{} tracks ({})").format(
                 self.item.num_tracks, utils.pretty_duration(self.item.duration)
@@ -104,15 +98,3 @@ class HTPlaylistPage(Page):
 
         image = builder.get_object("_image")
         threading.Thread(target=utils.add_image, args=(image, self.item)).start()
-
-        for index, track in enumerate(self.item.items()):
-            listing = self.get_track_listing(track)
-            listing.set_name(str(index))
-            tracks_list_box.append(listing)
-
-        self.page_content.append(page_content)
-        self._page_loaded()
-
-    def on_row_selected(self, list_box, row):
-        index = int(row.get_name())
-        utils.player_object.play_this(self.item, index)

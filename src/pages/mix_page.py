@@ -17,44 +17,78 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import threading
+
 from gi.repository import Gtk
 
-from tidalapi.mix import MixV2, Mix
-
 from ..lib import utils
-
-import threading
 from .page import Page
-
-from ..lib import utils
-
-from ..disconnectable_iface import IDisconnectable
 
 
 class HTMixPage(Page):
+    """A page to display a mix"""
+
     __gtype_name__ = "HTMixPage"
 
-    def __init__(self, _id):
-        IDisconnectable.__init__(self)
-        super().__init__()
+    id_type = None
+    tracks = None
 
-        self.id = _id
+    @classmethod
+    def new_from_track(cls, id):
+        """Create a new HTMixPage instance from a Track id.
 
-    def _th_load_page(self):
-        self.item = Mix(utils.session, self.id)
+        Args:
+            id: The track id
 
+        Returns:
+            HTMixPage: A new instance configured with the provided id
+        """
+        instance = cls()
+
+        instance.id = id
+        instance.id_type = "track"
+
+        return instance
+
+    @classmethod
+    def new_from_artist(cls, id):
+        """Create a new HTMixPage instance from an Artist id.
+
+        Args:
+            id: The artist id
+
+        Returns:
+            HTMixPage: A new instance configured with the provided id
+        """
+        instance = cls()
+
+        instance.id = id
+        instance.id_type = "artist"
+
+        return instance
+
+    def _load_async(self) -> None:
+        if self.id_type is None:
+            self.item = utils.get_mix(self.id)
+        elif self.id_type == "track":
+            self.item = utils.get_track(self.id).get_radio_mix()
+        elif self.id_type == "artist":
+            self.item = utils.get_artist(self.id).get_radio_mix()
+
+        self.tracks = self.item.items()
+
+    def _load_finish(self) -> None:
         self.set_title(self.item.title)
 
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui"
         )
 
-        page_content = builder.get_object("_main")
-        tracks_list_box = builder.get_object("_list_box")
-        self.signals.append((
-            tracks_list_box,
-            tracks_list_box.connect("row-activated", self.on_row_selected),
-        ))
+        self.append(builder.get_object("_main"))
+
+        auto_load = builder.get_object("_auto_load")
+        auto_load.set_scrolled_window(self.scrolled_window)
+        auto_load.set_items(self.tracks)
 
         builder.get_object("_title_label").set_label(self.item.title)
         builder.get_object("_first_subtitle_label").set_label(self.item.sub_title)
@@ -74,7 +108,9 @@ class HTMixPage(Page):
         in_my_collection_btn = builder.get_object("_in_my_collection_button")
         self.signals.append((
             in_my_collection_btn,
-            in_my_collection_btn.connect("clicked", self.th_add_to_my_collection),
+            in_my_collection_btn.connect(
+                "clicked", utils.on_in_to_my_collection_button_clicked, self.item
+            ),
         ))
 
         builder.get_object("_share_button").set_visible(False)
@@ -84,21 +120,3 @@ class HTMixPage(Page):
 
         image = builder.get_object("_image")
         threading.Thread(target=utils.add_image, args=(image, self.item)).start()
-
-        if isinstance(self.item, MixV2):
-            self.item = utils.session.mix(self.item.id)
-
-        for index, track in enumerate(self.item.items()):
-            listing = self.get_track_listing(track)
-            listing.set_name(str(index))
-            tracks_list_box.append(listing)
-
-        self.page_content.append(page_content)
-        self._page_loaded()
-
-    def on_row_selected(self, list_box, row):
-        index = int(row.get_name())
-        utils.player_object.play_this(self.item, index)
-
-    def th_add_to_my_collection(self, btn):
-        utils.on_in_to_my_collection_button_clicked(btn, self.item)

@@ -12,11 +12,16 @@
 # Copyright (c) 2023 Nokse22
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gettext import gettext as _
-from gi.repository import Gio, GLib, Gdk
-
 from random import randint
+
+from gi.repository import Gdk, Gio, GLib
+
 from .lib import utils
+from .lib.player_object import RepeatType
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Server:
@@ -72,8 +77,8 @@ class Server:
                 invocation.return_value(variant)
             else:
                 invocation.return_value(None)
-        except Exception as e:
-            print(e)
+        except Exception:
+            logger.exception("MPRIS Error")
 
 
 class MPRIS(Server):
@@ -120,15 +125,24 @@ class MPRIS(Server):
             <method name="Play"/>
             <method name="Pause"/>
             <method name="Stop"/>
+            <method name="Seek">
+                <arg name="Offset" direction="in" type="x"/>
+            </method>
+            <method name="SetPosition">
+                <arg name="TrackId" direction="in" type="o"/>
+                <arg name="Position" direction="in" type="x"/>
+            </method>
             <property name="PlaybackStatus" type="s" access="read"/>
-            <property name="Metadata" type="a{sv}" access="read">
-            </property>
+            <property name="Metadata" type="a{sv}" access="read"/>
             <property name="Position" type="x" access="read"/>
             <property name="Volume" type="d" access="readwrite"/>
+            <property name="Shuffle" type="b" access="readwrite"/>
+            <property name="LoopStatus" type="s" access="readwrite"/>
             <property name="CanGoNext" type="b" access="read"/>
             <property name="CanGoPrevious" type="b" access="read"/>
             <property name="CanPlay" type="b" access="read"/>
             <property name="CanPause" type="b" access="read"/>
+            <property name="CanSeek" type="b" access="read"/>
             <property name="CanControl" type="b" access="read"/>
         </interface>
     </node>
@@ -139,23 +153,31 @@ class MPRIS(Server):
     __MPRIS_HIGH_TIDE = "org.mpris.MediaPlayer2.io.github.nokse22.high-tide"
     __MPRIS_PATH = "/org/mpris/MediaPlayer2"
 
+    REPEAT_TYPE_TO_MPRIS_LOOP = {
+        RepeatType.NONE: 'None',
+        RepeatType.SONG: 'Track',
+        RepeatType.LIST: 'Playlist',
+    }
+
+    MPRIS_LOOP_TO_REPEAT_TYPE = {
+        'None': RepeatType.NONE,
+        'Track': RepeatType.SONG,
+        'Playlist': RepeatType.LIST,
+    }
+
     def __init__(self, player):
         self.player = player
 
         self.__metadata = {}
 
-        track_id = 0 + randint(10000000, 90000000)
-        self.__metadata["mpris:trackid"] = GLib.Variant("o", f"/Track/{track_id}")
-
         track = self.player.playing_track
 
         if track:
+            self.__metadata["mpris:trackid"] = GLib.Variant("o", f"/Track/{track.id}")
             self.__metadata["xesam:title"] = GLib.Variant("s", track.name)
             self.__metadata["xesam:album"] = GLib.Variant("s", track.album)
             self.__metadata["xesam:artist"] = GLib.Variant("as", [track.artist])
-            self.__metadata["mpris:length"] = GLib.Variant(
-                "x", self.player.query_duration() / 1000
-            )
+            self.__metadata["mpris:length"] = GLib.Variant("x", track.duration * 1_000_000)
 
         self.__bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
         Gio.bus_own_name_on_connection(
@@ -166,35 +188,125 @@ class MPRIS(Server):
         self.player.connect("song-changed", self._on_preset_changed)
         self.player.connect("duration-changed", self._on_preset_changed)
         self.player.connect("notify::playing", self._on_playing_changed)
+        self.player.connect("notify::shuffle", self._on_shuffle_changed)
+        self.player.connect("notify::repeat-type", self._on_repeat_changed)
         self.player.connect("volume-changed", self._on_volume_changed)
 
+        self.start_position_updates()
+
+    def start_position_updates(self):
+        """Start a repeating timer to update the MPRIS Position property."""
+        GLib.timeout_add(500, self._update_position)  # update every 500ms
+
+    def _update_position(self):
+        if self.player.playing_track:
+            duration = self.player.query_duration() / 1000
+
+            if (
+                duration > 0
+                and self.__metadata.get(
+                    "mpris:length", GLib.Variant("x", 0)
+                ).get_int64()
+                != duration
+            ):
+                self.__metadata["mpris:length"] = GLib.Variant("x", int(duration))
+                self.PropertiesChanged(
+                    self.__MPRIS_PLAYER_IFACE,
+                    {
+                        "Metadata": GLib.Variant("a{sv}", self.__metadata),
+                    },
+                    [],
+                )
+
+            self.PropertiesChanged(
+                self.__MPRIS_PLAYER_IFACE,
+                {
+                    "Position": GLib.Variant(
+                        "x", int(self.player.query_position() / 1000)
+                    )
+                },
+                [],
+            )
+        return True
+
     def Raise(self):
+        """Bring the High Tide application window to the foreground"""
         utils.window.present_with_time(Gdk.CURRENT_TIME)
 
     def Quit(self):
+        """Quit the High Tide application"""
         utils.window.quit()
 
     def Next(self):
+        """Skip to the next track in the playlist or queue"""
         self.player.play_next()
 
     def Previous(self):
+        """Skip to the previous track or restart the current track"""
         self.player.play_previous()
 
     def PlayPause(self):
+        """Toggle between play and pause states"""
         self.player.play_pause()
 
     def Play(self):
+        """Start or resume playback"""
         self.player.play()
 
     def Pause(self):
+        """Pause the current playback"""
         self.player.pause()
 
     def Stop(self):
+        """Stop playback (implemented as pause for TIDAL streams)"""
         self.player.pause()
-
         self._on_playing_changed()
 
+    def Seek(self, offset):
+        """Seek forward or backward by the given offset (offset in microseconds)"""
+        current_pos_us = self.player.query_position() / 1000
+        duration_us = self.player.query_duration() / 1000
+
+        new_pos_us = current_pos_us + offset
+
+        new_pos_us = max(0, min(new_pos_us, duration_us))
+
+        seek_fraction = new_pos_us / duration_us if duration_us > 0 else 0
+
+        self.player.seek(seek_fraction)
+
+        self.PropertiesChanged(
+            self.__MPRIS_PLAYER_IFACE,
+            {"Position": GLib.Variant("x", int(new_pos_us))},
+            [],
+        )
+
+    def SetPosition(self, track_id, position):
+        """Set the playback position to a specific point (position in microseconds)"""
+        duration_us = self.player.query_duration() / 1000
+
+        position = max(0, min(position, duration_us))
+
+        seek_fraction = position / duration_us if duration_us > 0 else 0
+
+        self.player.seek(seek_fraction)
+
+        self.PropertiesChanged(
+            self.__MPRIS_PLAYER_IFACE,
+            {"Position": GLib.Variant("x", int(position))},
+            [],
+        )
+
     def Get(self, interface, property_name):
+        """Get the value of a specific MPRIS property.
+
+        Args:
+            interface (str): The D-Bus interface name
+            property_name (str): The property name to retrieve
+
+        Returns:
+            GLib.Variant: The property value wrapped in a GVariant
+        """
         if property_name in [
             "CanQuit",
             "CanRaise",
@@ -207,6 +319,8 @@ class MPRIS(Server):
             return GLib.Variant("b", self.player.can_go_next)
         elif property_name == "CanGoPrevious":
             return GLib.Variant("b", self.player.can_go_prev)
+        elif property_name == "CanSeek":
+            return GLib.Variant("b", True)
         elif property_name == "Identity":
             return GLib.Variant("s", "High Tide")
         elif property_name == "DesktopEntry":
@@ -219,10 +333,23 @@ class MPRIS(Server):
             return GLib.Variant("x", self.player.query_position() / 1000)
         elif property_name == "Volume":
             return GLib.Variant("d", self.player.query_volume())
+        elif property_name == "Shuffle":
+            return GLib.Variant("b", self.player.shuffle)
+        elif property_name == "LoopStatus":
+            status = self.REPEAT_TYPE_TO_MPRIS_LOOP[self.player.repeat_type]
+            return GLib.Variant("s", status)
         else:
             return GLib.Variant("b", False)
 
     def GetAll(self, interface):
+        """Get all properties for a specific MPRIS interface.
+
+        Args:
+            interface (str): The D-Bus interface name
+
+        Returns:
+            dict: Dictionary containing all properties and their values
+        """
         ret = {}
         if interface == self.__MPRIS_IFACE:
             for property_name in ["CanQuit", "CanRaise", "Identity", "DesktopEntry"]:
@@ -233,22 +360,45 @@ class MPRIS(Server):
                 "Metadata",
                 "Position",
                 "Volume",
+                "Shuffle",
+                "LoopStatus",
                 "CanGoNext",
                 "CanGoPrevious",
                 "CanPlay",
                 "CanPause",
                 "CanControl",
+                "CanSeek",
             ]:
                 ret[property_name] = self.Get(interface, property_name)
         return ret
 
     def Set(self, interface, property_name, new_value):
+        """Set the value of a specific MPRIS property.
+
+        Args:
+            interface (str): The D-Bus interface name
+            property_name (str): The property name to set
+            new_value: The new value for the property
+        """
         if property_name == "Volume":
             self.player.change_volume(new_value)
+        elif property_name == "Shuffle":
+            self.player.shuffle = new_value
+        elif property_name == "LoopStatus":
+            self.player.repeat_type = self.MPRIS_LOOP_TO_REPEAT_TYPE[new_value]
 
     def PropertiesChanged(
         self, interface_name, changed_properties, invalidated_properties
     ):
+        """Emit a PropertiesChanged signal on D-Bus.
+
+        Notifies other applications that MPRIS properties have changed.
+
+        Args:
+            interface_name (str): The interface that had properties changed
+            changed_properties (dict): Properties that changed with new values
+            invalidated_properties (list): Properties that were invalidated
+        """
         self.__bus.emit_signal(
             None,
             self.__MPRIS_PATH,
@@ -262,6 +412,11 @@ class MPRIS(Server):
         )
 
     def Introspect(self):
+        """Return the D-Bus introspection XML for this interface.
+
+        Returns:
+            str: The XML introspection data describing available methods and properties
+        """
         return self.__doc__
 
     def _get_status(self):
@@ -275,21 +430,25 @@ class MPRIS(Server):
         if self.player.playing_track is None:
             return
 
+        track = self.player.playing_track
+        self.__metadata["mpris:trackid"] = GLib.Variant(
+            "o", f"/Track/{track.id}"
+        )
         self.__metadata["xesam:title"] = GLib.Variant(
-            "s", self.player.playing_track.name
+            "s", track.name
         )
         self.__metadata["xesam:album"] = GLib.Variant(
-            "s", self.player.playing_track.album.name
+            "s", track.album.name
         )
         self.__metadata["xesam:artist"] = GLib.Variant(
-            "as", [self.player.playing_track.artist.name]
+            "as", [track.artist.name]
         )
         self.__metadata["mpris:length"] = GLib.Variant(
-            "x", self.player.query_duration() / 1000
+            "x", track.duration * 1_000_000
         )
 
         # 320 px should always be fetched for example by queue logic
-        url = f"file://{utils.IMG_DIR}/{self.player.playing_track.album.id}_320.jpg"
+        url = f"file://{utils.IMG_DIR}/{track.album.id}_320.jpg"
 
         self.__metadata["mpris:artUrl"] = GLib.Variant("s", url)
 
@@ -309,3 +468,13 @@ class MPRIS(Server):
     def _on_playing_changed(self, *args):
         properties = {"PlaybackStatus": GLib.Variant("s", self._get_status())}
         self.PropertiesChanged(self.__MPRIS_PLAYER_IFACE, properties, [])
+
+    def _on_shuffle_changed(self, *args):
+        properties = {"Shuffle": GLib.Variant("b", self.player.shuffle)}
+        self.PropertiesChanged(self.__MPRIS_PLAYER_IFACE, properties, [])
+
+    def _on_repeat_changed(self, *args):
+        status = self.REPEAT_TYPE_TO_MPRIS_LOOP[self.player.repeat_type]
+        properties = {"LoopStatus": GLib.Variant("s", status)}
+        self.PropertiesChanged(self.__MPRIS_PLAYER_IFACE, properties, [])
+

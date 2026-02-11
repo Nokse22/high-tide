@@ -7,18 +7,18 @@
     "sources": [
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/a5/32/8f6669fc4798494966bf446c8c4a162e0b5d893dff088afddf76414f70e1/certifi-2024.12.14-py3-none-any.whl",
-            "sha256": "1275f7a45be9464efc1173084eaa30f866fe2e47d389406136d332ed4967ec56"
+            "url": "https://files.pythonhosted.org/packages/e4/37/af0d2ef3967ac0d6113837b44a4f0bfe1328c2b9763bd5b1744520e5cfed/certifi-2025.10.5-py3-none-any.whl",
+            "sha256": "0f212c2744a9bb6de0c56639a6f68afe01ecd92d91f14ae897c4fe7bbeeef0de"
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/16/b0/572805e227f01586461c80e0fd25d65a2115599cc9dad142fee4b747c357/charset_normalizer-3.4.1.tar.gz",
-            "sha256": "44251f18cd68a75b56585dd00dae26183e102cd5e0f9f1466e6df5da2ed64ea3"
+            "url": "https://files.pythonhosted.org/packages/13/69/33ddede1939fdd074bce5434295f38fae7136463422fe4fd3e0e89b98062/charset_normalizer-3.4.4.tar.gz",
+            "sha256": "94537985111c35f28720e43603b8e7b43a6ecfb2ce1d3058bbe955b73404e21a"
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/76/c6/c88e154df9c4e1a2a66ccf0005a88dfb2650c1dffb6f5ce603dfbd452ce3/idna-3.10-py3-none-any.whl",
-            "sha256": "946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3"
+            "url": "https://files.pythonhosted.org/packages/0e/61/66938bbb5fc52dbdf84594873d5b51fb1f7c7794e9c0f5bd885f30bc507b/idna-3.11-py3-none-any.whl",
+            "sha256": "771a87f49d9defaf64091e6e6fe9c18d4833f140bd19464795bc32d966ca37ea"
         },
         {
             "type": "file",
@@ -27,8 +27,13 @@
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/ab/1a/5be778993af7c2079e7a24dc208424af6fe1b6392dfaac268a8cf42ba842/mpegdash-0.4.0-py3-none-any.whl",
-            "sha256": "d07f6e1f2a67ddce1be501e3ad7abc29a2d6a7b1830b4da974b49c2ebe99cf2a"
+            "url": "https://files.pythonhosted.org/packages/ca/a0/7a2734a7d734d81b6627ac1c470ce388f5a80e5669d9803a5c3c179ca84f/mpegdash-0.4.1-py3-none-any.whl",
+            "sha256": "788e559b73acbf9175422548c58a4c441486c0ce0633fa10f77097bfffeaad4d"
+        },
+        {
+            "type": "file",
+            "url": "https://files.pythonhosted.org/packages/44/66/2c17bae31c906613795711fc78045c285048168919ace2220daa372c7d72/pyaes-1.6.1.tar.gz",
+            "sha256": "02c1b1405c38d3c370b085fb952dd8bea3fadcee6411ad99f312cc129c536d8f"
         },
         {
             "type": "file",
@@ -42,23 +47,23 @@
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/f9/9b/335f9764261e915ed497fcdeb11df5dfd6f7bf257d4a6a2a686d80da4d54/requests-2.32.3-py3-none-any.whl",
-            "sha256": "70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6"
+            "url": "https://files.pythonhosted.org/packages/1e/db/4254e3eabe8020b458f1a747140d32277ec7a271daf1d235b70dc0b4e6e3/requests-2.32.5-py3-none-any.whl",
+            "sha256": "2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6"
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/db/a6/efe5044ab4e84e945a3b84e40af3e4ff68f17de20c1fe2d58ed821b1d267/tidalapi-0.8.3-py3-none-any.whl",
-            "sha256": "b6698e308cc9f4edac4b9c1bc22773f040d4de0bbac212defcbe33a93f66b3c7"
+            "url": "https://files.pythonhosted.org/packages/d0/c0/27fafcbaf426954d405ce426947312bf732f3c4ae9c758078a2a157208dc/tidalapi-0.8.8-py3-none-any.whl",
+            "sha256": "70e5ccebf608ad3fb9e17bde5fe36783322f993e1d4efb25a0ae970d898669fc"
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/26/9f/ad63fc0248c5379346306f8668cda6e2e2e9c95e01216d2b8ffd9ff037d0/typing_extensions-4.12.2-py3-none-any.whl",
-            "sha256": "04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d"
+            "url": "https://files.pythonhosted.org/packages/18/67/36e9267722cc04a6b9f15c7f3441c2363321a3ea07da7ae0c0707beb2a9c/typing_extensions-4.15.0-py3-none-any.whl",
+            "sha256": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/c8/19/4ec628951a74043532ca2cf5d97b7b14863931476d117c471e8e2b1eb39f/urllib3-2.3.0-py3-none-any.whl",
-            "sha256": "1cee9ad369867bfdbbb48b7dd50374c0967a0bb7710050facf0dd6911440e3df"
+            "url": "https://files.pythonhosted.org/packages/a7/c2/fe1e52489ae3122415c51f387e221dd0773709bad6c6cdaa599e8a2c5185/urllib3-2.5.0-py3-none-any.whl",
+            "sha256": "e6b01673c0fa6a13e374b50871808eb3bf7046c4b125b216f6bf1cc604cff0dc"
         }
     ]
 }

@@ -1,0 +1,52 @@
+using Gtk 4.0;
+
+template $HTShorcutWidget: Gtk.FlowBoxChild {
+  styles [
+    "card",
+    "activatable"
+  ]
+
+  Box {
+    margin-start: 6;
+    margin-end: 6;
+    margin-top: 6;
+    margin-bottom: 6;
+    spacing: 6;
+
+    GestureClick click_gesture {}
+
+    Box {
+      orientation: vertical;
+      spacing: 6;
+      valign: center;
+      vexpand: true;
+
+      Label title_label {
+        ellipsize: end;
+        hexpand: true;
+        max-width-chars: 20;
+        xalign: 0.0;
+      }
+
+      Label subtitle_label {
+        styles [
+          "caption",
+        ]
+
+        ellipsize: end;
+        // visible: false;
+        max-width-chars: 20;
+        hexpand: true;
+        xalign: 0.0;
+      }
+    }
+
+    Image image {
+      valign: start;
+      pixel-size: 40;
+      overflow: hidden;
+
+      styles ["small-image"]
+    }
+  }
+}

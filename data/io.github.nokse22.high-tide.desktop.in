@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=High Tide
+Comment=Libadwaita TIDAL client for Linux
+GenericName=TIDAL Music Client
 Exec=high-tide %U
 Icon=io.github.nokse22.high-tide
 Terminal=false
@@ -7,3 +9,4 @@ Type=Application
 Categories=GNOME;GTK;Music;Audio;AudioVideo;
 StartupNotify=true
 MimeType=x-scheme-handler/tidal;
+Keywords=music;audio;streaming;tidal;player;hi-fi;lossless;

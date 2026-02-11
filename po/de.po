@@ -176,7 +176,7 @@ msgstr "Vorwärts springen"
 
 #: data/ui/window.blp:214 src/pages/page.py:47
 msgid "Loading..."
-msgstr "Ladet..."
+msgstr "Lädt..."
 
 #: data/ui/window.blp:240 src/pages/home_page.py:40
 msgid "Home"

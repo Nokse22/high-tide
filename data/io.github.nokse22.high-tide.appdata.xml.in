@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-	<id>io.github.nokse22.high-tide</id>
+  <id>io.github.nokse22.high-tide</id>
   <provides>
     <id>io.github.nokse22.HighTide</id>
   </provides>
-	<metadata_license>CC0-1.0</metadata_license>
-	<project_license>GPL-3.0-or-later</project_license>
-	<name>High Tide</name>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>High Tide</name>
   <summary>TIDAL client</summary>
-	<description>
-	  <p>Third party unofficial TIDAL music client. Listen to your favorite music from your desktop or mobile Linux device at the highest quality.</p>
-	</description>
-	<content_rating type="oars-1.1">
+  <description>
+    <p>Third party unofficial TIDAL music client. Listen to your favorite music from your desktop or mobile Linux device at the highest quality.</p>
+  </description>
+  <content_rating type="oars-1.1">
     <content_attribute id="language-profanity">intense</content_attribute>
     <content_attribute id="language-humor">moderate</content_attribute>
     <content_attribute id="sex-themes">moderate</content_attribute>
@@ -53,16 +53,67 @@
   <screenshots>
     <screenshot type="default">
       <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%201.png</image>
-      <caption>High Tide in a large window format playing the album `Dreams` by Fleetwood Mac</caption>
+      <caption>High Tide in a large window format playing the `Song 2` by Blur</caption>
     </screenshot>
 
-	  <screenshot>
-	    <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%202.png</image>
-	    <caption>High Tide in a small window format playing `Let It Happen` by Tame Impala</caption>
-	  </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%202.png</image>
+      <caption>High Tide in a large window format playing `Sultan Of Swing` by Dire Straits</caption>
+    </screenshot>
+
+    <screenshot>
+      <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%203.png</image>
+      <caption>High Tide in a small window format playing `Elenore` by The Turtles and showing the queue</caption>
+    </screenshot>
+
+    <screenshot>
+      <image>https://raw.githubusercontent.com/Nokse22/high-tide/master/data/resources/screenshot%204.png</image>
+      <caption>High Tide in a small window format playing `Light My Fire` by The Doors</caption>
+    </screenshot>
   </screenshots>
 
   <releases>
+    <release version="1.2.0" date="2026-01-19">
+      <description translate="no">
+        <p>Port to Adw.ShortcutsDialog</p>
+        <p>Fix track widget image size</p>
+        <p>Update runtime and dependencies</p>
+        <p>Skip unavailable tracks</p>
+        <p>Fix favorite playlists pagination</p>
+      </description>
+    </release>
+    <release version="1.1.0" date="2025-08-25">
+      <description translate="no">
+        <p>ALSA device setting for exclusive hardware access</p>
+        <p>Spanish translation</p>
+        <p>Translation fixes</p>
+        <p>Bug fixes</p>
+      </description>
+    </release>
+    <release version="1.0.0" date="2025-08-20">
+      <description translate="no">
+        <p>Improve app responsiveness</p>
+        <p>Apply Track replay gain if album gain is missing</p>
+        <p>Add fallback replay gain</p>
+        <p>Gapless playback</p>
+        <p>Add support for home page shortcuts</p>
+        <p>Bug fixes</p>
+      </description>
+    </release>
+    <release version="0.1.8" date="2025-08-01">
+      <description translate="no">
+        <p>Add Pipewire sink</p>
+        <p>Fix video cover setting not applied on startup</p>
+        <p>Add german-german translation</p>
+        <p>Add settings toggle for rich presence</p>
+        <p>Add Brazilian Portuguese translation</p>
+        <p>Implement keyring unlocking</p>
+        <p>Fix video covers not being paused when started in background</p>
+        <p>Disconnect discord RPC when idle for 5 minutes</p>
+        <p>Added SOCKS proxy support</p>
+        <p>Fix track not showing past first 100</p>
+      </description>
+    </release>
     <release version="0.1.7" date="2025-06-14">
       <description translate="no">
         <p>Add Discord rich presence</p>

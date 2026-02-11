@@ -1,0 +1,23 @@
+using Gtk 4.0;
+
+template $HTShorcutsWidget: Box {
+  margin-bottom: 12;
+  margin-end: 12;
+  margin-start: 12;
+  margin-top: 12;
+  orientation: vertical;
+  overflow: hidden;
+
+  FlowBox shorcuts_flow_box {
+    valign: start;
+    margin-top: 6;
+    margin-start: 6;
+    margin-end: 6;
+    margin-bottom: 6;
+    homogeneous: true;
+    selection-mode: none;
+    row-spacing: 12;
+    column-spacing: 12;
+    activate-on-single-click: true;
+  }
+}

@@ -1,8 +1,12 @@
 import logging
-from tidalapi.media import Track
+import threading
 import time
 from enum import Enum
-import threading
+
+from tidalapi.media import Track
+
+from pypresence.presence import Presence
+from pypresence.types import ActivityType
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +29,15 @@ state: State = State.DISCONNECTED
 disconnect_thread: threading.Thread | None = None
 
 
-def connect():
+def connect() -> bool:
+    """Connect to Discord Rich Presence IPC.
+
+    Attempts to establish a connection to Discord's IPC server for
+    Rich Presence functionality.
+
+    Returns:
+        bool: True if connection successful, False otherwise
+    """
     global state
 
     if not has_pypresence:
@@ -45,7 +57,14 @@ def connect():
         return True
 
 
-def disconnect():
+def disconnect() -> bool:
+    """Disconnect from Discord Rich Presence IPC.
+
+    Closes the connection to Discord's IPC server and updates the state.
+
+    Returns:
+        bool: True if disconnection successful, False otherwise
+    """
     global state
 
     if not has_pypresence:
@@ -62,11 +81,29 @@ def disconnect():
         return True
 
 
-def set_activity(track: Track | None = None, offset_ms: int = 0):
+def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
+    """Set the Discord Rich Presence activity status.
+
+    Updates Discord with the current playing track information and playback position.
+
+    Args:
+        track: The currently playing Track object, or None to clear activity
+        offset_ms: Current playback position in milliseconds (default: 0)
+    """
     global state
     global disconnect_thread
 
     if not has_pypresence:
+        return
+
+    if track is None:
+        try:
+            if state != State.DISCONNECTED:
+                rpc.clear()
+                rpc.close()
+        except Exception:
+            pass
+        state = State.DISCONNECTED
         return
 
     if state == State.DISCONNECTED:
@@ -74,32 +111,7 @@ def set_activity(track: Track | None = None, offset_ms: int = 0):
             return
 
     try:
-        if track is None:
-            rpc.update(
-                activity_type=pypresence.ActivityType.LISTENING,
-                details="High Tide",
-                state="TIDAL gnome client",
-                large_image="hightide_x1024",
-                large_text="High Tide",
-                buttons=[
-                    {
-                        "label": "Get High Tide",
-                        "url": "https://github.com/nokse22/high-tide",
-                    }
-                ],
-            )
-            state = State.IDLE
-
-            def disconnect_function():
-                for _ in range(5 * 60):
-                    time.sleep(1)
-                    if state != State.IDLE:
-                        return
-                disconnect()
-
-            disconnect_thread = threading.Thread(target=disconnect_function)
-            disconnect_thread.start()
-        else:
+        if track is not None:
             artists = (
                 [artist.name for artist in track.artists if artist.name is not None]
                 if track.artists
@@ -109,24 +121,14 @@ def set_activity(track: Track | None = None, offset_ms: int = 0):
                 artists = None
 
             rpc.update(
-                activity_type=pypresence.ActivityType.LISTENING,
+                activity_type=ActivityType.LISTENING,
                 details=track.name,
+                name=", ".join(artists) if artists else "Unknown Artist",
                 state=", ".join(artists) if artists else "Unknown Artist",
                 large_image=track.album.image() if track.album else "hightide_x1024",
-                large_text=track.album.name if track.album else "High Tide",
-                small_image="hightide_x1024" if track.album else None,
                 small_text="High Tide" if track.album else None,
-                start=int(time.time() * 1_000 - offset_ms),
-                end=int(time.time() * 1_000 - offset_ms + track.duration * 1_000)
-                if track.duration
-                else None,
-                buttons=[
-                    {"label": "Listen to this song", "url": f"{track.share_url}?u"},
-                    {
-                        "label": "Get High Tide",
-                        "url": "https://github.com/nokse22/high-tide",
-                    },
-                ],
+                start=int(time.time() - offset_ms),
+                end=int(time.time() - offset_ms + track.duration),
             )
             state = State.PLAYING
     except pypresence.exceptions.PipeClosed:
@@ -134,9 +136,9 @@ def set_activity(track: Track | None = None, offset_ms: int = 0):
             set_activity(track, offset_ms)
         else:
             state = State.DISCONNECTED
-            logger.error("Connection with discord IPC lost.")
+            logger.exception("Connection with discord IPC lost.")
 
 
 if has_pypresence:
-    rpc: pypresence.Presence = pypresence.Presence(client_id=1379096506065223680)
+    rpc: Presence = Presence(client_id=1379096506065223680)
     connect()
