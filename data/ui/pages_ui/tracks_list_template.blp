@@ -47,6 +47,7 @@ Box _main {
             hexpand: true;
             margin-top: 12;
             orientation: vertical;
+            vexpand: true;
 
             Adw.LayoutSlot {
               id: "title-label";
@@ -66,25 +67,51 @@ Box _main {
           }
 
           Box {
-            halign: end;
-            margin-end: 12;
-            spacing: 6;
-            valign: center;
+            orientation: vertical;
+            vexpand: true;
+            homogeneous: true;
 
-            Adw.LayoutSlot {
-              id: "share-button";
+            Box {
+              halign: end;
+              margin-end: 12;
+              spacing: 6;
+              valign: center;
+
+              Adw.LayoutSlot {
+                id: "share-button";
+              }
+
+              Adw.LayoutSlot {
+                id: "in-my-collection-button";
+              }
+
+              Adw.LayoutSlot {
+                id: "shuffle-button";
+              }
+
+              Adw.LayoutSlot {
+                id: "play-button";
+              }
             }
 
-            Adw.LayoutSlot {
-              id: "in-my-collection-button";
-            }
+            Box {
+              orientation: horizontal;
+              halign: end;
+              valign: end;
+              margin-end: 12;
+              margin-start: 12;
 
-            Adw.LayoutSlot {
-              id: "shuffle-button";
-            }
-
-            Adw.LayoutSlot {
-              id: "play-button";
+              DropDown _sort_by_dropdown {
+                model: StringList {
+                  strings [
+                    _("Sort by"),
+                    _("Title"),
+                    _("Artist"),
+                    _("Album"),
+                    _("Duration"),
+                  ]
+                };
+              }
             }
           }
         };
