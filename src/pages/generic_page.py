@@ -77,7 +77,9 @@ class HTGenericPage(Page):
         self.set_title(self.page.title or "")
 
         for category in self.page.categories:
-            items = getattr(category, "items", [])
+            items = [
+                item for item in getattr(category, "items", []) if item is not None
+            ]
 
             if isinstance(category, TrackList) or all(
                 isinstance(item, Track) for item in items
@@ -102,9 +104,7 @@ class HTGenericPage(Page):
                 self.new_link_carousel_for(category.title or _("More"), items)
 
             elif isinstance(category, ShortcutList):
-                self.append(
-                    HTShorcutsWidget([item for item in items if item is not None])
-                )
+                self.append(HTShorcutsWidget(items))
 
             elif isinstance(
                 category, (ItemList, HorizontalList, HorizontalListWithContext)
