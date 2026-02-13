@@ -17,57 +17,34 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import threading
-
 from gi.repository import Gtk
+from gettext import gettext as _
 
+from .track_list_page import TrackListPage
 from ..lib import utils
-from .page import Page
 
 
-class HTMixPage(Page):
+class HTMixPage(TrackListPage):
     """A page to display a mix"""
 
-    __gtype_name__ = "HTMixPage"
-
     id_type = None
-    tracks = None
+    tracks = []
 
     @classmethod
     def new_from_track(cls, id):
-        """Create a new HTMixPage instance from a Track id.
-
-        Args:
-            id: The track id
-
-        Returns:
-            HTMixPage: A new instance configured with the provided id
-        """
         instance = cls()
-
         instance.id = id
         instance.id_type = "track"
-
         return instance
 
     @classmethod
     def new_from_artist(cls, id):
-        """Create a new HTMixPage instance from an Artist id.
-
-        Args:
-            id: The artist id
-
-        Returns:
-            HTMixPage: A new instance configured with the provided id
-        """
         instance = cls()
-
         instance.id = id
         instance.id_type = "artist"
-
         return instance
 
-    def _load_async(self) -> None:
+    def _load_async(self):
         if self.id_type is None:
             self.item = utils.get_mix(self.id)
         elif self.id_type == "track":
@@ -76,47 +53,20 @@ class HTMixPage(Page):
             self.item = utils.get_artist(self.id).get_radio_mix()
 
         self.tracks = self.item.items()
+        self.original_tracks = self.tracks.copy()
 
-    def _load_finish(self) -> None:
-        self.set_title(self.item.title)
-
+    def _load_finish(self):
         builder = Gtk.Builder.new_from_resource(
             "/io/github/nokse22/high-tide/ui/pages_ui/tracks_list_template.ui"
         )
+        title = self.item.title
+        subtitle = self.item.sub_title
 
-        self.append(builder.get_object("_main"))
-
-        auto_load = builder.get_object("_auto_load")
-        auto_load.set_scrolled_window(self.scrolled_window)
-        auto_load.set_items(self.tracks)
-
-        builder.get_object("_title_label").set_label(self.item.title)
-        builder.get_object("_first_subtitle_label").set_label(self.item.sub_title)
-
-        play_btn = builder.get_object("_play_button")
-        self.signals.append((
-            play_btn,
-            play_btn.connect("clicked", self.on_play_button_clicked),
-        ))
-
-        shuffle_btn = builder.get_object("_shuffle_button")
-        self.signals.append((
-            shuffle_btn,
-            shuffle_btn.connect("clicked", self.on_shuffle_button_clicked),
-        ))
-
-        in_my_collection_btn = builder.get_object("_in_my_collection_button")
-        self.signals.append((
-            in_my_collection_btn,
-            in_my_collection_btn.connect(
-                "clicked", utils.on_in_to_my_collection_button_clicked, self.item
-            ),
-        ))
-
-        builder.get_object("_share_button").set_visible(False)
-
-        if utils.is_favourited(self.item):
-            in_my_collection_btn.set_icon_name("heart-filled-symbolic")
-
-        image = builder.get_object("_image")
-        threading.Thread(target=utils.add_image, args=(image, self.item)).start()
+        self._setup_ui(
+            builder,
+            title,
+            subtitle,
+            self.tracks,
+            reload_function=self.item.items,
+            hide_share=True,
+        )

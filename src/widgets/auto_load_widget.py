@@ -27,6 +27,7 @@ from .card_widget import HTCardWidget
 from .generic_track_widget import HTGenericTrackWidget
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -58,6 +59,19 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         self.handler_id = None
         self.scrolled_window = None
 
+    def reset(self):
+        """Reset the widget so it can be reused with new data"""
+        self.items = []
+        self.items_n = 0
+        self.type = None
+        self.is_loading = False
+
+        if self.parent is not None:
+            child = self.parent.get_first_child()
+            while child:
+                self.parent.remove(child)
+                child = self.parent.get_first_child()
+
     def set_function(self, function: callable) -> None:
         """
         Set the function to use to fetch new items, it needs to support limit and
@@ -70,19 +84,19 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
 
     def set_items(self, items: list) -> None:
         """
-        Call once to set the initial items to display. Subsequent calls are ignored
+        Call once to set the initial items to display. Subsequent calls are supported.
 
         Args:
             items (list): the list of items
         """
-        if len(self.items) > 0:
-            logger.warning("You can't set items for HTAutoLoadWidget twice")
+        self.reset()
+
+        if not items:
             return
 
-        self.items = items
+        self.items = list(items)
 
-        if self.type is None:
-            self.type = utils.get_type(self.items[0])
+        self.type = utils.get_type(self.items[0])
 
         def _add():
             if self.type == "track":
@@ -145,10 +159,12 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         if self.parent is None:
             self.parent = Gtk.ListBox(css_classes=["tracks-list-box"])
             self.content.set_child(self.parent)
-            self.signals.append((
-                self.parent,
-                self.parent.connect("row-activated", self._on_tracks_row_selected),
-            ))
+            self.signals.append(
+                (
+                    self.parent,
+                    self.parent.connect("row-activated", self._on_tracks_row_selected),
+                )
+            )
 
         for index, track in enumerate(new_items):
             listing = HTGenericTrackWidget(track)
