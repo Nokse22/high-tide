@@ -54,6 +54,10 @@ class HTGenericPage(Page):
     def new_from_function(cls, function) -> "HTGenericPage":
         """Create a new generic page instance from a function that returns page data.
 
+        This is useful for dynamic pages such as the home page, explore page,
+        genres, or search results. The provided function is called to fetch
+        the page content when the page is loaded.
+
         Args:
             function: A callable that returns a TIDAL API page object when called
 
@@ -70,16 +74,18 @@ class HTGenericPage(Page):
         self.page = self.function()
 
     def _load_finish(self) -> None:
-        if self.page.title:
-            self.set_title(self.page.title)
-        else:
-            self.set_title("")
+        self.set_title(self.page.title or "")
 
-        for index, category in enumerate(self.page.categories):
+        for category in self.page.categories:
+            items = [
+                item for item in getattr(category, "items", []) if item is not None
+            ]
+
             if isinstance(category, TrackList) or all(
-                isinstance(item, Track) for item in category.items
+                isinstance(item, Track) for item in items
             ):
-                self.new_track_list_for(category.title, category.items)
+                self.new_track_list_for(category.title, items)
+
             elif isinstance(category, TextBlock):
                 self.append(
                     Gtk.Label(
@@ -93,15 +99,14 @@ class HTGenericPage(Page):
                         label=category.text,
                     )
                 )
+
             elif isinstance(category, PageLinks):
-                self.new_link_carousel_for(
-                    category.title if category.title else _("More"), category.items
-                )
+                self.new_link_carousel_for(category.title or _("More"), items)
+
             elif isinstance(category, ShortcutList):
-                self.append(HTShorcutsWidget(category.items))
-            elif (
-                isinstance(category, ItemList)
-                or isinstance(category, HorizontalList)
-                or isinstance(category, HorizontalListWithContext)
+                self.append(HTShorcutsWidget(items))
+
+            elif isinstance(
+                category, (ItemList, HorizontalList, HorizontalListWithContext)
             ):
-                self.new_carousel_for(category.title, category.items)
+                self.new_carousel_for(category.title, items)
