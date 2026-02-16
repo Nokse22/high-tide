@@ -26,7 +26,7 @@ import uuid
 import logging
 from gettext import gettext as _
 from pathlib import Path
-from typing import Any, List
+from typing import Any, List, Optional
 
 import requests
 from gi.repository import Adw, Gdk, Gio, GLib
@@ -284,6 +284,111 @@ def get_favourites() -> None:
         f"Playlist and Favorite Playlists: {len(playlist_and_favorite_playlists)}"
     )
     logger.info(f"User Playlists: {len(user_playlists)}")
+
+
+def _filter_albums_by_content_restriction(albums: List[Album]) -> List[Album]:
+    """
+    Internal helper to filter albums based on content restriction setting.
+    
+    Args:
+        albums: List of albums to filter
+        
+    Returns:
+        Filtered list with version preference applied
+    """
+    settings = Gio.Settings.new("io.github.nokse22.high-tide")
+    content_restriction = settings.get_int("content-restriction")
+    
+    if content_restriction == 0:
+        return albums
+    
+    album_groups = {}
+    for album in albums:
+        artist_name = album.artist.name if album.artist else ""
+        name_normalized = album.name.lower()
+        for suffix in [' (explicit)', ' (clean)', ' [explicit]', ' [clean]']:
+            name_normalized = name_normalized.replace(suffix, '')
+        
+        key = (name_normalized, artist_name.lower())
+        
+        if key not in album_groups:
+            album_groups[key] = []
+        album_groups[key].append(album)
+    
+    result = []
+    for group in album_groups.values():
+        if content_restriction == 1:
+            clean_version = next((a for a in group if not a.explicit), None)
+            result.append(clean_version if clean_version else group[0])
+        elif content_restriction == 2:
+            explicit_version = next((a for a in group if a.explicit), None)
+            result.append(explicit_version if explicit_version else group[0])
+    
+    return result
+
+
+def get_albums(
+    artist,
+    limit: Optional[int] = None,
+    post_limit: Optional[int] = None,
+    offset: int = 0
+) -> List[Album]:
+    """
+    Queries TIDAL for the artist's albums with content restriction filter applied.
+
+    Args:
+        artist: Artist to query albums for
+        limit: Limit passed directly to the TIDAL API request
+        post_limit: Maximum number of albums to return after content restriction
+                    filtering; None returns all filtered results
+        offset: Offset passed directly to the TIDAL API request
+    """
+    return _filter_albums_by_content_restriction(
+        artist.get_albums(limit=limit, offset=offset)
+    )[:post_limit]
+
+
+def get_albums_ep_singles(
+    artist,
+    limit: Optional[int] = None,
+    post_limit: Optional[int] = None,
+    offset: int = 0
+) -> List[Album]:
+    """
+    Queries TIDAL for the artist's EPs and singles with content restriction filter applied.
+
+    Args:
+        artist: Artist to query EPs and singles for
+        limit: Limit passed directly to the TIDAL API request
+        post_limit: Maximum number of EPs/singles to return after content restriction
+                    filtering; None returns all filtered results
+        offset: Offset passed directly to the TIDAL API request
+    """
+    return _filter_albums_by_content_restriction(
+        artist.get_albums_ep_singles(limit=limit, offset=offset)
+    )[:post_limit]
+
+
+def get_albums_other(
+    artist,
+    limit: Optional[int] = None,
+    post_limit: Optional[int] = None,
+    offset: int = 0
+) -> List[Album]:
+    """
+    Queries TIDAL for albums the artist appears on with content restriction filter applied.
+
+    Args:
+        artist: Artist to query appearances for
+        limit: Limit passed directly to the TIDAL API request
+        post_limit: Maximum number of albums to return after content restriction
+                    filtering; None returns all filtered results
+        offset: Offset passed directly to the TIDAL API request
+    """
+
+    return _filter_albums_by_content_restriction(
+            artist.get_albums_other(limit=limit, offset=offset)
+    )[:post_limit]
 
 
 def is_favourited(item: Any) -> bool:

@@ -50,20 +50,26 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         IDisconnectable.__init__(self)
         super().__init__()
 
-        self.signals.append((
-            self.next_button,
-            self.next_button.connect("clicked", self.carousel_go_next),
-        ))
+        self.signals.append(
+            (
+                self.next_button,
+                self.next_button.connect("clicked", self.carousel_go_next),
+            )
+        )
 
-        self.signals.append((
-            self.prev_button,
-            self.prev_button.connect("clicked", self.carousel_go_prev),
-        ))
+        self.signals.append(
+            (
+                self.prev_button,
+                self.prev_button.connect("clicked", self.carousel_go_prev),
+            )
+        )
 
-        self.signals.append((
-            self.more_button,
-            self.more_button.connect("clicked", self.on_more_clicked),
-        ))
+        self.signals.append(
+            (
+                self.more_button,
+                self.more_button.connect("clicked", self.on_more_clicked),
+            )
+        )
 
         self.n_pages = 0
 
