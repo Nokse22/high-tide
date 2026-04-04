@@ -750,7 +750,8 @@ class PlayerObject(GObject.GObject):
         self.discord_rpc_enabled = enabled
         if enabled and self.playing:
             discord_rpc.set_activity(
-                self.playing_track, int(self.query_duration()) // 1_000_000_000
+                self.playing_track,
+                self.query_position() / 1_000_000_000,
             )
         elif enabled:
             discord_rpc.set_activity()
