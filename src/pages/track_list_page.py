@@ -45,10 +45,15 @@ class TrackListPage(Page):
 
         builder.get_object("_title_label").set_label(title)
         builder.get_object("_first_subtitle_label").set_label(subtitle)
+        item = getattr(self, "item", None)
+        num_tracks = getattr(item, "num_tracks", None) or len(tracks)
+        total_duration = getattr(item, "duration", None) or sum(
+            (t.duration or 0) for t in tracks
+        )
         builder.get_object("_second_subtitle_label").set_label(
             _("{} tracks ({})").format(
-                len(tracks),
-                utils.pretty_duration(sum((t.duration or 0) for t in tracks)),
+                num_tracks,
+                utils.pretty_duration(total_duration),
             )
         )
 
