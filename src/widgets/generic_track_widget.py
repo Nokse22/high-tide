@@ -150,8 +150,6 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         self.action_group.add_action(add_to_playlist_action)
 
         for index, playlist in enumerate(utils.user_playlists):
-            if index > 10:
-                break
             item = Gio.MenuItem.new()
             item.set_label(playlist.name)
             item.set_action_and_target_value(
