@@ -177,7 +177,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.artist_label.connect("activate-link", utils.open_uri)
         self.miniplayer_artist_label.connect("activate-link", utils.open_uri)
 
-        self.session = tidalapi.Session()
+        self.session = utils.create_tidal_session()
 
         utils.session = self.session
         utils.navigation_view = self.navigation_view

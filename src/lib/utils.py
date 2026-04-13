@@ -29,8 +29,11 @@ from pathlib import Path
 from typing import Any, List
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from gi.repository import Adw, Gdk, Gio, GLib
 
+import tidalapi
 from tidalapi.album import Album
 from tidalapi.artist import Artist
 from tidalapi.mix import Mix
@@ -789,6 +792,14 @@ def replace_links(text: str) -> str:
     replaced_text = re.sub(pattern, replace, escaped_text)
 
     return replaced_text
+
+
+def create_tidal_session():
+    tidal_session = tidalapi.Session()
+    retry = Retry(connect=3, backoff_factor=0.5)
+    adapter = HTTPAdapter(max_retries=retry)
+    tidal_session.request_session.mount("https://", adapter)
+    return tidal_session
 
 
 def setup_logging():
