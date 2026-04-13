@@ -100,10 +100,9 @@ def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
         try:
             if state != State.DISCONNECTED:
                 rpc.clear()
-                rpc.close()
         except Exception:
             pass
-        state = State.DISCONNECTED
+        state = State.IDLE
         return
 
     if state == State.DISCONNECTED:
@@ -123,12 +122,19 @@ def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
             rpc.update(
                 activity_type=ActivityType.LISTENING,
                 details=track.name,
-                name=", ".join(artists) if artists else "Unknown Artist",
-                state=", ".join(artists) if artists else "Unknown Artist",
-                large_image=track.album.image() if track.album else "hightide_x1024",
-                small_text="High Tide" if track.album else None,
+                state=", ".join(artists)
+                if artists
+                else "Unknown Artist",
+                large_image=track.album.image()
+                if track.album
+                else "hightide_x1024",
+                small_text="High Tide"
+                if track.album
+                else None,
                 start=int(time.time() - offset_ms),
-                end=int(time.time() - offset_ms + track.duration),
+                end=int(
+                    time.time() - offset_ms + track.duration
+                ),
             )
             state = State.PLAYING
     except pypresence.exceptions.PipeClosed:
