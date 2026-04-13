@@ -97,12 +97,12 @@ def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
         return
 
     if track is None:
-        try:
-            if state != State.DISCONNECTED:
+        if state != State.DISCONNECTED:
+            try:
                 rpc.clear()
-        except Exception:
-            pass
-        state = State.IDLE
+                state = State.IDLE
+            except Exception:
+                state = State.DISCONNECTED
         return
 
     if state == State.DISCONNECTED:
@@ -137,12 +137,15 @@ def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
                 ),
             )
             state = State.PLAYING
-    except pypresence.exceptions.PipeClosed:
+    except (pypresence.exceptions.PipeClosed, AssertionError) as e:
         if connect():
             set_activity(track, offset_ms)
         else:
             state = State.DISCONNECTED
-            logger.exception("Connection with discord IPC lost.")
+            logger.debug(f"Connection with discord IPC lost: {e}")
+    except Exception:
+        state = State.DISCONNECTED
+        logger.exception("Unknown error with discord IPC")
 
 
 if has_pypresence:
