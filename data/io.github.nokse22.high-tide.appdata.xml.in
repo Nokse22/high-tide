@@ -73,6 +73,16 @@
   </screenshots>
 
   <releases>
+    <release version="1.3.0" date="2026-04-13">
+      <description translate="no">
+        <p>Fix Discord RPC errors</p>
+        <p>Fix TIDAL session connection retry</p>
+        <p>Fix missing playlists when adding to playlist</p>
+        <p>Fix track count and duration for large playlists and albums</p>
+        <p>Update GNOME runtime</p>
+        <p>Update German translation</p>
+      </description>
+    </release>
     <release version="1.2.0" date="2026-01-19">
       <description translate="no">
         <p>Port to Adw.ShortcutsDialog</p>
