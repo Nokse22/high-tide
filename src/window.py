@@ -685,7 +685,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.settings.set_int("quality", pos)
 
-    def change_audio_sink(self, sink):
+    def change_audio_sink(self, sink: int):
         if self.settings.get_int("preferred-sink") != sink:
             self.player_object.change_audio_sink(sink)
             self.settings.set_int("preferred-sink", sink)
@@ -740,10 +740,14 @@ class HighTideWindow(Adw.ApplicationWindow):
                     args=(self.playing_track_picture, album, self.image_canc),
                 ).start()
 
-    def change_discord_rpc_enabled(self, state):
+    def change_discord_rpc_enabled(self, state: bool):
         if self.settings.get_boolean("discord-rpc") != state:
             self.settings.set_boolean("discord-rpc", state)
             self.player_object.set_discord_rpc(state)
+
+    def change_content_restriction(self, value: int):
+        if self.settings.get_int("content-restriction") != value:
+            self.settings.set_int("content-restriction", value)
 
     #
     #   PAGES ACTIONS CALLBACKS
