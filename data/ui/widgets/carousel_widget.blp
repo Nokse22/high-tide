@@ -61,12 +61,16 @@ template $HTCarouselWidget: Box {
     }
   }
 
-  Adw.Carousel carousel {
-    allow-long-swipes: true;
-    allow-scroll-wheel: false;
-    allow-mouse-drag: false;
-    halign: start;
+  ScrolledWindow carousel_scrolled_window {
+    hscrollbar-policy: automatic;
+    vscrollbar-policy: never;
     hexpand: true;
     overflow: visible;
+
+    Box cards_box {
+      orientation: horizontal;
+      spacing: 6;
+      halign: start;
+    }
   }
 }
