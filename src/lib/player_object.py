@@ -80,6 +80,9 @@ class PlayerObject(GObject.GObject):
     ) -> None:
         GObject.GObject.__init__(self)
 
+        self._music_cache_dir = None
+        self._manifest_cache_dir = None
+
         Gst.init(None)
 
         version_str = Gst.version_string()
@@ -465,39 +468,92 @@ class PlayerObject(GObject.GObject):
             self.manifest = self.stream.get_stream_manifest()
             urls = self.manifest.get_urls()
 
-            # When not gapless there is a race condition between get_stream() and on_track_start
-            if not gapless:
-                self.apply_replaygain_tags()
-            if self.stream.manifest_mime_type == ManifestMimeType.MPD:
-                data = self.stream.get_manifest_data()
-                major, minor, micro, nano = Gst.version()
-                if data:
-                    # file:// MPD support in adaptivedemux2 landed in 1.26
-                    if (major, minor) >= (1, 26):
-                        mpd_path = Path(utils.CACHE_DIR, "manifest.mpd")
-                        with open(mpd_path, "w") as file:
-                            file.write(data)
-
-                        music_url = "file://{}".format(mpd_path)
-                    else:
-                        if isinstance(data, str):
-                            mpd_bytes = data.encode("utf-8")
-                        else:
-                            mpd_bytes = data
-                        mpd_b64 = base64.b64encode(mpd_bytes).decode("ascii")
-                        music_url = "data:application/dash+xml;base64," + mpd_b64
-                else:
-                    raise AttributeError("No MPD manifest available!")
-            elif self.stream.manifest_mime_type == ManifestMimeType.BTS:
-                urls = self.manifest.get_urls()
-                if isinstance(urls, list):
-                    music_url = urls[0]
-                else:
-                    music_url = urls
+            music_url = self._get_cached_or_stream_url(track, gapless)
 
             GLib.idle_add(self._play_track_url, track, music_url, gapless)
         except Exception:
             logger.exception("Error getting track URL")
+
+    def _get_cached_or_stream_url(self, track, gapless=False):
+        """Get URL from cache or stream, caching if not cached."""
+        if not hasattr(utils, 'CACHE_DIR') or not utils.CACHE_DIR:
+            return self._get_stream_url(track, gapless)
+
+        if not hasattr(self, '_manifest_cache_dir') or not self._manifest_cache_dir:
+            self._manifest_cache_dir = Path(utils.CACHE_DIR, "manifests")
+            self._manifest_cache_dir.mkdir(exist_ok=True)
+        if not hasattr(self, '_music_cache_dir') or not self._music_cache_dir:
+            self._music_cache_dir = Path(utils.CACHE_DIR, "music")
+            self._music_cache_dir.mkdir(exist_ok=True)
+
+        cached_manifest = self._manifest_cache_dir / f"{track.id}.mpd"
+        cached_music = self._music_cache_dir / f"{track.id}.m4a"
+
+        if cached_music.exists():
+            logger.info(f"Playing from music cache: {track.id}")
+            return f"file://{cached_music}"
+
+        if cached_manifest.exists():
+            major, minor, micro, nano = Gst.version()
+            if (major, minor) >= (1, 26):
+                logger.info(f"Playing from manifest cache: {track.id}")
+                return f"file://{cached_manifest}"
+
+        return self._get_stream_url(track, gapless)
+
+    def _get_stream_url(self, track, gapless=False):
+        """Get stream URL and cache if possible."""
+        if not gapless:
+            self.apply_replaygain_tags()
+
+        if self.stream.manifest_mime_type == ManifestMimeType.MPD:
+            data = self.stream.get_manifest_data()
+            major, minor, micro, nano = Gst.version()
+            if data:
+                if (major, minor) >= (1, 26):
+                    cached_manifest = self._manifest_cache_dir / f"{track.id}.mpd"
+                    with open(cached_manifest, "w") as file:
+                        file.write(data)
+                    logger.info(f"Cached manifest: {track.id}")
+                    return f"file://{cached_manifest}"
+                else:
+                    if isinstance(data, str):
+                        mpd_bytes = data.encode("utf-8")
+                    else:
+                        mpd_bytes = data
+                    mpd_b64 = base64.b64encode(mpd_bytes).decode("ascii")
+                    return "data:application/dash+xml;base64," + mpd_b64
+            else:
+                raise AttributeError("No MPD manifest available!")
+        elif self.stream.manifest_mime_type == ManifestMimeType.BTS:
+            urls = self.manifest.get_urls()
+            if isinstance(urls, list):
+                stream_url = urls[0]
+            else:
+                stream_url = urls
+
+            threading.Thread(target=self._cache_bts_track, args=(track, stream_url)).start()
+            return stream_url
+
+        return stream_url
+
+    def _cache_bts_track(self, track, stream_url):
+        """Download and cache BTS track in background."""
+        try:
+            import requests
+            cached_music = self._music_cache_dir / f"{track.id}.m4a"
+            if cached_music.exists():
+                return
+
+            logger.info(f"Caching BTS track: {track.id}")
+            response = requests.get(stream_url, stream=True)
+            if response.status_code == 200:
+                with open(cached_music, "wb") as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                logger.info(f"Cached BTS track: {track.id}")
+        except Exception as e:
+            logger.warning(f"Failed to cache track {track.id}: {e}")
 
     def apply_replaygain_tags(self):
         """Apply ReplayGain normalization tags to the current track if enabled."""
