@@ -46,6 +46,8 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     __gtype_name__ = "HTGenericTrackWidget"
 
     image = Gtk.Template.Child()
+    now_playing_indicator = Gtk.Template.Child()
+    album_stack = Gtk.Template.Child()
     track_title_label = Gtk.Template.Child()
     track_duration_label = Gtk.Template.Child()
     playlists_submenu = Gtk.Template.Child()
@@ -110,12 +112,40 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             self.set_activatable(False)
             self.set_sensitive(False)
 
+        self._update_now_playing()
+        self.signals.append((
+            utils.player_object,
+            utils.player_object.connect("song-changed", self._on_player_song_changed),
+        ))
+        self.signals.append((
+            utils.player_object,
+            utils.player_object.connect(
+                "notify::playing", self._on_playing_changed
+            ),
+        ))
+
         threading.Thread(
             target=utils.add_image, args=(self.image, self.track.album)
         ).start()
 
         self.action_group = Gio.SimpleActionGroup()
         self.insert_action_group("trackwidget", self.action_group)
+
+    def _on_player_song_changed(self, *args):
+        self._update_now_playing()
+
+    def _on_playing_changed(self, *args):
+        self._update_now_playing()
+
+    def _update_now_playing(self):
+        is_now = (
+            utils.player_object.playing_track is not None
+            and self.track.id == utils.player_object.playing_track.id
+        )
+        if is_now and utils.player_object.playing:
+            self.album_stack.set_visible_child(self.now_playing_indicator)
+        else:
+            self.album_stack.set_visible_child(self.image)
 
     def _on_menu_activate(self, *args):
         if self.menu_activated:
