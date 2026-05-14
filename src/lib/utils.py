@@ -41,7 +41,6 @@ from tidalapi.playlist import Playlist
 from tidalapi.media import Track
 from tidalapi.types import ItemOrder, OrderDirection
 
-from ..pages import HTAlbumPage, HTArtistPage, HTMixPage, HTPlaylistPage
 from .cache import HTCache
 
 logger = logging.getLogger(__name__)
@@ -463,6 +462,8 @@ def open_uri(label: str, uri: str) -> bool:
         label: Display label for the URI (currently unused)
         uri: A URI string in format "type:id" (e.g., "artist:123456")
     """
+    from ..pages import HTAlbumPage, HTArtistPage
+
     uri_parts = uri.split(":")
 
     match uri_parts[0]:
@@ -479,6 +480,7 @@ def open_uri(label: str, uri: str) -> bool:
 
 def open_tidal_uri(uri: str) -> None:
     """Handles opening uri like tidal://track/1234"""
+    from ..pages import HTAlbumPage, HTArtistPage, HTMixPage, HTPlaylistPage
 
     if not uri.startswith("tidal://"):
         raise ValueError("Invalid URI format: URI must start with 'tidal://'")

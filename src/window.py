@@ -21,18 +21,19 @@ import threading
 from gettext import gettext as _
 from typing import Callable
 
-import tidalapi
+import requests
 from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Xdp
 from tidalapi.media import Quality
 
-from .lib import HTCache, PlayerObject, RepeatType, SecretStore, utils
+from .lib import HTCache, PlayerObject, RepeatType, SecretStore, ai_agent, utils
+from .lib.ai_providers import ProviderAuthError
 from .login import LoginDialog
 from .mpris import MPRIS
-from .pages import (HTAlbumPage, HTArtistPage, HTCollectionPage, HTExplorePage,
-                    HTGenericPage, HTMixPage, HTNotLoggedInPage,
+from .pages import (HTAIRadioPage, HTAlbumPage, HTArtistPage, HTCollectionPage,
+                    HTExplorePage, HTGenericPage, HTMixPage, HTNotLoggedInPage,
                     HTPlaylistPage)
-from .widgets import (HTGenericTrackWidget, HTLinkLabelWidget, HTLyricsWidget,
-                      HTQueueWidget)
+from .widgets import (HTAIRadioDialog, HTGenericTrackWidget, HTLinkLabelWidget,
+                      HTLyricsWidget, HTQueueWidget)
 
 import logging
 logger = logging.getLogger(__name__)
@@ -43,6 +44,7 @@ GObject.type_register(HTGenericTrackWidget)
 GObject.type_register(HTLinkLabelWidget)
 GObject.type_register(HTQueueWidget)
 GObject.type_register(HTLyricsWidget)
+GObject.type_register(HTAIRadioDialog)
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/window.ui")
@@ -70,6 +72,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     home_button = Gtk.Template.Child()
     explore_button = Gtk.Template.Child()
     collection_button = Gtk.Template.Child()
+    ai_radio_button = Gtk.Template.Child()
     player_lyrics_queue = Gtk.Template.Child()
     navigation_buttons = Gtk.Template.Child()
     buffer_spinner = Gtk.Template.Child()
@@ -198,6 +201,11 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.queued_uri = None
         self.is_logged_in = False
+
+        self.ai_generation_id: int = 0
+        self.ai_cancel_event: threading.Event | None = None
+        self.ai_radio_page: HTAIRadioPage | None = None
+        self._ai_dialog: HTAIRadioDialog | None = None
 
         self.videoplayer = Gtk.MediaFile.new()
 
@@ -608,6 +616,8 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_navigation_view_page_popped")
     def on_navigation_view_page_popped_func(self, nav_view, nav_page):
         nav_page.disconnect_all()
+        if nav_page is self.ai_radio_page:
+            self.ai_radio_page = None
 
     @Gtk.Template.Callback("on_visible_page_changed")
     def on_visible_page_changed(self, nav_view, *args):
@@ -618,6 +628,9 @@ class HighTideWindow(Adw.ApplicationWindow):
                 self.explore_button.set_active(True)
             case "collection":
                 self.collection_button.set_active(True)
+            case _:
+                if self.navigation_view.get_visible_page() is self.ai_radio_page:
+                    self.ai_radio_button.set_active(True)
 
     @Gtk.Template.Callback("on_sidebar_page_changed")
     def on_sidebar_page_changed(self, *args):
@@ -784,6 +797,158 @@ class HighTideWindow(Adw.ApplicationWindow):
             return
         page = HTMixPage.new_from_artist(parameter.get_string()).load()
         self.navigation_view.push(page)
+
+    #
+    #   AI RADIO
+    #
+
+    @Gtk.Template.Callback("on_ai_radio_button_clicked")
+    def on_ai_radio_button_clicked(self, widget):
+        provider = self.settings.get_string("ai-provider")
+        if provider != "ollama":
+            api_key = self.secret_store.read_ai_key(provider)
+            if not api_key:
+                utils.send_toast(_("Set your AI provider key in Preferences"), 3)
+                return
+
+        dialog = HTAIRadioDialog()
+        dialog.connect("generate", self.on_generate_radio)
+        dialog.connect("closed", self._on_ai_dialog_closed)
+        self._ai_dialog = dialog
+        dialog.present(self)
+
+    def _on_ai_dialog_closed(self, dialog):
+        if self.ai_cancel_event:
+            self.ai_cancel_event.set()
+        self._ai_dialog = None
+
+    def on_generate_radio(self, dialog, prompt: str, use_playlists: bool):
+        if self.ai_cancel_event:
+            self.ai_cancel_event.set()
+
+        self.ai_generation_id += 1
+        gen = self.ai_generation_id
+        cancel_event = threading.Event()
+        self.ai_cancel_event = cancel_event
+
+        provider = self.settings.get_string("ai-provider")
+        model = self.settings.get_string("ai-model")
+        base_url = self.settings.get_string("ai-ollama-url")
+        use_critic = self.settings.get_boolean("ai-use-critic-filter")
+
+        playlists = list(utils.user_playlists) if use_playlists else []
+        fav_artists = list(utils.favourite_artists)
+        fav_tracks = list(utils.favourite_tracks)
+
+        threading.Thread(
+            target=self._th_generate_radio,
+            args=(
+                gen, prompt, playlists, fav_artists, fav_tracks,
+                [], cancel_event, provider, model, base_url, use_critic,
+            ),
+        ).start()
+
+    def on_refine_radio(self, page, refinement_prompt: str, current_history: list):
+        if self.ai_cancel_event:
+            self.ai_cancel_event.set()
+
+        self.ai_generation_id += 1
+        gen = self.ai_generation_id
+        cancel_event = threading.Event()
+        self.ai_cancel_event = cancel_event
+
+        provider = self.settings.get_string("ai-provider")
+        model = self.settings.get_string("ai-model")
+        base_url = self.settings.get_string("ai-ollama-url")
+        use_critic = self.settings.get_boolean("ai-use-critic-filter")
+
+        playlists = list(utils.user_playlists)
+        fav_artists = list(utils.favourite_artists)
+        fav_tracks = list(utils.favourite_tracks)
+
+        threading.Thread(
+            target=self._th_generate_radio,
+            args=(
+                gen, refinement_prompt, playlists, fav_artists, fav_tracks,
+                current_history, cancel_event, provider, model, base_url, use_critic,
+            ),
+        ).start()
+
+    def _th_generate_radio(
+        self, gen, prompt, playlists, fav_artists, fav_tracks,
+        history, cancel_event, provider, model, base_url, use_critic,
+    ):
+        # Read the API key here so the main thread is never blocked by libsecret
+        api_key = self.secret_store.read_ai_key(provider) or ""
+        try:
+            title, tracks, suggestions, updated_history = ai_agent.generate_radio(
+                prompt=prompt,
+                provider=provider,
+                api_key=api_key,
+                model=model,
+                cancel_event=cancel_event,
+                playlists=playlists,
+                favourite_artists=fav_artists,
+                favourite_tracks=fav_tracks,
+                conversation_history=history,
+                base_url=base_url,
+                use_critic=use_critic,
+            )
+            GLib.idle_add(
+                self._on_radio_ready,
+                gen, prompt, title, tracks, suggestions, updated_history,
+            )
+        except InterruptedError:
+            pass
+        except ProviderAuthError:
+            GLib.idle_add(self._on_radio_error, gen, "auth", provider)
+        except (
+            requests.exceptions.ConnectionError,
+            requests.exceptions.Timeout,
+        ):
+            GLib.idle_add(self._on_radio_error, gen, "network", provider)
+        except Exception:
+            logger.exception("AI Radio generation failed")
+            GLib.idle_add(self._on_radio_error, gen, "bad_result", provider)
+
+    def _on_radio_ready(self, gen, prompt, title, tracks, suggestions, history):
+        if gen != self.ai_generation_id:
+            return
+        if not tracks:
+            utils.send_toast(_("No tracks found — try a different prompt"), 4)
+            if self._ai_dialog:
+                self._ai_dialog.reset()
+            return
+        if (
+            self.ai_radio_page is not None
+            and self.navigation_view.get_visible_page() is self.ai_radio_page
+        ):
+            self.ai_radio_page.update_tracks(title, tracks, suggestions, history)
+        else:
+            page = HTAIRadioPage(prompt, title, tracks, suggestions, history)
+            page.connect("refine", self.on_refine_radio)
+            self.ai_radio_page = page
+            page.load()
+            self.navigation_view.push(page)
+            if self._ai_dialog:
+                self._ai_dialog.close()
+
+    def _on_radio_error(self, gen, error_bucket, provider=""):
+        if gen != self.ai_generation_id:
+            return
+        if self._ai_dialog:
+            self._ai_dialog.reset()
+        match error_bucket:
+            case "auth":
+                utils.send_toast(_("Invalid API key — check AI Radio settings"), 5)
+            case "network":
+                utils.send_toast(
+                    _("Could not reach {} — check your connection").format(provider), 5
+                )
+            case _:
+                utils.send_toast(
+                    _("Couldn't generate a radio — try a different prompt"), 4
+                )
 
     #
     #

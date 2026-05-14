@@ -38,7 +38,9 @@ class SecretStore:
 
         self.token_dictionary: Dict[str, str] = {}
         self.attributes: Dict[str, Secret.SchemaAttributeType] = {
-            "version": Secret.SchemaAttributeType.STRING
+            "version": Secret.SchemaAttributeType.STRING,
+            "type": Secret.SchemaAttributeType.STRING,
+            "provider": Secret.SchemaAttributeType.STRING,
         }
 
         self.schema = Secret.Schema.new(
@@ -115,4 +117,28 @@ class SecretStore:
 
         Secret.password_store_sync(
             self.schema, {}, Secret.COLLECTION_DEFAULT, self.key, json_data, None
+        )
+
+    def read_ai_key(self, provider: str) -> str | None:
+        return Secret.password_lookup_sync(
+            self.schema,
+            {"type": "ai-api-key", "provider": provider},
+            None,
+        )
+
+    def write_ai_key(self, provider: str, key: str) -> None:
+        Secret.password_store_sync(
+            self.schema,
+            {"type": "ai-api-key", "provider": provider},
+            Secret.COLLECTION_DEFAULT,
+            f"high-tide-ai-{provider}",
+            key,
+            None,
+        )
+
+    def clear_ai_key(self, provider: str) -> None:
+        Secret.password_clear_sync(
+            self.schema,
+            {"type": "ai-api-key", "provider": provider},
+            None,
         )

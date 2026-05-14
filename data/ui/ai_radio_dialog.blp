@@ -1,0 +1,74 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $HTAIRadioDialog: Adw.Dialog {
+  width-request: 360;
+  height-request: 300;
+  title: _("AI Radio");
+
+  Box {
+    orientation: vertical;
+
+    Adw.HeaderBar {
+      styles [
+        "flat",
+      ]
+    }
+
+    Entry prompt_entry {
+      placeholder-text: _("Describe the music you want…");
+      margin-start: 12;
+      margin-end: 12;
+      margin-top: 12;
+      margin-bottom: 6;
+    }
+
+    ListBox {
+      margin-bottom: 12;
+      margin-end: 12;
+      margin-start: 12;
+      selection-mode: none;
+
+      styles [
+        "boxed-list",
+      ]
+
+      Adw.SwitchRow use_playlists_check {
+        title: _("Use my playlists as context");
+        subtitle: _("Sends your playlist names to the AI provider");
+      }
+    }
+
+    Adw.Spinner spinner {
+      visible: false;
+      margin-bottom: 6;
+    }
+
+    Box {
+      halign: center;
+      spacing: 12;
+      margin-bottom: 12;
+
+      Button cancel_gen_button {
+        label: _("Cancel");
+        visible: false;
+
+        styles [
+          "pill",
+        ]
+      }
+
+      Button generate_button {
+        sensitive: false;
+        label: _("Generate");
+
+        styles [
+          "suggested-action",
+          "pill",
+        ]
+
+        clicked => $on_generate_button_clicked();
+      }
+    }
+  }
+}

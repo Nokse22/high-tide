@@ -50,5 +50,20 @@
 	  <key name="alsa-device" type="s">
       <default>'default'</default>
     </key>
+	  <key name="ai-provider" type="s">
+      <default>'openai'</default>
+    </key>
+	  <key name="ai-model" type="s">
+      <default>''</default>
+    </key>
+	  <key name="ai-ollama-url" type="s">
+      <default>'http://localhost:11434'</default>
+    </key>
+	  <key name="ai-use-playlist-context" type="b">
+      <default>false</default>
+    </key>
+	  <key name="ai-use-critic-filter" type="b">
+      <default>false</default>
+    </key>
 	</schema>
 </schemalist>

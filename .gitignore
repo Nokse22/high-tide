@@ -14,3 +14,11 @@ node_modules/
 # nix dirs
 /result
 /.direnv
+
+# python cache
+__pycache__
+
+# claude code
+.omc/
+
+tmp/

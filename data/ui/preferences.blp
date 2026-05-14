@@ -56,5 +56,41 @@ Adw.PreferencesDialog _preference_window {
         title: _("Enable Discord Rich Presence");
       }
     }
+
+    Adw.PreferencesGroup _ai_settings_group {
+      title: _("AI Radio");
+      description: _("Your prompts, API key, recently-played favourites, and (when opted in) playlist names are sent to your selected provider. Nothing else leaves the device.");
+
+      Adw.ComboRow _ai_provider_row {
+        title: _("AI Provider");
+        model: StringList {
+          strings [
+            "OpenAI",
+            "Anthropic",
+            "Google Gemini",
+            "Ollama",
+          ]
+        };
+      }
+
+      Adw.PasswordEntryRow _ai_api_key_row {
+        title: _("API Key");
+      }
+
+      Adw.EntryRow _ai_model_row {
+        title: _("Model Override");
+        show-apply-button: true;
+      }
+
+      Adw.EntryRow _ai_ollama_url_row {
+        title: _("Ollama Server URL");
+        show-apply-button: true;
+      }
+
+      Adw.SwitchRow _ai_use_critic_row {
+        title: _("Enable quality filter");
+        subtitle: _("A second AI pass removes off-topic tracks. Slower (~10s) and doubles API cost.");
+      }
+    }
   }
 }

@@ -299,6 +299,31 @@ template $HighTideWindow: Adw.ApplicationWindow {
             "flat",
           ]
         }
+
+        ToggleButton ai_radio_button {
+          group: home_button;
+          clicked => $on_ai_radio_button_clicked();
+
+          Box {
+            orientation: vertical;
+
+            Image {
+              icon-name: "starred-symbolic";
+            }
+
+            Label {
+              label: _("AI Radio");
+
+              styles [
+                "caption-heading",
+              ]
+            }
+          }
+
+          styles [
+            "flat",
+          ]
+        }
       }
 
       [player-lyrics-queue]

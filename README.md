@@ -1,12 +1,12 @@
 <div align="center">
   <img height="128" src="data/icons/hicolor/scalable/apps/io.github.nokse22.high-tide.svg" alt="High Tide Logo"/>
-  
-  # High Tide
-  
+
+  # High Tide (AI fork)
+
   <p align="center">
     <strong>Linux client for TIDAL streaming service</strong>
   </p>
-  
+
   <p align="center">
     <a href="https://www.gnu.org/licenses/gpl-3.0">
       <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"/>
@@ -17,86 +17,83 @@
   </p>
 </div>
 
-> [!IMPORTANT] 
-> Not affiliated in any way with TIDAL, this is a third-party unofficial client
+> [!IMPORTANT]
+> Not affiliated in any way with TIDAL, this is a third-party unofficial client.
 
-<table>
-  <tr>
-    <th><img src="data/resources/screenshot 1.png"/></th>
-    <th><img src="data/resources/screenshot 2.png"/></th>
-  </tr>
-</table>
+> [!NOTE]
+> This is a personal fork of [Nokse22/high-tide](https://github.com/Nokse22/high-tide) with an added AI Radio feature. Upstream changes are merged periodically from the `master` branch.
 
-## 🚀 Installation
-### 🛒 Flathub
+## Installation
 
-<a href='https://flathub.org/apps/io.github.nokse22.high-tide'><img height='80' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.png'/></a>
-</details>
+This fork is only available by building from source.
 
-### 📦 From latest build
+### Dependencies
 
-Go to the [Actions page](https://github.com/Nokse22/high-tide/actions), click on the latest working build and download the Artifact for your architecture.
-Extract the .flatpak file from the downloaded .zip file and install it clicking on it or with:
+- Python 3.10+
+- GTK 4
+- libadwaita 1.4+
+- GStreamer
+- `blueprint-compiler`
+- Meson 0.62+
 
-`flatpak install high-tide.flatpak`
-
-Beware: Locales are not available when installing from a `.flatpak` file, since flatpak locales are stored in another runtime for optimisations, and `.flatpak` files only export the app without runtimes.
-
-If you want/need locales, please build from source.
-
-### ⚡ From source (binary)
-
-You just need to clone the repository, and build with meson.
+### Build
 
 ```sh
-git clone https://github.com/Nokse22/high-tide.git
+git clone https://github.com/hcuadrado/high-tide.git
+cd high-tide
 meson builddir
 meson compile -C builddir
 meson install -C builddir
 ```
 
-Or open the project in GNOME Builder and click "Run Project".
+The installed binary is named `high-tide-ai`.
 
-## ❌ Uninstallation
-We're sorry to see you go! If you want to remove the High Tide flatpak package from your system, here's how to do so:
+## AI Radio
 
-First, terminate all High Tide processes. Keep in mind that "Run in background" is an option, usually pressing ^Q should be enough to terminate it. Otherwise, you can run `killall high-tide` to make sure that everything is killed.
+AI Radio generates a personalized TIDAL radio station from a plain-language description. It uses an AI provider of your choice to translate your prompt into search queries, resolves seeds on TIDAL, and builds a radio mix from them.
 
-You can then remove the package using flatpak :
-```sh
-# When installed system-wide (default)
-flatpak uninstall --delete-data io.github.nokse22.high-tide
+### Supported providers
 
-# When installed for the current user (-u flag at installation)
-flatpak uninstall --delete-data -u io.github.nokse22.high-tide
-```
+| Provider | Requires |
+|---|---|
+| OpenAI | API key |
+| Anthropic | API key |
+| Google Gemini | API key |
+| Ollama | Local instance running at a configurable URL |
 
-The `--delete-data` flag should get rid of all the "junk" directories (i.e. cache, configs, etc.) on your system, and you don't need to do anything else.
+### Setup
 
-## 🤝 Contributing
+1. Open **Preferences** (hamburger menu or `Ctrl+,`)
+2. Scroll to the **AI Radio** section
+3. Select your **Provider**
+4. Paste your **API key** (not required for Ollama)
+5. Optionally set a specific **Model** — leave blank to use the provider default
+6. For Ollama, set the **Ollama URL** (default: `http://localhost:11434`)
 
-Read [CONTRIBUTING](CONTRIBUTING.md) for all information about how to contribute to High Tide, you can also contact us on Matrix [#high-tide:matrix.org](https://matrix.to/#/%23high-tide:matrix.org).
+### Using AI Radio
 
-## 📄 License
+1. Click the **AI Radio** button in the bottom navigation bar
+2. Describe the music you want — e.g. *"chill electronic music for working after lunch"*
+3. Optionally enable **Use my playlists as context** to send your playlist names to the AI as hints
+4. Click **Generate**
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](COPYING) file for details.
+Once the radio loads you can:
 
-## 🌟 Support the Project
+- **Refine** the result by typing a follow-up in the bottom bar — e.g. *"make it more upbeat"* — the AI remembers the conversation context across up to 8 turns
+- **Use suggestion chips** that appear below the header for one-click refinements
+- **Save as playlist** to keep the generated tracklist in your TIDAL library
+- **Play / Shuffle** directly from the page header
 
-If you find High Tide useful, please consider:
+### Preferences reference
 
-- ⭐ Starring this repository
-- 🐛 Reporting bugs and issues
-- 💡 Suggesting new features
-- 🔄 Sharing with others who might find it useful
+| Setting | Description |
+|---|---|
+| **Provider** | AI backend: OpenAI, Anthropic, Google Gemini, or Ollama |
+| **API key** | Secret key for the selected provider (stored in the system keyring) |
+| **Model** | Model identifier (e.g. `gpt-4o`, `claude-sonnet-4-6`). Leave blank for the provider default |
+| **Ollama URL** | Base URL of your local Ollama instance. Only used when provider is Ollama |
+| **Use critic filter** | Runs a second AI pass to score and filter the track list for relevance. Doubles API usage; recommended for short or very specific prompts |
 
----
+## License
 
-<div align="center">
-  <p>Made with ❤️ by the High Tide community</p>
-  <p>
-    <a href="https://github.com/Nokse22/high-tide">View on GitHub</a> • 
-    <a href="https://github.com/Nokse22/high-tide/issues">Report Bug</a> • 
-    <a href="https://github.com/Nokse22/high-tide/issues">Request Feature</a>
-  </p>
-</div>
+This project is licensed under the GNU General Public License v3.0 — see the [LICENSE](COPYING) file for details.

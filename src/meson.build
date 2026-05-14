@@ -11,7 +11,7 @@ conf.set('pkgdatadir', pkgdatadir)
 
 configure_file(
   input: 'high-tide.in',
-  output: 'high-tide',
+  output: 'high-tide-ai',
   configuration: conf,
   install: true,
   install_dir: get_option('bindir'),

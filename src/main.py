@@ -17,15 +17,20 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import logging
 import sys
 from gettext import gettext as _
 from typing import Any, Callable, List
 
-from gi.repository import Adw, Gio, Gtk
+from gi.repository import Adw, Gio, GLib, Gtk
 
 from .lib import utils
 from .lib.player_object import AudioSink
 from .window import HighTideWindow
+
+logger = logging.getLogger(__name__)
+
+_AI_PROVIDERS = ["openai", "anthropic", "gemini", "ollama"]
 
 
 class HighTideApplication(Adw.Application):
@@ -56,6 +61,12 @@ class HighTideApplication(Adw.Application):
         self.preferences: Gtk.Window | None = None
 
         self.alsa_devices = utils.get_alsa_devices()
+
+        self._ai_key_timer: int | None = None
+        self._ai_loading_key: bool = False
+        self._ai_provider_row: Adw.ComboRow | None = None
+        self._ai_api_key_row: Adw.PasswordEntryRow | None = None
+        self._ai_ollama_url_row: Adw.EntryRow | None = None
 
     def do_open(self, files: List[Gio.File], n_files: int, hint: str) -> None:
         self.win: HighTideWindow | None = self.props.active_window
@@ -214,6 +225,50 @@ class HighTideApplication(Adw.Application):
                 "notify::selected-item", self.deactive_alsa_device_row
             )
 
+            # AI Radio settings
+            self._ai_provider_row = builder.get_object("_ai_provider_row")
+            self._ai_api_key_row = builder.get_object("_ai_api_key_row")
+            ai_model_row = builder.get_object("_ai_model_row")
+            self._ai_ollama_url_row = builder.get_object("_ai_ollama_url_row")
+            ai_critic_row = builder.get_object("_ai_use_critic_row")
+
+            current_provider = self.settings.get_string("ai-provider")
+            provider_idx = (
+                _AI_PROVIDERS.index(current_provider)
+                if current_provider in _AI_PROVIDERS
+                else 0
+            )
+            self._ai_provider_row.set_selected(provider_idx)
+            self._ai_ollama_url_row.set_visible(current_provider == "ollama")
+
+            self._ai_loading_key = True
+            key = self.win.secret_store.read_ai_key(current_provider) or ""
+            self._ai_api_key_row.set_text(key)
+            self._ai_loading_key = False
+
+            self.settings.bind(
+                "ai-model", ai_model_row, "text", Gio.SettingsBindFlags.DEFAULT
+            )
+            self.settings.bind(
+                "ai-ollama-url",
+                self._ai_ollama_url_row,
+                "text",
+                Gio.SettingsBindFlags.DEFAULT,
+            )
+            self.settings.bind(
+                "ai-use-critic-filter",
+                ai_critic_row,
+                "active",
+                Gio.SettingsBindFlags.DEFAULT,
+            )
+
+            self._ai_provider_row.connect(
+                "notify::selected", self.on_ai_provider_changed
+            )
+            self._ai_api_key_row.connect(
+                "notify::text", self.on_ai_key_text_changed
+            )
+
             self.preferences = builder.get_object("_preference_window")
 
         self.preferences.present(self.win)
@@ -240,6 +295,37 @@ class HighTideApplication(Adw.Application):
 
     def on_discord_rpc_changed(self, widget: Any, *args) -> None:
         self.win.change_discord_rpc_enabled(widget.get_active())
+
+    def on_ai_provider_changed(self, row: Any, *args) -> None:
+        idx = row.get_selected()
+        if idx >= len(_AI_PROVIDERS):
+            return
+        provider = _AI_PROVIDERS[idx]
+        self.settings.set_string("ai-provider", provider)
+        self._ai_ollama_url_row.set_visible(provider == "ollama")
+        self._ai_loading_key = True
+        key = self.win.secret_store.read_ai_key(provider) or ""
+        self._ai_api_key_row.set_text(key)
+        self._ai_loading_key = False
+
+    def on_ai_key_text_changed(self, row: Any, *args) -> None:
+        if self._ai_loading_key:
+            return
+        if self._ai_key_timer:
+            GLib.source_remove(self._ai_key_timer)
+        self._ai_key_timer = GLib.timeout_add(1000, self._do_save_ai_key)
+
+    def _do_save_ai_key(self) -> bool:
+        self._ai_key_timer = None
+        provider = self.settings.get_string("ai-provider")
+        key = self._ai_api_key_row.get_text()
+        if key:
+            try:
+                self.win.secret_store.write_ai_key(provider, key)
+            except Exception:
+                logger.exception("Failed to save AI API key")
+                utils.send_toast(_("Could not save API key to keyring"), 3)
+        return GLib.SOURCE_REMOVE
 
     def deactive_alsa_device_row(self, widget: Any, *args) -> None:
         alsa_used = widget.get_selected() == AudioSink.ALSA
