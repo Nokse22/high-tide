@@ -127,12 +127,15 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
             return
         self.is_loading = True
         self.spinner.set_visible(True)
-        new_items = []
-        new_items = self.function(limit=self.items_limit, offset=self.items_n)
+        try:
+            new_items = self.function(limit=self.items_limit, offset=self.items_n)
+        except TypeError:
+            new_items = []
         self.items.extend(new_items)
         if new_items == []:
             GObject.signal_handler_disconnect(self.scrolled_window, self.handler_id)
             self.spinner.set_visible(False)
+            self.is_loading = False
             return
         elif self.type is None:
             self.type = utils.get_type(new_items[0])
