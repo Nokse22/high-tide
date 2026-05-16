@@ -65,11 +65,14 @@ def init() -> None:
     CACHE_DIR = os.environ.get("XDG_CACHE_HOME")
     if CACHE_DIR == "" or CACHE_DIR is None or "high-tide" not in CACHE_DIR:
         CACHE_DIR = f"{os.environ.get('HOME')}/.cache/high-tide"
-    global IMG_DIR
-    IMG_DIR = f"{CACHE_DIR}/images"
 
-    if not os.path.exists(IMG_DIR):
-        os.makedirs(IMG_DIR)
+    global IMG_DIR
+    IMG_DIR = Path(CACHE_DIR, "images")
+    IMG_DIR.mkdir(exist_ok=True)
+
+    global MUSIC_DIR
+    MUSIC_DIR = Path(CACHE_DIR, "music")
+    MUSIC_DIR.mkdir(exist_ok=True)
 
     global session
     global navigation_view
@@ -581,9 +584,9 @@ def get_image_url(item: Any, dimensions: int = 320) -> str | None:
         str: Path to the local image file, or None if download failed
     """
     if hasattr(item, "id"):
-        file_path = Path(f"{IMG_DIR}/{item.id}_{dimensions}.jpg")
+        file_path = IMG_DIR / f"{item.id}_{dimensions}.jpg"
     else:
-        file_path = Path(f"{IMG_DIR}/{uuid.uuid4()}_{dimensions}.jpg")
+        file_path = IMG_DIR / f"{uuid.uuid4()}_{dimensions}.jpg"
 
     if file_path.is_file():
         return str(file_path)
@@ -664,9 +667,9 @@ def get_video_cover_url(item: Any, dimensions: int = 320) -> str | None:
         str: Path to the local video file, or None if download failed
     """
     if hasattr(item, "id"):
-        file_path = Path(f"{IMG_DIR}/{item.id}_{dimensions}.mp4")
+        file_path = IMG_DIR / f"{item.id}_{dimensions}.mp4"
     else:
-        file_path = Path(f"{IMG_DIR}/{uuid.uuid4()}_{dimensions}.mp4")
+        file_path = IMG_DIR / f"{uuid.uuid4()}_{dimensions}.mp4"
 
     if file_path.is_file():
         return str(file_path)
@@ -818,3 +821,20 @@ def setup_logging():
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
         handlers=handlers,
     )
+
+def evict_cache(cache_dir, max_gb):
+    if not cache_dir or not cache_dir.exists():
+        return
+
+    max_bytes = max_gb * 1024 ** 3
+    files = sorted(
+        cache_dir.iterdir(),
+        key=lambda f: f.stat().st_atime
+    )
+    total = sum(f.stat().st_size for f in files)
+    for f in files:
+        if total <= max_bytes:
+            break
+        total -= f.stat().st_size
+        f.unlink()
+        logger.info(f"Evicted from cache: {f.name}")
