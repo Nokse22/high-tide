@@ -579,6 +579,12 @@ class HighTideWindow(Adw.ApplicationWindow):
         logger.info(f"seeking: {abs(seek_fraction - self.previous_fraction)}")
 
         self.player_object.seek(seek_fraction)
+
+        duration_secs = self.duration / Gst.SECOND
+        position_secs = seek_fraction * duration_secs
+        self.time_played_label.set_label(utils.pretty_duration(position_secs))
+        self.lyrics_widget.set_time(position_secs)
+        self.small_progress_bar.set_fraction(seek_fraction)
         self.previous_fraction = seek_fraction
 
     @Gtk.Template.Callback("on_seek_from_lyrics")
