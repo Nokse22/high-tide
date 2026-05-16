@@ -244,12 +244,20 @@ class HighTideWindow(Adw.ApplicationWindow):
         login_dialog.present(self)
 
     def th_login(self):
+        if not self.secret_store.token_dictionary.get("is-pkce", False):
+            if self.secret_store.token_dictionary:
+                logger.info("Clearing legacy non-PKCE session, re-auth required")
+                self.secret_store.clear()
+            GLib.idle_add(self.on_login_failed)
+            return
+
         try:
             self.session.load_oauth_session(
                 self.secret_store.token_dictionary["token-type"],
                 self.secret_store.token_dictionary["access-token"],
                 self.secret_store.token_dictionary["refresh-token"],
                 self.secret_store.token_dictionary["expiry-time"],
+                is_pkce=True,
             )
         except Exception:
             logger.exception("Error while logging in!")
