@@ -43,6 +43,7 @@ class TrackListPage(Page):
         if reload_function:
             self.auto_load.set_function(reload_function)
 
+        self.set_title(title)
         builder.get_object("_title_label").set_label(title)
         builder.get_object("_first_subtitle_label").set_label(subtitle)
         item = getattr(self, "item", None)
