@@ -19,7 +19,7 @@
 
 from typing import Callable
 
-from gi.repository import GLib, Gtk
+from gi.repository import GLib, Gtk, Adw
 
 from ..disconnectable_iface import IDisconnectable
 from ..lib import utils
@@ -147,9 +147,8 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         page_size = adjustment.get_page_size()
         value = adjustment.get_value()
         upper = adjustment.get_upper()
-
         new_value = min(value + page_size, upper - page_size)
-        adjustment.set_value(new_value)
+        self._animate_carousel(adjustment, value, new_value)
 
     def carousel_go_prev(self, *args):
         """Navigate to the previous set of items in the carousel"""
@@ -158,6 +157,28 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
             return
         page_size = adjustment.get_page_size()
         value = adjustment.get_value()
-
         new_value = max(value - page_size, 0)
-        adjustment.set_value(new_value)
+        self._animate_carousel(adjustment, value, new_value)
+
+    def _animate_carousel(self, adjustment, from_value, to_value):
+        """Animate the carousel scroll using Adwaita spring animation"""
+        if from_value == to_value:
+            return
+
+        target = Adw.CallbackAnimationTarget.new(adjustment.set_value)
+
+        spring_params = Adw.SpringParams.new(
+            damping_ratio=1.0,
+            mass=1.0,
+            stiffness=1200.0
+        )
+
+        animation = Adw.SpringAnimation.new(
+            self.carousel_scrolled_window,
+            from_value,
+            to_value,
+            spring_params,
+            target
+        )
+        animation.set_clamp(True)
+        animation.play()
