@@ -221,6 +221,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         if not self.settings.get_boolean("app-id-change-understood"):
             self.app_id_dialog.present(self)
 
+        threading.Thread(target=utils.evict_cache, args=(utils.MUSIC_DIR, 5)).start()
+
     @Gtk.Template.Callback("on_app_id_response_cb")
     def on_app_id_response_cb(self, dialog, response):
         self.app_id_dialog.close()

@@ -821,3 +821,20 @@ def setup_logging():
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
         handlers=handlers,
     )
+
+def evict_cache(cache_dir, max_gb):
+    if not cache_dir or not cache_dir.exists():
+        return
+
+    max_bytes = max_gb * 1024 ** 3
+    files = sorted(
+        cache_dir.iterdir(),
+        key=lambda f: f.stat().st_atime
+    )
+    total = sum(f.stat().st_size for f in files)
+    for f in files:
+        if total <= max_bytes:
+            break
+        total -= f.stat().st_size
+        f.unlink()
+        logger.info(f"Evicted from cache: {f.name}")
