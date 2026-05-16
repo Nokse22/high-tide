@@ -26,7 +26,7 @@ from gettext import gettext as _
 from pathlib import Path
 from typing import Any, List, Union
 
-from gi.repository import GLib, GObject, Gst
+from gi.repository import GLib, GObject, Gst, Gio
 
 from tidalapi.album import Album
 from tidalapi.artist import Artist
@@ -79,9 +79,6 @@ class PlayerObject(GObject.GObject):
         quadratic_volume: bool = False,
     ) -> None:
         GObject.GObject.__init__(self)
-
-        self._music_cache_dir = None
-        self._manifest_cache_dir = None
 
         Gst.init(None)
 
@@ -148,6 +145,9 @@ class PlayerObject(GObject.GObject):
 
         # next track variables for gapless
         self.next_track: Any | None = None
+
+        # for not caching on metered networks
+        self.monitor = Gio.NetworkMonitor.get_default()
 
     @GObject.Property(type=bool, default=False)
     def playing(self) -> bool:
@@ -453,13 +453,6 @@ class PlayerObject(GObject.GObject):
         threading.Thread(target=self._play_track_thread, args=(track, gapless)).start()
 
     def _play_track_thread(self, track: Track, gapless=False) -> None:
-        """Thread for loading and playing a track.
-
-        Args:
-            track: The Track object to play
-            gapless: Whether to enqueue the track for gapless playback
-        """
-
         self.stream = None
         self.manifest = None
 
@@ -476,84 +469,113 @@ class PlayerObject(GObject.GObject):
 
     def _get_cached_or_stream_url(self, track, gapless=False):
         """Get URL from cache or stream, caching if not cached."""
-        if not hasattr(utils, 'CACHE_DIR') or not utils.CACHE_DIR:
+        if not hasattr(utils, 'MUSIC_DIR') or not utils.MUSIC_DIR:
             return self._get_stream_url(track, gapless)
 
-        if not hasattr(self, '_manifest_cache_dir') or not self._manifest_cache_dir:
-            self._manifest_cache_dir = Path(utils.CACHE_DIR, "manifests")
-            self._manifest_cache_dir.mkdir(exist_ok=True)
-        if not hasattr(self, '_music_cache_dir') or not self._music_cache_dir:
-            self._music_cache_dir = Path(utils.CACHE_DIR, "music")
-            self._music_cache_dir.mkdir(exist_ok=True)
-
-        cached_manifest = self._manifest_cache_dir / f"{track.id}.mpd"
-        cached_music = self._music_cache_dir / f"{track.id}.m4a"
+        cached_music = utils.MUSIC_DIR / f"{track.id}_{utils.session.audio_quality}.m4a"
 
         if cached_music.exists():
             logger.info(f"Playing from music cache: {track.id}")
             return f"file://{cached_music}"
 
-        if cached_manifest.exists():
-            major, minor, micro, nano = Gst.version()
-            if (major, minor) >= (1, 26):
-                logger.info(f"Playing from manifest cache: {track.id}")
-                return f"file://{cached_manifest}"
-
         return self._get_stream_url(track, gapless)
 
     def _get_stream_url(self, track, gapless=False):
-        """Get stream URL and cache if possible."""
+        """Get stream URL and start background caching."""
         if not gapless:
             self.apply_replaygain_tags()
 
         if self.stream.manifest_mime_type == ManifestMimeType.MPD:
             data = self.stream.get_manifest_data()
-            major, minor, micro, nano = Gst.version()
-            if data:
-                if (major, minor) >= (1, 26):
-                    cached_manifest = self._manifest_cache_dir / f"{track.id}.mpd"
-                    with open(cached_manifest, "w") as file:
-                        file.write(data)
-                    logger.info(f"Cached manifest: {track.id}")
-                    return f"file://{cached_manifest}"
-                else:
-                    if isinstance(data, str):
-                        mpd_bytes = data.encode("utf-8")
-                    else:
-                        mpd_bytes = data
-                    mpd_b64 = base64.b64encode(mpd_bytes).decode("ascii")
-                    return "data:application/dash+xml;base64," + mpd_b64
-            else:
+            if not data:
                 raise AttributeError("No MPD manifest available!")
+
+            major, minor, micro, nano = Gst.version()
+            if (major, minor) >= (1, 26):
+                # Write manifest to temp location for GStreamer and caching
+                mpd_path = Path(utils.CACHE_DIR, "manifest.mpd")
+                with open(mpd_path, "w") as f:
+                    f.write(data)
+
+                if not self.monitor.get_network_metered():
+                    threading.Thread(
+                        target=self._cache_mpd_track,
+                        args=(track, mpd_path)
+                    ).start()
+
+                return f"file://{mpd_path}"
+            else:
+                if isinstance(data, str):
+                    mpd_bytes = data.encode("utf-8")
+                else:
+                    mpd_bytes = data
+                mpd_b64 = base64.b64encode(mpd_bytes).decode("ascii")
+                return "data:application/dash+xml;base64," + mpd_b64
+
         elif self.stream.manifest_mime_type == ManifestMimeType.BTS:
             urls = self.manifest.get_urls()
-            if isinstance(urls, list):
-                stream_url = urls[0]
-            else:
-                stream_url = urls
+            stream_url = urls[0] if isinstance(urls, list) else urls
 
-            threading.Thread(target=self._cache_bts_track, args=(track, stream_url)).start()
+            if not self.monitor.get_network_metered():
+                threading.Thread(
+                    target=self._cache_bts_track,
+                    args=(track, stream_url)
+                ).start()
+
             return stream_url
 
-        return stream_url
+        raise AttributeError(f"Unhandled manifest mime type: {self.stream.manifest_mime_type}")
+
+    def _cache_mpd_track(self, track, mpd_path):
+        """Download and cache MPD track via ffmpeg in background."""
+        cached_music = utils.MUSIC_DIR / f"{track.id}_{utils.session.audio_quality}.m4a"
+        tmp = cached_music.with_suffix(".tmp")
+
+        try:
+            import subprocess
+            logger.info(f"Caching MPD track: {track.id}")
+            result = subprocess.run(
+                [
+                    "ffmpeg",
+                    "-protocol_whitelist", "file,crypto,data,http,https,tcp,tls",
+                    "-i", str(mpd_path),
+                    "-f", "mp4",
+                    "-c", "copy",
+                    "-y", str(tmp)
+                ],
+                capture_output=True
+            )
+
+            if result.returncode == 0:
+                tmp.rename(cached_music)
+                logger.info(f"Cached MPD track: {track.id}")
+            else:
+                logger.warning(f"ffmpeg failed for {track.id}: {result.stderr.decode()}")
+                tmp.unlink(missing_ok=True)
+        except Exception as e:
+            logger.warning(f"Failed to cache MPD track {track.id}: {e}")
+            tmp.unlink(missing_ok=True)
 
     def _cache_bts_track(self, track, stream_url):
         """Download and cache BTS track in background."""
+        cached_music = utils.MUSIC_DIR / f"{track.id}_{utils.session.audio_quality}.m4a"
+        tmp = cached_music.with_suffix(".tmp")
+
         try:
             import requests
-            cached_music = self._music_cache_dir / f"{track.id}.m4a"
-            if cached_music.exists():
-                return
-
             logger.info(f"Caching BTS track: {track.id}")
             response = requests.get(stream_url, stream=True)
             if response.status_code == 200:
-                with open(cached_music, "wb") as f:
+                with open(tmp, "wb") as f:
                     for chunk in response.iter_content(chunk_size=8192):
                         f.write(chunk)
+                tmp.rename(cached_music)
                 logger.info(f"Cached BTS track: {track.id}")
+            else:
+                logger.warning(f"BTS download failed for {track.id}: HTTP {response.status_code}")
         except Exception as e:
-            logger.warning(f"Failed to cache track {track.id}: {e}")
+            logger.warning(f"Failed to cache BTS track {track.id}: {e}")
+            tmp.unlink(missing_ok=True)
 
     def apply_replaygain_tags(self):
         """Apply ReplayGain normalization tags to the current track if enabled."""
