@@ -19,7 +19,7 @@
 
 from typing import Callable
 
-from gi.repository import Gtk
+from gi.repository import GLib, Gtk, Adw
 
 from ..disconnectable_iface import IDisconnectable
 from ..lib import utils
@@ -43,7 +43,8 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
     title_label = Gtk.Template.Child()
     next_button = Gtk.Template.Child()
     prev_button = Gtk.Template.Child()
-    carousel = Gtk.Template.Child()
+    carousel_scrolled_window = Gtk.Template.Child()
+    cards_box = Gtk.Template.Child()
     more_button = Gtk.Template.Child()
 
     def __init__(self, _title=""):
@@ -65,14 +66,18 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
             self.more_button.connect("clicked", self.on_more_clicked),
         ))
 
-        self.n_pages = 0
-
         self.title = _title
         self.title_label.set_label(self.title)
 
         self.more_function = None
 
         self.items = []
+
+        adjustment = self.carousel_scrolled_window.get_hadjustment()
+        self.signals.append((
+            adjustment,
+            adjustment.connect("value-changed", self._update_button_sensitivity),
+        ))
 
     def set_more_function(self, function: Callable) -> None:
         """Set the function to call when the "See More" button is clicked.
@@ -93,17 +98,32 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         """
         self.items = items_list
 
+        cards_added = 0
         for index, item in enumerate(self.items):
             if index >= 8:
                 self.more_button.set_visible(True)
                 break
             card = HTCardWidget(item)
             self.disconnectables.append(card)
-            self.carousel.append(card)
-            self.n_pages = self.carousel.get_n_pages()
+            self.cards_box.append(card)
+            cards_added += 1
 
-            if self.n_pages != 2:
-                self.next_button.set_sensitive(True)
+        if cards_added > 1:
+            self.next_button.set_sensitive(True)
+
+        GLib.idle_add(self._update_button_sensitivity)
+
+    def _update_button_sensitivity(self, *args):
+        adjustment = self.carousel_scrolled_window.get_hadjustment()
+        if not adjustment:
+            return
+        value = adjustment.get_value()
+        upper = adjustment.get_upper()
+        page_size = adjustment.get_page_size()
+        max_scroll = upper - page_size
+
+        self.prev_button.set_sensitive(value > 0)
+        self.next_button.set_sensitive(value < max_scroll)
 
     def on_more_clicked(self, *args):
         """Handle "See More" button clicks by navigating to a detailed page"""
@@ -120,35 +140,45 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         utils.navigation_view.push(page)
 
     def carousel_go_next(self, *args):
-        """Navigate to the next page in the carousel"""
-        pos = self.carousel.get_position()
-        total_pages = self.carousel.get_n_pages()
-
-        if pos + 2 >= total_pages:
-            next_pos = total_pages - 1
-        else:
-            next_pos = pos + 2
-
-        next_page = self.carousel.get_nth_page(next_pos)
-        if next_page is not None:
-            self.carousel.scroll_to(next_page, True)
-
-        self.prev_button.set_sensitive(next_pos > 1)
-        self.next_button.set_sensitive(next_pos < total_pages - 2)
+        """Navigate to the next set of items in the carousel"""
+        adjustment = self.carousel_scrolled_window.get_hadjustment()
+        if not adjustment:
+            return
+        page_size = adjustment.get_page_size()
+        value = adjustment.get_value()
+        upper = adjustment.get_upper()
+        new_value = min(value + page_size, upper - page_size)
+        self._animate_carousel(adjustment, value, new_value)
 
     def carousel_go_prev(self, *args):
-        """Navigate to the previous page in the carousel"""
-        pos = self.carousel.get_position()
-        total_pages = self.carousel.get_n_pages()
+        """Navigate to the previous set of items in the carousel"""
+        adjustment = self.carousel_scrolled_window.get_hadjustment()
+        if not adjustment:
+            return
+        page_size = adjustment.get_page_size()
+        value = adjustment.get_value()
+        new_value = max(value - page_size, 0)
+        self._animate_carousel(adjustment, value, new_value)
 
-        if pos - 2 < 0:
-            prev_pos = 0
-        else:
-            prev_pos = pos - 2
+    def _animate_carousel(self, adjustment, from_value, to_value):
+        """Animate the carousel scroll using Adwaita spring animation"""
+        if from_value == to_value:
+            return
 
-        prev_page = self.carousel.get_nth_page(prev_pos)
-        if prev_page is not None:
-            self.carousel.scroll_to(prev_page, True)
+        target = Adw.CallbackAnimationTarget.new(adjustment.set_value)
 
-        self.prev_button.set_sensitive(prev_pos > 1)
-        self.next_button.set_sensitive(prev_pos < total_pages - 2)
+        spring_params = Adw.SpringParams.new(
+            damping_ratio=1.0,
+            mass=1.0,
+            stiffness=1200.0
+        )
+
+        animation = Adw.SpringAnimation.new(
+            self.carousel_scrolled_window,
+            from_value,
+            to_value,
+            spring_params,
+            target
+        )
+        animation.set_clamp(True)
+        animation.play()
