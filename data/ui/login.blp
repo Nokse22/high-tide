@@ -3,8 +3,8 @@ using Adw 1;
 
 template $LoginDialog: Adw.Dialog {
   title: _("Log In");
-  content-height: 220;
-  content-width: 360;
+  content-height: 320;
+  content-width: 420;
 
   Adw.ToolbarView {
     [top]
@@ -17,41 +17,57 @@ template $LoginDialog: Adw.Dialog {
       margin-top: 12;
       orientation: vertical;
       spacing: 12;
-      vexpand: true;
 
       Label {
-        label: _("Go to this website and login with your account, if it asks for a code insert the code provided below.");
-        vexpand: true;
+        label: _("Sign in on Tidal, then paste the URL you get redirected to.");
         wrap: true;
+        xalign: 0;
       }
 
       LinkButton link_button {
         halign: center;
-        label: 'www.tidal.login/IEOUE';
-        uri: 'prova.com';
+        label: _("Open Tidal Login");
       }
 
-      Box {
+      ListBox {
+        selection-mode: none;
+
+        styles [
+          "boxed-list",
+        ]
+
+        Adw.EntryRow redirect_url_entry {
+          title: _("Redirect URL");
+          activates-default: true;
+          changed => $on_redirect_url_changed();
+          entry-activated => $on_login_button_clicked();
+        }
+      }
+
+      Label error_label {
+        visible: false;
+        wrap: true;
+        xalign: 0;
+
+        styles [
+          "error",
+        ]
+      }
+
+      Button login_button {
+        sensitive: false;
+        label: _("Log In");
         halign: center;
-        spacing: 12;
-        valign: start;
+        valign: end;
         vexpand: true;
+        margin-top: 6;
 
-        Label code_label {
-          label: 'WEOID';
-        }
+        styles [
+          "suggested-action",
+          "pill",
+        ]
 
-        Button {
-          halign: center;
-          icon-name: 'edit-copy-symbolic';
-          valign: center;
-
-          styles [
-            "circular",
-          ]
-
-          clicked => $on_copy_code_button_clicked();
-        }
+        clicked => $on_login_button_clicked();
       }
     };
   }

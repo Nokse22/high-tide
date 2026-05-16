@@ -221,6 +221,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         if not self.settings.get_boolean("app-id-change-understood"):
             self.app_id_dialog.present(self)
 
+        threading.Thread(target=utils.evict_cache, args=(utils.MUSIC_DIR, 5)).start()
+
     @Gtk.Template.Callback("on_app_id_response_cb")
     def on_app_id_response_cb(self, dialog, response):
         self.app_id_dialog.close()
@@ -244,12 +246,20 @@ class HighTideWindow(Adw.ApplicationWindow):
         login_dialog.present(self)
 
     def th_login(self):
+        if not self.secret_store.token_dictionary.get("is-pkce", False):
+            if self.secret_store.token_dictionary:
+                logger.info("Clearing legacy non-PKCE session, re-auth required")
+                self.secret_store.clear()
+            GLib.idle_add(self.on_login_failed)
+            return
+
         try:
             self.session.load_oauth_session(
                 self.secret_store.token_dictionary["token-type"],
                 self.secret_store.token_dictionary["access-token"],
                 self.secret_store.token_dictionary["refresh-token"],
                 self.secret_store.token_dictionary["expiry-time"],
+                is_pkce=True,
             )
         except Exception:
             logger.exception("Error while logging in!")
@@ -579,6 +589,12 @@ class HighTideWindow(Adw.ApplicationWindow):
         logger.info(f"seeking: {abs(seek_fraction - self.previous_fraction)}")
 
         self.player_object.seek(seek_fraction)
+
+        duration_secs = self.duration / Gst.SECOND
+        position_secs = seek_fraction * duration_secs
+        self.time_played_label.set_label(utils.pretty_duration(position_secs))
+        self.lyrics_widget.set_time(position_secs)
+        self.small_progress_bar.set_fraction(seek_fraction)
         self.previous_fraction = seek_fraction
 
     @Gtk.Template.Callback("on_seek_from_lyrics")
@@ -640,24 +656,21 @@ class HighTideWindow(Adw.ApplicationWindow):
         end_value = self.duration / Gst.SECOND
 
         self.volume_button.get_adjustment().set_value(self.player_object.query_volume())
-        position = self.player_object.query_position(default=None)
-        if position is None:
-            return
-        position = position / Gst.SECOND
-        fraction = 0
-
-        self.lyrics_widget.set_time(position)
-
         self.duration_label.set_label(utils.pretty_duration(end_value))
 
-        if end_value != 0:
-            fraction = position / end_value
+        position_ns = self.player_object.query_position(default=None)
+        if position_ns is None:
+            self.time_played_label.set_label(utils.pretty_duration(0))
+            return
+        position = position_ns / Gst.SECOND
+
+        self.lyrics_widget.set_time(position)
+        self.time_played_label.set_label(utils.pretty_duration(position))
+
+        fraction = position / end_value if end_value else 0
         self.small_progress_bar.set_fraction(fraction)
         self.progress_bar.get_adjustment().set_value(fraction)
-
         self.previous_fraction = fraction
-
-        self.time_played_label.set_label(utils.pretty_duration(position))
 
     def th_add_lyrics_to_page(self):
         try:
