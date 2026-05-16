@@ -1,5 +1,5 @@
 project('high-tide',
-          version: '1.3.1',
+          version: '1.4.0',
     meson_version: '>= 0.62.0',
   default_options: [ 'warning_level=2', 'werror=false', ],
 )
