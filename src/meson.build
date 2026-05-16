@@ -3,6 +3,13 @@ gnome = import('gnome')
 
 python = import('python')
 
+# Module objects
+py_installation = python.find_installation('python3', modules: ['tidalapi', 'pypresence', 'gi.repository'])
+if not py_installation.found()
+    error('No valid python3 binary found')
+endif
+
+
 conf = configuration_data()
 conf.set('PYTHON', python.find_installation('python3').full_path())
 conf.set('VERSION', meson.project_version())
