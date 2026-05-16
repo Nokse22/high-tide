@@ -10,7 +10,7 @@
             "add-ld-path": ".",
             "no-autodownload": false,
             "autodelete": false
-        },
+        }
     },
     "command": "high-tide",
     "finish-args": [
