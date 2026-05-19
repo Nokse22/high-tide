@@ -19,7 +19,7 @@ template $LoginDialog: Adw.Dialog {
       spacing: 12;
 
       Label {
-        label: _("Sign in on Tidal, then paste the URL you get redirected to.");
+        label: _("Sign in on Tidal. Your browser will redirect to a \"Page not found\" — that's expected. Copy the full URL from the address bar and paste it below.");
         wrap: true;
         xalign: 0;
       }
@@ -37,7 +37,7 @@ template $LoginDialog: Adw.Dialog {
         ]
 
         Adw.EntryRow redirect_url_entry {
-          title: _("Redirect URL");
+          title: _("Paste redirected URL here");
           activates-default: true;
           changed => $on_redirect_url_changed();
           entry-activated => $on_login_button_clicked();
