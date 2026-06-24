@@ -75,12 +75,12 @@
   background-color: transparent;
 }
 
-.lyrics-widget>row {
+.lyrics-widget > row {
   background-color: transparent;
   padding: 0px;
 }
 
-.lyrics-widget>row label {
+.lyrics-widget > row label {
   transition: background-color 0.1s ease-in-out;
   font-weight: bold;
   font-size: 14pt;
@@ -89,18 +89,18 @@
   padding: 6px;
 }
 
-.lyrics-widget>row label:hover {
+.lyrics-widget > row label:hover {
   background-color: alpha(var(--view-fg-color), 0.04);
 }
 
-.lyrics-widget>row:selected label {
+.lyrics-widget > row:selected label {
   background-color: alpha(var(--view-fg-color), 0.07);
   color: var(--accent-color);
   padding-top: 24px;
   padding-bottom: 24px;
 }
 
-.lyrics-widget>row:selected:hover {
+.lyrics-widget > row:selected:hover {
   color: alpha(var(--accent-color), 0.9);
 }
 
@@ -131,16 +131,19 @@
   padding-right: 6px;
 }
 
-.sidebar-progress-bar trough { /* codespell:ignore trough */
-  border-radius:0px;
+.sidebar-progress-bar trough {
+  /* codespell:ignore trough */
+  border-radius: 0px;
   background-color: transparent;
 }
 
-.sidebar-progress-bar trough > progress { /* codespell:ignore trough */
-  border-radius:0px;
-  background-color:alpha(var(--window-fg-color), 0.05);
+.sidebar-progress-bar trough > progress {
+  /* codespell:ignore trough */
+  border-radius: 0px;
+  background-color: alpha(var(--window-fg-color), 0.05);
 }
 
 dropdown button:not(:hover) {
   background-color: transparent;
 }
+
