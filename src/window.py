@@ -765,38 +765,44 @@ class HighTideWindow(Adw.ApplicationWindow):
     def on_push_artist_page(self, action, parameter):
         if parameter.get_string() == "":
             return
-        page = HTArtistPage.new_from_id(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        id = parameter.get_string()
+        utils.push_page(f"artist-{id}", lambda: HTArtistPage.new_from_id(id).load())
 
     def on_push_album_page(self, action, parameter):
         if parameter.get_string() == "":
             return
-        page = HTAlbumPage.new_from_id(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        id = parameter.get_string()
+        utils.push_page(f"album-{id}", lambda: HTAlbumPage.new_from_id(id).load())
 
     def on_push_playlist_page(self, action, parameter):
         if parameter.get_string() == "":
             return
-        page = HTPlaylistPage.new_from_id(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        id = parameter.get_string()
+        utils.push_page(
+            f"playlist-{id}", lambda: HTPlaylistPage.new_from_id(id).load()
+        )
 
     def on_push_mix_page(self, action, parameter):
         if parameter.get_string() == "":
             return
-        page = HTMixPage.new_from_id(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        id = parameter.get_string()
+        utils.push_page(f"mix-{id}", lambda: HTMixPage.new_from_id(id).load())
 
     def on_push_track_radio_page(self, action, parameter):
         if parameter.get_string() == "":
             return
-        page = HTMixPage.new_from_track(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        id = parameter.get_string()
+        utils.push_page(
+            f"track-radio-{id}", lambda: HTMixPage.new_from_track(id).load()
+        )
 
     def on_push_artist_radio_page(self, action, parameter):
         if parameter.get_string() == "":
             return
-        page = HTMixPage.new_from_artist(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        id = parameter.get_string()
+        utils.push_page(
+            f"artist-radio-{id}", lambda: HTMixPage.new_from_artist(id).load()
+        )
 
     #
     #
