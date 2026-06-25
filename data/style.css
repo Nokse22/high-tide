@@ -14,6 +14,15 @@
   border-radius: 4px;
 }
 
+.now-playing {
+  background-color: alpha(@accent_bg_color, 0.1);
+}
+
+.now-playing .title-4 {
+  color: @accent_color;
+  font-weight: bold;
+}
+
 .card-bg {
   transition: opacity 0.1s ease-in-out;
   transition: background-color 0.1s ease-in-out;
@@ -64,10 +73,10 @@
 }
 
 .explicit-label {
-  padding: 0px;
-  padding-left: 3px;
-  padding-right: 3px;
-  background-color: var(--popover-shade-color);
+  padding: 1px 5px;
+  font-weight: bold;
+  color: alpha(@window_fg_color, 0.7);
+  background-color: alpha(@window_fg_color, 0.15);
   border-radius: 4px;
 }
 
