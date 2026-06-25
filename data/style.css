@@ -14,6 +14,10 @@
   border-radius: 4px;
 }
 
+.player-view-switcher button image {
+  margin-right: 8px;
+}
+
 .now-playing {
   background-color: alpha(@accent_bg_color, 0.1);
 }
@@ -24,13 +28,13 @@
 }
 
 .card-bg {
-  transition: opacity 0.1s ease-in-out;
   transition: background-color 0.1s ease-in-out;
   border-radius: 14px;
+  background-color: @card_bg_color;
 }
 
 .card-bg:hover {
-  background-color: alpha(var(--window-fg-color), 0.1);
+  background-color: mix(@card_bg_color, @window_fg_color, 0.07);
 }
 
 .artist-link {
@@ -93,24 +97,24 @@
   transition: background-color 0.1s ease-in-out;
   font-weight: bold;
   font-size: 14pt;
-  color: alpha(var(--view-fg-color), 0.5);
+  color: alpha(@view_fg_color, 0.5);
   border-radius: 12px;
   padding: 6px;
 }
 
 .lyrics-widget>row label:hover {
-  background-color: alpha(var(--view-fg-color), 0.04);
+  background-color: alpha(@view_fg_color, 0.04);
 }
 
 .lyrics-widget>row:selected label {
-  background-color: alpha(var(--view-fg-color), 0.07);
-  color: var(--accent-color);
+  background-color: alpha(@view_fg_color, 0.07);
+  color: @accent_color;
   padding-top: 24px;
   padding-bottom: 24px;
 }
 
 .lyrics-widget>row:selected:hover {
-  color: alpha(var(--accent-color), 0.9);
+  color: alpha(@accent_color, 0.9);
 }
 
 .tracks-list-box {
@@ -125,15 +129,15 @@
 }
 
 .tracks-list-box row:nth-child(odd) {
-  background-color: alpha(var(--window-fg-color), 0.05);
+  background-color: alpha(@window_fg_color, 0.05);
 }
 
 .tracks-list-box row:hover {
-  background-color: alpha(var(--window-fg-color), 0.1);
+  background-color: alpha(@window_fg_color, 0.1);
 }
 
 .quality-label {
-  background-color: var(--popover-shade-color);
+  background-color: @popover_shade_color;
   border-radius: 4px;
   padding: 3px;
   padding-left: 6px;
@@ -147,7 +151,7 @@
 
 .sidebar-progress-bar trough > progress { /* codespell:ignore trough */
   border-radius:0px;
-  background-color:alpha(var(--window-fg-color), 0.05);
+  background-color:alpha(@window_fg_color, 0.05);
 }
 
 dropdown button:not(:hover) {
