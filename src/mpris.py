@@ -441,7 +441,7 @@ class MPRIS(Server):
             "s", track.album.name
         )
         self.__metadata["xesam:artist"] = GLib.Variant(
-            "as", [track.artist.name]
+            "as", [artist.name for artist in track.artists]
         )
         self.__metadata["mpris:length"] = GLib.Variant(
             "x", track.duration * 1_000_000
