@@ -22,7 +22,7 @@ from gettext import gettext as _
 from typing import Callable
 
 import tidalapi
-from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Xdp
+from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Xdp, Gdk
 from tidalapi.media import Quality
 
 from .lib import HTCache, PlayerObject, RepeatType, SecretStore, utils
@@ -83,7 +83,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     album_button = Gtk.Template.Child()
     copy_share_link = Gtk.Template.Child()
 
-    app_id_dialog = Gtk.Template.Child()
+    secret_portal_dialog = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -206,34 +206,30 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.queue_widget_updated = False
 
-        self.secret_store = SecretStore(self.session)
+        try:
+            self.secret_store = SecretStore(self.session)
+        except Exception:
+            self.secret_portal_dialog.present(self)
 
         threading.Thread(target=self.th_login, args=()).start()
 
         MPRIS(self.player_object)
 
         self.portal = Xdp.Portal()
-
         self.portal.set_background_status(_("Playing Music"))
 
         self.connect("notify::is-active", self.stop_video_in_background)
 
-        if not self.settings.get_boolean("app-id-change-understood"):
-            self.app_id_dialog.present(self)
-
         threading.Thread(target=utils.evict_cache, args=(utils.MUSIC_DIR, 5)).start()
 
-    @Gtk.Template.Callback("on_app_id_response_cb")
-    def on_app_id_response_cb(self, dialog, response):
-        self.app_id_dialog.close()
+    @Gtk.Template.Callback("copy_secret_service_override_command")
+    def copy_secret_service_override_command (self):
+        clipboard = Gdk.Display().get_default().get_clipboard()
+        clipboard.set("flatpak --user override --talk-name=org.freedesktop.secrets io.github.nokse22.high-tide")
 
-    @Gtk.Template.Callback("on_app_id_check_toggled_cb")
-    def on_app_id_check_toggled_cb(self, check_btn):
-        self.app_id_dialog.set_response_enabled("close", check_btn.get_active())
-
-    @Gtk.Template.Callback("on_app_id_closed_cb")
-    def on_app_id_closed_cb(self, dialog):
-        self.settings.set_boolean("app-id-change-understood", True)
+    @Gtk.Template.Callback("secret_portal_dialog_response_cb")
+    def secret_portal_dialog_response_cb(self, *args):
+        self.get_application().quit()
 
     #
     #   LOGIN
