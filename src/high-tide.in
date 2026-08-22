@@ -31,6 +31,12 @@ localedir = '@localedir@'
 
 sys.path.insert(1, pkgdatadir)
 signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+# On KDE Wayland the zwp_text_input_v3 protocol doesn't compose dead keys
+# correctly for GTK4 apps. Fall back to GTK's built-in simple IM context,
+# which uses xkbcommon compose tables and handles dead keys properly.
+# Only applied when the user hasn't explicitly chosen an IM module.
+os.environ.setdefault('GTK_IM_MODULE', 'simple')
 locale.bindtextdomain('high-tide', localedir)
 locale.textdomain('high-tide')
 gettext.bindtextdomain('high-tide', localedir)
