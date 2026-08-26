@@ -20,6 +20,7 @@
 import sys
 from gettext import gettext as _
 from typing import Any, Callable, List
+from datetime import datetime
 
 from gi.repository import Adw, Gio, Gtk
 
@@ -97,9 +98,10 @@ class HighTideApplication(Adw.Application):
                 "Nila The Dragon https://github.com/nilathedragon",
                 "Dråfølin https://github.com/drafolin",
                 "Plamper https://github.com/Plamper",
+                "p0ryae https://github.com/p0ryae",
             ],
-            copyright="© 2023-2025 Nokse",
-            license_type="GTK_LICENSE_GPL_3_0",
+            copyright=f"© 2023-{datetime.now().year} Nokse",
+            license_type=Gtk.License.GPL_3_0,
             issue_url="https://github.com/Nokse22/high-tide/issues",
             website="https://github.com/Nokse22/high-tide",
         )
@@ -165,6 +167,13 @@ class HighTideApplication(Adw.Application):
             )
             builder.get_object("_discord_rpc_row").connect(
                 "notify::active", self.on_discord_rpc_changed
+            )
+
+            builder.get_object("_content_restriction_row").set_selected(
+                self.settings.get_int("content-restriction")
+            )
+            builder.get_object("_content_restriction_row").connect(
+                "notify::selected", self.on_content_restriction_changed
             )
 
             self.alsa_row = builder.get_object("_alsa_device_row")
@@ -240,6 +249,11 @@ class HighTideApplication(Adw.Application):
 
     def on_discord_rpc_changed(self, widget: Any, *args) -> None:
         self.win.change_discord_rpc_enabled(widget.get_active())
+
+    def on_content_restriction_changed(self, widget: Any, *args) -> None:
+        value = widget.get_selected()
+        self.settings.set_int("content-restriction", value)
+        self.win.change_content_restriction(value)
 
     def deactive_alsa_device_row(self, widget: Any, *args) -> None:
         alsa_used = widget.get_selected() == AudioSink.ALSA

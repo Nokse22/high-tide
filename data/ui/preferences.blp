@@ -30,30 +30,42 @@ Adw.PreferencesDialog _preference_window {
         };
 
         title: _("Preferred Audio Sink");
-        subtitle: _("Gapless playback is disabled for the native Pipewire Sink due to a bug. Use 'Automatic' for gapless playback.");
+        subtitle: _("Gapless playback is disabled for Pipewire, so use 'Automatic' for now");
       }
       Adw.ComboRow _alsa_device_row{
         title: _("ALSA Device");
         subtitle: _("Device used for exclusive ALSA access");
       }
       Adw.SwitchRow _normalize_row {
-        title: _("Normalize volume");
+        title: _("Normalize Volume");
       }
     }
 
     Adw.PreferencesGroup {
       title: _("App");
       Adw.SwitchRow _background_row {
-        title: _("Run in the background");
+        title: _("Run In Background");
       }
       Adw.SwitchRow _quadratic_volume_row {
-        title: _("Use quadratic volume control");
+        title: _("Quadratic Volume Control");
       }
       Adw.SwitchRow _video_cover_row {
-        title: _("Display animated covers");
+        title: _("Display Animated Covers");
       }
       Adw.SwitchRow _discord_rpc_row {
         title: _("Enable Discord Rich Presence");
+      }
+      Adw.ComboRow _content_restriction_row {
+        title: _("Content Restriction");
+        subtitle: _("Control which content is shown based on explicit content labels");
+
+        model: StringList {
+          strings [
+            _("Show All"),
+            _("Hide Explicit"),
+            _("Explicit Only"),
+          ]
+        };
       }
     }
   }

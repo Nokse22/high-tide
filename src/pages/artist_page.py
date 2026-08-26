@@ -21,6 +21,7 @@ import logging
 import threading
 from gettext import gettext as _
 from typing import List
+from functools import partial
 
 from gi.repository import GLib, Gtk
 
@@ -61,19 +62,21 @@ class HTArtistPage(Page):
             self.top_tracks = []
 
         try:
-            self.albums = self.artist.get_albums(limit=10)
+            self.albums = utils.get_albums(self.artist, post_limit=10)
         except Exception as e:
             logger.warning(f"Failed to load albums for {self.artist}: {e}")
             self.albums = []
 
         try:
-            self.albums_ep_singles = self.artist.get_albums_ep_singles(limit=10)
+            self.albums_ep_singles = utils.get_albums_ep_singles(
+                self.artist, post_limit=10
+            )
         except Exception as e:
             logger.warning(f"Failed to load EPs/singles for {self.artist}: {e}")
             self.albums_ep_singles = []
 
         try:
-            self.albums_other = self.artist.get_albums_other(limit=10)
+            self.albums_other = utils.get_albums_other(self.artist, post_limit=10)
         except Exception as e:
             logger.warning(f"Failed to load other albums for {self.artist}: {e}")
             self.albums_other = []
@@ -152,14 +155,31 @@ class HTArtistPage(Page):
             _("Top Tracks"), self.top_tracks, self.artist.get_top_tracks
         )
 
-        self.new_carousel_for(_("Albums"), self.albums, self.artist.get_albums)
-
         self.new_carousel_for(
-            _("EP & Singles"), self.albums_ep_singles, self.artist.get_albums_ep_singles
+            _("Albums"),
+            self.albums,
+            partial(
+                utils.get_albums,
+                self.artist,
+            ),
         )
 
         self.new_carousel_for(
-            _("Appears On"), self.albums_other, self.artist.get_albums_other
+            _("EP & Singles"),
+            self.albums_ep_singles,
+            partial(
+                utils.get_albums_ep_singles,
+                self.artist,
+            ),
+        )
+
+        self.new_carousel_for(
+            _("Appears On"),
+            self.albums_other,
+            partial(
+                utils.get_albums_other,
+                self.artist,
+            ),
         )
 
         self.new_carousel_for(_("Similar Artists"), self.similar)
