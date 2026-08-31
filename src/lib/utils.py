@@ -66,6 +66,9 @@ def init() -> None:
     if CACHE_DIR == "" or CACHE_DIR is None or "high-tide" not in CACHE_DIR:
         CACHE_DIR = f"{os.environ.get('HOME')}/.cache/high-tide"
 
+    CACHE_DIR = Path(CACHE_DIR)
+    CACHE_DIR.mkdir(exist_ok=True)
+
     global IMG_DIR
     IMG_DIR = Path(CACHE_DIR, "images")
     IMG_DIR.mkdir(exist_ok=True)

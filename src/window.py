@@ -208,10 +208,10 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         try:
             self.secret_store = SecretStore(self.session)
+            threading.Thread(target=self.th_login, args=()).start()
         except Exception:
             self.secret_portal_dialog.present(self)
-
-        threading.Thread(target=self.th_login, args=()).start()
+            return
 
         MPRIS(self.player_object)
 
@@ -223,7 +223,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         threading.Thread(target=utils.evict_cache, args=(utils.MUSIC_DIR, 5)).start()
 
     @Gtk.Template.Callback("copy_secret_service_override_command")
-    def copy_secret_service_override_command (self):
+    def copy_secret_service_override_command (self, *args):
         clipboard = Gdk.Display().get_default().get_clipboard()
         clipboard.set("flatpak --user override --talk-name=org.freedesktop.secrets io.github.nokse22.high-tide")
 

@@ -287,10 +287,6 @@ class MPRIS(Server):
 
         position = max(0, min(position, duration_us))
 
-        seek_fraction = position / duration_us if duration_us > 0 else 0
-
-        self.player.seek(seek_fraction)
-
         self.PropertiesChanged(
             self.__MPRIS_PLAYER_IFACE,
             {"Position": GLib.Variant("x", int(position))},

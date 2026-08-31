@@ -128,13 +128,39 @@ class TrackListPage(Page):
                 key=lambda t: t.album.name.lower() if t.album and t.album.name else "",
             ),
             4: lambda tracks: sorted(tracks, key=lambda t: t.duration or 0),
+            5: lambda tracks: self._recently_added(tracks),
         }
 
         sorted_tracks = sort_map.get(selected, lambda t: t.copy())(valid_tracks)
 
         if selected == 0 and hasattr(self.item, "tracks"):
             self.auto_load.set_function(getattr(self.item, "tracks", None))
+        elif selected == 5 and hasattr(self.item, "tracks"):
+            self.auto_load.set_function(self.load_new_recently_added)
         else:
             self.auto_load.set_function(None)
 
         self.auto_load.set_items(sorted_tracks)
+
+    def _recently_added(self, tracks):
+        if not(hasattr(self.item, "num_tracks") and hasattr(self.item, "tracks")):
+            return tracks.copy()
+
+        num_tracks = self.item.num_tracks or len(tracks)
+        offset = num_tracks - 50
+        return reversed(self.item.tracks(limit=50, offset=offset))
+
+    def load_new_recently_added(self, limit, offset):
+        if not(hasattr(self.item, "num_tracks") and hasattr(self.item, "tracks")):
+            return []
+
+        num_tracks = self.item.num_tracks
+        reversed_offset = max(0, num_tracks - offset - limit)
+        reversed_limit = min(limit, num_tracks - offset)
+        if reversed_limit <= 0:
+            return []
+        return list(reversed(self.item.tracks(limit=limit, offset=reversed_offset)))
+
+
+
+

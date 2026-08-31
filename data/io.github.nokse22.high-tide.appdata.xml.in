@@ -73,6 +73,17 @@
   </screenshots>
 
   <releases>
+    <release version="1.6.0" date="2026-08-21">
+      <description translate="no">
+      </description>
+    </release>
+    <release version="1.5.0" date="2026-06-24">
+      <description translate="no">
+        <p>Clarify that the "Page not found" redirect is expected</p>
+        <p>Fix deduplicate artist top tracks</p>
+        <p>Fix playback stuck when pipewire active</p>
+      </description>
+    </release>
     <release version="1.4.0" date="2026-05-16">
       <description translate="no">
         <p>Add music cache support</p>
