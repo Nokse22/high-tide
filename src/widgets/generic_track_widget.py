@@ -46,8 +46,6 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     __gtype_name__ = "HTGenericTrackWidget"
 
     image = Gtk.Template.Child()
-    now_playing_indicator = Gtk.Template.Child()
-    album_stack = Gtk.Template.Child()
     track_title_label = Gtk.Template.Child()
     track_duration_label = Gtk.Template.Child()
     playlists_submenu = Gtk.Template.Child()
@@ -142,10 +140,10 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             utils.player_object.playing_track is not None
             and self.track.id == utils.player_object.playing_track.id
         )
-        if is_now and utils.player_object.playing:
-            self.album_stack.set_visible_child(self.now_playing_indicator)
+        if is_now:
+            self.add_css_class("now-playing")
         else:
-            self.album_stack.set_visible_child(self.image)
+            self.remove_css_class("now-playing")
 
     def _on_menu_activate(self, *args):
         if self.menu_activated:

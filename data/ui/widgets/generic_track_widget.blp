@@ -21,33 +21,17 @@ template $HTGenericTrackWidget: ListBoxRow {
       margin-start: 6;
       margin-end: 6;
 
-      Stack album_stack {
-        transition-type: none;
-        hhomogeneous: true;
-        vhomogeneous: true;
-        width-request: 44;
+      Image image {
+        pixel-size: 44;
+        icon-name: "emblem-music-symbolic";
+        overflow: hidden;
         margin-end: 12;
         margin-bottom: 6;
         margin-top: 6;
 
-        Image image {
-          pixel-size: 44;
-          icon-name: "emblem-music-symbolic";
-          overflow: hidden;
-
-          styles [
-            "small-image",
-          ]
-        }
-
-        Image now_playing_indicator {
-          icon-name: "media-playback-start-symbolic";
-          pixel-size: 24;
-
-          styles [
-            "small-image",
-          ]
-        }
+        styles [
+          "small-image",
+        ]
       }
 
       Grid _grid {
