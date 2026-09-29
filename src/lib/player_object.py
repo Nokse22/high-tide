@@ -142,6 +142,7 @@ class PlayerObject(GObject.GObject):
         self.update_timer: Any | None = None
         self.seek_after_sink_reload: int | None = None
         self.seeked_to_end = False
+        self.last_stream_reload: int = 0
 
         # next track variables for gapless
         self.next_track: Any | None = None
@@ -273,6 +274,22 @@ class PlayerObject(GObject.GObject):
             utils.send_toast(_("ALSA Audio Device is not available"), 5)
             self.pause()
             self.pipeline.set_state(Gst.State.NULL)
+
+        # The stream URLs expire after a while (e.g. after a long pause or suspend),
+        # so reload the track to get new ones and continue from the same position
+        elif "Couldn't download fragments" in err.message:
+            now = GLib.get_monotonic_time()
+            if now - self.last_stream_reload < 30_000_000:
+                return
+            self.last_stream_reload = now
+
+            logger.error(
+                "Stream error: Couldn't download fragments. Reloading track..."
+            )
+            duration = self.query_duration()
+            if duration:
+                self.seek_after_sink_reload = self.query_position() / duration
+            self.play_track(self.playing_track)
 
     def _on_buffering_message(self, bus: Any, message: Any) -> None:
         buffer_per: int = message.parse_buffering()
