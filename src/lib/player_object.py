@@ -339,20 +339,27 @@ class PlayerObject(GObject.GObject):
             GLib.timeout_add(2000, self.previous_timer_callback)
 
     def play_this(
-        self, thing: Union[Mix, Album, Playlist, List[Track], Track], index: int = 0
+        self,
+        thing: Union[Mix, Album, Playlist, List[Track], Track],
+        index: int = 0,
+        tracks: List[Track] | None = None,
     ) -> None:
         """Play tracks from a mix, album, playlist, or artist.
 
         Args:
             thing: An object (Mix, Album, Playlist, Artist, or list of Tracks) to play
             index (int): The index of the track to start playing (default: 0)
+            tracks: The tracks of thing, if already fetched (default: None)
         """
         self.current_mix_album_playlist = thing
-        tracks: List[Track] = self.get_track_list(thing)
+        if tracks is None:
+            tracks = self.get_track_list(thing)
 
         if not tracks:
             logger.info("No tracks found to play")
             return
+
+        self.id_list = [track.id for track in tracks]
 
         self._tracks_to_play = tracks[index:] + tracks[:index]
         if not self._tracks_to_play:
@@ -361,7 +368,7 @@ class PlayerObject(GObject.GObject):
         track: Track = self._tracks_to_play.pop(0)
 
         if not track.available:
-            self.play_this(thing, index + 1)
+            self.play_this(thing, index + 1, tracks)
         else:
             self.tracks_to_play = self._tracks_to_play
             self.played_songs = []
@@ -382,7 +389,7 @@ class PlayerObject(GObject.GObject):
             thing: An object (Mix, Album, Playlist, Artist, or list of Tracks) to play
         """
         tracks: List[Track] = self.get_track_list(thing)
-        self.play_this(thing, random.randint(0, len(tracks)))
+        self.play_this(thing, random.randint(0, len(tracks)), tracks)
         self.shuffle = True
 
     def get_track_list(
@@ -410,8 +417,6 @@ class PlayerObject(GObject.GObject):
             tracks_list = thing
         elif isinstance(thing, Track):
             tracks_list = [thing]
-
-        self.id_list = [track.id for track in tracks_list]
 
         return tracks_list
 
