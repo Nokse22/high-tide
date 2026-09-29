@@ -405,7 +405,7 @@ class PlayerObject(GObject.GObject):
         elif isinstance(thing, Playlist):
             tracks_list = thing.tracks()
         elif isinstance(thing, Artist):
-            tracks_list = thing.top_tracks()
+            tracks_list = thing.get_top_tracks()
         elif isinstance(thing, list):
             tracks_list = thing
         elif isinstance(thing, Track):
