@@ -144,3 +144,24 @@
 dropdown button:not(:hover) {
   background-color: transparent;
 }
+.card-play-button {
+  min-width: 42px;
+  min-height: 42px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+}
+
+.card-play-button:hover {
+  background-color: rgba(0, 0, 0, 0.85);
+}
+
+.track-hover-play {
+  opacity: 0;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.6);
+  transition: opacity 0.1s ease-in-out;
+}
+
+.playable-tracks row:hover .track-hover-play {
+  opacity: 1;
+}
