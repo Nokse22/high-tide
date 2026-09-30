@@ -366,11 +366,11 @@ def th_add_to_my_collection(btn: Any, item: Any) -> None:
         result = False
 
     if result:
-        btn.set_icon_name("heart-filled-symbolic")
-        send_toast(_("Successfully added to my collection"), 2)
+        GLib.idle_add(btn.set_icon_name, "heart-filled-symbolic")
+        GLib.idle_add(send_toast, _("Successfully added to my collection"), 2)
         get_favourites()
     else:
-        send_toast(_("Failed to add item to my collection"), 2)
+        GLib.idle_add(send_toast, _("Failed to add item to my collection"), 2)
 
 
 def th_remove_from_my_collection(btn: Any, item: Any) -> None:
@@ -395,10 +395,10 @@ def th_remove_from_my_collection(btn: Any, item: Any) -> None:
         result = False
 
     if result:
-        btn.set_icon_name("heart-outline-thick-symbolic")
-        send_toast(_("Successfully removed from my collection"), 2)
+        GLib.idle_add(btn.set_icon_name, "heart-outline-thick-symbolic")
+        GLib.idle_add(send_toast, _("Successfully removed from my collection"), 2)
     else:
-        send_toast(_("Failed to remove item from my collection"), 2)
+        GLib.idle_add(send_toast, _("Failed to remove item from my collection"), 2)
 
 
 def on_in_to_my_collection_button_clicked(btn: Any, item: Any) -> None:
