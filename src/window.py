@@ -677,9 +677,9 @@ class HighTideWindow(Adw.ApplicationWindow):
                 elif lyrics.text:
                     GLib.idle_add(self.lyrics_widget.set_lyrics, lyrics.text)
             else:
-                self.lyrics_widget.clear()
+                GLib.idle_add(self.lyrics_widget.clear)
         except Exception:
-            self.lyrics_widget.clear()
+            GLib.idle_add(self.lyrics_widget.clear)
 
     def select_quality(self, pos):
         match pos:
