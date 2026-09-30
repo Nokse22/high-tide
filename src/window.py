@@ -307,23 +307,25 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         logger.info(f"Last playing: {thing_id} of type {thing_type} index: {index}")
 
-        thing = None
+        tracks = None
 
         try:
             if thing_type == "mix":
-                thing = self.session.mix(thing_id)
+                tracks = self.session.mix(thing_id).items()
             elif thing_type == "album":
-                thing = self.session.album(thing_id)
+                tracks = self.session.album(thing_id).tracks()
             elif thing_type == "playlist":
-                thing = self.session.playlist(thing_id)
+                tracks = self.session.playlist(thing_id).tracks()
             elif thing_type == "track":
-                thing = self.session.track(thing_id)
+                tracks = [self.session.track(thing_id)]
         except Exception:
             logger.exception("Error while setting last played song")
 
-        self.player_object.play_this(thing, index)
+        if tracks is None:
+            return
 
-        self.player_object.pause()
+        GLib.idle_add(self.player_object.play_this, tracks, index)
+        GLib.idle_add(self.player_object.pause)
 
     #
     #   UPDATES UI
@@ -371,6 +373,8 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.videoplayer.pause()
             self.videoplayer.clear()
 
+        dimensions = utils.get_best_dimensions(self.playing_track_picture)
+
         if self.video_covers_enabled and album.video_cover:
             threading.Thread(
                 target=utils.add_video_cover,
@@ -378,6 +382,7 @@ class HighTideWindow(Adw.ApplicationWindow):
                     self.playing_track_picture,
                     self.videoplayer,
                     album,
+                    dimensions,
                     self.in_background,
                     self.image_canc,
                 ),
@@ -385,7 +390,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         else:
             threading.Thread(
                 target=utils.add_picture,
-                args=(self.playing_track_picture, album, self.image_canc),
+                args=(self.playing_track_picture, album, dimensions, self.image_canc),
             ).start()
 
         threading.Thread(
@@ -733,6 +738,8 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.videoplayer.pause()
             self.videoplayer.clear()
 
+            dimensions = utils.get_best_dimensions(self.playing_track_picture)
+
             if self.video_covers_enabled and album.video_cover:
                 threading.Thread(
                     target=utils.add_video_cover,
@@ -740,13 +747,20 @@ class HighTideWindow(Adw.ApplicationWindow):
                         self.playing_track_picture,
                         self.videoplayer,
                         album,
+                        dimensions,
+                        self.in_background,
                         self.image_canc,
                     ),
                 ).start()
             else:
                 threading.Thread(
                     target=utils.add_picture,
-                    args=(self.playing_track_picture, album, self.image_canc),
+                    args=(
+                        self.playing_track_picture,
+                        album,
+                        dimensions,
+                        self.image_canc,
+                    ),
                 ).start()
 
     def change_discord_rpc_enabled(self, state):

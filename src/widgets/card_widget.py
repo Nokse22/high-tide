@@ -184,6 +184,6 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         elif isinstance(self.item, PageItem) and self.item.type == "TRACK":
 
             def _get():
-                utils.player_object.play_this(self.item.get())
+                GLib.idle_add(utils.player_object.play_this, self.item.get())
 
             threading.Thread(target=_get).start()
