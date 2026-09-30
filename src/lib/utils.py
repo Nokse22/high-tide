@@ -528,7 +528,7 @@ def th_play_track(track_id: str) -> None:
     """
     track: Track = session.track(track_id)
 
-    player_object.play_this([track])
+    GLib.idle_add(player_object.play_this, [track])
 
 
 def pretty_duration(secs: int | None) -> str:

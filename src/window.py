@@ -307,23 +307,25 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         logger.info(f"Last playing: {thing_id} of type {thing_type} index: {index}")
 
-        thing = None
+        tracks = None
 
         try:
             if thing_type == "mix":
-                thing = self.session.mix(thing_id)
+                tracks = self.session.mix(thing_id).items()
             elif thing_type == "album":
-                thing = self.session.album(thing_id)
+                tracks = self.session.album(thing_id).tracks()
             elif thing_type == "playlist":
-                thing = self.session.playlist(thing_id)
+                tracks = self.session.playlist(thing_id).tracks()
             elif thing_type == "track":
-                thing = self.session.track(thing_id)
+                tracks = [self.session.track(thing_id)]
         except Exception:
             logger.exception("Error while setting last played song")
 
-        self.player_object.play_this(thing, index)
+        if tracks is None:
+            return
 
-        self.player_object.pause()
+        GLib.idle_add(self.player_object.play_this, tracks, index)
+        GLib.idle_add(self.player_object.pause)
 
     #
     #   UPDATES UI
