@@ -145,6 +145,15 @@ class PlayerObject(GObject.GObject):
 
         # next track variables for gapless
         self.next_track: Any | None = None
+        # (track id, stream, manifest, fetch time) of the next track, fetched
+        # before the current one ends so its uri can be set in about-to-finish
+        self.prefetched: tuple | None = None
+        self.prefetch_id: int | None = None
+        # track whose uri was set in about-to-finish from the prefetched stream
+        self.handed_off_track: Track | None = None
+        # a gapless track is being loaded / the current one ended before it was
+        self.loading_gapless = False
+        self.reached_eos = False
 
         # for not caching on metered networks
         self.monitor = Gio.NetworkMonitor.get_default()
@@ -250,7 +259,14 @@ class PlayerObject(GObject.GObject):
         """Handle end of stream."""
         if not self.gapless_enabled:
             GLib.idle_add(self.play_next)
-        elif not self.tracks_to_play and not self.queue:
+        elif self.loading_gapless:
+            # The next uri wasn't set in time, _play_track_url will play it
+            logger.warning("Track ended before the next one was loaded")
+            self.reached_eos = True
+        elif self.next_track or self.tracks_to_play or self.queue:
+            logger.warning("Track ended without switching to the next one")
+            self.play_next()
+        else:
             self.pause()
 
     def _on_bus_error(self, bus: Any, message: Any) -> None:
@@ -450,6 +466,14 @@ class PlayerObject(GObject.GObject):
             track: The Track object to play
             gapless: Whether to enqueue the track for gapless playback
         """
+        handed_off_track = self.handed_off_track
+        self.handed_off_track = None
+        if gapless and track is handed_off_track:
+            # The uri was already set in play_next_gapless
+            self.next_track = track
+            return
+        if gapless:
+            self.loading_gapless = True
         threading.Thread(target=self._play_track_thread, args=(track, gapless)).start()
 
     def _play_track_thread(self, track: Track, gapless=False) -> None:
@@ -466,6 +490,8 @@ class PlayerObject(GObject.GObject):
             GLib.idle_add(self._play_track_url, track, music_url, gapless)
         except Exception:
             logger.exception("Error getting track URL")
+            if gapless:
+                self.loading_gapless = False
 
     def _get_cached_or_stream_url(self, track, gapless=False):
         """Get URL from cache or stream, caching if not cached."""
@@ -609,7 +635,13 @@ class PlayerObject(GObject.GObject):
 
     def _play_track_url(self, track, music_url, gapless=False):
         """Set up and play track from URL."""
+        if gapless:
+            self.loading_gapless = False
+            if self.reached_eos:
+                # Too late for gapless, the previous track already ended
+                gapless = False
         if not gapless:
+            self.reached_eos = False
             self.use_about_to_finish = False
             self.pipeline.set_state(Gst.State.NULL)
             self.playbin.set_property("volume", self.playbin.get_property("volume"))
@@ -636,10 +668,73 @@ class PlayerObject(GObject.GObject):
         """
         # playbin is need as arg but we access it later over self
         if self.gapless_enabled and self.use_about_to_finish and self.tracks_to_play:
+            # The current track can reach EOS soon after this signal, and then
+            # a uri set later is ignored, so set it now if it's ready
+            self._set_prefetched_uri()
             GLib.idle_add(self.play_next, True)
             logger.info("Trying gapless playbck")
         else:
             logger.info("Ignoring about to finish event")
+
+    def _peek_next_track(self) -> Track | None:
+        """Get the track play_next(gapless=True) would play, without removing it"""
+        if self._repeat_type == RepeatType.SONG:
+            return self.playing_track
+        if self.queue:
+            return self.queue[0]
+        if self.shuffle:
+            track_list = self._shuffled_tracks_to_play
+        else:
+            track_list = self._tracks_to_play
+        return track_list[0] if track_list else None
+
+    def _prefetch_next_track(self) -> None:
+        """Fetch the stream of the next track in the background"""
+        if self.next_track or self.handed_off_track or self.loading_gapless:
+            return
+        if not self.tracks_to_play:
+            return
+        track = self._peek_next_track()
+        if not track or track.id == self.prefetch_id:
+            return
+        self.prefetch_id = track.id
+        threading.Thread(target=self._prefetch_thread, args=(track,)).start()
+
+    def _prefetch_thread(self, track: Track) -> None:
+        try:
+            stream = track.get_stream()
+            manifest = stream.get_stream_manifest()
+            self.prefetched = (track.id, stream, manifest, GLib.get_monotonic_time())
+            logger.info(f"Prefetched stream: {track.id}")
+        except Exception:
+            logger.exception("Error prefetching track stream")
+
+    def _set_prefetched_uri(self) -> None:
+        """Set the uri of the next track from its prefetched stream, if any.
+
+        Called from a streaming thread in about-to-finish.
+        """
+        prefetched = self.prefetched
+        self.prefetched = None
+        self.prefetch_id = None
+        track = self._peek_next_track()
+        if not prefetched or not track:
+            return
+        track_id, stream, manifest, fetched_at = prefetched
+        # Stream urls expire an hour after they are fetched
+        too_old = GLib.get_monotonic_time() - fetched_at > 30 * 60 * 1_000_000
+        if track_id != track.id or too_old:
+            return
+        try:
+            self.stream = stream
+            self.manifest = manifest
+            music_url = self._get_cached_or_stream_url(track, gapless=True)
+        except Exception:
+            logger.exception("Error using prefetched stream")
+            return
+        self.playbin.set_property("uri", music_url)
+        self.handed_off_track = track
+        logger.info(f"Using prefetched stream: {music_url}")
 
     def play_next(self, gapless=False):
         """Play the next track in the queue or playlist.
@@ -773,6 +868,9 @@ class PlayerObject(GObject.GObject):
         if not self.duration:
             logger.warning("Duration missing, trying again")
             self.duration = self.query_duration()
+        if self.gapless_enabled and self.duration:
+            if self.duration - self.query_position() < 30 * Gst.SECOND:
+                self._prefetch_next_track()
         self.emit("update-slider")
         return self.playing
 
