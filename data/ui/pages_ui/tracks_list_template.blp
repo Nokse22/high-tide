@@ -22,6 +22,7 @@ Box _main {
         _first_subtitle_label.justify: center;
         _second_subtitle_label.xalign: 0.5;
         _second_subtitle_label.justify: center;
+        _second_subtitle_box.halign: center;
       }
     }
 
@@ -211,15 +212,26 @@ Box _main {
       }
 
       [second-subtitle-label]
-      Label _second_subtitle_label {
-        styles [
-          "dim-label",
-        ]
+      Box _second_subtitle_box {
+        spacing: 6;
+        halign: start;
 
-        ellipsize: end;
-        vexpand: true;
-        lines: 1;
-        xalign: 0.0;
+        Label _second_subtitle_label {
+          styles [
+            "dim-label",
+          ]
+
+          ellipsize: end;
+          vexpand: true;
+          lines: 1;
+          xalign: 0.0;
+        }
+
+        Box _badges_box {
+          spacing: 6;
+          valign: center;
+          visible: false;
+        }
       }
 
       [artist-button]
