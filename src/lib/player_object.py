@@ -769,11 +769,14 @@ class PlayerObject(GObject.GObject):
 
     def _update_slider_callback(self):
         """Update playback slider and duration."""
-        self.update_timer = None
         if not self.duration:
             logger.warning("Duration missing, trying again")
             self.duration = self.query_duration()
         self.emit("update-slider")
+        if not self.playing:
+            # Returning False removes the timer. While it keeps running, keep its id
+            # so the next play() or track start replaces it instead of adding another
+            self.update_timer = None
         return self.playing
 
     def query_duration(self):
