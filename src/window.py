@@ -198,12 +198,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         )
 
         self.player_object.repeat_type = self.settings.get_int("repeat")
-        if self.player_object.repeat_type == RepeatType.NONE:
-            self.repeat_button.set_icon_name("media-playlist-consecutive-symbolic")
-        elif self.player_object.repeat_type == RepeatType.LIST:
-            self.repeat_button.set_icon_name("media-playlist-repeat-symbolic")
-        elif self.player_object.repeat_type == RepeatType.SONG:
-            self.repeat_button.set_icon_name("playlist-repeat-song-symbolic")
 
         self.artist_label.connect("activate-link", utils.open_uri)
         self.miniplayer_artist_label.connect("activate-link", utils.open_uri)
@@ -556,13 +550,16 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.suspend_inhibit_cookie = 0
 
     def update_repeat_button(self, player, repeat_type):
-        """Update the repeat button icon based on current repeat mode"""
+        """Update the repeat button icon and tooltip based on current repeat mode"""
         if player.repeat_type == RepeatType.NONE:
             self.repeat_button.set_icon_name("media-playlist-consecutive-symbolic")
+            self.repeat_button.set_tooltip_text(_("Repeat Off"))
         elif player.repeat_type == RepeatType.LIST:
             self.repeat_button.set_icon_name("media-playlist-repeat-symbolic")
+            self.repeat_button.set_tooltip_text(_("Repeat All"))
         elif player.repeat_type == RepeatType.SONG:
             self.repeat_button.set_icon_name("playlist-repeat-song-symbolic")
+            self.repeat_button.set_tooltip_text(_("Repeat One"))
 
     def on_song_buffering(self, player, percentage):
         if percentage != 100:
