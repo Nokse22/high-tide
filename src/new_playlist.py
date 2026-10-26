@@ -18,6 +18,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
+from gettext import gettext as _
+
 from gi.repository import Adw, GObject, Gtk
 
 import logging
@@ -45,19 +47,37 @@ class NewPlaylistWindow(Adw.Dialog):
     def __init__(self) -> None:
         super().__init__()
 
+        self.set_title(_("New Playlist"))
+
         self.playlist_name_entry.connect(
             "notify::text", self.on_title_text_inserted_func
         )
+        self.playlist_name_entry.connect(
+            "entry-activated", self.on_create_button_clicked_func
+        )
+
+    def set_editing(self, title: str, description: str) -> None:
+        """Use the dialog to edit an existing playlist instead of creating one.
+
+        Args:
+            title: The current playlist title
+            description: The current playlist description
+        """
+        self.set_title(_("Edit Playlist"))
+        self.create_button.set_label(_("Save"))
+        self.playlist_name_entry.set_text(title)
+        self.playlist_description_entry.set_text(description or "")
 
     @Gtk.Template.Callback("on_create_button_clicked")
     def on_create_button_clicked_func(self, *args) -> None:
         playlist_title: str = self.playlist_name_entry.get_text()
+        if playlist_title == "":
+            return
         playlist_description: str = self.playlist_description_entry.get_text()
         self.emit("create-playlist", playlist_title, playlist_description)
 
     def on_title_text_inserted_func(self, *args) -> None:
         playlist_title: str = self.playlist_name_entry.get_text()
-        logger.info(f"!{playlist_title}!")
         if playlist_title != "":
             self.create_button.set_sensitive(True)
             return

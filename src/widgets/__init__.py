@@ -1,3 +1,4 @@
+from .breakpoint_bin import HTBreakpointBin
 from .auto_load_widget import HTAutoLoadWidget
 from .card_widget import HTCardWidget
 from .carousel_widget import HTCarouselWidget

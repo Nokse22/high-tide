@@ -4,7 +4,7 @@ using Adw 1;
 template $HTGenericTrackWidget: ListBoxRow {
   selectable: false;
 
-  Adw.BreakpointBin {
+  $HTBreakpointBin {
     width-request: 100;
     height-request: 56;
 
@@ -21,11 +21,7 @@ template $HTGenericTrackWidget: ListBoxRow {
       margin-start: 6;
       margin-end: 6;
 
-      Stack album_stack {
-        transition-type: none;
-        hhomogeneous: true;
-        vhomogeneous: true;
-        width-request: 44;
+      Overlay {
         margin-end: 12;
         margin-bottom: 6;
         margin-top: 6;
@@ -40,12 +36,15 @@ template $HTGenericTrackWidget: ListBoxRow {
           ]
         }
 
-        Image now_playing_indicator {
+        [overlay]
+        Image {
           icon-name: "media-playback-start-symbolic";
           pixel-size: 24;
+          can-target: false;
 
           styles [
             "small-image",
+            "track-hover-play",
           ]
         }
       }

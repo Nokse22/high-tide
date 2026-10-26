@@ -214,9 +214,49 @@ class HighTideApplication(Adw.Application):
                 "notify::selected-item", self.deactive_alsa_device_row
             )
 
+            self.blocked_groups = [
+                (builder.get_object("_blocked_artists_group"), "artists"),
+                (builder.get_object("_blocked_tracks_group"), "tracks"),
+                (builder.get_object("_blocked_videos_group"), "videos"),
+            ]
+            self.blocked_rows = []
+
             self.preferences = builder.get_object("_preference_window")
 
+        self.update_blocked_rows()
         self.preferences.present(self.win)
+
+    def update_blocked_rows(self) -> None:
+        """Fill the Blocked preferences page with the blocked items"""
+
+        for group, row in self.blocked_rows:
+            group.remove(row)
+        self.blocked_rows = []
+
+        for group, name in self.blocked_groups:
+            items = getattr(utils, f"blocked_{name}")
+            group.set_visible(len(items) > 0)
+
+            for item in items:
+                row = Adw.ActionRow(title=item.name, use_markup=False)
+
+                artists = getattr(item, "artists", None)
+                if artists:
+                    row.set_subtitle(", ".join(artist.name for artist in artists))
+
+                button = Gtk.Button(
+                    label=_("Unblock"), valign=Gtk.Align.CENTER, css_classes=["flat"]
+                )
+                button.connect(
+                    "clicked",
+                    lambda _btn, item=item: utils.toggle_blocked(
+                        item, lambda *_: self.update_blocked_rows()
+                    ),
+                )
+                row.add_suffix(button)
+
+                group.add(row)
+                self.blocked_rows.append((group, row))
 
     def on_quality_changed(self, widget: Any, *args) -> None:
         self.win.select_quality(widget.get_selected())

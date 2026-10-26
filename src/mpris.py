@@ -165,8 +165,9 @@ class MPRIS(Server):
         'Playlist': RepeatType.LIST,
     }
 
-    def __init__(self, player):
+    def __init__(self, player, window):
         self.player = player
+        self.window = window
 
         self.__metadata = {}
 
@@ -231,11 +232,11 @@ class MPRIS(Server):
 
     def Raise(self):
         """Bring the High Tide application window to the foreground"""
-        utils.window.present_with_time(Gdk.CURRENT_TIME)
+        self.window.present_with_time(Gdk.CURRENT_TIME)
 
     def Quit(self):
         """Quit the High Tide application"""
-        utils.window.quit()
+        self.window.quit()
 
     def Next(self):
         """Skip to the next track in the playlist or queue"""

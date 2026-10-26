@@ -22,7 +22,6 @@ import threading
 from gettext import gettext as _
 
 from gi.repository import Gio, GLib, GObject, Gtk
-from tidalapi.playlist import UserPlaylist
 
 from ..disconnectable_iface import IDisconnectable
 from ..lib import utils
@@ -46,8 +45,6 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     __gtype_name__ = "HTGenericTrackWidget"
 
     image = Gtk.Template.Child()
-    now_playing_indicator = Gtk.Template.Child()
-    album_stack = Gtk.Template.Child()
     track_title_label = Gtk.Template.Child()
     track_duration_label = Gtk.Template.Child()
     playlists_submenu = Gtk.Template.Child()
@@ -68,7 +65,10 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         super().__init__()
 
         self.menu_activated = False
+        self.block_section = None
         self.track = track
+        self.playlist = None
+        self.on_removed_from_playlist = None
 
         self.signals.append(
             (
@@ -142,12 +142,15 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             utils.player_object.playing_track is not None
             and self.track.id == utils.player_object.playing_track.id
         )
-        if is_now and utils.player_object.playing:
-            self.album_stack.set_visible_child(self.now_playing_indicator)
+        if is_now:
+            self.add_css_class("now-playing")
         else:
-            self.album_stack.set_visible_child(self.image)
+            self.remove_css_class("now-playing")
 
     def _on_menu_activate(self, *args):
+        self._update_block_section()
+        self._update_playlists_submenu()
+
         if self.menu_activated:
             return
 
@@ -159,6 +162,10 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
 
         self.track_menu.prepend(
             _("Go to album"), f"win.push-album-page::{self.track.album.id}"
+        )
+
+        self.track_menu.insert(
+            2, _("Show credits"), f"win.push-track-credits-page::{self.track.id}"
         )
 
         action_entries = [
@@ -179,18 +186,88 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         )
         self.action_group.add_action(add_to_playlist_action)
 
+        if self.playlist is not None:
+            remove_section = Gio.Menu()
+            remove_section.append(
+                _("Remove from this playlist"), "trackwidget.remove-from-playlist"
+            )
+            self.track_menu.append_section(None, remove_section)
+            action_entries.append(("remove-from-playlist", self._remove_from_playlist))
+
+        action_entries.append(("new-playlist", self._new_playlist))
+
+        for name, callback in action_entries:
+            action = Gio.SimpleAction.new(name, None)
+            self.signals.append((action, action.connect("activate", callback)))
+            self.action_group.add_action(action)
+
+    def set_playlist(self, playlist, on_removed=None):
+        """Show a "Remove from this playlist" option for one of the user's
+        playlists.
+
+        Args:
+            playlist: The playlist the track is shown in
+            on_removed: Called after the track is removed from the playlist
+        """
+        self.playlist = playlist
+        self.on_removed_from_playlist = on_removed
+
+    def _update_playlists_submenu(self):
+        # Rebuilt every time, so playlists created meanwhile show up
+        self.playlists_submenu.remove_all()
+
+        new_section = Gio.Menu()
+        new_section.append(_("New playlist…"), "trackwidget.new-playlist")
+        self.playlists_submenu.append_section(None, new_section)
+
+        playlists_section = Gio.Menu()
         for index, playlist in enumerate(utils.user_playlists):
             item = Gio.MenuItem.new()
             item.set_label(playlist.name)
             item.set_action_and_target_value(
                 "trackwidget.add-to-playlist", GLib.Variant.new_int16(index)
             )
-            self.playlists_submenu.insert_item(index, item)
+            playlists_section.append_item(item)
+        self.playlists_submenu.append_section(None, playlists_section)
 
-        for name, callback in action_entries:
-            action = Gio.SimpleAction.new(name, None)
-            self.signals.append((action, action.connect("activate", callback)))
-            self.action_group.add_action(action)
+    def _new_playlist(self, *args):
+        utils.new_playlist(self.track)
+
+    def _remove_from_playlist(self, *args):
+        threading.Thread(
+            target=utils.th_remove_from_playlist,
+            args=(
+                self.playlist,
+                self.track,
+                self.index,
+                self.on_removed_from_playlist,
+            ),
+        ).start()
+
+    def _update_block_section(self):
+        if self.block_section is None:
+            self.block_section = Gio.Menu()
+            self.track_menu.append_section(None, self.block_section)
+
+            block_track_action = Gio.SimpleAction.new("toggle-block-track", None)
+            block_artist_action = Gio.SimpleAction.new(
+                "toggle-block-artist", GLib.VariantType.new("n")
+            )
+            for action, callback in (
+                (block_track_action, self._toggle_block_track),
+                (block_artist_action, self._toggle_block_artist),
+            ):
+                self.signals.append((action, action.connect("activate", callback)))
+                self.action_group.add_action(action)
+
+        utils.fill_block_menu(self.block_section, self.track, "trackwidget")
+
+    def _toggle_block_track(self, *args):
+        utils.toggle_blocked(self.track)
+
+    def _toggle_block_artist(self, action, parameter):
+        artists = utils.get_track_artists(self.track)
+        utils.toggle_blocked(artists[parameter.get_int16()])
 
     def _play_next(self, *args):
         utils.player_object.add_next(self.track)
@@ -208,10 +285,9 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         playlist_index = parameter.get_int16()
         selected_playlist = utils.user_playlists[playlist_index]
 
-        if isinstance(selected_playlist, UserPlaylist):
-            selected_playlist.add([self.track.id])
-
-            logger.info(f"Added to playlist: {selected_playlist.name}")
+        threading.Thread(
+            target=utils.th_add_to_playlist, args=(selected_playlist, self.track)
+        ).start()
 
     def _copy_share_url(self, *args):
         utils.share_this(self.track)

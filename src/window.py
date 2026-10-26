@@ -28,8 +28,8 @@ from tidalapi.media import Quality
 from .lib import HTCache, PlayerObject, RepeatType, SecretStore, utils
 from .login import LoginDialog
 from .mpris import MPRIS
-from .pages import (HTAlbumPage, HTArtistPage, HTCollectionPage, HTExplorePage,
-                    HTGenericPage, HTMixPage, HTNotLoggedInPage,
+from .pages import (HTAlbumPage, HTArtistPage, HTCollectionPage, HTCreditsPage,
+                    HTExplorePage, HTGenericPage, HTMixPage, HTNotLoggedInPage,
                     HTPlaylistPage)
 from .widgets import (HTGenericTrackWidget, HTLinkLabelWidget, HTLyricsWidget,
                       HTQueueWidget)
@@ -80,6 +80,8 @@ class HighTideWindow(Adw.ApplicationWindow):
     go_next_button = Gtk.Template.Child()
     go_prev_button = Gtk.Template.Child()
     track_radio_button = Gtk.Template.Child()
+    block_button = Gtk.Template.Child()
+    block_menu = Gtk.Template.Child()
     album_button = Gtk.Template.Child()
     copy_share_link = Gtk.Template.Child()
 
@@ -128,6 +130,30 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.on_push_artist_radio_page,
         )
 
+        self.create_action_with_target(
+            "toggle-block-artist",
+            GLib.VariantType.new("n"),
+            self.on_toggle_block_playing_artist,
+        )
+
+        toggle_block_track_action = Gio.SimpleAction.new("toggle-block-track", None)
+        toggle_block_track_action.connect("activate", self.on_toggle_block_playing_track)
+        self.add_action(toggle_block_track_action)
+
+        self.block_button.connect("notify::active", self.on_block_button_active)
+
+        self.create_action_with_target(
+            "push-track-credits-page",
+            GLib.VariantType.new("s"),
+            self.on_push_track_credits_page,
+        )
+
+        self.create_action_with_target(
+            "push-album-info-page",
+            GLib.VariantType.new("s"),
+            self.on_push_album_info_page,
+        )
+
         # self.create_action_with_target(
         #     'play-next',
         #     GLib.VariantType.new("s"),
@@ -151,6 +177,11 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.connect("song-changed", self.on_song_changed)
         self.player_object.connect("song-added-to-queue", self.on_song_added_to_queue)
         self.player_object.connect("notify::playing", self.update_controls)
+
+        self.suspend_inhibit_cookie: int = 0
+        self.player_object.connect(
+            "notify::playing", lambda *_: self.update_suspend_inhibitor()
+        )
         self.player_object.connect("buffering", self.on_song_buffering)
         self.player_object.connect("notify::repeat-type", self.update_repeat_button)
         self.player_object.connect(
@@ -167,12 +198,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         )
 
         self.player_object.repeat_type = self.settings.get_int("repeat")
-        if self.player_object.repeat_type == RepeatType.NONE:
-            self.repeat_button.set_icon_name("media-playlist-consecutive-symbolic")
-        elif self.player_object.repeat_type == RepeatType.LIST:
-            self.repeat_button.set_icon_name("media-playlist-repeat-symbolic")
-        elif self.player_object.repeat_type == RepeatType.SONG:
-            self.repeat_button.set_icon_name("playlist-repeat-song-symbolic")
 
         self.artist_label.connect("activate-link", utils.open_uri)
         self.miniplayer_artist_label.connect("activate-link", utils.open_uri)
@@ -213,7 +238,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.secret_portal_dialog.present(self)
             return
 
-        MPRIS(self.player_object)
+        MPRIS(self.player_object, self)
 
         self.portal = Xdp.Portal()
         self.portal.set_background_status(_("Playing Music"))
@@ -261,8 +286,9 @@ class HighTideWindow(Adw.ApplicationWindow):
             logger.exception("Error while logging in!")
             GLib.idle_add(self.on_login_failed)
         else:
-            utils.get_favourites()
+            utils.set_cache_user(str(self.session.user.id))
             GLib.idle_add(self.on_logged_in)
+            threading.Thread(target=utils.get_favourites, daemon=True).start()
 
     def logout(self):
         """Log out the current user and return to login screen.
@@ -287,6 +313,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.navigation_buttons.set_sensitive(True)
 
         threading.Thread(target=self.th_set_last_playing_song, args=()).start()
+        threading.Thread(target=utils.get_blocked, args=()).start()
 
         self.is_logged_in = True
 
@@ -307,23 +334,25 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         logger.info(f"Last playing: {thing_id} of type {thing_type} index: {index}")
 
-        thing = None
+        tracks = None
 
         try:
             if thing_type == "mix":
-                thing = self.session.mix(thing_id)
+                tracks = self.session.mix(thing_id).items()
             elif thing_type == "album":
-                thing = self.session.album(thing_id)
+                tracks = self.session.album(thing_id).tracks()
             elif thing_type == "playlist":
-                thing = self.session.playlist(thing_id)
+                tracks = self.session.playlist(thing_id).tracks()
             elif thing_type == "track":
-                thing = self.session.track(thing_id)
+                tracks = [self.session.track(thing_id)]
         except Exception:
             logger.exception("Error while setting last played song")
 
-        self.player_object.play_this(thing, index)
+        if tracks is None:
+            return
 
-        self.player_object.pause()
+        GLib.idle_add(self.player_object.play_this, tracks, index)
+        GLib.idle_add(self.player_object.pause)
 
     #
     #   UPDATES UI
@@ -354,6 +383,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             GLib.Variant("s", str(track.id))
         )
         self.album_button.set_action_target_value(GLib.Variant("s", str(album.id)))
+        self.block_button.set_sensitive(True)
 
         if utils.is_favourited(track):
             self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
@@ -371,6 +401,8 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.videoplayer.pause()
             self.videoplayer.clear()
 
+        dimensions = utils.get_best_dimensions(self.playing_track_picture)
+
         if self.video_covers_enabled and album.video_cover:
             threading.Thread(
                 target=utils.add_video_cover,
@@ -378,6 +410,7 @@ class HighTideWindow(Adw.ApplicationWindow):
                     self.playing_track_picture,
                     self.videoplayer,
                     album,
+                    dimensions,
                     self.in_background,
                     self.image_canc,
                 ),
@@ -385,7 +418,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         else:
             threading.Thread(
                 target=utils.add_picture,
-                args=(self.playing_track_picture, album, self.image_canc),
+                args=(self.playing_track_picture, album, dimensions, self.image_canc),
             ).start()
 
         threading.Thread(
@@ -444,6 +477,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         sample_rate = None
 
         stream = self.player_object.stream
+        if not stream and not self.player_object.manifest:
+            # Played from the music cache without TIDAL (e.g. offline)
+            self.quality_label.set_visible(False)
+            return
         if stream:
             if stream.bit_depth:
                 bit_depth = f"{stream.bit_depth}-bit"
@@ -490,14 +527,40 @@ class HighTideWindow(Adw.ApplicationWindow):
         else:
             self.play_button.set_icon_name("media-playback-start-symbolic")
 
+    def update_suspend_inhibitor(self, *args):
+        """Inhibit system suspend while a track is playing"""
+        application = self.get_application()
+        if not application:
+            return
+
+        if self.player_object.playing:
+            if not self.suspend_inhibit_cookie:
+                self.suspend_inhibit_cookie = application.inhibit(
+                    self,
+                    Gtk.ApplicationInhibitFlags.SUSPEND,
+                    _("Playback of music is in progress"),
+                )
+                if self.suspend_inhibit_cookie:
+                    logger.debug(
+                        "Acquired suspend inhibitor (cookie %d)",
+                        self.suspend_inhibit_cookie,
+                    )
+        elif self.suspend_inhibit_cookie:
+            application.uninhibit(self.suspend_inhibit_cookie)
+            logger.debug("Released suspend inhibitor")
+            self.suspend_inhibit_cookie = 0
+
     def update_repeat_button(self, player, repeat_type):
-        """Update the repeat button icon based on current repeat mode"""
+        """Update the repeat button icon and tooltip based on current repeat mode"""
         if player.repeat_type == RepeatType.NONE:
             self.repeat_button.set_icon_name("media-playlist-consecutive-symbolic")
+            self.repeat_button.set_tooltip_text(_("Repeat Off"))
         elif player.repeat_type == RepeatType.LIST:
             self.repeat_button.set_icon_name("media-playlist-repeat-symbolic")
+            self.repeat_button.set_tooltip_text(_("Repeat All"))
         elif player.repeat_type == RepeatType.SONG:
             self.repeat_button.set_icon_name("playlist-repeat-song-symbolic")
+            self.repeat_button.set_tooltip_text(_("Repeat One"))
 
     def on_song_buffering(self, player, percentage):
         if percentage != 100:
@@ -565,6 +628,20 @@ class HighTideWindow(Adw.ApplicationWindow):
         utils.on_in_to_my_collection_button_clicked(
             btn, self.player_object.playing_track
         )
+
+    def on_block_button_active(self, btn, *args):
+        track = self.player_object.playing_track
+        if btn.get_active() and track is not None:
+            utils.fill_block_menu(self.block_menu, track, "win")
+
+    def on_toggle_block_playing_track(self, *args):
+        if self.player_object.playing_track:
+            utils.toggle_blocked(self.player_object.playing_track)
+
+    def on_toggle_block_playing_artist(self, action, parameter):
+        if self.player_object.playing_track:
+            artists = utils.get_track_artists(self.player_object.playing_track)
+            utils.toggle_blocked(artists[parameter.get_int16()])
 
     @Gtk.Template.Callback("on_shuffle_button_toggled")
     def on_shuffle_button_toggled(self, btn):
@@ -677,9 +754,9 @@ class HighTideWindow(Adw.ApplicationWindow):
                 elif lyrics.text:
                     GLib.idle_add(self.lyrics_widget.set_lyrics, lyrics.text)
             else:
-                self.lyrics_widget.clear()
+                GLib.idle_add(self.lyrics_widget.clear)
         except Exception:
-            self.lyrics_widget.clear()
+            GLib.idle_add(self.lyrics_widget.clear)
 
     def select_quality(self, pos):
         match pos:
@@ -733,6 +810,8 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.videoplayer.pause()
             self.videoplayer.clear()
 
+            dimensions = utils.get_best_dimensions(self.playing_track_picture)
+
             if self.video_covers_enabled and album.video_cover:
                 threading.Thread(
                     target=utils.add_video_cover,
@@ -740,13 +819,20 @@ class HighTideWindow(Adw.ApplicationWindow):
                         self.playing_track_picture,
                         self.videoplayer,
                         album,
+                        dimensions,
+                        self.in_background,
                         self.image_canc,
                     ),
                 ).start()
             else:
                 threading.Thread(
                     target=utils.add_picture,
-                    args=(self.playing_track_picture, album, self.image_canc),
+                    args=(
+                        self.playing_track_picture,
+                        album,
+                        dimensions,
+                        self.image_canc,
+                    ),
                 ).start()
 
     def change_discord_rpc_enabled(self, state):
@@ -761,38 +847,56 @@ class HighTideWindow(Adw.ApplicationWindow):
     def on_push_artist_page(self, action, parameter):
         if parameter.get_string() == "":
             return
-        page = HTArtistPage.new_from_id(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        id = parameter.get_string()
+        utils.push_page(f"artist-{id}", lambda: HTArtistPage.new_from_id(id).load())
 
     def on_push_album_page(self, action, parameter):
         if parameter.get_string() == "":
             return
-        page = HTAlbumPage.new_from_id(parameter.get_string()).load()
+        id = parameter.get_string()
+        utils.push_page(f"album-{id}", lambda: HTAlbumPage.new_from_id(id).load())
+
+    def on_push_track_credits_page(self, action, parameter):
+        if parameter.get_string() == "":
+            return
+        page = HTCreditsPage.new_for_track(parameter.get_string()).load()
+        self.navigation_view.push(page)
+
+    def on_push_album_info_page(self, action, parameter):
+        if parameter.get_string() == "":
+            return
+        page = HTCreditsPage.new_for_album(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_playlist_page(self, action, parameter):
         if parameter.get_string() == "":
             return
-        page = HTPlaylistPage.new_from_id(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        id = parameter.get_string()
+        utils.push_page(
+            f"playlist-{id}", lambda: HTPlaylistPage.new_from_id(id).load()
+        )
 
     def on_push_mix_page(self, action, parameter):
         if parameter.get_string() == "":
             return
-        page = HTMixPage.new_from_id(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        id = parameter.get_string()
+        utils.push_page(f"mix-{id}", lambda: HTMixPage.new_from_id(id).load())
 
     def on_push_track_radio_page(self, action, parameter):
         if parameter.get_string() == "":
             return
-        page = HTMixPage.new_from_track(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        id = parameter.get_string()
+        utils.push_page(
+            f"track-radio-{id}", lambda: HTMixPage.new_from_track(id).load()
+        )
 
     def on_push_artist_radio_page(self, action, parameter):
         if parameter.get_string() == "":
             return
-        page = HTMixPage.new_from_artist(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        id = parameter.get_string()
+        utils.push_page(
+            f"artist-radio-{id}", lambda: HTMixPage.new_from_artist(id).load()
+        )
 
     #
     #
