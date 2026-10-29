@@ -25,7 +25,6 @@ from typing import Any, Callable, List
 from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 
 from .lib import utils
-from .lib.lastfm import LastFmError
 from .lib.player_object import AudioSink
 from .window import HighTideWindow
 
@@ -360,22 +359,24 @@ class HighTideApplication(Adw.Application):
     def on_lastfm_connect_clicked(self, *_args) -> None:
         self.lastfm_connect_button.set_sensitive(False)
         if self.lastfm_auth_pending:
-            target = self.finish_lastfm_authentication
+            target = self.th_finish_lastfm_authentication
             args = ()
         else:
-            target = self.begin_lastfm_authentication
+            target = self.th_begin_lastfm_authentication
             args = (
                 self.lastfm_api_key_row.get_text(),
                 self.lastfm_api_secret_row.get_text(),
             )
         threading.Thread(target=target, args=args, daemon=True).start()
 
-    def begin_lastfm_authentication(self, api_key: str, api_secret: str) -> None:
+    def th_begin_lastfm_authentication(
+        self, api_key: str, api_secret: str
+    ) -> None:
         try:
             auth_url = self.win.lastfm_client.begin_authentication(
                 api_key, api_secret
             )
-        except LastFmError as exc:
+        except Exception as exc:
             GLib.idle_add(self.on_lastfm_authentication_failed, str(exc))
             return
         GLib.idle_add(self.on_lastfm_authorization_ready, auth_url)
@@ -385,10 +386,10 @@ class HighTideApplication(Adw.Application):
         self.update_lastfm_preferences()
         Gio.AppInfo.launch_default_for_uri(auth_url, None)
 
-    def finish_lastfm_authentication(self) -> None:
+    def th_finish_lastfm_authentication(self) -> None:
         try:
             self.win.lastfm_client.finish_authentication()
-        except LastFmError as exc:
+        except Exception as exc:
             GLib.idle_add(self.on_lastfm_authentication_failed, str(exc))
             return
         GLib.idle_add(self.on_lastfm_authentication_finished)

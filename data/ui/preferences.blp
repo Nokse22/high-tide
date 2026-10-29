@@ -87,7 +87,7 @@ Adw.PreferencesDialog _preference_window {
 
     Adw.PreferencesGroup {
       title: _("Last.fm Scrobbling");
-      description: _("Create a Last.fm API account, then enter its key and shared secret.");
+      description: _("Create a Last.fm API account, enter its key and shared secret.");
 
       Adw.ActionRow {
         title: _("Last.fm API account");
@@ -119,9 +119,9 @@ Adw.PreferencesDialog _preference_window {
           adjustment: Gtk.Adjustment {
             lower: 0;
             upper: 3600;
+            value: 180;
             step-increment: 10;
             page-increment: 60;
-            value: 180;
           };
         }
       }

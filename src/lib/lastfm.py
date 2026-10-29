@@ -7,6 +7,7 @@ import json
 import logging
 import threading
 import time
+from gettext import gettext as _
 from urllib.parse import urlencode
 
 import requests
@@ -58,7 +59,10 @@ class LastFmSecretStore:
             )
         except Exception as exc:
             self.data = {}
-            raise LastFmError(f"Could not save Last.fm session: {exc}") from exc
+            message = _("Could not save Last.fm session: {error}").format(
+                error=exc
+            )
+            raise LastFmError(message) from exc
 
     def clear(self):
         self.data = {}
@@ -114,34 +118,37 @@ class LastFmClient:
             raise LastFmError(str(exc)) from exc
 
         if "error" in result:
-            raise LastFmError(result.get("message", "Unknown Last.fm error"))
+            raise LastFmError(
+                result.get("message", _("Unknown Last.fm error"))
+            )
         return result
 
     def begin_authentication(self, api_key: str, api_secret: str) -> str:
         self.api_key = api_key.strip()
         self.api_secret = api_secret.strip()
         if not self.api_key or not self.api_secret:
-            raise LastFmError("An API key and shared secret are required")
+            raise LastFmError(_("An API key and shared secret are required"))
 
         result = self._request("auth.getToken", {})
         try:
             self.pending_token = result["token"]
         except KeyError as exc:
-            message = "Last.fm returned an invalid authorization token"
+            message = _("Last.fm returned an invalid authorization token")
             raise LastFmError(message) from exc
         query = urlencode({"api_key": self.api_key, "token": self.pending_token})
         return f"{self.AUTH_URL}?{query}"
 
     def finish_authentication(self) -> str:
         if not self.pending_token:
-            raise LastFmError("Start Last.fm authorization first")
+            raise LastFmError(_("Start Last.fm authorization first"))
         result = self._request("auth.getSession", {"token": self.pending_token})
         try:
             session = result["session"]
             self.session_key = session["key"]
             self.username = session["name"]
         except KeyError as exc:
-            raise LastFmError("Last.fm returned an invalid session") from exc
+            message = _("Last.fm returned an invalid session")
+            raise LastFmError(message) from exc
         self.pending_token = None
         self.store.save(
             self.api_key, self.api_secret, self.session_key, self.username
@@ -216,7 +223,7 @@ class LastFmScrobbler:
         def worker():
             try:
                 function(*args)
-            except LastFmError:
+            except Exception:
                 if generation == self.generation:
                     logger.exception("Last.fm request failed")
 
