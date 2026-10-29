@@ -25,7 +25,8 @@ import tidalapi
 from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Xdp, Gdk
 from tidalapi.media import Quality
 
-from .lib import HTCache, PlayerObject, RepeatType, SecretStore, utils
+from .lib import (HTCache, LastFmClient, LastFmScrobbler, LastFmSecretStore,
+                  PlayerObject, RepeatType, SecretStore, utils)
 from .login import LoginDialog
 from .mpris import MPRIS
 from .pages import (HTAlbumPage, HTArtistPage, HTCollectionPage, HTCreditsPage,
@@ -175,6 +176,13 @@ class HighTideWindow(Adw.ApplicationWindow):
             ),
         )
         self.player_object.set_discord_rpc(self.settings.get_boolean("discord-rpc"))
+        self.lastfm_client = LastFmClient(LastFmSecretStore())
+        self.lastfm_scrobbler = LastFmScrobbler(
+            self.player_object, self.lastfm_client
+        )
+        self.lastfm_scrobbler.set_pause_timeout(
+            self.settings.get_int("lastfm-pause-timeout")
+        )
 
         self.volume_button.get_adjustment().set_value(
             self.settings.get_int("last-volume") / 10
@@ -411,6 +419,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         dimensions = utils.get_best_dimensions(self.playing_track_picture)
 
         if self.video_covers_enabled and album.video_cover:
+            video_dimensions = utils.get_best_dimensions(self.playing_track_picture)
             threading.Thread(
                 target=utils.add_video_cover,
                 args=(
@@ -420,6 +429,7 @@ class HighTideWindow(Adw.ApplicationWindow):
                     dimensions,
                     self.in_background,
                     self.image_canc,
+                    video_dimensions,
                 ),
             ).start()
         else:
@@ -846,6 +856,12 @@ class HighTideWindow(Adw.ApplicationWindow):
         if self.settings.get_boolean("discord-rpc") != state:
             self.settings.set_boolean("discord-rpc", state)
             self.player_object.set_discord_rpc(state)
+
+    def change_lastfm_pause_timeout(self, timeout_seconds: int):
+        timeout_seconds = max(0, min(timeout_seconds, 3600))
+        if self.settings.get_int("lastfm-pause-timeout") != timeout_seconds:
+            self.settings.set_int("lastfm-pause-timeout", timeout_seconds)
+        self.lastfm_scrobbler.set_pause_timeout(timeout_seconds)
 
     #
     #   PAGES ACTIONS CALLBACKS

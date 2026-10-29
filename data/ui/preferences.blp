@@ -84,5 +84,68 @@ Adw.PreferencesDialog _preference_window {
     Adw.PreferencesGroup _blocked_videos_group {
       title: _("Videos");
     }
+
+    Adw.PreferencesGroup {
+      title: _("Last.fm Scrobbling");
+      description: _("Create a Last.fm API account, then enter its key and shared secret.");
+
+      Adw.ActionRow {
+        title: _("Last.fm API account");
+        subtitle: _("Required to authorize High Tide");
+
+        [suffix]
+        LinkButton {
+          label: _("Create Account");
+          uri: "https://www.last.fm/api/account/create";
+          valign: center;
+        }
+      }
+
+      Adw.EntryRow _lastfm_api_key_row {
+        title: _("API key");
+      }
+
+      Adw.PasswordEntryRow _lastfm_api_secret_row {
+        title: _("Shared secret");
+      }
+
+      Adw.ActionRow {
+        title: _("Pause timeout");
+        subtitle: _("Stop scrobbling a track if it stays paused this long (seconds)");
+
+        [suffix]
+        Gtk.SpinButton _lastfm_pause_timeout_button {
+          valign: center;
+          adjustment: Gtk.Adjustment {
+            lower: 0;
+            upper: 3600;
+            step-increment: 10;
+            page-increment: 60;
+            value: 180;
+          };
+        }
+      }
+
+      Adw.ActionRow _lastfm_status_row {
+        title: _("Not connected");
+
+        [suffix]
+        Button _lastfm_connect_button {
+          label: _("Connect");
+          valign: center;
+
+          styles [
+            "suggested-action",
+          ]
+        }
+
+        [suffix]
+        Button _lastfm_disconnect_button {
+          label: _("Disconnect");
+          valign: center;
+          visible: false;
+        }
+      }
+    }
   }
 }

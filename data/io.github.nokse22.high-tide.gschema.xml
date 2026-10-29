@@ -53,5 +53,9 @@
 	  <key name="alsa-device" type="s">
       <default>'default'</default>
     </key>
+	  <key name="lastfm-pause-timeout" type="i">
+	    <range min="0" max="3600"/>
+      <default>180</default>
+    </key>
 	</schema>
 </schemalist>

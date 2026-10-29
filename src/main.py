@@ -18,12 +18,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import sys
+import threading
 from gettext import gettext as _
 from typing import Any, Callable, List
 
-from gi.repository import Adw, Gio, Gtk
+from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 
 from .lib import utils
+from .lib.lastfm import LastFmError
 from .lib.player_object import AudioSink
 from .window import HighTideWindow
 
@@ -81,6 +83,13 @@ class HighTideApplication(Adw.Application):
         """Activate the application by creating and presenting the main window."""
         self.win: HighTideWindow | None = self.props.active_window
         if not self.win:
+            # The custom symbolic icons are bundled in high-tide.gresource
+            # rather than installed into the user's icon theme. The display is
+            # guaranteed to exist by the time the application is activated.
+            icon_theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
+            icon_theme.add_resource_path(
+                "/io/github/nokse22/high-tide/icons",
+            )
             self.win = HighTideWindow(application=self)
 
         self.win.present()
@@ -171,6 +180,36 @@ class HighTideApplication(Adw.Application):
                 "active",
                 Gio.SettingsBindFlags.DEFAULT,
             )
+
+            self.lastfm_api_key_row = builder.get_object("_lastfm_api_key_row")
+            self.lastfm_api_secret_row = builder.get_object(
+                "_lastfm_api_secret_row"
+            )
+            self.lastfm_pause_timeout_button = builder.get_object(
+                "_lastfm_pause_timeout_button"
+            )
+            self.lastfm_status_row = builder.get_object("_lastfm_status_row")
+            self.lastfm_connect_button = builder.get_object(
+                "_lastfm_connect_button"
+            )
+            self.lastfm_disconnect_button = builder.get_object(
+                "_lastfm_disconnect_button"
+            )
+            self.lastfm_connect_button.connect(
+                "clicked", self.on_lastfm_connect_clicked
+            )
+            self.lastfm_disconnect_button.connect(
+                "clicked", self.on_lastfm_disconnect_clicked
+            )
+            self.lastfm_pause_timeout_button.set_value(
+                self.settings.get_int("lastfm-pause-timeout")
+            )
+            self.lastfm_pause_timeout_button.connect(
+                "value-changed", self.on_lastfm_pause_timeout_changed
+            )
+            self.lastfm_api_key_row.set_text(self.win.lastfm_client.api_key)
+            self.lastfm_auth_pending = False
+            self.update_lastfm_preferences()
 
             self.alsa_row = builder.get_object("_alsa_device_row")
 
@@ -285,6 +324,91 @@ class HighTideApplication(Adw.Application):
 
     def on_discord_rpc_changed(self, widget: Any, *args) -> None:
         self.win.change_discord_rpc_enabled(widget.get_active())
+
+    def on_lastfm_pause_timeout_changed(self, widget: Any, *args) -> None:
+        self.win.change_lastfm_pause_timeout(int(widget.get_value()))
+
+    def update_lastfm_preferences(self, error: str | None = None) -> None:
+        client = self.win.lastfm_client
+        self.lastfm_connect_button.set_sensitive(True)
+        self.lastfm_api_key_row.set_sensitive(not client.authenticated)
+        self.lastfm_api_secret_row.set_sensitive(not client.authenticated)
+        self.lastfm_disconnect_button.set_visible(client.authenticated)
+        self.lastfm_connect_button.set_visible(not client.authenticated)
+
+        if error:
+            self.lastfm_status_row.set_title(_("Connection failed"))
+            self.lastfm_status_row.set_subtitle(error)
+        elif client.authenticated:
+            self.lastfm_status_row.set_title(
+                _("Connected as {username}").format(username=client.username)
+            )
+            self.lastfm_status_row.set_subtitle(
+                _("Now playing and completed listens will be sent to Last.fm.")
+            )
+        elif self.lastfm_auth_pending:
+            self.lastfm_status_row.set_title(_("Waiting for authorization"))
+            self.lastfm_status_row.set_subtitle(
+                _("Authorize High Tide in your browser, then click Finish.")
+            )
+            self.lastfm_connect_button.set_label(_("Finish"))
+        else:
+            self.lastfm_status_row.set_title(_("Not connected"))
+            self.lastfm_status_row.set_subtitle("")
+            self.lastfm_connect_button.set_label(_("Connect"))
+
+    def on_lastfm_connect_clicked(self, *_args) -> None:
+        self.lastfm_connect_button.set_sensitive(False)
+        if self.lastfm_auth_pending:
+            target = self.finish_lastfm_authentication
+            args = ()
+        else:
+            target = self.begin_lastfm_authentication
+            args = (
+                self.lastfm_api_key_row.get_text(),
+                self.lastfm_api_secret_row.get_text(),
+            )
+        threading.Thread(target=target, args=args, daemon=True).start()
+
+    def begin_lastfm_authentication(self, api_key: str, api_secret: str) -> None:
+        try:
+            auth_url = self.win.lastfm_client.begin_authentication(
+                api_key, api_secret
+            )
+        except LastFmError as exc:
+            GLib.idle_add(self.on_lastfm_authentication_failed, str(exc))
+            return
+        GLib.idle_add(self.on_lastfm_authorization_ready, auth_url)
+
+    def on_lastfm_authorization_ready(self, auth_url: str) -> None:
+        self.lastfm_auth_pending = True
+        self.update_lastfm_preferences()
+        Gio.AppInfo.launch_default_for_uri(auth_url, None)
+
+    def finish_lastfm_authentication(self) -> None:
+        try:
+            self.win.lastfm_client.finish_authentication()
+        except LastFmError as exc:
+            GLib.idle_add(self.on_lastfm_authentication_failed, str(exc))
+            return
+        GLib.idle_add(self.on_lastfm_authentication_finished)
+
+    def on_lastfm_authentication_finished(self) -> None:
+        self.lastfm_auth_pending = False
+        self.lastfm_api_secret_row.set_text("")
+        self.win.lastfm_scrobbler.credentials_changed()
+        self.update_lastfm_preferences()
+
+    def on_lastfm_authentication_failed(self, message: str) -> None:
+        self.update_lastfm_preferences(message)
+
+    def on_lastfm_disconnect_clicked(self, *_args) -> None:
+        self.win.lastfm_client.disconnect()
+        self.lastfm_auth_pending = False
+        self.lastfm_api_key_row.set_text("")
+        self.lastfm_api_secret_row.set_text("")
+        self.win.lastfm_scrobbler.credentials_changed()
+        self.update_lastfm_preferences()
 
     def deactive_alsa_device_row(self, widget: Any, *args) -> None:
         alsa_used = widget.get_selected() == AudioSink.ALSA
