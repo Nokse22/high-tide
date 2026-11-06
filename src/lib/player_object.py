@@ -38,6 +38,10 @@ from . import discord_rpc, utils
 
 logger = logging.getLogger(__name__)
 
+# Seconds of audio a cached track can lack. Audio frames are under 0.1 s and MPD
+# segments about 4 s, and track durations are rounded to whole seconds.
+MAX_CACHE_GAP = 1.5
+
 
 class RepeatType(IntEnum):
     NONE = 0
@@ -546,15 +550,54 @@ class PlayerObject(GObject.GObject):
                 capture_output=True
             )
 
-            if result.returncode == 0:
-                tmp.rename(cached_music)
-                logger.info(f"Cached MPD track: {track.id}")
-            else:
+            if result.returncode != 0:
                 logger.warning(f"ffmpeg failed for {track.id}: {result.stderr.decode()}")
                 tmp.unlink(missing_ok=True)
+            elif missing := self._find_missing_audio(tmp, track.duration):
+                errors = [
+                    line for line in result.stderr.decode().splitlines()
+                    if "error" in line.lower() or "failed" in line.lower()
+                ]
+                logger.warning(f"Not caching {track.id}, {missing}: {errors}")
+                tmp.unlink(missing_ok=True)
+            else:
+                tmp.rename(cached_music)
+                logger.info(f"Cached MPD track: {track.id}")
         except Exception as e:
             logger.warning(f"Failed to cache MPD track {track.id}: {e}")
             tmp.unlink(missing_ok=True)
+
+    def _find_missing_audio(self, path, duration) -> str | None:
+        """Describe the audio missing from a downloaded track, if any.
+
+        ffmpeg skips a segment of an MPD stream it can't download and still exits
+        successfully, so the cached file would go silent there on every play.
+        """
+        import subprocess
+        result = subprocess.run(
+            [
+                "ffprobe",
+                "-v", "error",
+                "-select_streams", "a",
+                "-show_entries", "packet=pts_time",
+                "-of", "csv=p=0",
+                str(path)
+            ],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        previous = 0.0
+        for line in result.stdout.splitlines():
+            position = float(line.split(",")[0])
+            if position - previous > MAX_CACHE_GAP:
+                return f"no audio from {previous:.1f} s to {position:.1f} s"
+            previous = position
+
+        if duration - previous > MAX_CACHE_GAP:
+            return f"audio ends at {previous:.1f} s of {duration} s"
+        return None
 
     def _cache_bts_track(self, track, stream_url):
         """Download and cache BTS track in background."""
