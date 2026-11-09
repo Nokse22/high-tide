@@ -384,6 +384,7 @@ class PlayerObject(GObject.GObject):
         self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
 
         self.seeked_to_end = False
+        self.last_seek_position = None
         if self.seek_after_sink_reload:
             # Continue exactly where it was, without repeating part of the track
             self.seek(self.seek_after_sink_reload, accurate=True)
@@ -532,6 +533,11 @@ class PlayerObject(GObject.GObject):
         self.stream = None
         self.manifest = None
 
+        cached_music = self._cached_music_path(track)
+        if cached_music:
+            self._play_cached_track(track, cached_music, gapless)
+            return
+
         try:
             self.stream = track.get_stream()
             self.manifest = self.stream.get_stream_manifest()
@@ -545,14 +551,53 @@ class PlayerObject(GObject.GObject):
             if gapless:
                 self.loading_gapless = False
 
+    def _play_cached_track(self, track, cached_music, gapless=False) -> None:
+        """Play a track from the music cache.
+
+        Its stream info (ReplayGain, quality label) comes from TIDAL, but a slow or
+        missing connection (e.g. offline, which retries for minutes) shouldn't hold
+        up a track that's on disk, so it plays without it after a short wait.
+        """
+        info = {}
+
+        def get_info():
+            try:
+                stream = track.get_stream()
+                info["manifest"] = stream.get_stream_manifest()
+                info["stream"] = stream
+            except Exception:
+                logger.warning(f"Couldn't get the stream info of {track.id}")
+                return
+            if info.get("late"):
+                GLib.idle_add(self._set_late_stream_info, track, info)
+
+        thread = threading.Thread(target=get_info, daemon=True)
+        thread.start()
+        thread.join(2)
+        if "stream" in info:
+            self.stream, self.manifest = info["stream"], info["manifest"]
+        else:
+            info["late"] = True
+            logger.warning(f"Playing {track.id} from the music cache without its stream info")
+        logger.info(f"Playing from music cache: {track.id}")
+        GLib.idle_add(self._play_track_url, track, f"file://{cached_music}", gapless)
+
+    def _set_late_stream_info(self, track, info) -> None:
+        if self.playing_track is track and not self.stream:
+            self.stream, self.manifest = info["stream"], info["manifest"]
+            self.apply_replaygain_tags()
+
+    def _cached_music_path(self, track) -> Path | None:
+        """Get the track's file in the music cache, if it's there."""
+        if not track or not getattr(utils, "MUSIC_DIR", None):
+            return None
+        cached_music = utils.MUSIC_DIR / f"{track.id}_{utils.session.audio_quality}.m4a"
+        return cached_music if cached_music.exists() else None
+
     def _get_cached_or_stream_url(self, track, gapless=False):
         """Get URL from cache or stream, caching if not cached."""
-        if not hasattr(utils, 'MUSIC_DIR') or not utils.MUSIC_DIR:
-            return self._get_stream_url(track, gapless)
-
-        cached_music = utils.MUSIC_DIR / f"{track.id}_{utils.session.audio_quality}.m4a"
-
-        if cached_music.exists():
+        cached_music = self._cached_music_path(track)
+        if cached_music:
             logger.info(f"Playing from music cache: {track.id}")
             return f"file://{cached_music}"
 
@@ -934,6 +979,35 @@ class PlayerObject(GObject.GObject):
             # so the next play() or track start replaces it instead of adding another
             self.update_timer = None
         return self.playing
+
+    def _check_stream_stuck(self) -> None:
+        """Continue from the music cache if the stream of the playing track is stuck.
+
+        E.g. the internet went out: the track may have been cached in the meantime.
+        """
+        position = self.query_position(-1)
+        now = time.monotonic()
+        if not self.playing or position != self.last_position:
+            self.last_position = position
+            self.position_stuck_since = now
+            return
+        # During a gapless change the next track is loading
+        if now - self.position_stuck_since < 3 or self.next_track:
+            return
+        cached_music = self._cached_music_path(self.playing_track)
+        uri = self.playbin.get_property("current-uri") or ""
+        if not cached_music or uri == f"file://{cached_music}":
+            return
+
+        self.position_stuck_since = now
+        if position <= 0 and self.last_seek_position is not None:
+            # Stuck right after a seek, before anything could be downloaded
+            position = self.last_seek_position
+        duration = self.query_duration()
+        if duration and position > 0:
+            self.seek_after_sink_reload = position / duration
+        logger.warning("Stream stuck, continuing from the music cache")
+        self._play_track_url(self.playing_track, f"file://{cached_music}")
 
     def query_duration(self):
         """Get the duration of the current track.

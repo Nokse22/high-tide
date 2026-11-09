@@ -454,6 +454,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         sample_rate = None
 
         stream = self.player_object.stream
+        if not stream and not self.player_object.manifest:
+            # Played from the music cache without TIDAL (e.g. offline)
+            self.quality_label.set_visible(False)
+            return
         if stream:
             if stream.bit_depth:
                 bit_depth = f"{stream.bit_depth}-bit"
