@@ -151,6 +151,11 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.connect("song-changed", self.on_song_changed)
         self.player_object.connect("song-added-to-queue", self.on_song_added_to_queue)
         self.player_object.connect("notify::playing", self.update_controls)
+
+        self.suspend_inhibit_cookie: int = 0
+        self.player_object.connect(
+            "notify::playing", lambda *_: self.update_suspend_inhibitor()
+        )
         self.player_object.connect("buffering", self.on_song_buffering)
         self.player_object.connect("notify::repeat-type", self.update_repeat_button)
         self.player_object.connect(
@@ -307,23 +312,25 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         logger.info(f"Last playing: {thing_id} of type {thing_type} index: {index}")
 
-        thing = None
+        tracks = None
 
         try:
             if thing_type == "mix":
-                thing = self.session.mix(thing_id)
+                tracks = self.session.mix(thing_id).items()
             elif thing_type == "album":
-                thing = self.session.album(thing_id)
+                tracks = self.session.album(thing_id).tracks()
             elif thing_type == "playlist":
-                thing = self.session.playlist(thing_id)
+                tracks = self.session.playlist(thing_id).tracks()
             elif thing_type == "track":
-                thing = self.session.track(thing_id)
+                tracks = [self.session.track(thing_id)]
         except Exception:
             logger.exception("Error while setting last played song")
 
-        self.player_object.play_this(thing, index)
+        if tracks is None:
+            return
 
-        self.player_object.pause()
+        GLib.idle_add(self.player_object.play_this, tracks, index)
+        GLib.idle_add(self.player_object.pause)
 
     #
     #   UPDATES UI
@@ -371,6 +378,8 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.videoplayer.pause()
             self.videoplayer.clear()
 
+        dimensions = utils.get_best_dimensions(self.playing_track_picture)
+
         if self.video_covers_enabled and album.video_cover:
             threading.Thread(
                 target=utils.add_video_cover,
@@ -378,6 +387,7 @@ class HighTideWindow(Adw.ApplicationWindow):
                     self.playing_track_picture,
                     self.videoplayer,
                     album,
+                    dimensions,
                     self.in_background,
                     self.image_canc,
                 ),
@@ -385,7 +395,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         else:
             threading.Thread(
                 target=utils.add_picture,
-                args=(self.playing_track_picture, album, self.image_canc),
+                args=(self.playing_track_picture, album, dimensions, self.image_canc),
             ).start()
 
         threading.Thread(
@@ -444,6 +454,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         sample_rate = None
 
         stream = self.player_object.stream
+        if not stream and not self.player_object.manifest:
+            # Played from the music cache without TIDAL (e.g. offline)
+            self.quality_label.set_visible(False)
+            return
         if stream:
             if stream.bit_depth:
                 bit_depth = f"{stream.bit_depth}-bit"
@@ -489,6 +503,29 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.play_button.set_icon_name("media-playback-pause-symbolic")
         else:
             self.play_button.set_icon_name("media-playback-start-symbolic")
+
+    def update_suspend_inhibitor(self, *args):
+        """Inhibit system suspend while a track is playing"""
+        application = self.get_application()
+        if not application:
+            return
+
+        if self.player_object.playing:
+            if not self.suspend_inhibit_cookie:
+                self.suspend_inhibit_cookie = application.inhibit(
+                    self,
+                    Gtk.ApplicationInhibitFlags.SUSPEND,
+                    _("Playback of music is in progress"),
+                )
+                if self.suspend_inhibit_cookie:
+                    logger.debug(
+                        "Acquired suspend inhibitor (cookie %d)",
+                        self.suspend_inhibit_cookie,
+                    )
+        elif self.suspend_inhibit_cookie:
+            application.uninhibit(self.suspend_inhibit_cookie)
+            logger.debug("Released suspend inhibitor")
+            self.suspend_inhibit_cookie = 0
 
     def update_repeat_button(self, player, repeat_type):
         """Update the repeat button icon based on current repeat mode"""
@@ -677,9 +714,9 @@ class HighTideWindow(Adw.ApplicationWindow):
                 elif lyrics.text:
                     GLib.idle_add(self.lyrics_widget.set_lyrics, lyrics.text)
             else:
-                self.lyrics_widget.clear()
+                GLib.idle_add(self.lyrics_widget.clear)
         except Exception:
-            self.lyrics_widget.clear()
+            GLib.idle_add(self.lyrics_widget.clear)
 
     def select_quality(self, pos):
         match pos:
@@ -733,6 +770,8 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.videoplayer.pause()
             self.videoplayer.clear()
 
+            dimensions = utils.get_best_dimensions(self.playing_track_picture)
+
             if self.video_covers_enabled and album.video_cover:
                 threading.Thread(
                     target=utils.add_video_cover,
@@ -740,13 +779,20 @@ class HighTideWindow(Adw.ApplicationWindow):
                         self.playing_track_picture,
                         self.videoplayer,
                         album,
+                        dimensions,
+                        self.in_background,
                         self.image_canc,
                     ),
                 ).start()
             else:
                 threading.Thread(
                     target=utils.add_picture,
-                    args=(self.playing_track_picture, album, self.image_canc),
+                    args=(
+                        self.playing_track_picture,
+                        album,
+                        dimensions,
+                        self.image_canc,
+                    ),
                 ).start()
 
     def change_discord_rpc_enabled(self, state):

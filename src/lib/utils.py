@@ -244,6 +244,73 @@ def get_mix(mix_id: str) -> Mix:
     return cache.get_mix(mix_id)
 
 
+def _album_release_key(album: Album) -> tuple:
+    return (album.name.casefold(), album.version or "", album.num_tracks)
+
+
+def _album_version_rank(album: Album) -> tuple:
+    return (
+        "STEREO" in (album.audio_modes or []),
+        bool(album.explicit),
+        "HIRES_LOSSLESS" in (album.media_metadata_tags or []),
+    )
+
+
+class AlbumVersionFilter:
+    """Wraps an artist album request (like Artist.get_albums) so each release
+    is listed once, picking the version TIDAL shows on its own artist page:
+    stereo over Dolby Atmos only, explicit over clean, then hi-res.
+
+    TIDAL lists every version (clean, explicit, Dolby Atmos) as a separate album,
+    next to each other. Since the caller's offset counts deduplicated albums, the
+    API offset is tracked here instead; an offset of 0 starts over.
+    """
+
+    page_size = 50
+
+    def __init__(self, function) -> None:
+        self.function = function
+        self._reset()
+
+    def _reset(self) -> None:
+        self.api_offset = 0
+        self.seen = set()
+        self.pending = []
+        self.done = False
+
+    def __call__(self, limit: int | None = None, offset: int = 0) -> List[Album]:
+        if offset == 0:
+            self._reset()
+
+        while not self.done and len(self.pending) < (limit or self.page_size):
+            albums = self.function(limit=self.page_size, offset=self.api_offset)
+
+            if len(albums) < self.page_size:
+                self.done = True
+            else:
+                # Versions of the last release may continue on the next page
+                last_key = _album_release_key(albums[-1])
+                complete = len(albums)
+                while complete > 0 and _album_release_key(albums[complete - 1]) == last_key:
+                    complete -= 1
+                if complete > 0:
+                    albums = albums[:complete]
+            self.api_offset += len(albums)
+
+            best = {}
+            for album in albums:
+                key = _album_release_key(album)
+                if key in self.seen:
+                    continue
+                if key not in best or _album_version_rank(album) > _album_version_rank(best[key]):
+                    best[key] = album
+            self.seen.update(best)
+            self.pending.extend(best.values())
+
+        albums, self.pending = self.pending[:limit], self.pending[limit:] if limit else []
+        return albums
+
+
 def get_favourites() -> None:
     """Load all user favorites from TIDAL API and cache them globally.
 
@@ -366,11 +433,11 @@ def th_add_to_my_collection(btn: Any, item: Any) -> None:
         result = False
 
     if result:
-        btn.set_icon_name("heart-filled-symbolic")
-        send_toast(_("Successfully added to my collection"), 2)
+        GLib.idle_add(btn.set_icon_name, "heart-filled-symbolic")
+        GLib.idle_add(send_toast, _("Successfully added to my collection"), 2)
         get_favourites()
     else:
-        send_toast(_("Failed to add item to my collection"), 2)
+        GLib.idle_add(send_toast, _("Failed to add item to my collection"), 2)
 
 
 def th_remove_from_my_collection(btn: Any, item: Any) -> None:
@@ -395,10 +462,10 @@ def th_remove_from_my_collection(btn: Any, item: Any) -> None:
         result = False
 
     if result:
-        btn.set_icon_name("heart-outline-thick-symbolic")
-        send_toast(_("Successfully removed from my collection"), 2)
+        GLib.idle_add(btn.set_icon_name, "heart-outline-thick-symbolic")
+        GLib.idle_add(send_toast, _("Successfully removed from my collection"), 2)
     else:
-        send_toast(_("Failed to remove item from my collection"), 2)
+        GLib.idle_add(send_toast, _("Failed to remove item from my collection"), 2)
 
 
 def on_in_to_my_collection_button_clicked(btn: Any, item: Any) -> None:
@@ -528,7 +595,7 @@ def th_play_track(track_id: str) -> None:
     """
     track: Track = session.track(track_id)
 
-    player_object.play_this([track])
+    GLib.idle_add(player_object.play_this, [track])
 
 
 def pretty_duration(secs: int | None) -> str:
@@ -610,7 +677,10 @@ def get_image_url(item: Any, dimensions: int = 320) -> str | None:
 
 
 def add_picture(
-    widget: Any, item: Any, cancellable: Gio.Cancellable = Gio.Cancellable.new()
+    widget: Any,
+    item: Any,
+    dimensions: int,
+    cancellable: Gio.Cancellable = Gio.Cancellable.new(),
 ) -> None:
     """Retrieve and set an image for a widget from a TIDAL item.
 
@@ -619,6 +689,7 @@ def add_picture(
     Args:
         widget: A GTK widget that supports set_filename()
         item: A TIDAL object with image data
+        dimensions (int): The image dimensions to download
         cancellable: Optional GCancellable for canceling the operation
     """
 
@@ -632,7 +703,7 @@ def add_picture(
     GLib.idle_add(
         _add_picture,
         widget,
-        get_image_url(item, get_best_dimensions(widget)),
+        get_image_url(item, dimensions),
         cancellable,
     )
 
@@ -696,6 +767,7 @@ def add_video_cover(
     widget: Any,
     videoplayer: Any,
     item: Any,
+    dimensions: int,
     in_bg: bool,
     cancellable: Gio.Cancellable = Gio.Cancellable.new(),
 ) -> None:
@@ -707,6 +779,7 @@ def add_video_cover(
         widget: The container widget
         videoplayer: The GtkMediaFile
         item: A TIDAL object with video data
+        dimensions (int): The video dimensions to download
         in_bg (bool): Whether the window is currently in background (not in focus)
         cancellable: Optional GCancellable for canceling the operation
     """
@@ -732,7 +805,7 @@ def add_video_cover(
         _add_video_cover,
         widget,
         videoplayer,
-        get_video_cover_url(item, get_best_dimensions(widget)),
+        get_video_cover_url(item, dimensions),
         in_bg,
         cancellable,
     )

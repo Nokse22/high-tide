@@ -21,16 +21,41 @@ template $HTCardWidget: Adw.BreakpointBin {
 
     GestureClick click_gesture {}
 
-    Image image {
-      halign: center;
-      icon-name: 'emblem-music-symbolic';
-      pixel-size: 155;
-      valign: center;
-      overflow: hidden;
+    EventControllerMotion motion_controller {}
 
-      styles [
-        "card-image",
-      ]
+    Overlay {
+      halign: center;
+
+      Image image {
+        halign: center;
+        icon-name: 'emblem-music-symbolic';
+        pixel-size: 155;
+        valign: center;
+        overflow: hidden;
+
+        styles [
+          "card-image",
+        ]
+      }
+
+      [overlay]
+      Revealer play_revealer {
+        halign: end;
+        valign: end;
+        margin-end: 8;
+        margin-bottom: 8;
+        transition-type: crossfade;
+
+        Button play_button {
+          icon-name: 'media-playback-start-symbolic';
+          tooltip-text: _("Play");
+
+          styles [
+            "circular",
+            "card-play-button",
+          ]
+        }
+      }
     }
 
     Label title_label {
