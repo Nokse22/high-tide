@@ -151,6 +151,11 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.connect("song-changed", self.on_song_changed)
         self.player_object.connect("song-added-to-queue", self.on_song_added_to_queue)
         self.player_object.connect("notify::playing", self.update_controls)
+
+        self.suspend_inhibit_cookie: int = 0
+        self.player_object.connect(
+            "notify::playing", lambda *_: self.update_suspend_inhibitor()
+        )
         self.player_object.connect("buffering", self.on_song_buffering)
         self.player_object.connect("notify::repeat-type", self.update_repeat_button)
         self.player_object.connect(
@@ -489,6 +494,29 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.play_button.set_icon_name("media-playback-pause-symbolic")
         else:
             self.play_button.set_icon_name("media-playback-start-symbolic")
+
+    def update_suspend_inhibitor(self, *args):
+        """Inhibit system suspend while a track is playing"""
+        application = self.get_application()
+        if not application:
+            return
+
+        if self.player_object.playing:
+            if not self.suspend_inhibit_cookie:
+                self.suspend_inhibit_cookie = application.inhibit(
+                    self,
+                    Gtk.ApplicationInhibitFlags.SUSPEND,
+                    _("Playback of music is in progress"),
+                )
+                if self.suspend_inhibit_cookie:
+                    logger.debug(
+                        "Acquired suspend inhibitor (cookie %d)",
+                        self.suspend_inhibit_cookie,
+                    )
+        elif self.suspend_inhibit_cookie:
+            application.uninhibit(self.suspend_inhibit_cookie)
+            logger.debug("Released suspend inhibitor")
+            self.suspend_inhibit_cookie = 0
 
     def update_repeat_button(self, player, repeat_type):
         """Update the repeat button icon based on current repeat mode"""
