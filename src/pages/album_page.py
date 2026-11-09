@@ -53,3 +53,21 @@ class HTAlbumPage(TrackListPage):
         info_button = builder.get_object("_info_button")
         info_button.set_action_target_value(GLib.Variant("s", str(self.item.id)))
         info_button.set_visible(True)
+        badges_box = builder.get_object("_badges_box")
+        tags = self.item.media_metadata_tags or []
+        badges = []
+        if self.item.explicit:
+            badges.append(("E", _("Explicit")))
+        if "DOLBY_ATMOS" in tags:
+            badges.append((_("Dolby Atmos"), None))
+        if "HIRES_LOSSLESS" in tags:
+            badges.append((_("Hi-Res"), _("Available in Hi-Res Lossless")))
+        elif "LOSSLESS" in tags:
+            badges.append((_("Lossless"), _("Available in Lossless")))
+        for label, tooltip in badges:
+            badges_box.append(
+                Gtk.Label(
+                    label=label, tooltip_text=tooltip, css_classes=["explicit-label"]
+                )
+            )
+        badges_box.set_visible(bool(badges))

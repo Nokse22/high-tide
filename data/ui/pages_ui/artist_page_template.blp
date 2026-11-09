@@ -63,6 +63,10 @@ Box _main {
             valign: center;
 
             Adw.LayoutSlot {
+              id: "block-button";
+            }
+
+            Adw.LayoutSlot {
               id: "radio-button";
             }
 
@@ -136,6 +140,10 @@ Box _main {
             Adw.LayoutSlot {
               id: "radio-button";
             }
+
+            Adw.LayoutSlot {
+              id: "block-button";
+            }
           }
         };
       }
@@ -174,6 +182,17 @@ Box _main {
       [artist-button]
       Button _artist_button {
         visible: false;
+      }
+
+      [block-button]
+      Button _block_button {
+        icon-name: "action-unavailable-symbolic";
+        valign: center;
+
+        styles [
+          "flat",
+          "circular",
+        ]
       }
 
       [radio-button]

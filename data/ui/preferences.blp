@@ -3,6 +3,9 @@ using Adw 1;
 
 Adw.PreferencesDialog _preference_window {
   Adw.PreferencesPage {
+    title: _("General");
+    icon-name: "applications-system-symbolic";
+
     Adw.PreferencesGroup {
       title: _("Audio");
       Adw.ComboRow _quality_row {
@@ -55,6 +58,27 @@ Adw.PreferencesDialog _preference_window {
       Adw.SwitchRow _discord_rpc_row {
         title: _("Enable Discord Rich Presence");
       }
+    }
+  }
+
+  Adw.PreferencesPage {
+    title: _("Blocked");
+    icon-name: "action-unavailable-symbolic";
+
+    Adw.PreferencesGroup {
+      description: _("Blocked artists and tracks are left out of your mixes and radio.");
+    }
+
+    Adw.PreferencesGroup _blocked_artists_group {
+      title: _("Artists");
+    }
+
+    Adw.PreferencesGroup _blocked_tracks_group {
+      title: _("Tracks");
+    }
+
+    Adw.PreferencesGroup _blocked_videos_group {
+      title: _("Videos");
     }
   }
 }
