@@ -126,16 +126,14 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         if self.is_loading or not self.function:
             return
         self.is_loading = True
-        self.spinner.set_visible(True)
+        GLib.idle_add(self.spinner.set_visible, True)
         try:
             new_items = self.function(limit=self.items_limit, offset=self.items_n)
         except TypeError:
             new_items = []
         self.items.extend(new_items)
         if new_items == []:
-            GObject.signal_handler_disconnect(self.scrolled_window, self.handler_id)
-            self.spinner.set_visible(False)
-            self.is_loading = False
+            GLib.idle_add(self._on_items_exhausted)
             return
         elif self.type is None:
             self.type = utils.get_type(new_items[0])
@@ -151,6 +149,12 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
             self.is_loading = False
 
         GLib.idle_add(_add)
+
+    def _on_items_exhausted(self):
+        if self.scrolled_window.handler_is_connected(self.handler_id):
+            GObject.signal_handler_disconnect(self.scrolled_window, self.handler_id)
+        self.spinner.set_visible(False)
+        self.is_loading = False
 
     def _on_edge_reached(self, scrolled_window, pos):
         GObject.signal_handler_block(self.scrolled_window, self.handler_id)
