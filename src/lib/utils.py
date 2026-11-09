@@ -38,7 +38,7 @@ from tidalapi.album import Album
 from tidalapi.artist import Artist
 from tidalapi.mix import Mix
 from tidalapi.playlist import Playlist
-from tidalapi.media import Track
+from tidalapi.media import Track, Video
 from tidalapi.types import ItemOrder, OrderDirection
 
 from ..pages import HTAlbumPage, HTArtistPage, HTMixPage, HTPlaylistPage
@@ -53,6 +53,10 @@ favourite_albums: List[Album] = []
 favourite_playlists: List[Playlist] = []
 playlist_and_favorite_playlists: List[Playlist] = []
 user_playlists: List[Playlist] = []
+blocked_artists: List[Artist] = []
+blocked_tracks: List[Track] = []
+blocked_videos: List[Video] = []
+blocked_loaded = threading.Event()
 
 
 def init() -> None:
@@ -399,6 +403,232 @@ def is_favourited(item: Any) -> bool:
                 return True
 
     return False
+
+
+def get_blocked() -> None:
+    """Load the artists, tracks and videos the user blocked from TIDAL API.
+
+    TIDAL leaves blocked items out of mixes and radio, but they still show up
+    everywhere else, so High Tide keeps the lists to show and undo blocks.
+    """
+    global blocked_artists
+    global blocked_tracks
+    global blocked_videos
+
+    try:
+        blocked_artists = _get_blocked_items("artists", session.parse_artist)
+        blocked_tracks = _get_blocked_items("tracks", session.parse_track)
+        blocked_videos = _get_blocked_items("videos", session.parse_video)
+    except Exception:
+        logger.exception("Error while getting blocked items")
+
+    blocked_loaded.set()
+
+    logger.info(f"Blocked Artists: {len(blocked_artists)}")
+    logger.info(f"Blocked Tracks: {len(blocked_tracks)}")
+    logger.info(f"Blocked Videos: {len(blocked_videos)}")
+
+
+def _get_blocked_items(item_type: str, parse: Any) -> List[Any]:
+    items = []
+    offset = 0
+    limit = 50
+
+    while True:
+        page = session.request.request(
+            "GET",
+            f"users/{session.user.id}/blocks/{item_type}",
+            params={"limit": limit, "offset": offset},
+        ).json()
+        items += [parse(entry["item"]) for entry in page["items"]]
+        offset += limit
+        if offset >= page["totalNumberOfItems"]:
+            return items
+
+
+def _get_block_type(item: Any) -> str | None:
+    if isinstance(item, Track):
+        return "track"
+    if isinstance(item, Video):
+        return "video"
+    if isinstance(item, Artist):
+        return "artist"
+    return None
+
+
+def _get_blocked_list(item: Any) -> List[Any]:
+    if isinstance(item, Track):
+        return blocked_tracks
+    if isinstance(item, Video):
+        return blocked_videos
+    return blocked_artists
+
+
+def is_blocked(item: Any) -> bool:
+    """Check if an artist, track or video was blocked by the user.
+
+    Args:
+        item: A TIDAL Artist, Track or Video
+
+    Returns:
+        bool: True if the item itself is blocked
+    """
+    if _get_block_type(item) is None:
+        return False
+
+    return any(blocked.id == item.id for blocked in _get_blocked_list(item))
+
+
+def is_blocked_by_artist(item: Any) -> bool:
+    """Check if a track or video is blocked, directly or through one of its artists.
+
+    Args:
+        item: A TIDAL Track or Video
+
+    Returns:
+        bool: True if the item or any of its artists is blocked
+    """
+    if is_blocked(item):
+        return True
+
+    artists = getattr(item, "artists", None) or []
+    return any(is_blocked(artist) for artist in artists)
+
+
+def is_hidden_by_block(item: Any) -> bool:
+    """Check if an item should be left out of suggestions because of a block.
+
+    Args:
+        item: A TIDAL object
+
+    Returns:
+        bool: True for blocked artists, and tracks, videos and albums that are
+            blocked or by a blocked artist
+    """
+    if isinstance(item, Artist):
+        return is_blocked(item)
+    if isinstance(item, (Track, Video)):
+        return is_blocked_by_artist(item)
+    if isinstance(item, Album):
+        artists = item.artists or [item.artist]
+        return any(artist and is_blocked(artist) for artist in artists)
+    return False
+
+
+def th_block(item: Any, callback: Any = None) -> None:
+    """Thread function to block an artist, track or video on TIDAL.
+
+    Args:
+        item: A TIDAL Artist, Track or Video
+        callback: Called on the main thread with True after the item is blocked
+    """
+    item_type = _get_block_type(item)
+
+    try:
+        session.request.request(
+            "POST",
+            f"users/{session.user.id}/blocks/{item_type}s",
+            data={f"{item_type}Id": item.id},
+        )
+    except Exception:
+        logger.exception(f"Failed to block {item_type} {item.id}")
+        GLib.idle_add(send_toast, _("Failed to block"), 2)
+        return
+
+    GLib.idle_add(_on_blocked_changed, item, True, callback)
+
+
+def th_unblock(item: Any, callback: Any = None) -> None:
+    """Thread function to unblock an artist, track or video on TIDAL.
+
+    Args:
+        item: A TIDAL Artist, Track or Video
+        callback: Called on the main thread with False after the item is unblocked
+    """
+    item_type = _get_block_type(item)
+
+    try:
+        session.request.request(
+            "DELETE", f"users/{session.user.id}/blocks/{item_type}s/{item.id}"
+        )
+    except Exception:
+        logger.exception(f"Failed to unblock {item_type} {item.id}")
+        GLib.idle_add(send_toast, _("Failed to unblock"), 2)
+        return
+
+    GLib.idle_add(_on_blocked_changed, item, False, callback)
+
+
+def _on_blocked_changed(item: Any, blocked: bool, callback: Any) -> None:
+    blocked_list = _get_blocked_list(item)
+    blocked_list[:] = [other for other in blocked_list if other.id != item.id]
+
+    if blocked:
+        blocked_list.append(item)
+        send_toast(_("Blocked {}").format(item.name), 2)
+        player_object.skip_blocked()
+    else:
+        send_toast(_("Unblocked {}").format(item.name), 2)
+
+    if callback:
+        callback(blocked)
+
+
+def fill_block_menu(menu: Gio.Menu, track: Track, action_prefix: str) -> None:
+    """Fill a menu with block/unblock items for a track and its artists.
+
+    The items use the actions {action_prefix}.toggle-block-track (no target) and
+    {action_prefix}.toggle-block-artist (int16 index into the track's artists).
+
+    Args:
+        menu: The menu to fill, its items are replaced
+        track: The track the items are for
+        action_prefix: The action group prefix, e.g. "win"
+    """
+    menu.remove_all()
+
+    menu.append(
+        _("Unblock track") if is_blocked(track) else _("Block track"),
+        f"{action_prefix}.toggle-block-track",
+    )
+
+    artists = get_track_artists(track)
+    if len(artists) == 1:
+        item = Gio.MenuItem.new(
+            _("Unblock artist") if is_blocked(artists[0]) else _("Block artist"),
+            None,
+        )
+        item.set_action_and_target_value(
+            f"{action_prefix}.toggle-block-artist", GLib.Variant.new_int16(0)
+        )
+        menu.append_item(item)
+        return
+
+    artists_submenu = Gio.Menu()
+    for index, artist in enumerate(artists):
+        label = _("Unblock {}") if is_blocked(artist) else _("Block {}")
+        item = Gio.MenuItem.new(label.format(artist.name), None)
+        item.set_action_and_target_value(
+            f"{action_prefix}.toggle-block-artist", GLib.Variant.new_int16(index)
+        )
+        artists_submenu.append_item(item)
+    menu.append_submenu(_("Block artist"), artists_submenu)
+
+
+def get_track_artists(track: Track) -> List[Artist]:
+    """Get the artists of a track, falling back to its main artist."""
+    return track.artists or [track.artist]
+
+
+def toggle_blocked(item: Any, callback: Any = None) -> None:
+    """Block or unblock an item depending on its current state.
+
+    Args:
+        item: A TIDAL Artist, Track or Video
+        callback: Called on the main thread with the new blocked state
+    """
+    target = th_unblock if is_blocked(item) else th_block
+    threading.Thread(target=target, args=(item, callback)).start()
 
 
 def send_toast(toast_title: str, timeout: int) -> None:

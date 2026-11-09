@@ -889,6 +889,42 @@ class PlayerObject(GObject.GObject):
             track = track_list.pop(0)
             self.play_track(track, gapless=gapless)
 
+    def skip_blocked(self) -> None:
+        """Leave out blocked tracks from what is left to play.
+
+        Removes them from the rest of the playing list and the played songs, and
+        skips the playing track if it was just blocked, as the official apps do.
+        """
+        self._drop_blocked()
+
+        if self.playing_track and utils.is_blocked_by_artist(self.playing_track):
+            has_next = (
+                self.queue
+                or self._tracks_to_play
+                or (self._repeat_type == RepeatType.LIST and self.played_songs)
+            )
+            if self._repeat_type == RepeatType.SONG or not has_next:
+                self.pause()
+            else:
+                self.play_next()
+                # play_next adds the blocked track to the played songs
+                self._drop_blocked()
+
+        self.can_go_next = len(self._tracks_to_play) > 0
+        self.emit("song-added-to-queue")
+
+    def _drop_blocked(self) -> None:
+        for track_list in (
+            self._tracks_to_play,
+            self._shuffled_tracks_to_play,
+            self.played_songs,
+        ):
+            track_list[:] = [
+                track
+                for track in track_list
+                if not utils.is_blocked_by_artist(track)
+            ]
+
     def play_previous(self):
         """Play the previous track or restart current track if near beginning."""
         # if not in the first 2 seconds of the track restart song

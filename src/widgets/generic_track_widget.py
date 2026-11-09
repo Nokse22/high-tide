@@ -68,6 +68,7 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         super().__init__()
 
         self.menu_activated = False
+        self.block_section = None
         self.track = track
 
         self.signals.append(
@@ -148,6 +149,8 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             self.album_stack.set_visible_child(self.image)
 
     def _on_menu_activate(self, *args):
+        self._update_block_section()
+
         if self.menu_activated:
             return
 
@@ -191,6 +194,31 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             action = Gio.SimpleAction.new(name, None)
             self.signals.append((action, action.connect("activate", callback)))
             self.action_group.add_action(action)
+
+    def _update_block_section(self):
+        if self.block_section is None:
+            self.block_section = Gio.Menu()
+            self.track_menu.append_section(None, self.block_section)
+
+            block_track_action = Gio.SimpleAction.new("toggle-block-track", None)
+            block_artist_action = Gio.SimpleAction.new(
+                "toggle-block-artist", GLib.VariantType.new("n")
+            )
+            for action, callback in (
+                (block_track_action, self._toggle_block_track),
+                (block_artist_action, self._toggle_block_artist),
+            ):
+                self.signals.append((action, action.connect("activate", callback)))
+                self.action_group.add_action(action)
+
+        utils.fill_block_menu(self.block_section, self.track, "trackwidget")
+
+    def _toggle_block_track(self, *args):
+        utils.toggle_blocked(self.track)
+
+    def _toggle_block_artist(self, action, parameter):
+        artists = utils.get_track_artists(self.track)
+        utils.toggle_blocked(artists[parameter.get_int16()])
 
     def _play_next(self, *args):
         utils.player_object.add_next(self.track)

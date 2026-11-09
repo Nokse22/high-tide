@@ -147,6 +147,23 @@ class HTArtistPage(Page):
         if utils.is_favourited(self.artist):
             follow_button.set_icon_name("heart-filled-symbolic")
 
+        block_button = builder.get_object("_block_button")
+        self._update_block_button(block_button, utils.is_blocked(self.artist))
+        self.signals.append(
+            (
+                block_button,
+                block_button.connect(
+                    "clicked",
+                    lambda *_: utils.toggle_blocked(
+                        self.artist,
+                        lambda blocked: self._update_block_button(
+                            block_button, blocked
+                        ),
+                    ),
+                ),
+            )
+        )
+
         artist_picture = builder.get_object("_avatar")
 
         threading.Thread(
@@ -200,6 +217,14 @@ class HTArtistPage(Page):
         )
         self.append(label)
         self.signals.append((label, label.connect("activate-link", utils.open_uri)))
+
+    def _update_block_button(self, button, blocked: bool) -> None:
+        if blocked:
+            button.set_tooltip_text(_("Unblock Artist"))
+            button.add_css_class("error")
+        else:
+            button.set_tooltip_text(_("Block Artist"))
+            button.remove_css_class("error")
 
     def on_play_button_clicked(self, btn) -> None:
         utils.player_object.play_this(self.top_tracks, 0)

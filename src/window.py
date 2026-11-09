@@ -80,6 +80,8 @@ class HighTideWindow(Adw.ApplicationWindow):
     go_next_button = Gtk.Template.Child()
     go_prev_button = Gtk.Template.Child()
     track_radio_button = Gtk.Template.Child()
+    block_button = Gtk.Template.Child()
+    block_menu = Gtk.Template.Child()
     album_button = Gtk.Template.Child()
     copy_share_link = Gtk.Template.Child()
 
@@ -127,6 +129,18 @@ class HighTideWindow(Adw.ApplicationWindow):
             GLib.VariantType.new("s"),
             self.on_push_artist_radio_page,
         )
+
+        self.create_action_with_target(
+            "toggle-block-artist",
+            GLib.VariantType.new("n"),
+            self.on_toggle_block_playing_artist,
+        )
+
+        toggle_block_track_action = Gio.SimpleAction.new("toggle-block-track", None)
+        toggle_block_track_action.connect("activate", self.on_toggle_block_playing_track)
+        self.add_action(toggle_block_track_action)
+
+        self.block_button.connect("notify::active", self.on_block_button_active)
 
         # self.create_action_with_target(
         #     'play-next',
@@ -292,6 +306,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.navigation_buttons.set_sensitive(True)
 
         threading.Thread(target=self.th_set_last_playing_song, args=()).start()
+        threading.Thread(target=utils.get_blocked, args=()).start()
 
         self.is_logged_in = True
 
@@ -361,6 +376,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             GLib.Variant("s", str(track.id))
         )
         self.album_button.set_action_target_value(GLib.Variant("s", str(album.id)))
+        self.block_button.set_sensitive(True)
 
         if utils.is_favourited(track):
             self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
@@ -602,6 +618,20 @@ class HighTideWindow(Adw.ApplicationWindow):
         utils.on_in_to_my_collection_button_clicked(
             btn, self.player_object.playing_track
         )
+
+    def on_block_button_active(self, btn, *args):
+        track = self.player_object.playing_track
+        if btn.get_active() and track is not None:
+            utils.fill_block_menu(self.block_menu, track, "win")
+
+    def on_toggle_block_playing_track(self, *args):
+        if self.player_object.playing_track:
+            utils.toggle_blocked(self.player_object.playing_track)
+
+    def on_toggle_block_playing_artist(self, action, parameter):
+        if self.player_object.playing_track:
+            artists = utils.get_track_artists(self.player_object.playing_track)
+            utils.toggle_blocked(artists[parameter.get_int16()])
 
     @Gtk.Template.Callback("on_shuffle_button_toggled")
     def on_shuffle_button_toggled(self, btn):
