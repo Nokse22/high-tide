@@ -164,6 +164,10 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             _("Go to album"), f"win.push-album-page::{self.track.album.id}"
         )
 
+        self.track_menu.insert(
+            2, _("Show credits"), f"win.push-track-credits-page::{self.track.id}"
+        )
+
         action_entries = [
             ("play-next", self._play_next),
             ("add-to-queue", self._add_to_queue),

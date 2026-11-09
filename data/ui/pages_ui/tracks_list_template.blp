@@ -79,6 +79,10 @@ Box _main {
               valign: center;
 
               Adw.LayoutSlot {
+                id: "info-button";
+              }
+
+              Adw.LayoutSlot {
                 id: "share-button";
               }
 
@@ -170,6 +174,10 @@ Box _main {
             Adw.LayoutSlot {
               id: "share-button";
             }
+
+            Adw.LayoutSlot {
+              id: "info-button";
+            }
           }
         };
       }
@@ -237,6 +245,21 @@ Box _main {
       [artist-button]
       Button _artist_button {
         visible: false;
+      }
+
+      [info-button]
+      Button _info_button {
+        icon-name: "help-about-symbolic";
+        tooltip-text: _("Album Info");
+        valign: center;
+        visible: false;
+        action-name: "win.push-album-info-page";
+        action-target: "''";
+
+        styles [
+          "flat",
+          "circular",
+        ]
       }
 
       [share-button]

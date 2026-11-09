@@ -24,6 +24,7 @@ data/io.github.nokse22.high-tide.gschema.xml
 src/pages/album_page.py
 src/pages/artist_page.py
 src/pages/collection_page.py
+src/pages/credits_page.py
 src/pages/explore_page.py
 src/pages/not_logged_in_page.py
 src/pages/page.py

@@ -28,8 +28,8 @@ from tidalapi.media import Quality
 from .lib import HTCache, PlayerObject, RepeatType, SecretStore, utils
 from .login import LoginDialog
 from .mpris import MPRIS
-from .pages import (HTAlbumPage, HTArtistPage, HTCollectionPage, HTExplorePage,
-                    HTGenericPage, HTMixPage, HTNotLoggedInPage,
+from .pages import (HTAlbumPage, HTArtistPage, HTCollectionPage, HTCreditsPage,
+                    HTExplorePage, HTGenericPage, HTMixPage, HTNotLoggedInPage,
                     HTPlaylistPage)
 from .widgets import (HTGenericTrackWidget, HTLinkLabelWidget, HTLyricsWidget,
                       HTQueueWidget)
@@ -130,6 +130,18 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.on_push_artist_radio_page,
         )
 
+        self.create_action_with_target(
+            "push-track-credits-page",
+            GLib.VariantType.new("s"),
+            self.on_push_track_credits_page,
+        )
+
+        self.create_action_with_target(
+            "push-album-info-page",
+            GLib.VariantType.new("s"),
+            self.on_push_album_info_page,
+        )
+        
         self.create_action_with_target(
             "toggle-block-artist",
             GLib.VariantType.new("n"),
@@ -844,6 +856,18 @@ class HighTideWindow(Adw.ApplicationWindow):
         if parameter.get_string() == "":
             return
         page = HTAlbumPage.new_from_id(parameter.get_string()).load()
+        self.navigation_view.push(page)
+
+    def on_push_track_credits_page(self, action, parameter):
+        if parameter.get_string() == "":
+            return
+        page = HTCreditsPage.new_for_track(parameter.get_string()).load()
+        self.navigation_view.push(page)
+
+    def on_push_album_info_page(self, action, parameter):
+        if parameter.get_string() == "":
+            return
+        page = HTCreditsPage.new_for_album(parameter.get_string()).load()
         self.navigation_view.push(page)
 
     def on_push_playlist_page(self, action, parameter):
