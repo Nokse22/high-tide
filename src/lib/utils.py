@@ -366,11 +366,11 @@ def th_add_to_my_collection(btn: Any, item: Any) -> None:
         result = False
 
     if result:
-        btn.set_icon_name("heart-filled-symbolic")
-        send_toast(_("Successfully added to my collection"), 2)
+        GLib.idle_add(btn.set_icon_name, "heart-filled-symbolic")
+        GLib.idle_add(send_toast, _("Successfully added to my collection"), 2)
         get_favourites()
     else:
-        send_toast(_("Failed to add item to my collection"), 2)
+        GLib.idle_add(send_toast, _("Failed to add item to my collection"), 2)
 
 
 def th_remove_from_my_collection(btn: Any, item: Any) -> None:
@@ -395,10 +395,10 @@ def th_remove_from_my_collection(btn: Any, item: Any) -> None:
         result = False
 
     if result:
-        btn.set_icon_name("heart-outline-thick-symbolic")
-        send_toast(_("Successfully removed from my collection"), 2)
+        GLib.idle_add(btn.set_icon_name, "heart-outline-thick-symbolic")
+        GLib.idle_add(send_toast, _("Successfully removed from my collection"), 2)
     else:
-        send_toast(_("Failed to remove item from my collection"), 2)
+        GLib.idle_add(send_toast, _("Failed to remove item from my collection"), 2)
 
 
 def on_in_to_my_collection_button_clicked(btn: Any, item: Any) -> None:
@@ -528,7 +528,7 @@ def th_play_track(track_id: str) -> None:
     """
     track: Track = session.track(track_id)
 
-    player_object.play_this([track])
+    GLib.idle_add(player_object.play_this, [track])
 
 
 def pretty_duration(secs: int | None) -> str:
@@ -610,7 +610,10 @@ def get_image_url(item: Any, dimensions: int = 320) -> str | None:
 
 
 def add_picture(
-    widget: Any, item: Any, cancellable: Gio.Cancellable = Gio.Cancellable.new()
+    widget: Any,
+    item: Any,
+    dimensions: int,
+    cancellable: Gio.Cancellable = Gio.Cancellable.new(),
 ) -> None:
     """Retrieve and set an image for a widget from a TIDAL item.
 
@@ -619,6 +622,7 @@ def add_picture(
     Args:
         widget: A GTK widget that supports set_filename()
         item: A TIDAL object with image data
+        dimensions (int): The image dimensions to download
         cancellable: Optional GCancellable for canceling the operation
     """
 
@@ -632,7 +636,7 @@ def add_picture(
     GLib.idle_add(
         _add_picture,
         widget,
-        get_image_url(item, get_best_dimensions(widget)),
+        get_image_url(item, dimensions),
         cancellable,
     )
 
@@ -696,6 +700,7 @@ def add_video_cover(
     widget: Any,
     videoplayer: Any,
     item: Any,
+    dimensions: int,
     in_bg: bool,
     cancellable: Gio.Cancellable = Gio.Cancellable.new(),
 ) -> None:
@@ -707,6 +712,7 @@ def add_video_cover(
         widget: The container widget
         videoplayer: The GtkMediaFile
         item: A TIDAL object with video data
+        dimensions (int): The video dimensions to download
         in_bg (bool): Whether the window is currently in background (not in focus)
         cancellable: Optional GCancellable for canceling the operation
     """
@@ -732,7 +738,7 @@ def add_video_cover(
         _add_video_cover,
         widget,
         videoplayer,
-        get_video_cover_url(item, get_best_dimensions(widget)),
+        get_video_cover_url(item, dimensions),
         in_bg,
         cancellable,
     )

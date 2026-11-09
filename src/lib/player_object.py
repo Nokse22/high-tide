@@ -20,6 +20,7 @@
 import logging
 import random
 import threading
+import time
 import base64
 from enum import IntEnum
 from gettext import gettext as _
@@ -142,6 +143,12 @@ class PlayerObject(GObject.GObject):
         self.update_timer: Any | None = None
         self.seek_after_sink_reload: int | None = None
         self.seeked_to_end = False
+        self.last_stream_reload: int = 0
+        # the track being loaded again by _reload_track
+        self.reloading_track: Track | None = None
+        # when the uri of the playing track was loaded, its stream urls expire after
+        # about an hour (wall-clock time, to count time spent suspended)
+        self.stream_loaded_at: float = 0
 
         # next track variables for gapless
         self.next_track: Any | None = None
@@ -290,6 +297,38 @@ class PlayerObject(GObject.GObject):
             self.pause()
             self.pipeline.set_state(Gst.State.NULL)
 
+        # The stream URLs expire after a while (e.g. after a long pause or suspend),
+        # so reload the track to get new ones and continue from the same position
+        elif "Couldn't download fragments" in err.message:
+            now = GLib.get_monotonic_time()
+            if now - self.last_stream_reload < 30_000_000:
+                return
+            self.last_stream_reload = now
+
+            logger.error(
+                "Stream error: Couldn't download fragments. Reloading track..."
+            )
+            self._reload_track()
+
+    def _reload_track(self) -> None:
+        """Load the playing track again and continue from the same position"""
+        self.reloading_track = self.playing_track
+        self.play_track(self.playing_track)
+
+    def _stream_expires_soon(self) -> bool:
+        """Whether the stream urls of the playing track expire before it's downloaded"""
+        if not self.playing_track or not self.stream_loaded_at or self.next_track:
+            return False
+        uri = self.playbin.get_property("current-uri") or ""
+        if uri.startswith("file://") and not uri.endswith(".mpd"):
+            # Playing from the music cache
+            return False
+        # They last about an hour, but very long tracks would never finish in time,
+        # so only bother after at least a short pause
+        age = time.time() - self.stream_loaded_at
+        remaining = max(self.query_duration() - self.query_position(), 0) / Gst.SECOND
+        return age > 10 * 60 and age + remaining > 50 * 60
+
     def _on_buffering_message(self, bus: Any, message: Any) -> None:
         buffer_per: int = message.parse_buffering()
         mode, avg_in, avg_out, buff_left = message.parse_buffering_stats()
@@ -335,6 +374,7 @@ class PlayerObject(GObject.GObject):
         if self.stream:
             self.apply_replaygain_tags()
         self.set_track()
+        self.stream_loaded_at = time.time()
 
         if self.discord_rpc_enabled and self.playing_track:
             discord_rpc.set_activity(self.playing_track, 0)
@@ -345,7 +385,8 @@ class PlayerObject(GObject.GObject):
 
         self.seeked_to_end = False
         if self.seek_after_sink_reload:
-            self.seek(self.seek_after_sink_reload)
+            # Continue exactly where it was, without repeating part of the track
+            self.seek(self.seek_after_sink_reload, accurate=True)
             self.seek_after_sink_reload = None
 
         self.can_go_prev = len(self.played_songs) > 0
@@ -355,20 +396,27 @@ class PlayerObject(GObject.GObject):
             GLib.timeout_add(2000, self.previous_timer_callback)
 
     def play_this(
-        self, thing: Union[Mix, Album, Playlist, List[Track], Track], index: int = 0
+        self,
+        thing: Union[Mix, Album, Playlist, List[Track], Track],
+        index: int = 0,
+        tracks: List[Track] | None = None,
     ) -> None:
         """Play tracks from a mix, album, playlist, or artist.
 
         Args:
             thing: An object (Mix, Album, Playlist, Artist, or list of Tracks) to play
             index (int): The index of the track to start playing (default: 0)
+            tracks: The tracks of thing, if already fetched (default: None)
         """
         self.current_mix_album_playlist = thing
-        tracks: List[Track] = self.get_track_list(thing)
+        if tracks is None:
+            tracks = self.get_track_list(thing)
 
         if not tracks:
             logger.info("No tracks found to play")
             return
+
+        self.id_list = [track.id for track in tracks]
 
         self._tracks_to_play = tracks[index:] + tracks[:index]
         if not self._tracks_to_play:
@@ -377,7 +425,7 @@ class PlayerObject(GObject.GObject):
         track: Track = self._tracks_to_play.pop(0)
 
         if not track.available:
-            self.play_this(thing, index + 1)
+            self.play_this(thing, index + 1, tracks)
         else:
             self.tracks_to_play = self._tracks_to_play
             self.played_songs = []
@@ -398,7 +446,7 @@ class PlayerObject(GObject.GObject):
             thing: An object (Mix, Album, Playlist, Artist, or list of Tracks) to play
         """
         tracks: List[Track] = self.get_track_list(thing)
-        self.play_this(thing, random.randint(0, len(tracks)))
+        self.play_this(thing, random.randint(0, len(tracks)), tracks)
         self.shuffle = True
 
     def get_track_list(
@@ -421,19 +469,23 @@ class PlayerObject(GObject.GObject):
         elif isinstance(thing, Playlist):
             tracks_list = thing.tracks()
         elif isinstance(thing, Artist):
-            tracks_list = thing.top_tracks()
+            tracks_list = thing.get_top_tracks()
         elif isinstance(thing, list):
             tracks_list = thing
         elif isinstance(thing, Track):
             tracks_list = [thing]
-
-        self.id_list = [track.id for track in tracks_list]
 
         return tracks_list
 
     def play(self) -> None:
         """Start playback of the current track."""
         self.playing = True
+        if self._stream_expires_soon():
+            # Resuming after a long pause: get new stream urls (or play the track from
+            # the cache) now, instead of failing to download the rest of it
+            logger.info("Stream urls expire soon, reloading track")
+            self._reload_track()
+            return
         self.pipeline.set_state(Gst.State.PLAYING)
 
         if self.discord_rpc_enabled and self.playing_track:
@@ -635,13 +687,14 @@ class PlayerObject(GObject.GObject):
 
     def _play_track_url(self, track, music_url, gapless=False):
         """Set up and play track from URL."""
-        if gapless:
-            self.loading_gapless = False
-            if self.reached_eos:
-                # Too late for gapless, the previous track already ended
-                gapless = False
+        if not gapless and track is self.reloading_track:
+            # What was already downloaded keeps playing while the track loads again,
+            # so continue from where it is now, not from where the reload started
+            duration = self.query_duration()
+            if duration:
+                self.seek_after_sink_reload = self.query_position() / duration
         if not gapless:
-            self.reached_eos = False
+            self.reloading_track = None
             self.use_about_to_finish = False
             self.pipeline.set_state(Gst.State.NULL)
             self.playbin.set_property("volume", self.playbin.get_property("volume"))
@@ -653,6 +706,7 @@ class PlayerObject(GObject.GObject):
             self.next_track = track
         else:
             self.set_track(track)
+            self.stream_loaded_at = time.time()
 
         if not gapless and self.playing:
             self.play()
@@ -895,11 +949,13 @@ class PlayerObject(GObject.GObject):
         success, position = self.playbin.query_position(Gst.Format.TIME)
         return position if success else default
 
-    def seek(self, seek_fraction):
+    def seek(self, seek_fraction, accurate=False):
         """Seek to a position in the current track.
 
         Args:
             seek_fraction (float): Position as a fraction of total duration (0.0 to 1.0)
+            accurate (bool): Seek to the exact position instead of the nearest
+                keyframe, which can be seconds earlier in a stream
         """
 
         # If a seek close to the end is performed then skip
@@ -910,8 +966,9 @@ class PlayerObject(GObject.GObject):
             self.play_next()
             return
         position = int(seek_fraction * self.query_duration())
+        flags = Gst.SeekFlags.ACCURATE if accurate else Gst.SeekFlags.KEY_UNIT
         self.playbin.seek_simple(
-            Gst.Format.TIME, Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, position
+            Gst.Format.TIME, Gst.SeekFlags.FLUSH | flags, position
         )
 
         if self.discord_rpc_enabled:
