@@ -615,12 +615,16 @@ class PlayerObject(GObject.GObject):
             result = subprocess.run(
                 [
                     "ffmpeg",
+                    # Leave the terminal alone when started from one: reading it from
+                    # the sandbox's background process group stops the whole app
+                    "-nostdin",
                     "-protocol_whitelist", "file,crypto,data,http,https,tcp,tls",
                     "-i", str(mpd_path),
                     "-f", "mp4",
                     "-c", "copy",
                     "-y", str(tmp)
                 ],
+                stdin=subprocess.DEVNULL,
                 capture_output=True
             )
 
