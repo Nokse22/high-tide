@@ -35,6 +35,7 @@ src/widgets/generic_track_widget.py
 src/widgets/top_hit_widget.py
 src/login.py
 src/main.py
+src/new_playlist.py
 src/window.py
 src/lib/utils.py
 src/lib/player_object.py

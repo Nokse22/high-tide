@@ -59,6 +59,8 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         self.handler_id = None
         self.scrolled_window = None
 
+        self.playlist = None
+
     def reset(self):
         """Reset the widget so it can be reused with new data"""
         self.items = []
@@ -177,7 +179,31 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
             listing = HTGenericTrackWidget(track)
             self.disconnectables.append(listing)
             listing.index = index + self.items_n
+            if self.playlist is not None:
+                listing.set_playlist(
+                    self.playlist, lambda row=listing: self._remove_track_row(row)
+                )
             self.parent.append(listing)
+
+    def set_playlist(self, playlist) -> None:
+        """Let the tracks be removed from this playlist (one of the user's own)
+
+        Args:
+            playlist: The playlist the tracks belong to
+        """
+        self.playlist = playlist
+
+    def _remove_track_row(self, row) -> None:
+        index = row.index
+        del self.items[index]
+        self.items_n -= 1
+        self.parent.remove(row)
+
+        child = self.parent.get_first_child()
+        while child:
+            if child.index > index:
+                child.index -= 1
+            child = child.get_next_sibling()
 
     def _add_cards(self, new_items):
         if self.parent is None:

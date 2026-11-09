@@ -326,8 +326,6 @@ def get_favourites() -> None:
     global favourite_artists
     global favourite_albums
     global favourite_playlists
-    global playlist_and_favorite_playlists
-    global user_playlists
 
     user = session.user
 
@@ -340,18 +338,7 @@ def get_favourites() -> None:
         favourite_albums = user.favorites.albums()
         favourite_playlists = user.favorites.playlists()
         favourite_mixes = user.favorites.mixes()
-        user_playlists = user.playlists()
-
-        count = user.favorites.get_playlists_count()
-        limit = 50
-        offset = 0
-        pages = []
-
-        while offset < count:
-            pages += user.playlist_and_favorite_playlists(offset=offset)
-            offset += limit
-
-        playlist_and_favorite_playlists = pages
+        get_playlists()
     except Exception:
         logger.exception("Error while getting Favourites")
 
@@ -364,6 +351,27 @@ def get_favourites() -> None:
         f"Playlist and Favorite Playlists: {len(playlist_and_favorite_playlists)}"
     )
     logger.info(f"User Playlists: {len(user_playlists)}")
+
+
+def get_playlists() -> None:
+    """Load the user's playlists, and their playlists plus favorite playlists."""
+    global playlist_and_favorite_playlists
+    global user_playlists
+
+    user = session.user
+
+    user_playlists = user.playlists()
+
+    count = user.favorites.get_playlists_count()
+    limit = 50
+    offset = 0
+    pages = []
+
+    while offset < count:
+        pages += user.playlist_and_favorite_playlists(offset=offset)
+        offset += limit
+
+    playlist_and_favorite_playlists = pages
 
 
 def is_favourited(item: Any) -> bool:
@@ -709,6 +717,217 @@ def on_in_to_my_collection_button_clicked(btn: Any, item: Any) -> None:
         threading.Thread(target=th_add_to_my_collection, args=(btn, item)).start()
     else:
         threading.Thread(target=th_remove_from_my_collection, args=(btn, item)).start()
+
+
+def is_own_playlist(playlist: Any) -> bool:
+    """Check if a playlist was made by the logged in user, so it can be edited.
+
+    Args:
+        playlist: A TIDAL Playlist
+
+    Returns:
+        bool: True if the user created the playlist
+    """
+    if isinstance(playlist, UserPlaylist):
+        return True
+    if not isinstance(playlist, Playlist) or playlist.creator is None:
+        return False
+    return str(playlist.creator.id) == str(session.user.id)
+
+
+def _get_fresh_user_playlist(playlist: Playlist) -> UserPlaylist:
+    # Loads the playlist again, so edits use its current etag and track count
+    # (add() inserts at num_tracks, so an old count puts tracks in the middle)
+    fresh = UserPlaylist(session, playlist.id)
+    cache.playlists[str(playlist.id)] = fresh
+    return fresh
+
+
+def _on_playlists_changed() -> None:
+    get_playlists()
+    GLib.idle_add(_update_collection_page)
+
+
+def _update_collection_page() -> None:
+    page = navigation_view.find_page("collection")
+    if page:
+        page.update_playlists()
+
+
+def th_add_to_playlist(playlist: Playlist, track: Track) -> None:
+    """Thread function to add a track at the end of one of the user's playlists.
+
+    Args:
+        playlist: The playlist to add the track to
+        track: The track to add
+    """
+    try:
+        added = _get_fresh_user_playlist(playlist).add([str(track.id)])
+    except Exception:
+        logger.exception(f"Failed to add {track.id} to playlist {playlist.id}")
+        GLib.idle_add(send_toast, _("Failed to add to playlist"), 2)
+        return
+
+    if added:
+        GLib.idle_add(send_toast, _("Added to {}").format(playlist.name), 2)
+    else:
+        GLib.idle_add(send_toast, _("Already in {}").format(playlist.name), 2)
+
+
+def th_remove_from_playlist(
+    playlist: Playlist, track: Track, index: int | None, callback: Any = None
+) -> None:
+    """Thread function to remove a track from one of the user's playlists.
+
+    Args:
+        playlist: The playlist to remove the track from
+        track: The track to remove
+        index: The position of the track in the playlist, if known
+        callback: Called on the main thread after the track is removed
+    """
+    try:
+        fresh = _get_fresh_user_playlist(playlist)
+        at_index = (
+            fresh.tracks(limit=1, offset=index) if index is not None else []
+        )
+        if at_index and at_index[0].id == track.id:
+            removed = fresh.remove_by_index(index)
+        else:
+            removed = fresh.remove_by_id(str(track.id))
+    except Exception:
+        logger.exception(f"Failed to remove {track.id} from playlist {playlist.id}")
+        removed = False
+
+    if not removed:
+        GLib.idle_add(send_toast, _("Failed to remove from playlist"), 2)
+        return
+
+    GLib.idle_add(send_toast, _("Removed from {}").format(playlist.name), 2)
+    if callback:
+        GLib.idle_add(callback)
+
+
+def new_playlist(track: Track | None = None) -> None:
+    """Ask for a name and description and create a new playlist.
+
+    Args:
+        track: A track to add to the new playlist
+    """
+    from ..new_playlist import NewPlaylistWindow
+
+    dialog = NewPlaylistWindow()
+
+    def on_create(dialog, title, description):
+        dialog.close()
+        threading.Thread(
+            target=th_create_playlist, args=(title, description, track)
+        ).start()
+
+    dialog.connect("create-playlist", on_create)
+    dialog.present(navigation_view.get_root())
+
+
+def th_create_playlist(
+    title: str, description: str, track: Track | None = None
+) -> None:
+    """Thread function to create a playlist and optionally add a track to it.
+
+    Args:
+        title: The playlist title
+        description: The playlist description
+        track: A track to add to the new playlist
+    """
+    try:
+        playlist = session.user.create_playlist(title, description)
+        if track:
+            playlist.add([str(track.id)])
+    except Exception:
+        logger.exception("Failed to create playlist")
+        GLib.idle_add(send_toast, _("Failed to create playlist"), 2)
+        return
+
+    if track:
+        GLib.idle_add(send_toast, _("Added to {}").format(title), 2)
+    else:
+        GLib.idle_add(send_toast, _("Created {}").format(title), 2)
+    _on_playlists_changed()
+
+
+def th_edit_playlist(
+    playlist: Playlist, title: str, description: str, callback: Any = None
+) -> None:
+    """Thread function to change the title and description of a playlist.
+
+    Args:
+        playlist: The playlist to edit
+        title: The new title
+        description: The new description
+        callback: Called on the main thread with the edited playlist
+    """
+    try:
+        fresh = _get_fresh_user_playlist(playlist)
+        if not fresh.edit(title, description):
+            raise RuntimeError("edit failed")
+        fresh = _get_fresh_user_playlist(playlist)
+    except Exception:
+        logger.exception(f"Failed to edit playlist {playlist.id}")
+        GLib.idle_add(send_toast, _("Failed to save the playlist"), 2)
+        return
+
+    if callback:
+        GLib.idle_add(callback, fresh)
+    _on_playlists_changed()
+
+
+def th_set_playlist_public(
+    playlist: Playlist, public: bool, callback: Any = None
+) -> None:
+    """Thread function to make a playlist public or private.
+
+    Args:
+        playlist: The playlist to change
+        public: True to make it public, False to make it private
+        callback: Called on the main thread with the changed playlist
+    """
+    try:
+        fresh = _get_fresh_user_playlist(playlist)
+        if public:
+            fresh.set_playlist_public()
+        else:
+            fresh.set_playlist_private()
+    except Exception:
+        logger.exception(f"Failed to change playlist {playlist.id} visibility")
+        GLib.idle_add(send_toast, _("Failed to change the playlist"), 2)
+        return
+
+    if public:
+        GLib.idle_add(send_toast, _("{} is now public").format(fresh.name), 2)
+    else:
+        GLib.idle_add(send_toast, _("{} is now private").format(fresh.name), 2)
+    if callback:
+        GLib.idle_add(callback, fresh)
+
+
+def th_delete_playlist(playlist: Playlist, callback: Any = None) -> None:
+    """Thread function to delete one of the user's playlists.
+
+    Args:
+        playlist: The playlist to delete
+        callback: Called on the main thread after the playlist is deleted
+    """
+    try:
+        if not _get_fresh_user_playlist(playlist).delete():
+            raise RuntimeError("delete failed")
+    except Exception:
+        logger.exception(f"Failed to delete playlist {playlist.id}")
+        GLib.idle_add(send_toast, _("Failed to delete the playlist"), 2)
+        return
+
+    cache.playlists.pop(str(playlist.id), None)
+    GLib.idle_add(send_toast, _("Deleted {}").format(playlist.name), 2)
+    if callback:
+        GLib.idle_add(callback)
+    _on_playlists_changed()
 
 
 def share_this(item: Any) -> None:

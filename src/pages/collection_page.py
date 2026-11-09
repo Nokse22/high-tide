@@ -19,7 +19,10 @@
 
 from gettext import gettext as _
 
+from gi.repository import Gtk
+
 from ..lib import utils
+from ..widgets import HTCarouselWidget
 from .page import Page
 
 
@@ -35,7 +38,29 @@ class HTCollectionPage(Page):
         self.set_title(_("Collection"))
 
         self.new_carousel_for(_("My Mixes and Radios"), utils.favourite_mixes)
-        self.new_carousel_for(_("Playlists"), utils.playlist_and_favorite_playlists)
+
+        self.playlists_carousel = HTCarouselWidget(_("Playlists"))
+        self.playlists_carousel.set_items(utils.playlist_and_favorite_playlists)
+        new_playlist_button = Gtk.Button(
+            icon_name="list-add-symbolic",
+            tooltip_text=_("New Playlist"),
+            valign=Gtk.Align.CENTER,
+            margin_start=6,
+            css_classes=["circular"],
+        )
+        self.signals.append(
+            (
+                new_playlist_button,
+                new_playlist_button.connect("clicked", lambda *_: utils.new_playlist()),
+            )
+        )
+        self.playlists_carousel.add_header_button(new_playlist_button)
+        self.append(self.playlists_carousel)
+
         self.new_carousel_for(_("Albums"), utils.favourite_albums)
         self.new_carousel_for(_("Tracks"), utils.favourite_tracks)
         self.new_carousel_for(_("Artists"), utils.favourite_artists)
+
+    def update_playlists(self) -> None:
+        """Show the playlists again after they changed"""
+        self.playlists_carousel.set_items(utils.playlist_and_favorite_playlists)
