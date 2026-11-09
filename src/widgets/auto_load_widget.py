@@ -160,7 +160,7 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
 
     def _add_tracks(self, new_items):
         if self.parent is None:
-            self.parent = Gtk.ListBox(css_classes=["tracks-list-box"])
+            self.parent = Gtk.ListBox(css_classes=["tracks-list-box", "playable-tracks"])
             self.content.set_child(self.parent)
             self.signals.append(
                 (
