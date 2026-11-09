@@ -244,6 +244,73 @@ def get_mix(mix_id: str) -> Mix:
     return cache.get_mix(mix_id)
 
 
+def _album_release_key(album: Album) -> tuple:
+    return (album.name.casefold(), album.version or "", album.num_tracks)
+
+
+def _album_version_rank(album: Album) -> tuple:
+    return (
+        "STEREO" in (album.audio_modes or []),
+        bool(album.explicit),
+        "HIRES_LOSSLESS" in (album.media_metadata_tags or []),
+    )
+
+
+class AlbumVersionFilter:
+    """Wraps an artist album request (like Artist.get_albums) so each release
+    is listed once, picking the version TIDAL shows on its own artist page:
+    stereo over Dolby Atmos only, explicit over clean, then hi-res.
+
+    TIDAL lists every version (clean, explicit, Dolby Atmos) as a separate album,
+    next to each other. Since the caller's offset counts deduplicated albums, the
+    API offset is tracked here instead; an offset of 0 starts over.
+    """
+
+    page_size = 50
+
+    def __init__(self, function) -> None:
+        self.function = function
+        self._reset()
+
+    def _reset(self) -> None:
+        self.api_offset = 0
+        self.seen = set()
+        self.pending = []
+        self.done = False
+
+    def __call__(self, limit: int | None = None, offset: int = 0) -> List[Album]:
+        if offset == 0:
+            self._reset()
+
+        while not self.done and len(self.pending) < (limit or self.page_size):
+            albums = self.function(limit=self.page_size, offset=self.api_offset)
+
+            if len(albums) < self.page_size:
+                self.done = True
+            else:
+                # Versions of the last release may continue on the next page
+                last_key = _album_release_key(albums[-1])
+                complete = len(albums)
+                while complete > 0 and _album_release_key(albums[complete - 1]) == last_key:
+                    complete -= 1
+                if complete > 0:
+                    albums = albums[:complete]
+            self.api_offset += len(albums)
+
+            best = {}
+            for album in albums:
+                key = _album_release_key(album)
+                if key in self.seen:
+                    continue
+                if key not in best or _album_version_rank(album) > _album_version_rank(best[key]):
+                    best[key] = album
+            self.seen.update(best)
+            self.pending.extend(best.values())
+
+        albums, self.pending = self.pending[:limit], self.pending[limit:] if limit else []
+        return albums
+
+
 def get_favourites() -> None:
     """Load all user favorites from TIDAL API and cache them globally.
 
