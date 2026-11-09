@@ -37,8 +37,8 @@ import tidalapi
 from tidalapi.album import Album
 from tidalapi.artist import Artist
 from tidalapi.mix import Mix
-from tidalapi.playlist import Playlist, UserPlaylist
-from tidalapi.media import Track
+from tidalapi.playlist import Playlist
+from tidalapi.media import Track, Video
 from tidalapi.types import ItemOrder, OrderDirection
 
 from ..pages import HTAlbumPage, HTArtistPage, HTMixPage, HTPlaylistPage
@@ -53,6 +53,10 @@ favourite_albums: List[Album] = []
 favourite_playlists: List[Playlist] = []
 playlist_and_favorite_playlists: List[Playlist] = []
 user_playlists: List[Playlist] = []
+blocked_artists: List[Artist] = []
+blocked_tracks: List[Track] = []
+blocked_videos: List[Video] = []
+blocked_loaded = threading.Event()
 
 
 def init() -> None:
@@ -244,6 +248,73 @@ def get_mix(mix_id: str) -> Mix:
     return cache.get_mix(mix_id)
 
 
+def _album_release_key(album: Album) -> tuple:
+    return (album.name.casefold(), album.version or "", album.num_tracks)
+
+
+def _album_version_rank(album: Album) -> tuple:
+    return (
+        "STEREO" in (album.audio_modes or []),
+        bool(album.explicit),
+        "HIRES_LOSSLESS" in (album.media_metadata_tags or []),
+    )
+
+
+class AlbumVersionFilter:
+    """Wraps an artist album request (like Artist.get_albums) so each release
+    is listed once, picking the version TIDAL shows on its own artist page:
+    stereo over Dolby Atmos only, explicit over clean, then hi-res.
+
+    TIDAL lists every version (clean, explicit, Dolby Atmos) as a separate album,
+    next to each other. Since the caller's offset counts deduplicated albums, the
+    API offset is tracked here instead; an offset of 0 starts over.
+    """
+
+    page_size = 50
+
+    def __init__(self, function) -> None:
+        self.function = function
+        self._reset()
+
+    def _reset(self) -> None:
+        self.api_offset = 0
+        self.seen = set()
+        self.pending = []
+        self.done = False
+
+    def __call__(self, limit: int | None = None, offset: int = 0) -> List[Album]:
+        if offset == 0:
+            self._reset()
+
+        while not self.done and len(self.pending) < (limit or self.page_size):
+            albums = self.function(limit=self.page_size, offset=self.api_offset)
+
+            if len(albums) < self.page_size:
+                self.done = True
+            else:
+                # Versions of the last release may continue on the next page
+                last_key = _album_release_key(albums[-1])
+                complete = len(albums)
+                while complete > 0 and _album_release_key(albums[complete - 1]) == last_key:
+                    complete -= 1
+                if complete > 0:
+                    albums = albums[:complete]
+            self.api_offset += len(albums)
+
+            best = {}
+            for album in albums:
+                key = _album_release_key(album)
+                if key in self.seen:
+                    continue
+                if key not in best or _album_version_rank(album) > _album_version_rank(best[key]):
+                    best[key] = album
+            self.seen.update(best)
+            self.pending.extend(best.values())
+
+        albums, self.pending = self.pending[:limit], self.pending[limit:] if limit else []
+        return albums
+
+
 def get_favourites() -> None:
     """Load all user favorites from TIDAL API and cache them globally.
 
@@ -342,6 +413,232 @@ def is_favourited(item: Any) -> bool:
     return False
 
 
+def get_blocked() -> None:
+    """Load the artists, tracks and videos the user blocked from TIDAL API.
+
+    TIDAL leaves blocked items out of mixes and radio, but they still show up
+    everywhere else, so High Tide keeps the lists to show and undo blocks.
+    """
+    global blocked_artists
+    global blocked_tracks
+    global blocked_videos
+
+    try:
+        blocked_artists = _get_blocked_items("artists", session.parse_artist)
+        blocked_tracks = _get_blocked_items("tracks", session.parse_track)
+        blocked_videos = _get_blocked_items("videos", session.parse_video)
+    except Exception:
+        logger.exception("Error while getting blocked items")
+
+    blocked_loaded.set()
+
+    logger.info(f"Blocked Artists: {len(blocked_artists)}")
+    logger.info(f"Blocked Tracks: {len(blocked_tracks)}")
+    logger.info(f"Blocked Videos: {len(blocked_videos)}")
+
+
+def _get_blocked_items(item_type: str, parse: Any) -> List[Any]:
+    items = []
+    offset = 0
+    limit = 50
+
+    while True:
+        page = session.request.request(
+            "GET",
+            f"users/{session.user.id}/blocks/{item_type}",
+            params={"limit": limit, "offset": offset},
+        ).json()
+        items += [parse(entry["item"]) for entry in page["items"]]
+        offset += limit
+        if offset >= page["totalNumberOfItems"]:
+            return items
+
+
+def _get_block_type(item: Any) -> str | None:
+    if isinstance(item, Track):
+        return "track"
+    if isinstance(item, Video):
+        return "video"
+    if isinstance(item, Artist):
+        return "artist"
+    return None
+
+
+def _get_blocked_list(item: Any) -> List[Any]:
+    if isinstance(item, Track):
+        return blocked_tracks
+    if isinstance(item, Video):
+        return blocked_videos
+    return blocked_artists
+
+
+def is_blocked(item: Any) -> bool:
+    """Check if an artist, track or video was blocked by the user.
+
+    Args:
+        item: A TIDAL Artist, Track or Video
+
+    Returns:
+        bool: True if the item itself is blocked
+    """
+    if _get_block_type(item) is None:
+        return False
+
+    return any(blocked.id == item.id for blocked in _get_blocked_list(item))
+
+
+def is_blocked_by_artist(item: Any) -> bool:
+    """Check if a track or video is blocked, directly or through one of its artists.
+
+    Args:
+        item: A TIDAL Track or Video
+
+    Returns:
+        bool: True if the item or any of its artists is blocked
+    """
+    if is_blocked(item):
+        return True
+
+    artists = getattr(item, "artists", None) or []
+    return any(is_blocked(artist) for artist in artists)
+
+
+def is_hidden_by_block(item: Any) -> bool:
+    """Check if an item should be left out of suggestions because of a block.
+
+    Args:
+        item: A TIDAL object
+
+    Returns:
+        bool: True for blocked artists, and tracks, videos and albums that are
+            blocked or by a blocked artist
+    """
+    if isinstance(item, Artist):
+        return is_blocked(item)
+    if isinstance(item, (Track, Video)):
+        return is_blocked_by_artist(item)
+    if isinstance(item, Album):
+        artists = item.artists or [item.artist]
+        return any(artist and is_blocked(artist) for artist in artists)
+    return False
+
+
+def th_block(item: Any, callback: Any = None) -> None:
+    """Thread function to block an artist, track or video on TIDAL.
+
+    Args:
+        item: A TIDAL Artist, Track or Video
+        callback: Called on the main thread with True after the item is blocked
+    """
+    item_type = _get_block_type(item)
+
+    try:
+        session.request.request(
+            "POST",
+            f"users/{session.user.id}/blocks/{item_type}s",
+            data={f"{item_type}Id": item.id},
+        )
+    except Exception:
+        logger.exception(f"Failed to block {item_type} {item.id}")
+        GLib.idle_add(send_toast, _("Failed to block"), 2)
+        return
+
+    GLib.idle_add(_on_blocked_changed, item, True, callback)
+
+
+def th_unblock(item: Any, callback: Any = None) -> None:
+    """Thread function to unblock an artist, track or video on TIDAL.
+
+    Args:
+        item: A TIDAL Artist, Track or Video
+        callback: Called on the main thread with False after the item is unblocked
+    """
+    item_type = _get_block_type(item)
+
+    try:
+        session.request.request(
+            "DELETE", f"users/{session.user.id}/blocks/{item_type}s/{item.id}"
+        )
+    except Exception:
+        logger.exception(f"Failed to unblock {item_type} {item.id}")
+        GLib.idle_add(send_toast, _("Failed to unblock"), 2)
+        return
+
+    GLib.idle_add(_on_blocked_changed, item, False, callback)
+
+
+def _on_blocked_changed(item: Any, blocked: bool, callback: Any) -> None:
+    blocked_list = _get_blocked_list(item)
+    blocked_list[:] = [other for other in blocked_list if other.id != item.id]
+
+    if blocked:
+        blocked_list.append(item)
+        send_toast(_("Blocked {}").format(item.name), 2)
+        player_object.skip_blocked()
+    else:
+        send_toast(_("Unblocked {}").format(item.name), 2)
+
+    if callback:
+        callback(blocked)
+
+
+def fill_block_menu(menu: Gio.Menu, track: Track, action_prefix: str) -> None:
+    """Fill a menu with block/unblock items for a track and its artists.
+
+    The items use the actions {action_prefix}.toggle-block-track (no target) and
+    {action_prefix}.toggle-block-artist (int16 index into the track's artists).
+
+    Args:
+        menu: The menu to fill, its items are replaced
+        track: The track the items are for
+        action_prefix: The action group prefix, e.g. "win"
+    """
+    menu.remove_all()
+
+    menu.append(
+        _("Unblock track") if is_blocked(track) else _("Block track"),
+        f"{action_prefix}.toggle-block-track",
+    )
+
+    artists = get_track_artists(track)
+    if len(artists) == 1:
+        item = Gio.MenuItem.new(
+            _("Unblock artist") if is_blocked(artists[0]) else _("Block artist"),
+            None,
+        )
+        item.set_action_and_target_value(
+            f"{action_prefix}.toggle-block-artist", GLib.Variant.new_int16(0)
+        )
+        menu.append_item(item)
+        return
+
+    artists_submenu = Gio.Menu()
+    for index, artist in enumerate(artists):
+        label = _("Unblock {}") if is_blocked(artist) else _("Block {}")
+        item = Gio.MenuItem.new(label.format(artist.name), None)
+        item.set_action_and_target_value(
+            f"{action_prefix}.toggle-block-artist", GLib.Variant.new_int16(index)
+        )
+        artists_submenu.append_item(item)
+    menu.append_submenu(_("Block artist"), artists_submenu)
+
+
+def get_track_artists(track: Track) -> List[Artist]:
+    """Get the artists of a track, falling back to its main artist."""
+    return track.artists or [track.artist]
+
+
+def toggle_blocked(item: Any, callback: Any = None) -> None:
+    """Block or unblock an item depending on its current state.
+
+    Args:
+        item: A TIDAL Artist, Track or Video
+        callback: Called on the main thread with the new blocked state
+    """
+    target = th_unblock if is_blocked(item) else th_block
+    threading.Thread(target=target, args=(item, callback)).start()
+
+
 def send_toast(toast_title: str, timeout: int) -> None:
     """Display a toast notification to the user.
 
@@ -374,11 +671,11 @@ def th_add_to_my_collection(btn: Any, item: Any) -> None:
         result = False
 
     if result:
-        btn.set_icon_name("heart-filled-symbolic")
-        send_toast(_("Successfully added to my collection"), 2)
+        GLib.idle_add(btn.set_icon_name, "heart-filled-symbolic")
+        GLib.idle_add(send_toast, _("Successfully added to my collection"), 2)
         get_favourites()
     else:
-        send_toast(_("Failed to add item to my collection"), 2)
+        GLib.idle_add(send_toast, _("Failed to add item to my collection"), 2)
 
 
 def th_remove_from_my_collection(btn: Any, item: Any) -> None:
@@ -403,10 +700,10 @@ def th_remove_from_my_collection(btn: Any, item: Any) -> None:
         result = False
 
     if result:
-        btn.set_icon_name("heart-outline-thick-symbolic")
-        send_toast(_("Successfully removed from my collection"), 2)
+        GLib.idle_add(btn.set_icon_name, "heart-outline-thick-symbolic")
+        GLib.idle_add(send_toast, _("Successfully removed from my collection"), 2)
     else:
-        send_toast(_("Failed to remove item from my collection"), 2)
+        GLib.idle_add(send_toast, _("Failed to remove item from my collection"), 2)
 
 
 def on_in_to_my_collection_button_clicked(btn: Any, item: Any) -> None:
@@ -747,7 +1044,7 @@ def th_play_track(track_id: str) -> None:
     """
     track: Track = session.track(track_id)
 
-    player_object.play_this([track])
+    GLib.idle_add(player_object.play_this, [track])
 
 
 def pretty_duration(secs: int | None) -> str:
@@ -829,7 +1126,10 @@ def get_image_url(item: Any, dimensions: int = 320) -> str | None:
 
 
 def add_picture(
-    widget: Any, item: Any, cancellable: Gio.Cancellable = Gio.Cancellable.new()
+    widget: Any,
+    item: Any,
+    dimensions: int,
+    cancellable: Gio.Cancellable = Gio.Cancellable.new(),
 ) -> None:
     """Retrieve and set an image for a widget from a TIDAL item.
 
@@ -838,6 +1138,7 @@ def add_picture(
     Args:
         widget: A GTK widget that supports set_filename()
         item: A TIDAL object with image data
+        dimensions (int): The image dimensions to download
         cancellable: Optional GCancellable for canceling the operation
     """
 
@@ -851,7 +1152,7 @@ def add_picture(
     GLib.idle_add(
         _add_picture,
         widget,
-        get_image_url(item, get_best_dimensions(widget)),
+        get_image_url(item, dimensions),
         cancellable,
     )
 
@@ -915,6 +1216,7 @@ def add_video_cover(
     widget: Any,
     videoplayer: Any,
     item: Any,
+    dimensions: int,
     in_bg: bool,
     cancellable: Gio.Cancellable = Gio.Cancellable.new(),
 ) -> None:
@@ -926,6 +1228,7 @@ def add_video_cover(
         widget: The container widget
         videoplayer: The GtkMediaFile
         item: A TIDAL object with video data
+        dimensions (int): The video dimensions to download
         in_bg (bool): Whether the window is currently in background (not in focus)
         cancellable: Optional GCancellable for canceling the operation
     """
@@ -951,7 +1254,7 @@ def add_video_cover(
         _add_video_cover,
         widget,
         videoplayer,
-        get_video_cover_url(item, get_best_dimensions(widget)),
+        get_video_cover_url(item, dimensions),
         in_bg,
         cancellable,
     )

@@ -61,19 +61,26 @@ class HTArtistPage(Page):
             self.top_tracks = []
 
         try:
-            self.albums = self.artist.get_albums(limit=10)
+            self.get_albums = utils.AlbumVersionFilter(self.artist.get_albums)
+            self.albums = self.get_albums(limit=10)
         except Exception as e:
             logger.warning(f"Failed to load albums for {self.artist}: {e}")
             self.albums = []
 
         try:
-            self.albums_ep_singles = self.artist.get_albums_ep_singles(limit=10)
+            self.get_albums_ep_singles = utils.AlbumVersionFilter(
+                self.artist.get_albums_ep_singles
+            )
+            self.albums_ep_singles = self.get_albums_ep_singles(limit=10)
         except Exception as e:
             logger.warning(f"Failed to load EPs/singles for {self.artist}: {e}")
             self.albums_ep_singles = []
 
         try:
-            self.albums_other = self.artist.get_albums_other(limit=10)
+            self.get_albums_other = utils.AlbumVersionFilter(
+                self.artist.get_albums_other
+            )
+            self.albums_other = self.get_albums_other(limit=10)
         except Exception as e:
             logger.warning(f"Failed to load other albums for {self.artist}: {e}")
             self.albums_other = []
@@ -140,6 +147,23 @@ class HTArtistPage(Page):
         if utils.is_favourited(self.artist):
             follow_button.set_icon_name("heart-filled-symbolic")
 
+        block_button = builder.get_object("_block_button")
+        self._update_block_button(block_button, utils.is_blocked(self.artist))
+        self.signals.append(
+            (
+                block_button,
+                block_button.connect(
+                    "clicked",
+                    lambda *_: utils.toggle_blocked(
+                        self.artist,
+                        lambda blocked: self._update_block_button(
+                            block_button, blocked
+                        ),
+                    ),
+                ),
+            )
+        )
+
         artist_picture = builder.get_object("_avatar")
 
         threading.Thread(
@@ -152,14 +176,14 @@ class HTArtistPage(Page):
             _("Top Tracks"), self.top_tracks, self.artist.get_top_tracks
         )
 
-        self.new_carousel_for(_("Albums"), self.albums, self.artist.get_albums)
+        self.new_carousel_for(_("Albums"), self.albums, self.get_albums)
 
         self.new_carousel_for(
-            _("EP & Singles"), self.albums_ep_singles, self.artist.get_albums_ep_singles
+            _("EP & Singles"), self.albums_ep_singles, self.get_albums_ep_singles
         )
 
         self.new_carousel_for(
-            _("Appears On"), self.albums_other, self.artist.get_albums_other
+            _("Appears On"), self.albums_other, self.get_albums_other
         )
 
         self.new_carousel_for(_("Similar Artists"), self.similar)
@@ -193,6 +217,14 @@ class HTArtistPage(Page):
         )
         self.append(label)
         self.signals.append((label, label.connect("activate-link", utils.open_uri)))
+
+    def _update_block_button(self, button, blocked: bool) -> None:
+        if blocked:
+            button.set_tooltip_text(_("Unblock Artist"))
+            button.add_css_class("error")
+        else:
+            button.set_tooltip_text(_("Block Artist"))
+            button.remove_css_class("error")
 
     def on_play_button_clicked(self, btn) -> None:
         utils.player_object.play_this(self.top_tracks, 0)
