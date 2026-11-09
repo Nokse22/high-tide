@@ -33,6 +33,10 @@ from tidalapi.page import PageItem
 from ..disconnectable_iface import IDisconnectable
 from ..lib import utils
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/card_widget.ui")
 class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
@@ -48,6 +52,9 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
     image = Gtk.Template.Child()
     click_gesture = Gtk.Template.Child()
+    motion_controller = Gtk.Template.Child()
+    play_revealer = Gtk.Template.Child()
+    play_button = Gtk.Template.Child()
     title_label = Gtk.Template.Child()
     detail_label = Gtk.Template.Child()
 
@@ -76,9 +83,31 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             )
         )
 
+        self.signals.append(
+            (
+                self.motion_controller,
+                self.motion_controller.connect("enter", self._on_enter),
+            )
+        )
+
+        self.signals.append(
+            (
+                self.motion_controller,
+                self.motion_controller.connect("leave", self._on_leave),
+            )
+        )
+
+        self.signals.append(
+            (
+                self.play_button,
+                self.play_button.connect("clicked", self._on_play_clicked),
+            )
+        )
+
         self.item: Union[Track, Album, Artist, Playlist, Mix, MixV2] = item
 
         self.action: str | None = None
+        self.loading = False
 
         self._populate()
 
@@ -170,6 +199,42 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             GLib.idle_add(self._populate)
 
         threading.Thread(target=_get_item).start()
+
+    def _on_enter(self, *args) -> None:
+        self.play_revealer.set_reveal_child(True)
+
+    def _on_leave(self, *args) -> None:
+        self.play_revealer.set_reveal_child(False)
+
+    def _on_play_clicked(self, *args) -> None:
+        """Start playback of the card's item without opening its page."""
+        if self.loading:
+            return
+
+        self.loading = True
+        self.play_button.set_child(Adw.Spinner())
+
+        def th_get_tracks():
+            item = self.item
+            tracks = None
+            try:
+                if isinstance(item, PageItem):
+                    item = item.get()
+                elif isinstance(item, MixV2):
+                    item = utils.get_mix(item.id)
+                tracks = utils.player_object.get_track_list(item)
+            except Exception:
+                logger.exception("Could not get the tracks of %s", item)
+
+            GLib.idle_add(_on_tracks_loaded, item, tracks)
+
+        def _on_tracks_loaded(item, tracks):
+            self.loading = False
+            self.play_button.set_icon_name("media-playback-start-symbolic")
+            if tracks:
+                utils.player_object.play_this(item, 0, tracks)
+
+        threading.Thread(target=th_get_tracks).start()
 
     def _on_click(self, *args) -> None:
         """Handle click events on the card.
