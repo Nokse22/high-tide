@@ -63,28 +63,6 @@ Adw.PreferencesDialog _preference_window {
         subtitle: _("On artist pages, show the clean version of albums that also have an explicit one");
       }
     }
-  }
-
-  Adw.PreferencesPage {
-    title: _("Blocked");
-    icon-name: "action-unavailable-symbolic";
-
-    Adw.PreferencesGroup {
-      description: _("Blocked artists and tracks are left out of your mixes and radio.");
-    }
-
-    Adw.PreferencesGroup _blocked_artists_group {
-      title: _("Artists");
-    }
-
-    Adw.PreferencesGroup _blocked_tracks_group {
-      title: _("Tracks");
-    }
-
-    Adw.PreferencesGroup _blocked_videos_group {
-      title: _("Videos");
-    }
-
     Adw.PreferencesGroup {
       title: _("Last.fm Scrobbling");
       description: _("Create a Last.fm API account, enter its key and shared secret.");
@@ -129,6 +107,27 @@ Adw.PreferencesDialog _preference_window {
           visible: false;
         }
       }
+    }
+  }
+
+  Adw.PreferencesPage {
+    title: _("Blocked");
+    icon-name: "action-unavailable-symbolic";
+
+    Adw.PreferencesGroup {
+      description: _("Blocked artists and tracks are left out of your mixes and radio.");
+    }
+
+    Adw.PreferencesGroup _blocked_artists_group {
+      title: _("Artists");
+    }
+
+    Adw.PreferencesGroup _blocked_tracks_group {
+      title: _("Tracks");
+    }
+
+    Adw.PreferencesGroup _blocked_videos_group {
+      title: _("Videos");
     }
   }
 }
