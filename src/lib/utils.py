@@ -261,8 +261,8 @@ def _album_release_key(album: Album) -> tuple:
 
 def _album_version_rank(album: Album) -> tuple:
     return (
-        "STEREO" in (album.audio_modes or []),
         bool(album.explicit) != prefer_clean_versions,
+        "STEREO" in (album.audio_modes or []),
         "HIRES_LOSSLESS" in (album.media_metadata_tags or []),
     )
 
@@ -270,8 +270,10 @@ def _album_version_rank(album: Album) -> tuple:
 class AlbumVersionFilter:
     """Wraps an artist album request (like Artist.get_albums) so each release
     is listed once, picking the version TIDAL shows on its own artist page:
-    stereo over Dolby Atmos only, explicit over clean (or the other way around
-    with the prefer-clean-versions setting), then hi-res.
+    explicit over clean (or the other way around with the prefer-clean-versions
+    setting), then stereo over Dolby Atmos only, then hi-res. TIDAL streams
+    Dolby Atmos versions to High Tide in stereo, so an explicit version that only
+    exists in Dolby Atmos still plays like the others.
 
     TIDAL lists every version (clean, explicit, Dolby Atmos) as a separate album,
     next to each other. Since the caller's offset counts deduplicated albums, the
