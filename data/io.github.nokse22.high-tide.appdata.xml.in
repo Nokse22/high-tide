@@ -73,8 +73,26 @@
   </screenshots>
 
   <releases>
-    <release version="1.6.0" date="2026-08-21">
+    <release version="1.6.0" date="2026-11-10">
       <description translate="no">
+        <p>Block artists and tracks</p>
+        <p>Create, edit and delete playlists, and remove tracks from them</p>
+        <p>Add album info and track credits pages</p>
+        <p>Add a My Activity page with your most played artists of each month</p>
+        <p>Add play buttons to cards and highlight the playing track with the accent color</p>
+        <p>Show explicit, Dolby Atmos and quality badges on albums</p>
+        <p>Add an option to prefer clean album versions</p>
+        <p>Show your whole collection in See all, not just the first 1000 items</p>
+        <p>Sort favorites by recently added</p>
+        <p>Keep the computer awake while music plays</p>
+        <p>Fix playback stalling after a long pause or sleep, albums stopping midway, and repeat on the last track</p>
+        <p>Fix saved tracks not playing offline and silent gaps in saved tracks</p>
+        <p>Fix the wrong song showing after switching albums</p>
+        <p>Fix freezes when a track has no lyrics, when started from a terminal, or with Discord running</p>
+        <p>Fix crashes on startup without a sound card, and show a clear message when no password store is available</p>
+        <p>Fix artist pages listing every version of an album</p>
+        <p>Fix the top hit play and shuffle buttons</p>
+        <p>Fix media controls showing only the first artist and flickering play/pause</p>
       </description>
     </release>
     <release version="1.5.0" date="2026-06-24">
