@@ -83,6 +83,10 @@ Box _main {
               }
 
               Adw.LayoutSlot {
+                id: "playlist-menu-button";
+              }
+
+              Adw.LayoutSlot {
                 id: "share-button";
               }
 
@@ -178,6 +182,10 @@ Box _main {
             Adw.LayoutSlot {
               id: "info-button";
             }
+
+            Adw.LayoutSlot {
+              id: "playlist-menu-button";
+            }
           }
         };
       }
@@ -255,6 +263,19 @@ Box _main {
         visible: false;
         action-name: "win.push-album-info-page";
         action-target: "''";
+
+        styles [
+          "flat",
+          "circular",
+        ]
+      }
+
+      [playlist-menu-button]
+      MenuButton _playlist_menu_button {
+        icon-name: "view-more-symbolic";
+        tooltip-text: _("Playlist Options");
+        valign: center;
+        visible: false;
 
         styles [
           "flat",

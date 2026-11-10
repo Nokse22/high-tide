@@ -37,7 +37,7 @@ import tidalapi
 from tidalapi.album import Album
 from tidalapi.artist import Artist
 from tidalapi.mix import Mix
-from tidalapi.playlist import Playlist
+from tidalapi.playlist import Playlist, UserPlaylist
 from tidalapi.media import Track, Video
 from tidalapi.types import ItemOrder, OrderDirection
 

@@ -149,6 +149,11 @@ class PlayerObject(GObject.GObject):
         # when the uri of the playing track was loaded, its stream urls expire after
         # about an hour (wall-clock time, to count time spent suspended)
         self.stream_loaded_at: float = 0
+        # to notice when the stream of the playing track gets stuck
+        self.last_position: int | None = None
+        self.position_stuck_since: float = 0.0
+        # where the last seek went, as the position can't be queried until it's done
+        self.last_seek_position: int | None = None
 
         # next track variables for gapless
         self.next_track: Any | None = None
@@ -161,6 +166,9 @@ class PlayerObject(GObject.GObject):
         # a gapless track is being loaded / the current one ended before it was
         self.loading_gapless = False
         self.reached_eos = False
+        # the last track requested for gapless playback, dropped if another track
+        # is played directly while it loads
+        self.gapless_request: Track | None = None
 
         # for not caching on metered networks
         self.monitor = Gio.NetworkMonitor.get_default()
@@ -519,6 +527,8 @@ class PlayerObject(GObject.GObject):
             track: The Track object to play
             gapless: Whether to enqueue the track for gapless playback
         """
+        if gapless:
+            self.gapless_request = track
         handed_off_track = self.handed_off_track
         self.handed_off_track = None
         if gapless and track is handed_off_track:
@@ -736,6 +746,14 @@ class PlayerObject(GObject.GObject):
 
     def _play_track_url(self, track, music_url, gapless=False):
         """Set up and play track from URL."""
+        if gapless:
+            self.loading_gapless = False
+            if track is not self.gapless_request:
+                logger.info(f"Dropping gapless track {track.id}: another track was played")
+                return
+            if self.reached_eos:
+                # Too late for gapless, the previous track already ended
+                gapless = False
         if not gapless and track is self.reloading_track:
             # What was already downloaded keeps playing while the track loads again,
             # so continue from where it is now, not from where the reload started
@@ -743,6 +761,11 @@ class PlayerObject(GObject.GObject):
             if duration:
                 self.seek_after_sink_reload = self.query_position() / duration
         if not gapless:
+            # A track played directly replaces the one queued for gapless playback,
+            # which would otherwise be shown as playing when this one starts
+            self.gapless_request = None
+            self.next_track = None
+            self.reached_eos = False
             self.reloading_track = None
             self.use_about_to_finish = False
             self.pipeline.set_state(Gst.State.NULL)
@@ -1009,6 +1032,7 @@ class PlayerObject(GObject.GObject):
         if self.gapless_enabled and self.duration:
             if self.duration - self.query_position() < 30 * Gst.SECOND:
                 self._prefetch_next_track()
+        self._check_stream_stuck()
         self.emit("update-slider")
         if not self.playing:
             # Returning False removes the timer. While it keeps running, keep its id
@@ -1084,6 +1108,7 @@ class PlayerObject(GObject.GObject):
             return
         position = int(seek_fraction * self.query_duration())
         flags = Gst.SeekFlags.ACCURATE if accurate else Gst.SeekFlags.KEY_UNIT
+        self.last_seek_position = position
         self.playbin.seek_simple(
             Gst.Format.TIME, Gst.SeekFlags.FLUSH | flags, position
         )
