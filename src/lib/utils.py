@@ -99,7 +99,12 @@ def get_alsa_devices() -> List[dict]:
         FileNotFoundError,
         subprocess.TimeoutExpired,
     ):
-        alsa_devices = get_alsa_devices_from_proc()
+        try:
+            alsa_devices = get_alsa_devices_from_proc()
+        except OSError:
+            # No sound card, so only the default output can be offered
+            logger.info("No ALSA devices found")
+            alsa_devices = [{"hw_device": "default", "name": _("Default")}]
     return alsa_devices
 
 
