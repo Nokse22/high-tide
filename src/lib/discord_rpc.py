@@ -1,4 +1,5 @@
 import logging
+import queue
 import threading
 import time
 from enum import Enum
@@ -28,8 +29,30 @@ class State(Enum):
 state: State = State.DISCONNECTED
 disconnect_thread: threading.Thread | None = None
 
+# Discord IPC calls can block for a long time (e.g. ~30s before Discord
+# rejects an invalid client ID), so they run on a single daemon worker thread
+# to keep the GTK main loop responsive while preserving call order.
+_tasks: queue.SimpleQueue = queue.SimpleQueue()
 
-def connect() -> bool:
+# Set when Discord rejects the client ID; retrying would only block again.
+_client_rejected = False
+
+
+def th_run_tasks() -> None:
+    """Run queued Discord IPC calls one at a time, in order."""
+    while True:
+        func, args = _tasks.get()
+        try:
+            func(*args)
+        except Exception:
+            logger.exception("Error while running a Discord IPC task")
+
+
+def _submit(func, *args) -> None:
+    _tasks.put((func, args))
+
+
+def _connect() -> bool:
     """Connect to Discord Rich Presence IPC.
 
     Attempts to establish a connection to Discord's IPC server for
@@ -39,12 +62,18 @@ def connect() -> bool:
         bool: True if connection successful, False otherwise
     """
     global state
+    global _client_rejected
 
-    if not has_pypresence:
+    if not has_pypresence or _client_rejected:
         return False
 
     try:
         rpc.connect()
+    except pypresence.exceptions.InvalidID:
+        logger.warning("Discord rejected the client ID, disabling Rich Presence")
+        _client_rejected = True
+        state = State.DISCONNECTED
+        return False
     except Exception:
         logger.debug(
             "Can't connect to discord IPC; usually means that the RPC server is closed."
@@ -57,7 +86,7 @@ def connect() -> bool:
         return True
 
 
-def disconnect() -> bool:
+def _disconnect() -> bool:
     """Disconnect from Discord Rich Presence IPC.
 
     Closes the connection to Discord's IPC server and updates the state.
@@ -81,7 +110,7 @@ def disconnect() -> bool:
         return True
 
 
-def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
+def _set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
     """Set the Discord Rich Presence activity status.
 
     Updates Discord with the current playing track information and playback position.
@@ -106,7 +135,7 @@ def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
         return
 
     if state == State.DISCONNECTED:
-        if not connect():
+        if not _connect():
             return
 
     try:
@@ -138,8 +167,8 @@ def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
             )
             state = State.PLAYING
     except (pypresence.exceptions.PipeClosed, AssertionError) as e:
-        if connect():
-            set_activity(track, offset_ms)
+        if _connect():
+            _set_activity(track, offset_ms)
         else:
             state = State.DISCONNECTED
             logger.debug(f"Connection with discord IPC lost: {e}")
@@ -148,6 +177,25 @@ def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
         logger.exception("Unknown error with discord IPC")
 
 
+def connect() -> None:
+    """Connect to Discord Rich Presence IPC in the background."""
+    _submit(_connect)
+
+
+def disconnect() -> None:
+    """Disconnect from Discord Rich Presence IPC in the background."""
+    _submit(_disconnect)
+
+
+def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
+    """Set the Discord Rich Presence activity status in the background.
+
+    See _set_activity for details; this never blocks the caller.
+    """
+    _submit(_set_activity, track, offset_ms)
+
+
 if has_pypresence:
     rpc: Presence = Presence(client_id=1379096506065223680)
+    threading.Thread(target=th_run_tasks, name="discord-rpc", daemon=True).start()
     connect()
