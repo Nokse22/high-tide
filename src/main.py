@@ -104,9 +104,6 @@ class HighTideApplication(Adw.Application):
             website="https://github.com/Nokse22/high-tide",
         )
 
-        about.add_link(_("Donate with Ko-Fi"), "https://ko-fi.com/nokse22")
-        about.add_link(_("Donate with Github"), "https://github.com/sponsors/Nokse22")
-
         about.set_support_url("https://matrix.to/#/%23high-tide:matrix.org")
 
         about.present(self.props.active_window)
