@@ -123,6 +123,18 @@
   background-color: alpha(var(--window-fg-color), 0.1);
 }
 
+.tracks-list-box row.now-playing {
+  background-color: alpha(var(--accent-bg-color), 0.15);
+}
+
+.tracks-list-box row.now-playing:hover {
+  background-color: alpha(var(--accent-bg-color), 0.22);
+}
+
+.tracks-list-box row.now-playing .title-4 {
+  color: var(--accent-color);
+}
+
 .quality-label {
   background-color: var(--popover-shade-color);
   border-radius: 4px;

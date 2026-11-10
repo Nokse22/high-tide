@@ -149,6 +149,11 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         else:
             self.album_stack.set_visible_child(self.image)
 
+        if is_now:
+            self.add_css_class("now-playing")
+        else:
+            self.remove_css_class("now-playing")
+
     def _on_menu_activate(self, *args):
         self._update_playlists_submenu()
         self._update_block_section()
