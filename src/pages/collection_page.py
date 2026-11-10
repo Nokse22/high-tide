@@ -20,6 +20,7 @@
 from gettext import gettext as _
 
 from gi.repository import Adw, Gtk
+from tidalapi.types import ItemOrder, OrderDirection
 
 from ..lib import utils
 from ..widgets import HTCarouselWidget
@@ -33,6 +34,22 @@ class HTCollectionPage(Page):
     __gtype_name__ = "HTCollectionPage"
 
     def _load_async(self) -> None: ...
+
+    @staticmethod
+    def _create_paginated_loader(fetch_page, get_items_cache=None, **fetch_options):
+        def load_page(limit: int = 50, offset: int = 0):
+            page_items = fetch_page(limit=limit, offset=offset, **fetch_options)
+            if get_items_cache is not None:
+                items_cache = get_items_cache()
+                known_item_ids = {getattr(item, "id", None) for item in items_cache}
+                items_cache.extend(
+                    item
+                    for item in page_items
+                    if getattr(item, "id", None) not in known_item_ids
+                )
+            return page_items
+
+        return load_page
 
     def _load_finish(self) -> None:
         self.set_tag("collection")
@@ -64,9 +81,23 @@ class HTCollectionPage(Page):
         )
         self.append(activity_list)
 
-        self.new_carousel_for(_("My Mixes and Radios"), utils.favourite_mixes)
+        user = utils.session.user
+
+        self.new_carousel_for(
+            _("My Mixes and Radios"),
+            utils.favourite_mixes,
+            self._create_paginated_loader(
+                user.favorites.mixes, lambda: utils.favourite_mixes
+            ),
+        )
 
         self.playlists_carousel = HTCarouselWidget(_("Playlists"))
+        self.playlists_carousel.set_more_function(
+            self._create_paginated_loader(
+                user.playlist_and_favorite_playlists,
+                lambda: utils.playlist_and_favorite_playlists,
+            )
+        )
         self.playlists_carousel.set_items(utils.playlist_and_favorite_playlists)
         new_playlist_button = Gtk.Button(
             icon_name="list-add-symbolic",
@@ -84,9 +115,30 @@ class HTCollectionPage(Page):
         self.playlists_carousel.add_header_button(new_playlist_button)
         self.append(self.playlists_carousel)
 
-        self.new_carousel_for(_("Albums"), utils.favourite_albums)
-        self.new_carousel_for(_("Tracks"), utils.favourite_tracks)
-        self.new_carousel_for(_("Artists"), utils.favourite_artists)
+        self.new_carousel_for(
+            _("Albums"),
+            utils.favourite_albums,
+            self._create_paginated_loader(
+                user.favorites.albums, lambda: utils.favourite_albums
+            ),
+        )
+        self.new_carousel_for(
+            _("Tracks"),
+            utils.favourite_tracks,
+            self._create_paginated_loader(
+                user.favorites.tracks,
+                lambda: utils.favourite_tracks,
+                order=ItemOrder.Date,
+                order_direction=OrderDirection.Descending,
+            ),
+        )
+        self.new_carousel_for(
+            _("Artists"),
+            utils.favourite_artists,
+            self._create_paginated_loader(
+                user.favorites.artists, lambda: utils.favourite_artists
+            ),
+        )
 
     def update_playlists(self) -> None:
         """Show the playlists again after they changed"""
