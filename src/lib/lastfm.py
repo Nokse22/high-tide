@@ -195,10 +195,11 @@ class LastFmClient:
 class LastFmScrobbler:
     """Track listening time and submit eligible plays to Last.fm."""
 
+    MAX_PAUSE_SECONDS = 240
+
     def __init__(self, player, client: LastFmClient) -> None:
         self.player = player
         self.client = client
-        self.pause_timeout_seconds = 180
         self.track = None
         self.started_at = 0
         self.listened_seconds = 0.0
@@ -214,8 +215,13 @@ class LastFmScrobbler:
         player.connect("update-slider", self.on_tick)
         player.connect("notify::playing", self.on_playing_changed)
 
-    def set_pause_timeout(self, timeout_seconds: int) -> None:
-        self.pause_timeout_seconds = max(0, int(timeout_seconds))
+    def _pause_limit_seconds(self) -> float:
+        duration = getattr(self.track, "duration", 0) or 0
+        return (
+            min(duration / 2, self.MAX_PAUSE_SECONDS)
+            if duration > 0
+            else self.MAX_PAUSE_SECONDS
+        )
 
     def _run(self, function, *args):
         generation = self.generation
@@ -247,8 +253,8 @@ class LastFmScrobbler:
     def on_playing_changed(self, *_args):
         now = time.monotonic()
         if self.player.playing:
-            if self.paused_since is not None and self.pause_timeout_seconds > 0:
-                if now - self.paused_since >= self.pause_timeout_seconds:
+            if self.paused_since is not None:
+                if now - self.paused_since >= self._pause_limit_seconds():
                     self.pause_expired = True
             self.paused_since = None
             self.pause_status = False
@@ -264,12 +270,8 @@ class LastFmScrobbler:
             return
 
         if not self.player.playing:
-            if (
-                self.pause_timeout_seconds > 0
-                and self.paused_since is not None
-                and not self.pause_expired
-            ):
-                if time.monotonic() - self.paused_since >= self.pause_timeout_seconds:
+            if self.paused_since is not None and not self.pause_expired:
+                if time.monotonic() - self.paused_since >= self._pause_limit_seconds():
                     self.pause_expired = True
             return
 

@@ -180,9 +180,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.lastfm_scrobbler = LastFmScrobbler(
             self.player_object, self.lastfm_client
         )
-        self.lastfm_scrobbler.set_pause_timeout(
-            self.settings.get_int("lastfm-pause-timeout")
-        )
 
         self.volume_button.get_adjustment().set_value(
             self.settings.get_int("last-volume") / 10
@@ -856,12 +853,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         if self.settings.get_boolean("discord-rpc") != state:
             self.settings.set_boolean("discord-rpc", state)
             self.player_object.set_discord_rpc(state)
-
-    def change_lastfm_pause_timeout(self, timeout_seconds: int):
-        timeout_seconds = max(0, min(timeout_seconds, 3600))
-        if self.settings.get_int("lastfm-pause-timeout") != timeout_seconds:
-            self.settings.set_int("lastfm-pause-timeout", timeout_seconds)
-        self.lastfm_scrobbler.set_pause_timeout(timeout_seconds)
 
     #
     #   PAGES ACTIONS CALLBACKS

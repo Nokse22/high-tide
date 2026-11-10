@@ -109,23 +109,6 @@ Adw.PreferencesDialog _preference_window {
         title: _("Shared secret");
       }
 
-      Adw.ActionRow {
-        title: _("Pause timeout");
-        subtitle: _("Stop scrobbling a track if it stays paused this long (seconds)");
-
-        [suffix]
-        Gtk.SpinButton _lastfm_pause_timeout_button {
-          valign: center;
-          adjustment: Gtk.Adjustment {
-            lower: 0;
-            upper: 3600;
-            value: 180;
-            step-increment: 10;
-            page-increment: 60;
-          };
-        }
-      }
-
       Adw.ActionRow _lastfm_status_row {
         title: _("Not connected");
 

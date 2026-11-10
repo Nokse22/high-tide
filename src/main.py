@@ -184,9 +184,6 @@ class HighTideApplication(Adw.Application):
             self.lastfm_api_secret_row = builder.get_object(
                 "_lastfm_api_secret_row"
             )
-            self.lastfm_pause_timeout_button = builder.get_object(
-                "_lastfm_pause_timeout_button"
-            )
             self.lastfm_status_row = builder.get_object("_lastfm_status_row")
             self.lastfm_connect_button = builder.get_object(
                 "_lastfm_connect_button"
@@ -199,12 +196,6 @@ class HighTideApplication(Adw.Application):
             )
             self.lastfm_disconnect_button.connect(
                 "clicked", self.on_lastfm_disconnect_clicked
-            )
-            self.lastfm_pause_timeout_button.set_value(
-                self.settings.get_int("lastfm-pause-timeout")
-            )
-            self.lastfm_pause_timeout_button.connect(
-                "value-changed", self.on_lastfm_pause_timeout_changed
             )
             self.lastfm_api_key_row.set_text(self.win.lastfm_client.api_key)
             self.lastfm_auth_pending = False
@@ -323,9 +314,6 @@ class HighTideApplication(Adw.Application):
 
     def on_discord_rpc_changed(self, widget: Any, *args) -> None:
         self.win.change_discord_rpc_enabled(widget.get_active())
-
-    def on_lastfm_pause_timeout_changed(self, widget: Any, *args) -> None:
-        self.win.change_lastfm_pause_timeout(int(widget.get_value()))
 
     def update_lastfm_preferences(self, error: str | None = None) -> None:
         client = self.win.lastfm_client
