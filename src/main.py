@@ -164,6 +164,13 @@ class HighTideApplication(Adw.Application):
                 "notify::active", self.on_discord_rpc_changed
             )
 
+            self.settings.bind(
+                "prefer-clean-versions",
+                builder.get_object("_prefer_clean_row"),
+                "active",
+                Gio.SettingsBindFlags.DEFAULT,
+            )
+
             self.alsa_row = builder.get_object("_alsa_device_row")
 
             # Create a new label factory to just set max_width

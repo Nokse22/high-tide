@@ -57,6 +57,8 @@ blocked_artists: List[Artist] = []
 blocked_tracks: List[Track] = []
 blocked_videos: List[Video] = []
 blocked_loaded = threading.Event()
+# Pick clean over explicit album versions (the prefer-clean-versions setting)
+prefer_clean_versions = False
 
 
 def init() -> None:
@@ -260,7 +262,7 @@ def _album_release_key(album: Album) -> tuple:
 def _album_version_rank(album: Album) -> tuple:
     return (
         "STEREO" in (album.audio_modes or []),
-        bool(album.explicit),
+        bool(album.explicit) != prefer_clean_versions,
         "HIRES_LOSSLESS" in (album.media_metadata_tags or []),
     )
 
@@ -268,7 +270,8 @@ def _album_version_rank(album: Album) -> tuple:
 class AlbumVersionFilter:
     """Wraps an artist album request (like Artist.get_albums) so each release
     is listed once, picking the version TIDAL shows on its own artist page:
-    stereo over Dolby Atmos only, explicit over clean, then hi-res.
+    stereo over Dolby Atmos only, explicit over clean (or the other way around
+    with the prefer-clean-versions setting), then hi-res.
 
     TIDAL lists every version (clean, explicit, Dolby Atmos) as a separate album,
     next to each other. Since the caller's offset counts deduplicated albums, the

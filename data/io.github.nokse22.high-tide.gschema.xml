@@ -7,6 +7,9 @@
     <key name="window-height" type="i">
       <default>800</default>
     </key>
+	  <key name="prefer-clean-versions" type="b">
+      <default>false</default>
+    </key>
 	  <key name="quality" type="i">
       <default>2</default>
     </key>

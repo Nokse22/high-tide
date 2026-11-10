@@ -166,6 +166,14 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.settings.get_boolean("quadratic-volume"),
         )
         utils.player_object = self.player_object
+
+        utils.prefer_clean_versions = self.settings.get_boolean("prefer-clean-versions")
+        self.settings.connect(
+            "changed::prefer-clean-versions",
+            lambda settings, key: setattr(
+                utils, "prefer_clean_versions", settings.get_boolean(key)
+            ),
+        )
         self.player_object.set_discord_rpc(self.settings.get_boolean("discord-rpc"))
 
         self.volume_button.get_adjustment().set_value(
