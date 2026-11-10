@@ -282,7 +282,7 @@ class PlayerObject(GObject.GObject):
             # The next uri wasn't set in time, _play_track_url will play it
             logger.warning("Track ended before the next one was loaded")
             self.reached_eos = True
-        elif self.next_track or self.tracks_to_play or self.queue:
+        elif self.next_track or self._has_next_track():
             logger.warning("Track ended without switching to the next one")
             self.play_next()
         else:
@@ -836,7 +836,7 @@ class PlayerObject(GObject.GObject):
             playbin: required by Gst
         """
         # playbin is need as arg but we access it later over self
-        if self.gapless_enabled and self.use_about_to_finish and self.tracks_to_play:
+        if self.gapless_enabled and self.use_about_to_finish and self._has_next_track():
             # The current track can reach EOS soon after this signal, and then
             # a uri set later is ignored, so set it now if it's ready
             self._set_prefetched_uri()
@@ -844,6 +844,14 @@ class PlayerObject(GObject.GObject):
             logger.info("Trying gapless playbck")
         else:
             logger.info("Ignoring about to finish event")
+
+    def _has_next_track(self) -> bool:
+        """Whether play_next will play a track after the current one"""
+        return bool(
+            self.tracks_to_play
+            or self.queue
+            or (self.playing_track and self._repeat_type != RepeatType.NONE)
+        )
 
     def _peek_next_track(self) -> Track | None:
         """Get the track play_next(gapless=True) would play, without removing it"""
@@ -855,13 +863,16 @@ class PlayerObject(GObject.GObject):
             track_list = self._shuffled_tracks_to_play
         else:
             track_list = self._tracks_to_play
+        if not track_list and self._repeat_type == RepeatType.LIST and not self.shuffle:
+            # play_next starts the list again
+            return (self.played_songs or [self.playing_track])[0]
         return track_list[0] if track_list else None
 
     def _prefetch_next_track(self) -> None:
         """Fetch the stream of the next track in the background"""
         if self.next_track or self.handed_off_track or self.loading_gapless:
             return
-        if not self.tracks_to_play:
+        if not self._has_next_track():
             return
         track = self._peek_next_track()
         if not track or track.id == self.prefetch_id:
@@ -936,12 +947,12 @@ class PlayerObject(GObject.GObject):
             self.play_track(track, gapless=gapless)
             return
 
-        if not self._tracks_to_play and self._repeat_type == RepeatType.LIST:
+        if not self.tracks_to_play and self._repeat_type == RepeatType.LIST:
             self._tracks_to_play = self.played_songs
-            self.tracks_to_play = self._tracks_to_play
             self.played_songs = []
+            self._update_shuffle_queue()
 
-        if not self._tracks_to_play:
+        if not self.tracks_to_play:
             self.pause()
             return
 
