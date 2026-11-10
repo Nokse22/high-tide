@@ -57,6 +57,18 @@ meson install -C builddir
 
 Or open the project in GNOME Builder and click "Run Project".
 
+## 🔧 Troubleshooting
+
+### Accented characters can't be typed (KDE Plasma)
+
+Since GTK 4.20, GTK apps on Wayland only combine dead keys (like `´` then `a` into `á`) when an input method such as IBus or Fcitx5 is running. Running one fixes it for all GTK apps. To fix it for High Tide alone instead, run:
+
+```sh
+flatpak override --user --env=GTK_IM_MODULE=simple io.github.nokse22.high-tide
+```
+
+This turns off input methods in High Tide, so skip it if you use one to type, for example, Chinese or Japanese.
+
 ## ❌ Uninstallation
 We're sorry to see you go! If you want to remove the High Tide flatpak package from your system, here's how to do so:
 
