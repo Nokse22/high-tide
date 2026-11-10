@@ -22,6 +22,7 @@ Box _main {
         _first_subtitle_label.justify: center;
         _second_subtitle_label.xalign: 0.5;
         _second_subtitle_label.justify: center;
+        _second_subtitle_box.halign: center;
       }
     }
 
@@ -76,6 +77,10 @@ Box _main {
               margin-end: 12;
               spacing: 6;
               valign: center;
+
+              Adw.LayoutSlot {
+                id: "info-button";
+              }
 
               Adw.LayoutSlot {
                 id: "share-button";
@@ -169,6 +174,10 @@ Box _main {
             Adw.LayoutSlot {
               id: "share-button";
             }
+
+            Adw.LayoutSlot {
+              id: "info-button";
+            }
           }
         };
       }
@@ -211,20 +220,46 @@ Box _main {
       }
 
       [second-subtitle-label]
-      Label _second_subtitle_label {
-        styles [
-          "dim-label",
-        ]
+      Box _second_subtitle_box {
+        spacing: 6;
+        halign: start;
 
-        ellipsize: end;
-        vexpand: true;
-        lines: 1;
-        xalign: 0.0;
+        Label _second_subtitle_label {
+          styles [
+            "dim-label",
+          ]
+
+          ellipsize: end;
+          vexpand: true;
+          lines: 1;
+          xalign: 0.0;
+        }
+
+        Box _badges_box {
+          spacing: 6;
+          valign: center;
+          visible: false;
+        }
       }
 
       [artist-button]
       Button _artist_button {
         visible: false;
+      }
+
+      [info-button]
+      Button _info_button {
+        icon-name: "help-about-symbolic";
+        tooltip-text: _("Album Info");
+        valign: center;
+        visible: false;
+        action-name: "win.push-album-info-page";
+        action-target: "''";
+
+        styles [
+          "flat",
+          "circular",
+        ]
       }
 
       [share-button]

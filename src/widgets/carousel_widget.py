@@ -98,6 +98,13 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         """
         self.items = items_list
 
+        # Clear the cards when the items are set again
+        child = self.cards_box.get_first_child()
+        while child:
+            self.cards_box.remove(child)
+            child = self.cards_box.get_first_child()
+        self.more_button.set_visible(self.more_function is not None)
+
         cards_added = 0
         for index, item in enumerate(self.items):
             if index >= 8:
@@ -112,6 +119,14 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
             self.next_button.set_sensitive(True)
 
         GLib.idle_add(self._update_button_sensitivity)
+
+    def add_header_button(self, button: Gtk.Button) -> None:
+        """Add a button to the carousel header, next to the More button.
+
+        Args:
+            button: The button to add
+        """
+        self.more_button.get_parent().insert_child_after(button, self.more_button)
 
     def _update_button_sensitivity(self, *args):
         adjustment = self.carousel_scrolled_window.get_hadjustment()

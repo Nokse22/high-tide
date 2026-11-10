@@ -573,6 +573,18 @@ template $HighTideWindow: Adw.ApplicationWindow {
                       ]
                     }
 
+                    MenuButton block_button {
+                      icon-name: "action-unavailable-symbolic";
+                      sensitive: false;
+                      tooltip-text: _("Block");
+                      valign: center;
+                      menu-model: block_menu;
+
+                      styles [
+                        "flat",
+                      ]
+                    }
+
                     Button copy_share_link {
                       icon-name: "share-alt-symbolic";
                       tooltip-text: _("Copy Share Link");
@@ -739,3 +751,5 @@ template $HighTideWindow: Adw.ApplicationWindow {
     }
   };
 }
+
+menu block_menu {}

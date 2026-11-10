@@ -32,6 +32,7 @@ from tidalapi.page import (
     TrackList,
 )
 
+from ..lib import utils
 from ..widgets import HTShorcutsWidget
 from .page import Page
 
@@ -72,13 +73,17 @@ class HTGenericPage(Page):
 
     def _load_async(self) -> None:
         self.page = self.function()
+        # Blocked items are left out, so wait for the blocked lists after login
+        utils.blocked_loaded.wait(10)
 
     def _load_finish(self) -> None:
         self.set_title(self.page.title or "")
 
         for category in self.page.categories:
             items = [
-                item for item in getattr(category, "items", []) if item is not None
+                item
+                for item in getattr(category, "items", [])
+                if item is not None and not utils.is_hidden_by_block(item)
             ]
 
             if isinstance(category, TrackList) or all(
