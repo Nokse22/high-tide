@@ -208,6 +208,7 @@ class LastFmScrobbler:
         self.last_position = 0.0
         self.pause_status = False
         self.pause_expired = False
+        self.playback_started = False
         self.submitted = False
         self.generation = 0
 
@@ -240,19 +241,25 @@ class LastFmScrobbler:
         self.started_at = int(time.time())
         self.listened_seconds = 0.0
         self.last_tick = time.monotonic() if self.player.playing else None
-        self.paused_since = time.monotonic() if not self.player.playing else None
+        self.paused_since = None
         self.last_position = 0.0
         self.pause_status = not self.player.playing
         self.pause_expired = False
+        self.playback_started = self.player.playing
         self.submitted = False
         self.generation += 1
 
-        if self.track and self.client.authenticated:
+        if self.track and self.playback_started and self.client.authenticated:
             self._run(self.client.update_now_playing, self.track)
 
     def on_playing_changed(self, *_args):
         now = time.monotonic()
         if self.player.playing:
+            if self.track and not self.playback_started:
+                self.playback_started = True
+                self.started_at = int(time.time())
+                if self.client.authenticated:
+                    self._run(self.client.update_now_playing, self.track)
             if self.paused_since is not None:
                 if now - self.paused_since >= self._pause_limit_seconds():
                     self.pause_expired = True
@@ -262,7 +269,7 @@ class LastFmScrobbler:
             return
 
         self.pause_status = True
-        self.paused_since = now
+        self.paused_since = now if self.playback_started else None
         self.last_tick = None
 
     def on_tick(self, *_args):
