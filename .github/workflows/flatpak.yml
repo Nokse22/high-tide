@@ -16,6 +16,7 @@ jobs:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48
       options: --privileged
     strategy:
+      fail-fast: false
       matrix:
         variant:
           - arch: x86_64
@@ -32,3 +33,12 @@ jobs:
           cache-key: flatpak-builder-${{ github.sha }}
           arch: ${{ matrix.variant.arch }}
           verbose: true
+      - name: Check that the app starts
+        run: |
+          flatpak install --user -y --noninteractive high-tide.flatpak
+          export XDG_RUNTIME_DIR=$(mktemp -d)
+          # No login or secret service, on GTK's virtual display: the app builds
+          # its main window and shows the secret portal dialog
+          dbus-run-session -- flatpak run --no-a11y-bus --env=GSETTINGS_BACKEND=memory \
+            --filesystem="$GITHUB_WORKSPACE:ro" --command=sh io.github.nokse22.high-tide -c \
+            "gtk4-broadwayd :5 & sleep 2; GDK_BACKEND=broadway BROADWAY_DISPLAY=:5 python3 '$GITHUB_WORKSPACE/build-aux/startup-check.py'"
