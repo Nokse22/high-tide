@@ -1,3 +1,4 @@
+from .activity_page import HTActivityPage
 from .album_page import HTAlbumPage
 from .artist_page import HTArtistPage
 from .collection_page import HTCollectionPage

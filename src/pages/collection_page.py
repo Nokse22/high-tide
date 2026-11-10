@@ -19,10 +19,11 @@
 
 from gettext import gettext as _
 
-from gi.repository import Gtk
+from gi.repository import Adw, Gtk
 
 from ..lib import utils
 from ..widgets import HTCarouselWidget
+from .activity_page import HTActivityPage
 from .page import Page
 
 
@@ -36,6 +37,32 @@ class HTCollectionPage(Page):
     def _load_finish(self) -> None:
         self.set_tag("collection")
         self.set_title(_("Collection"))
+
+        activity_list = Gtk.ListBox(
+            css_classes=["boxed-list"],
+            selection_mode=Gtk.SelectionMode.NONE,
+            margin_start=12,
+            margin_end=12,
+            margin_top=12,
+        )
+        activity_row = Adw.ActionRow(
+            title=_("My Activity"),
+            subtitle=_("Your most played artists of each month"),
+            activatable=True,
+        )
+        activity_row.add_prefix(Gtk.Image(icon_name="music-artist-symbolic"))
+        activity_row.add_suffix(Gtk.Image(icon_name="go-next-symbolic"))
+        activity_list.append(activity_row)
+        self.signals.append(
+            (
+                activity_row,
+                activity_row.connect(
+                    "activated",
+                    lambda *_: utils.navigation_view.push(HTActivityPage().load()),
+                ),
+            )
+        )
+        self.append(activity_list)
 
         self.new_carousel_for(_("My Mixes and Radios"), utils.favourite_mixes)
 
