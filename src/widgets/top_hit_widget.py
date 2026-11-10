@@ -100,7 +100,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
             (
                 self.play_button,
                 self.play_button.connect(
-                    "clicked", lambda *args: utils.player_object.play_track(self.item)
+                    "clicked", lambda *_: utils.player_object.play_this([self.item])
                 ),
             )
         )
@@ -127,8 +127,8 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
         self.signals.append(
             (
-                self.play_button,
-                self.play_button.connect(
+                self.shuffle_button,
+                self.shuffle_button.connect(
                     "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
                 ),
             )
@@ -154,8 +154,8 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
         self.signals.append(
             (
-                self.play_button,
-                self.play_button.connect(
+                self.shuffle_button,
+                self.shuffle_button.connect(
                     "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
                 ),
             )
@@ -182,8 +182,8 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
         self.signals.append(
             (
-                self.play_button,
-                self.play_button.connect(
+                self.shuffle_button,
+                self.shuffle_button.connect(
                     "clicked", lambda *_: utils.player_object.shuffle_this(self.item)
                 ),
             )
