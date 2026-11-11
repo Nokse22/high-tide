@@ -70,6 +70,8 @@ class PlayerObject(GObject.GObject):
         "songs-list-changed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         "update-slider": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "song-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
+        # old and new position in seconds
+        "seeked": (GObject.SignalFlags.RUN_FIRST, None, (float, float)),
         "song-added-to-queue": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "duration-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "volume-changed": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
@@ -135,6 +137,9 @@ class PlayerObject(GObject.GObject):
 
         self.queue: List[Track] = []
         self.current_mix_album_playlist: Union[Mix, Album, Playlist] | None = None
+        self.play_source = None
+        self.playing_from_queue = False
+        self._last_queued_track = None
         self._tracks_to_play: List[Track] = []
         self.tracks_to_play: List[Track] = []
         self._shuffled_tracks_to_play: List[Track] = []
@@ -363,6 +368,7 @@ class PlayerObject(GObject.GObject):
             self.playing_track = self.next_track
             self.next_track = None
         self.song_album = self.playing_track.album
+        self.playing_from_queue = self.playing_track is self._last_queued_track
         self.can_go_next = len(self._tracks_to_play) > 0
         self.can_go_prev = len(self.played_songs) > 0
         self.duration = self.query_duration()
@@ -413,6 +419,7 @@ class PlayerObject(GObject.GObject):
         thing: Union[Mix, Album, Playlist, List[Track], Track],
         index: int = 0,
         tracks: List[Track] | None = None,
+        source=None,
     ) -> None:
         """Play tracks from a mix, album, playlist, or artist.
 
@@ -420,8 +427,11 @@ class PlayerObject(GObject.GObject):
             thing: An object (Mix, Album, Playlist, Artist, or list of Tracks) to play
             index (int): The index of the track to start playing (default: 0)
             tracks: The tracks of thing, if already fetched (default: None)
+            source: What a list of tracks was played from (Album, Playlist, Mix,
+                Artist), for the plays reported to TIDAL
         """
         self.current_mix_album_playlist = thing
+        self.play_source = source if source is not None else thing
         if tracks is None:
             tracks = self.get_track_list(thing)
 
@@ -438,7 +448,7 @@ class PlayerObject(GObject.GObject):
         track: Track = self._tracks_to_play.pop(0)
 
         if not track.available:
-            self.play_this(thing, index + 1, tracks)
+            self.play_this(thing, index + 1, tracks, source=source)
         else:
             self.tracks_to_play = self._tracks_to_play
             self.played_songs = []
@@ -451,15 +461,16 @@ class PlayerObject(GObject.GObject):
             self.play_track(track)
 
     def shuffle_this(
-        self, thing: Union[Mix, Album, Playlist, List[Track], Track]
+        self, thing: Union[Mix, Album, Playlist, List[Track], Track], source=None
     ) -> None:
         """Same as play_this, but enables shuffle mode.
 
         Args:
             thing: An object (Mix, Album, Playlist, Artist, or list of Tracks) to play
+            source: What a list of tracks was played from, see play_this
         """
         tracks: List[Track] = self.get_track_list(thing)
-        self.play_this(thing, random.randint(0, len(tracks)), tracks)
+        self.play_this(thing, random.randint(0, len(tracks)), tracks, source=source)
         self.shuffle = True
 
     def get_track_list(
@@ -944,6 +955,7 @@ class PlayerObject(GObject.GObject):
 
         if self.queue:
             track = self.queue.pop(0)
+            self._last_queued_track = track
             self.play_track(track, gapless=gapless)
             return
 
@@ -1001,6 +1013,14 @@ class PlayerObject(GObject.GObject):
                 for track in track_list
                 if not utils.is_blocked_by_artist(track)
             ]
+
+    def get_playing_source(self):
+        """What the playing track was played from: an Album, Playlist, Mix or
+        Artist, or something else (a track or a list) when it was played on its own
+        or from the queue"""
+        if self.playing_from_queue:
+            return self.playing_track
+        return self.play_source
 
     def play_previous(self):
         """Play the previous track or restart current track if near beginning."""
@@ -1160,12 +1180,14 @@ class PlayerObject(GObject.GObject):
             self.seeked_to_end = True
             self.play_next()
             return
+        old_position = self.query_position(default=0)
         position = int(seek_fraction * self.query_duration())
         flags = Gst.SeekFlags.ACCURATE if accurate else Gst.SeekFlags.KEY_UNIT
         self.last_seek_position = position
         self.playbin.seek_simple(
             Gst.Format.TIME, Gst.SeekFlags.FLUSH | flags, position
         )
+        self.emit("seeked", old_position / Gst.SECOND, position / Gst.SECOND)
 
         if self.discord_rpc_enabled:
             discord_rpc.set_activity(self.playing_track, position // 1_000_000_000)

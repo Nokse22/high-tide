@@ -19,6 +19,7 @@
 
 import threading
 from gettext import gettext as _
+from pathlib import Path
 from typing import Callable
 
 import tidalapi
@@ -26,6 +27,7 @@ from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Xdp, Gdk
 from tidalapi.media import Quality
 
 from .lib import HTCache, PlayerObject, RepeatType, SecretStore, utils
+from .lib.play_reporter import PlayReporter
 from .login import LoginDialog
 from .mpris import MPRIS
 from .pages import (HTAlbumPage, HTArtistPage, HTCollectionPage, HTCreditsPage,
@@ -218,6 +220,13 @@ class HighTideWindow(Adw.ApplicationWindow):
         utils.cache = HTCache(self.session)
 
         self.user = self.session.user
+
+        self.play_reporter = PlayReporter(
+            self.player_object,
+            self.session,
+            self.get_application().get_version() or "",
+            Path(utils.CACHE_DIR, "plays-to-report.json"),
+        )
 
         self.select_quality(self.settings.get_int("quality"))
 

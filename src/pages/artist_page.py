@@ -173,7 +173,10 @@ class HTArtistPage(Page):
         builder.get_object("_first_subtitle_label").set_label(_("Artist"))
 
         self.new_track_list_for(
-            _("Top Tracks"), self.top_tracks, self.artist.get_top_tracks
+            _("Top Tracks"),
+            self.top_tracks,
+            self.artist.get_top_tracks,
+            source=self.artist,
         )
 
         self.new_carousel_for(_("Albums"), self.albums, self.get_albums)
@@ -227,7 +230,7 @@ class HTArtistPage(Page):
             button.remove_css_class("error")
 
     def on_play_button_clicked(self, btn) -> None:
-        utils.player_object.play_this(self.top_tracks, 0)
+        utils.player_object.play_this(self.top_tracks, 0, source=self.artist)
 
     def on_shuffle_button_clicked(self, btn) -> None:
-        utils.player_object.shuffle_this(self.top_tracks, 0)
+        utils.player_object.shuffle_this(self.top_tracks, source=self.artist)
