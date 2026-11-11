@@ -15,13 +15,16 @@ from gi.repository import Secret
 
 logger = logging.getLogger(__name__)
 
+API_KEY = "fdad22d7b86a0258ad6a0b8dbafa145d"
+API_SECRET = "f83f026124bc1e30a5a074c7e0d3c75e"
+
 
 class LastFmError(Exception):
     """An error returned by the Last.fm API."""
 
 
 class LastFmSecretStore:
-    """Store Last.fm credentials and the user session in system keyring."""
+    """Store the Last.fm user session in the system keyring."""
 
     def __init__(self) -> None:
         self.schema = Secret.Schema.new(
@@ -41,10 +44,8 @@ class LastFmSecretStore:
         except Exception:
             logger.exception("Failed to load Last.fm credentials")
 
-    def save(self, api_key: str, api_secret: str, session_key: str, username: str):
+    def save(self, session_key: str, username: str):
         self.data = {
-            "api-key": api_key,
-            "api-secret": api_secret,
             "session-key": session_key,
             "username": username,
         }
@@ -78,15 +79,15 @@ class LastFmClient:
 
     def __init__(self, store: LastFmSecretStore) -> None:
         self.store = store
-        self.api_key = store.data.get("api-key", "")
-        self.api_secret = store.data.get("api-secret", "")
+        self.api_key = API_KEY
+        self.api_secret = API_SECRET
         self.session_key = store.data.get("session-key", "")
         self.username = store.data.get("username", "")
         self.pending_token = None
 
     @property
     def authenticated(self) -> bool:
-        return bool(self.api_key and self.api_secret and self.session_key)
+        return bool(self.session_key)
 
     def _signature(self, params: dict) -> str:
         signature = "".join(
@@ -123,12 +124,7 @@ class LastFmClient:
             )
         return result
 
-    def begin_authentication(self, api_key: str, api_secret: str) -> str:
-        self.api_key = api_key.strip()
-        self.api_secret = api_secret.strip()
-        if not self.api_key or not self.api_secret:
-            raise LastFmError(_("An API key and shared secret are required"))
-
+    def begin_authentication(self) -> str:
         result = self._request("auth.getToken", {})
         try:
             self.pending_token = result["token"]
@@ -150,15 +146,11 @@ class LastFmClient:
             message = _("Last.fm returned an invalid session")
             raise LastFmError(message) from exc
         self.pending_token = None
-        self.store.save(
-            self.api_key, self.api_secret, self.session_key, self.username
-        )
+        self.store.save(self.session_key, self.username)
         return self.username
 
     def disconnect(self):
         self.store.clear()
-        self.api_key = ""
-        self.api_secret = ""
         self.session_key = ""
         self.username = ""
         self.pending_token = None

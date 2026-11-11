@@ -180,10 +180,6 @@ class HighTideApplication(Adw.Application):
                 Gio.SettingsBindFlags.DEFAULT,
             )
 
-            self.lastfm_api_key_row = builder.get_object("_lastfm_api_key_row")
-            self.lastfm_api_secret_row = builder.get_object(
-                "_lastfm_api_secret_row"
-            )
             self.lastfm_status_row = builder.get_object("_lastfm_status_row")
             self.lastfm_connect_button = builder.get_object(
                 "_lastfm_connect_button"
@@ -197,7 +193,6 @@ class HighTideApplication(Adw.Application):
             self.lastfm_disconnect_button.connect(
                 "clicked", self.on_lastfm_disconnect_clicked
             )
-            self.lastfm_api_key_row.set_text(self.win.lastfm_client.api_key)
             self.lastfm_auth_pending = False
             self.update_lastfm_preferences()
 
@@ -318,8 +313,6 @@ class HighTideApplication(Adw.Application):
     def update_lastfm_preferences(self, error: str | None = None) -> None:
         client = self.win.lastfm_client
         self.lastfm_connect_button.set_sensitive(True)
-        self.lastfm_api_key_row.set_sensitive(not client.authenticated)
-        self.lastfm_api_secret_row.set_sensitive(not client.authenticated)
         self.lastfm_disconnect_button.set_visible(client.authenticated)
         self.lastfm_connect_button.set_visible(not client.authenticated)
 
@@ -351,19 +344,12 @@ class HighTideApplication(Adw.Application):
             args = ()
         else:
             target = self.th_begin_lastfm_authentication
-            args = (
-                self.lastfm_api_key_row.get_text(),
-                self.lastfm_api_secret_row.get_text(),
-            )
+            args = ()
         threading.Thread(target=target, args=args, daemon=True).start()
 
-    def th_begin_lastfm_authentication(
-        self, api_key: str, api_secret: str
-    ) -> None:
+    def th_begin_lastfm_authentication(self) -> None:
         try:
-            auth_url = self.win.lastfm_client.begin_authentication(
-                api_key, api_secret
-            )
+            auth_url = self.win.lastfm_client.begin_authentication()
         except Exception as exc:
             GLib.idle_add(self.on_lastfm_authentication_failed, str(exc))
             return
@@ -384,7 +370,6 @@ class HighTideApplication(Adw.Application):
 
     def on_lastfm_authentication_finished(self) -> None:
         self.lastfm_auth_pending = False
-        self.lastfm_api_secret_row.set_text("")
         self.win.lastfm_scrobbler.credentials_changed()
         self.update_lastfm_preferences()
 
@@ -394,8 +379,6 @@ class HighTideApplication(Adw.Application):
     def on_lastfm_disconnect_clicked(self, *_args) -> None:
         self.win.lastfm_client.disconnect()
         self.lastfm_auth_pending = False
-        self.lastfm_api_key_row.set_text("")
-        self.lastfm_api_secret_row.set_text("")
         self.win.lastfm_scrobbler.credentials_changed()
         self.update_lastfm_preferences()
 

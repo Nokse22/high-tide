@@ -65,27 +65,7 @@ Adw.PreferencesDialog _preference_window {
     }
     Adw.PreferencesGroup {
       title: _("Last.fm Scrobbling");
-      description: _("Create a Last.fm API account, enter its key and shared secret.");
-
-      Adw.ActionRow {
-        title: _("Last.fm API account");
-        subtitle: _("Required to authorize High Tide");
-
-        [suffix]
-        LinkButton {
-          label: _("Create Account");
-          uri: "https://www.last.fm/api/account/create";
-          valign: center;
-        }
-      }
-
-      Adw.EntryRow _lastfm_api_key_row {
-        title: _("API key");
-      }
-
-      Adw.PasswordEntryRow _lastfm_api_secret_row {
-        title: _("Shared secret");
-      }
+      description: _("Send the songs you play to your Last.fm profile.");
 
       Adw.ActionRow _lastfm_status_row {
         title: _("Not connected");
