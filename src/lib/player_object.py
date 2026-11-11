@@ -982,12 +982,19 @@ class PlayerObject(GObject.GObject):
         self.handed_off_track = track
         logger.info(f"Using prefetched stream: {music_url}")
 
-    def play_next(self, gapless=False):
+    def play_next(self, gapless=False, skip=False):
         """Play the next track in the queue or playlist.
 
         Args:
             gapless: Whether to enqueue the track in gapless mode
+            skip: The user asked for the next track, so repeating one track
+                doesn't apply: it's only for when the track ends
         """
+        repeat_song = self._repeat_type == RepeatType.SONG and not skip
+        if skip and self._repeat_type == RepeatType.SONG and self.next_track:
+            if self.playing_track and self.next_track.id == self.playing_track.id:
+                # The repeat queued for gapless playback: play the next track instead
+                self.next_track = None
 
         # A track is already enqueued from an about-to-finish
         if self.next_track:
@@ -997,11 +1004,11 @@ class PlayerObject(GObject.GObject):
             self.play_track(track, gapless=gapless)
             return
 
-        if self._repeat_type == RepeatType.SONG and not gapless:
+        if repeat_song and not gapless:
             self.seek(0)
             self.apply_replaygain_tags()
             return
-        if self._repeat_type == RepeatType.SONG:
+        if repeat_song:
             self.play_track(self.playing_track, gapless=True)
             return
 
