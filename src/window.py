@@ -28,7 +28,7 @@ from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Xdp, Gdk
 from tidalapi.media import Quality
 
 from .lib import (HTCache, LastFmClient, LastFmScrobbler, LastFmSecretStore,
-                  PlayerObject, RepeatType, SecretStore, utils)
+                  PlayerObject, RepeatType, SecretStore, ai, utils)
 from .lib.play_reporter import PlayReporter
 from .lib.player_object import AudioSink
 from .login import LoginDialog
