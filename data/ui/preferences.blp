@@ -63,6 +63,31 @@ Adw.PreferencesDialog _preference_window {
         subtitle: _("On artist pages, show the clean version of albums that also have an explicit one");
       }
     }
+    Adw.PreferencesGroup {
+      title: _("Last.fm Scrobbling");
+      description: _("Send the songs you play to your Last.fm profile.");
+
+      Adw.ActionRow _lastfm_status_row {
+        title: _("Not connected");
+
+        [suffix]
+        Button _lastfm_connect_button {
+          label: _("Connect");
+          valign: center;
+
+          styles [
+            "suggested-action",
+          ]
+        }
+
+        [suffix]
+        Button _lastfm_disconnect_button {
+          label: _("Disconnect");
+          valign: center;
+          visible: false;
+        }
+      }
+    }
   }
 
   Adw.PreferencesPage {

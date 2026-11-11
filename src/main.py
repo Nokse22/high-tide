@@ -18,10 +18,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import sys
+import threading
 from gettext import gettext as _
 from typing import Any, Callable, List
 
-from gi.repository import Adw, Gio, Gtk
+from gi.repository import Adw, Gio, GLib, Gtk
 
 from .lib import utils
 from .lib.player_object import AudioSink
@@ -180,6 +181,22 @@ class HighTideApplication(Adw.Application):
                 Gio.SettingsBindFlags.DEFAULT,
             )
 
+            self.lastfm_status_row = builder.get_object("_lastfm_status_row")
+            self.lastfm_connect_button = builder.get_object(
+                "_lastfm_connect_button"
+            )
+            self.lastfm_disconnect_button = builder.get_object(
+                "_lastfm_disconnect_button"
+            )
+            self.lastfm_connect_button.connect(
+                "clicked", self.on_lastfm_connect_clicked
+            )
+            self.lastfm_disconnect_button.connect(
+                "clicked", self.on_lastfm_disconnect_clicked
+            )
+            self.lastfm_auth_pending = False
+            self.update_lastfm_preferences()
+
             self.alsa_row = builder.get_object("_alsa_device_row")
 
             # Create a new label factory to just set max_width
@@ -293,6 +310,78 @@ class HighTideApplication(Adw.Application):
 
     def on_discord_rpc_changed(self, widget: Any, *args) -> None:
         self.win.change_discord_rpc_enabled(widget.get_active())
+
+    def update_lastfm_preferences(self, error: str | None = None) -> None:
+        client = self.win.lastfm_client
+        self.lastfm_connect_button.set_sensitive(True)
+        self.lastfm_disconnect_button.set_visible(client.authenticated)
+        self.lastfm_connect_button.set_visible(not client.authenticated)
+
+        if error:
+            self.lastfm_status_row.set_title(_("Connection failed"))
+            self.lastfm_status_row.set_subtitle(error)
+        elif client.authenticated:
+            self.lastfm_status_row.set_title(
+                _("Connected as {username}").format(username=client.username)
+            )
+            self.lastfm_status_row.set_subtitle(
+                _("Now playing and completed listens will be sent to Last.fm.")
+            )
+        elif self.lastfm_auth_pending:
+            self.lastfm_status_row.set_title(_("Waiting for authorization"))
+            self.lastfm_status_row.set_subtitle(
+                _("Authorize High Tide in your browser, then click Finish.")
+            )
+            self.lastfm_connect_button.set_label(_("Finish"))
+        else:
+            self.lastfm_status_row.set_title(_("Not connected"))
+            self.lastfm_status_row.set_subtitle("")
+            self.lastfm_connect_button.set_label(_("Connect"))
+
+    def on_lastfm_connect_clicked(self, *_args) -> None:
+        self.lastfm_connect_button.set_sensitive(False)
+        if self.lastfm_auth_pending:
+            target = self.th_finish_lastfm_authentication
+            args = ()
+        else:
+            target = self.th_begin_lastfm_authentication
+            args = ()
+        threading.Thread(target=target, args=args, daemon=True).start()
+
+    def th_begin_lastfm_authentication(self) -> None:
+        try:
+            auth_url = self.win.lastfm_client.begin_authentication()
+        except Exception as exc:
+            GLib.idle_add(self.on_lastfm_authentication_failed, str(exc))
+            return
+        GLib.idle_add(self.on_lastfm_authorization_ready, auth_url)
+
+    def on_lastfm_authorization_ready(self, auth_url: str) -> None:
+        self.lastfm_auth_pending = True
+        self.update_lastfm_preferences()
+        Gio.AppInfo.launch_default_for_uri(auth_url, None)
+
+    def th_finish_lastfm_authentication(self) -> None:
+        try:
+            self.win.lastfm_client.finish_authentication()
+        except Exception as exc:
+            GLib.idle_add(self.on_lastfm_authentication_failed, str(exc))
+            return
+        GLib.idle_add(self.on_lastfm_authentication_finished)
+
+    def on_lastfm_authentication_finished(self) -> None:
+        self.lastfm_auth_pending = False
+        self.win.lastfm_scrobbler.credentials_changed()
+        self.update_lastfm_preferences()
+
+    def on_lastfm_authentication_failed(self, message: str) -> None:
+        self.update_lastfm_preferences(message)
+
+    def on_lastfm_disconnect_clicked(self, *_args) -> None:
+        self.win.lastfm_client.disconnect()
+        self.lastfm_auth_pending = False
+        self.win.lastfm_scrobbler.credentials_changed()
+        self.update_lastfm_preferences()
 
     def deactive_alsa_device_row(self, widget: Any, *args) -> None:
         alsa_used = widget.get_selected() == AudioSink.ALSA

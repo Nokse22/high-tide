@@ -26,7 +26,8 @@ import tidalapi
 from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Xdp, Gdk
 from tidalapi.media import Quality
 
-from .lib import HTCache, PlayerObject, RepeatType, SecretStore, utils
+from .lib import (HTCache, LastFmClient, LastFmScrobbler, LastFmSecretStore,
+                  PlayerObject, RepeatType, SecretStore, utils)
 from .lib.play_reporter import PlayReporter
 from .login import LoginDialog
 from .mpris import MPRIS
@@ -177,6 +178,10 @@ class HighTideWindow(Adw.ApplicationWindow):
             ),
         )
         self.player_object.set_discord_rpc(self.settings.get_boolean("discord-rpc"))
+        self.lastfm_client = LastFmClient(LastFmSecretStore())
+        self.lastfm_scrobbler = LastFmScrobbler(
+            self.player_object, self.lastfm_client
+        )
 
         self.volume_button.get_adjustment().set_value(
             self.settings.get_int("last-volume") / 10
