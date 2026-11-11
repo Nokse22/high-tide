@@ -81,6 +81,18 @@ template $HTTopHitWidget: Box {
         spacing: 12;
         halign: end;
 
+        MenuButton track_menu_button {
+          icon-name: "view-more-symbolic";
+          tooltip-text: _("More");
+          valign: center;
+          visible: false;
+
+          styles [
+            "circular",
+            "flat",
+          ]
+        }
+
         Button play_button {
           styles [
             "pill",
