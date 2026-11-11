@@ -148,6 +148,9 @@ class PlayerObject(GObject.GObject):
         self._tracks_to_play: List[Track] = []
         self.tracks_to_play: List[Track] = []
         self._shuffled_tracks_to_play: List[Track] = []
+        # The list in the order it was started in, to continue from when shuffle is
+        # turned off
+        self._play_order: List[Track] = []
         self.played_songs: List[Track] = []
         self.playing_track: Track | None = None
         self.song_album: Album | None = None
@@ -207,7 +210,10 @@ class PlayerObject(GObject.GObject):
 
         self._shuffle = _shuffle
         self.notify("shuffle")
+        if not _shuffle:
+            self._continue_in_order()
         self._update_shuffle_queue()
+        self.emit("song-added-to-queue")
         # self.emit("song-changed")
 
     @GObject.Property(type=int, default=0)
@@ -459,6 +465,7 @@ class PlayerObject(GObject.GObject):
         self.id_list = [track.id for track in tracks]
 
         self._tracks_to_play = tracks[index:] + tracks[:index]
+        self._play_order = self._tracks_to_play.copy()
         if not self._tracks_to_play:
             return
 
@@ -1061,6 +1068,7 @@ class PlayerObject(GObject.GObject):
             self._tracks_to_play,
             self._shuffled_tracks_to_play,
             self.played_songs,
+            self._play_order,
         ):
             track_list[:] = [
                 track
@@ -1101,6 +1109,30 @@ class PlayerObject(GObject.GObject):
         """Send a notify Event after 2s of the song playing"""
         self.can_go_prev = True
         self.notify("can-go-prev")
+
+    def _continue_in_order(self) -> None:
+        """Make the tracks after the current one, in the list's order, play next.
+
+        Used when shuffle is turned off: the official apps carry on from the
+        current track instead of going back to where the list was started.
+        """
+        if self.playing_track and not self.playing_from_queue:
+            current = self.playing_track
+        else:
+            # Playing something from the queue: continue after the last list track
+            current = next(
+                (t for t in reversed(self.played_songs) if self._in_play_order(t)),
+                None,
+            )
+        for position, track in enumerate(self._play_order):
+            if track is current:
+                self._tracks_to_play = self._play_order[position + 1 :]
+                self.can_go_next = len(self._tracks_to_play) > 0
+                self.notify("can-go-next")
+                return
+
+    def _in_play_order(self, track: Track) -> bool:
+        return any(t is track for t in self._play_order)
 
     def _update_shuffle_queue(self):
         if self.shuffle:
