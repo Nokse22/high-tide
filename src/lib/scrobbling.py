@@ -95,7 +95,7 @@ class ScrobbleQueue:
                         logger.warning(
                             f"{self.name} refused {len(batch)} play(s): {exc}"
                         )
-            if unsent and len(entries) > len(unsent):
+            if len(entries) > len(unsent):
                 logger.info(f"Sent {len(entries) - len(unsent)} play(s) to {self.name}")
             self._save(unsent)
 

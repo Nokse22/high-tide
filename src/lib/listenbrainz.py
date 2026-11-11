@@ -198,7 +198,8 @@ class ListenBrainzClient:
             "listen_type": "single" if len(entries) == 1 else "import",
             "payload": entries,
         }
-        self._request("POST", "submit-listens", self.token, body)
+        result = self._request("POST", "submit-listens", self.token, body)
+        logger.debug(f"ListenBrainz: {result}")
 
 
 class ListenBrainzQueue(ScrobbleQueue):
