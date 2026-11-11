@@ -46,6 +46,25 @@ Adw.ToolbarView _main {
       name: 'content';
     }
 
+    StackPage {
+      child: Adw.StatusPage {
+        icon-name: "dialog-warning-symbolic";
+        title: _("Couldn't Load This Page");
+        description: _("Something went wrong while getting it from TIDAL.");
+
+        child: Button _retry_button {
+          label: _("Try Again");
+          halign: center;
+
+          styles [
+            "pill",
+          ]
+        };
+      };
+
+      name: 'error';
+    }
+
     visible-child-name: 'loading';
   };
 }
