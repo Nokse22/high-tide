@@ -30,6 +30,7 @@ from tidalapi.media import Track
 
 from ..disconnectable_iface import IDisconnectable
 from ..lib import ai, utils
+from .track_menu import TrackMenu
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/top_hit_widget.ui")
@@ -46,6 +47,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
     shuffle_button = Gtk.Template.Child()
     artist_label = Gtk.Template.Child()
     click_gesture = Gtk.Template.Child()
+    track_menu_button = Gtk.Template.Child()
 
     def __init__(self, _item):
         IDisconnectable.__init__(self)
@@ -62,6 +64,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         self.ai_label.set_visible(ai.is_ai(_item))
 
         self.action = None
+        self.action_target = str(_item.id)
 
         if isinstance(_item, Mix):
             self._make_mix()
@@ -87,7 +90,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
     def _on_click(self, *args) -> None:
         if self.action:
-            self.activate_action(self.action, GLib.Variant("s", str(self.item.id)))
+            self.activate_action(self.action, GLib.Variant("s", self.action_target))
 
     def _make_track(self) -> None:
         self.primary_label.set_label(self.item.name)
@@ -97,6 +100,16 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         self.artist_label.set_artists(self.item.artists)
 
         self.shuffle_button.set_visible(False)
+
+        # Clicking the card opens the album with the track, like the other top hits
+        if self.item.album:
+            self.action = "win.push-album-page"
+            self.action_target = str(self.item.album.id)
+
+        self.track_menu_button.set_visible(True)
+        self.track_menu = TrackMenu(
+            self, self.track_menu_button, self.item, self.signals
+        )
 
         self.signals.append(
             (

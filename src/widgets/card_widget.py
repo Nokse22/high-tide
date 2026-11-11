@@ -21,7 +21,7 @@ import threading
 from gettext import gettext as _
 from typing import Union
 
-from gi.repository import Adw, GLib, Gtk
+from gi.repository import Adw, Gdk, GLib, Gtk
 
 from tidalapi.album import Album
 from tidalapi.artist import Artist
@@ -32,6 +32,7 @@ from tidalapi.page import PageItem
 
 from ..disconnectable_iface import IDisconnectable
 from ..lib import ai, utils
+from .track_menu import TrackMenu
 
 import logging
 
@@ -142,9 +143,33 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         )
         self.detail_label.set_visible(False)
 
+        self._add_track_menu()
+
         threading.Thread(
             target=utils.add_image, args=(self.image, self.item.album)
         ).start()
+
+    def _add_track_menu(self) -> None:
+        """Open the track menu on a right click or a long press."""
+        self.track_menu = TrackMenu(self, None, self.item, self.signals)
+
+        right_click = Gtk.GestureClick(button=Gdk.BUTTON_SECONDARY)
+        long_press = Gtk.GestureLongPress(touch_only=True)
+        for gesture in (right_click, long_press):
+            self.add_controller(gesture)
+            self.signals.append(
+                (
+                    gesture,
+                    gesture.connect(
+                        "pressed", lambda g, *a: self._on_menu_requested(g, *a)
+                    ),
+                )
+            )
+
+    def _on_menu_requested(self, gesture, *args) -> None:
+        gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+        x, y = args[-2], args[-1]
+        self.track_menu.popup(x, y)
 
     def _make_mix_card(self) -> None:
         """Configure the card to display a Mix item"""
