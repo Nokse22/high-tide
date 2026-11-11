@@ -111,6 +111,19 @@ template $HTGenericTrackWidget: ListBoxRow {
             valign: center;
             margin-start: 6;
           }
+
+          Label ai_label {
+            label: "AI";
+
+            styles [
+              "explicit-label",
+            ]
+
+            visible: false;
+            valign: center;
+            margin-start: 6;
+            tooltip-text: _("AI-generated");
+          }
         }
 
         $HTLinkLabelWidget artist_label {
@@ -153,6 +166,19 @@ template $HTGenericTrackWidget: ListBoxRow {
 
             valign: center;
             margin-start: 6;
+          }
+
+          Label {
+            visible: bind ai_label.visible;
+            label: "AI";
+
+            styles [
+              "explicit-label",
+            ]
+
+            valign: center;
+            margin-start: 6;
+            tooltip-text: _("AI-generated");
           }
         }
 

@@ -164,6 +164,19 @@ template $HighTideWindow: Adw.ApplicationWindow {
                         valign: end;
                         margin-start: 6;
                       }
+
+                      Label {
+                        label: "AI";
+
+                        styles [
+                          "explicit-label",
+                        ]
+
+                        visible: bind ai_label.visible;
+                        valign: end;
+                        margin-start: 6;
+                        tooltip-text: _("AI-generated");
+                      }
                     }
 
                     Label miniplayer_artist_label {
@@ -513,6 +526,19 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
                       visible: false;
                       margin-start: 6;
+                    }
+
+                    Label ai_label {
+                      label: "AI";
+
+                      styles [
+                        "explicit-label",
+                        "title-1",
+                      ]
+
+                      visible: false;
+                      margin-start: 6;
+                      tooltip-text: _("AI-generated");
                     }
                   }
 

@@ -71,6 +71,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     volume_button = Gtk.Template.Child()
     in_my_collection_button = Gtk.Template.Child()
     explicit_label = Gtk.Template.Child()
+    ai_label = Gtk.Template.Child()
     queue_widget = Gtk.Template.Child()
     lyrics_widget = Gtk.Template.Child()
     repeat_button = Gtk.Template.Child()
@@ -98,6 +99,11 @@ class HighTideWindow(Adw.ApplicationWindow):
         super().__init__(**kwargs)
 
         self.settings = Gio.Settings.new("io.github.nokse22.high-tide")
+
+        ai.set_hidden(self.settings.get_boolean("hide-ai-music"))
+        self.settings.connect(
+            "changed::hide-ai-music", self.on_hide_ai_music_changed
+        )
 
         self.settings.bind(
             "window-width", self, "default-width", Gio.SettingsBindFlags.DEFAULT
@@ -418,6 +424,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             label.set_tooltip_text(track_name)
         self.artist_label.set_artists(track.artists)
         self.explicit_label.set_visible(track.explicit)
+        self.ai_label.set_visible(ai.is_ai(track))
 
         self.set_quality_label()
 
@@ -881,6 +888,12 @@ class HighTideWindow(Adw.ApplicationWindow):
         if self.settings.get_boolean("discord-rpc") != state:
             self.settings.set_boolean("discord-rpc", state)
             self.player_object.set_discord_rpc(state)
+
+    def on_hide_ai_music_changed(self, settings, key):
+        ai.set_hidden(settings.get_boolean(key))
+        if ai.get_hidden():
+            utils.send_toast(_("AI-generated tracks are now hidden"), 2)
+        self.player_object.skip_hidden()
 
     #
     #   PAGES ACTIONS CALLBACKS

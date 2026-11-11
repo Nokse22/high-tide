@@ -86,7 +86,7 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
         self.more_button.set_visible(True)
 
     def set_tracks_list(self, tracks_list: List[Track]) -> None:
-        self.tracks = tracks_list
+        self.tracks = utils.filter_ai_items(tracks_list)
 
         self._add_tracks()
 

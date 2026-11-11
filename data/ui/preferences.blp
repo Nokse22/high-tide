@@ -43,6 +43,14 @@ Adw.PreferencesDialog _preference_window {
     }
 
     Adw.PreferencesGroup {
+      title: _("Content");
+      Adw.SwitchRow _hide_ai_row {
+        title: _("Hide AI-generated music");
+        subtitle: _("Leave AI-generated tracks out of lists and skip them during playback. TIDAL does not expose its AI content preference through the API, so this setting is stored locally.");
+      }
+    }
+
+    Adw.PreferencesGroup {
       title: _("App");
       Adw.SwitchRow _background_row {
         title: _("Run in the background");

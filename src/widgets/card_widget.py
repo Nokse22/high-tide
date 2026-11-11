@@ -31,7 +31,7 @@ from tidalapi.media import Track
 from tidalapi.page import PageItem
 
 from ..disconnectable_iface import IDisconnectable
-from ..lib import utils
+from ..lib import ai, utils
 
 import logging
 
@@ -56,6 +56,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
     play_revealer = Gtk.Template.Child()
     play_button = Gtk.Template.Child()
     title_label = Gtk.Template.Child()
+    ai_label = Gtk.Template.Child()
     detail_label = Gtk.Template.Child()
 
     track_artist_label = Gtk.Template.Child()
@@ -112,6 +113,8 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self._populate()
 
     def _populate(self):
+        self.ai_label.set_visible(ai.is_ai(self.item))
+
         if isinstance(self.item, MixV2) or isinstance(self.item, Mix):
             self._make_mix_card()
             self.action = "win.push-mix-page"

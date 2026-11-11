@@ -181,6 +181,13 @@ class HighTideApplication(Adw.Application):
                 Gio.SettingsBindFlags.DEFAULT,
             )
 
+            self.settings.bind(
+                "hide-ai-music",
+                builder.get_object("_hide_ai_row"),
+                "active",
+                Gio.SettingsBindFlags.DEFAULT,
+            )
+
             self.lastfm_status_row = builder.get_object("_lastfm_status_row")
             self.lastfm_connect_button = builder.get_object(
                 "_lastfm_connect_button"

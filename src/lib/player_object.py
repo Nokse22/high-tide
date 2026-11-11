@@ -451,6 +451,8 @@ class PlayerObject(GObject.GObject):
         self.play_source = source if source is not None else thing
         if tracks is None:
             tracks = self.get_track_list(thing)
+        else:
+            tracks = utils.filter_ai_items(tracks)
 
         if not tracks:
             logger.info("No tracks found to play")
@@ -516,7 +518,10 @@ class PlayerObject(GObject.GObject):
         elif isinstance(thing, Track):
             tracks_list = [thing]
 
-        return tracks_list
+        if tracks_list is None:
+            return None
+
+        return utils.filter_ai_items(tracks_list)
 
     def play(self) -> None:
         """Start playback of the current track."""
@@ -1032,15 +1037,17 @@ class PlayerObject(GObject.GObject):
             track = track_list.pop(0)
             self.play_track(track, gapless=gapless)
 
-    def skip_blocked(self) -> None:
-        """Leave out blocked tracks from what is left to play.
+    def skip_hidden(self) -> None:
+        """Leave out hidden tracks from what is left to play.
 
-        Removes them from the rest of the playing list and the played songs, and
-        skips the playing track if it was just blocked, as the official apps do.
+        Hidden tracks are the blocked ones, and AI-generated ones when they are
+        set to be hidden. Removes them from the rest of the playing list and the
+        played songs, and skips the playing track if it was just hidden, as the
+        official apps do.
         """
-        self._drop_blocked()
+        self._drop_hidden()
 
-        if self.playing_track and utils.is_blocked_by_artist(self.playing_track):
+        if self.playing_track and utils.is_hidden_track(self.playing_track):
             has_next = (
                 self.queue
                 or self._tracks_to_play
@@ -1050,22 +1057,21 @@ class PlayerObject(GObject.GObject):
                 self.pause()
             else:
                 self.play_next()
-                # play_next adds the blocked track to the played songs
-                self._drop_blocked()
+                # play_next adds the hidden track to the played songs
+                self._drop_hidden()
 
         self.can_go_next = len(self._tracks_to_play) > 0
         self.emit("song-added-to-queue")
 
-    def _drop_blocked(self) -> None:
+    def _drop_hidden(self) -> None:
         for track_list in (
+            self.queue,
             self._tracks_to_play,
             self._shuffled_tracks_to_play,
             self.played_songs,
         ):
             track_list[:] = [
-                track
-                for track in track_list
-                if not utils.is_blocked_by_artist(track)
+                track for track in track_list if not utils.is_hidden_track(track)
             ]
 
     def get_playing_source(self):
