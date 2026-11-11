@@ -142,13 +142,14 @@ template $HighTideWindow: Adw.ApplicationWindow {
                     spacing: 6;
 
                     Box {
-                      Label {
-                        label: bind song_title_label.label;
+                      Label miniplayer_title_label {
+                        label: _("No Song");
                         ellipsize: end;
                         xalign: 0;
 
                         styles [
                           "title-4",
+                          "title-link",
                         ]
                       }
 
@@ -400,13 +401,14 @@ template $HighTideWindow: Adw.ApplicationWindow {
                   ]
                 }
 
-                Label {
+                Label sidebar_title_label {
                   styles [
                     "title-4",
+                    "title-link",
                   ]
 
                   ellipsize: end;
-                  label: bind song_title_label.label;
+                  label: _("No Song");
                   vexpand: true;
                   hexpand: true;
                   xalign: 0.0;
@@ -497,6 +499,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
 
                       styles [
                         "title-1",
+                        "title-link",
                       ]
                     }
 
