@@ -21,7 +21,7 @@ import threading
 from gettext import gettext as _
 from typing import Any, Callable, List, Tuple
 
-from gi.repository import Gio, GLib, Gtk
+from gi.repository import Gdk, Gio, GLib, Gtk
 
 from ..lib import utils
 
@@ -30,13 +30,14 @@ class TrackMenu:
     """The menu of a track (go to album, add to queue, add to a playlist, block...).
 
     Fills the model of menu_button and adds the actions it uses to owner, under
-    the "trackwidget" prefix. The menu is built when it's first opened.
+    the "trackwidget" prefix. The menu is built when it's first opened. Without a
+    menu button, call popup() to show it, e.g. on a right click.
     """
 
     def __init__(
         self,
         owner: Gtk.Widget,
-        menu_button: Gtk.MenuButton,
+        menu_button: Gtk.MenuButton | None,
         track: Any,
         signals: List[Tuple[Any, int]],
     ) -> None:
@@ -50,14 +51,15 @@ class TrackMenu:
 
         self.menu = Gio.Menu()
         self.playlists_submenu = Gio.Menu()
-        menu_button.set_menu_model(self.menu)
 
         self.action_group = Gio.SimpleActionGroup()
         owner.insert_action_group("trackwidget", self.action_group)
 
-        self.signals.append(
-            (menu_button, menu_button.connect("notify::active", self._on_activate))
-        )
+        if menu_button is not None:
+            menu_button.set_menu_model(self.menu)
+            self.signals.append(
+                (menu_button, menu_button.connect("notify::active", self.prepare))
+            )
 
     def set_playlist(self, playlist, on_removed=None) -> None:
         """Show a "Remove from this playlist" option for one of the user's
@@ -70,7 +72,25 @@ class TrackMenu:
         self.playlist = playlist
         self.on_removed_from_playlist = on_removed
 
-    def _on_activate(self, *args) -> None:
+    def popup(self, x: float | None = None, y: float | None = None) -> None:
+        """Show the menu on owner, pointing at x, y if given"""
+        self.prepare()
+        popover = Gtk.PopoverMenu.new_from_model(self.menu)
+        popover.set_has_arrow(False)
+        popover.set_halign(Gtk.Align.START)
+        popover.set_parent(self.owner)
+        if x is not None and y is not None:
+            rect = Gdk.Rectangle()
+            rect.x, rect.y, rect.width, rect.height = int(x), int(y), 1, 1
+            popover.set_pointing_to(rect)
+        # A new one each time, removed when closed, so the owner keeps no children
+        popover.connect(
+            "closed", lambda p: GLib.idle_add(lambda: (p.unparent(), False)[1])
+        )
+        popover.popup()
+
+    def prepare(self, *args) -> None:
+        """Build the menu, or update its playlists and block items"""
         if not self.built:
             self._build()
         self._update_playlists_submenu()
