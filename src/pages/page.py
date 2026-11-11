@@ -298,18 +298,22 @@ class Page(Adw.NavigationPage, IDisconnectable):
 
         self.append(carousel)
 
-    def new_track_list_for(self, list_title, list_content, more_function=None):
+    def new_track_list_for(
+        self, list_title, list_content, more_function=None, source=None
+    ):
         """Create and append a track list widget with content.
 
         Args:
             list_title (str): The title to display for the track list
             list_content: List of Track objects to display
             more_function: Optional function to call when "See More" is clicked
+            source: What the tracks belong to (e.g. an artist), see play_this
         """
         if len(list_content) == 0:
             return
 
         tracks_list_widget = HTTracksListWidget(list_title)
+        tracks_list_widget.source = source
         tracks_list_widget.set_tracks_list(list_content)
 
         if more_function:

@@ -58,6 +58,14 @@ class HighTideApplication(Adw.Application):
 
         self.alsa_devices = utils.get_alsa_devices()
 
+        self.connect("shutdown", self.on_shutdown)
+
+    def on_shutdown(self, *args) -> None:
+        """Report the play in progress before the app closes"""
+        win = self.props.active_window
+        if win and getattr(win, "play_reporter", None):
+            win.play_reporter.flush()
+
     def do_open(self, files: List[Gio.File], n_files: int, hint: str) -> None:
         self.win: HighTideWindow | None = self.props.active_window
         if not self.win:
@@ -408,4 +416,5 @@ class HighTideApplication(Adw.Application):
 def main(version: str) -> int:
     """The application's entry point."""
     app: HighTideApplication = HighTideApplication()
+    app.set_version(version)
     return app.run(sys.argv)

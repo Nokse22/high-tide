@@ -43,6 +43,9 @@ logger = logging.getLogger(__name__)
 # segments about 4 s, and track durations are rounded to whole seconds.
 MAX_CACHE_GAP = 1.5
 
+# ALSA output holds the sound card exclusively, so it's let go after pausing this long
+ALSA_RELEASE_SECONDS = 5
+
 
 class RepeatType(IntEnum):
     NONE = 0
@@ -70,6 +73,8 @@ class PlayerObject(GObject.GObject):
         "songs-list-changed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         "update-slider": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "song-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
+        # old and new position in seconds
+        "seeked": (GObject.SignalFlags.RUN_FIRST, None, (float, float)),
         "song-added-to-queue": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "duration-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "volume-changed": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
@@ -115,6 +120,10 @@ class PlayerObject(GObject.GObject):
         self.discord_rpc_enabled = True
 
         self.alsa_device: str = alsa_device
+        # Position and duration (ns) of the paused track while the sound card is let go
+        self.released_at: tuple[int, int] | None = None
+        self.release_timer: int | None = None
+        self.resuming_released = False
         # Configure audio sink
         self._setup_audio_sink(preferred_sink)
 
@@ -135,6 +144,9 @@ class PlayerObject(GObject.GObject):
 
         self.queue: List[Track] = []
         self.current_mix_album_playlist: Union[Mix, Album, Playlist] | None = None
+        self.play_source = None
+        self.playing_from_queue = False
+        self._last_queued_track = None
         self._tracks_to_play: List[Track] = []
         self.tracks_to_play: List[Track] = []
         self._shuffled_tracks_to_play: List[Track] = []
@@ -221,6 +233,7 @@ class PlayerObject(GObject.GObject):
         }
 
         sink_name = sink_map.get(sink_type, "autoaudiosink")
+        self.sink_type = sink_type
 
         # add normalization to pipeline if set by settings
         normalization = ""
@@ -259,6 +272,7 @@ class PlayerObject(GObject.GObject):
         Args:
             sink_type (int): The audio sink `AudioSink` enum
         """
+        self._cancel_release()
         self.use_about_to_finish = False
         # Play the same track again after reload
         self.next_track = self.playing_track
@@ -363,6 +377,7 @@ class PlayerObject(GObject.GObject):
             self.playing_track = self.next_track
             self.next_track = None
         self.song_album = self.playing_track.album
+        self.playing_from_queue = self.playing_track is self._last_queued_track
         self.can_go_next = len(self._tracks_to_play) > 0
         self.can_go_prev = len(self.played_songs) > 0
         self.duration = self.query_duration()
@@ -381,6 +396,22 @@ class PlayerObject(GObject.GObject):
             bus: required by Gst
             message: required by Gst
         """
+        if self.resuming_released:
+            # The same track again, after letting go of the sound card while paused.
+            # The duration may not be known yet, so seek to the position itself
+            self.resuming_released = False
+            position = self.released_at[0] if self.released_at else 0
+            self.released_at = None
+            logger.info(f"Continuing at {position / Gst.SECOND:.1f}s")
+            if position:
+                self.last_seek_position = position
+                self.playbin.seek_simple(
+                    Gst.Format.TIME,
+                    Gst.SeekFlags.FLUSH | Gst.SeekFlags.ACCURATE,
+                    position,
+                )
+            return
+
         # apply replaygain first to avoid volume clipping
         # (Idk if that will happen but its the only thing that has effect on audio in here)
         if self.stream:
@@ -413,6 +444,7 @@ class PlayerObject(GObject.GObject):
         thing: Union[Mix, Album, Playlist, List[Track], Track],
         index: int = 0,
         tracks: List[Track] | None = None,
+        source=None,
     ) -> None:
         """Play tracks from a mix, album, playlist, or artist.
 
@@ -420,8 +452,11 @@ class PlayerObject(GObject.GObject):
             thing: An object (Mix, Album, Playlist, Artist, or list of Tracks) to play
             index (int): The index of the track to start playing (default: 0)
             tracks: The tracks of thing, if already fetched (default: None)
+            source: What a list of tracks was played from (Album, Playlist, Mix,
+                Artist), for the plays reported to TIDAL
         """
         self.current_mix_album_playlist = thing
+        self.play_source = source if source is not None else thing
         if tracks is None:
             tracks = self.get_track_list(thing)
 
@@ -438,7 +473,7 @@ class PlayerObject(GObject.GObject):
         track: Track = self._tracks_to_play.pop(0)
 
         if not track.available:
-            self.play_this(thing, index + 1, tracks)
+            self.play_this(thing, index + 1, tracks, source=source)
         else:
             self.tracks_to_play = self._tracks_to_play
             self.played_songs = []
@@ -451,15 +486,16 @@ class PlayerObject(GObject.GObject):
             self.play_track(track)
 
     def shuffle_this(
-        self, thing: Union[Mix, Album, Playlist, List[Track], Track]
+        self, thing: Union[Mix, Album, Playlist, List[Track], Track], source=None
     ) -> None:
         """Same as play_this, but enables shuffle mode.
 
         Args:
             thing: An object (Mix, Album, Playlist, Artist, or list of Tracks) to play
+            source: What a list of tracks was played from, see play_this
         """
         tracks: List[Track] = self.get_track_list(thing)
-        self.play_this(thing, random.randint(0, len(tracks)), tracks)
+        self.play_this(thing, random.randint(0, len(tracks)), tracks, source=source)
         self.shuffle = True
 
     def get_track_list(
@@ -492,7 +528,10 @@ class PlayerObject(GObject.GObject):
 
     def play(self) -> None:
         """Start playback of the current track."""
+        self._cancel_release()
         self.playing = True
+        if self.released_at:
+            self.resuming_released = True
         if self._stream_expires_soon():
             # Resuming after a long pause: get new stream urls (or play the track from
             # the cache) now, instead of failing to download the rest of it
@@ -513,9 +552,33 @@ class PlayerObject(GObject.GObject):
         """Pause playback of the current track."""
         self.playing = False
         self.pipeline.set_state(Gst.State.PAUSED)
+        self._cancel_release()
+        if self.sink_type == AudioSink.ALSA:
+            self.release_timer = GLib.timeout_add_seconds(
+                ALSA_RELEASE_SECONDS, self._release_sound_card
+            )
 
         if self.discord_rpc_enabled:
             discord_rpc.set_activity()
+
+    def _cancel_release(self) -> None:
+        if self.release_timer:
+            GLib.source_remove(self.release_timer)
+            self.release_timer = None
+
+    def _release_sound_card(self) -> bool:
+        """Stop the pipeline while paused, so other programs can use the sound card.
+
+        play() starts the track again from the same position.
+        """
+        self.release_timer = None
+        if self.playing or self.released_at or self.next_track:
+            # A track queued for gapless playback would play instead of this one
+            return False
+        self.released_at = (self.query_position(), self.query_duration())
+        self.pipeline.set_state(Gst.State.NULL)
+        logger.info("Paused on ALSA, let go of the sound card")
+        return False
 
     def play_pause(self) -> None:
         """Toggle between play and pause states."""
@@ -804,6 +867,9 @@ class PlayerObject(GObject.GObject):
             if duration:
                 self.seek_after_sink_reload = self.query_position() / duration
         if not gapless:
+            self._cancel_release()
+            self.released_at = None
+            self.resuming_released = False
             # A track played directly replaces the one queued for gapless playback,
             # which would otherwise be shown as playing when this one starts
             self.gapless_request = None
@@ -944,6 +1010,7 @@ class PlayerObject(GObject.GObject):
 
         if self.queue:
             track = self.queue.pop(0)
+            self._last_queued_track = track
             self.play_track(track, gapless=gapless)
             return
 
@@ -1001,6 +1068,14 @@ class PlayerObject(GObject.GObject):
                 for track in track_list
                 if not utils.is_blocked_by_artist(track)
             ]
+
+    def get_playing_source(self):
+        """What the playing track was played from: an Album, Playlist, Mix or
+        Artist, or something else (a track or a list) when it was played on its own
+        or from the queue"""
+        if self.playing_from_queue:
+            return self.playing_track
+        return self.play_source
 
     def play_previous(self):
         """Play the previous track or restart current track if near beginning."""
@@ -1129,6 +1204,8 @@ class PlayerObject(GObject.GObject):
         Returns:
             int: Duration in nanoseconds, or 0 if query failed
         """
+        if self.released_at:
+            return self.released_at[1]
         success, duration = self.playbin.query_duration(Gst.Format.TIME)
         return duration if success else 0
 
@@ -1141,6 +1218,8 @@ class PlayerObject(GObject.GObject):
         Returns:
             int: Position in nanoseconds, or default value if query failed
         """
+        if self.released_at:
+            return self.released_at[0]
         success, position = self.playbin.query_position(Gst.Format.TIME)
         return position if success else default
 
@@ -1160,12 +1239,18 @@ class PlayerObject(GObject.GObject):
             self.seeked_to_end = True
             self.play_next()
             return
+        old_position = self.query_position(default=0)
         position = int(seek_fraction * self.query_duration())
+        if self.released_at:
+            # Paused without the sound card: play() continues from here
+            self.released_at = (position, self.released_at[1])
+            return
         flags = Gst.SeekFlags.ACCURATE if accurate else Gst.SeekFlags.KEY_UNIT
         self.last_seek_position = position
         self.playbin.seek_simple(
             Gst.Format.TIME, Gst.SeekFlags.FLUSH | flags, position
         )
+        self.emit("seeked", old_position / Gst.SECOND, position / Gst.SECOND)
 
         if self.discord_rpc_enabled:
             discord_rpc.set_activity(self.playing_track, position // 1_000_000_000)

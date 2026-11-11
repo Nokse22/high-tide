@@ -7,7 +7,11 @@ on:
       - '**/README.md'
   pull_request:
     branches: [ "master" ]
-    types: [ "review_requested", "ready_for_review" ]
+    types: [ "opened", "synchronize", "reopened", "ready_for_review" ]
+
+concurrency:
+  group: flatpak-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 
 jobs:
   flatpak:

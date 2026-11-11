@@ -38,6 +38,7 @@ class TrackListPage(Page):
         self.append(builder.get_object("_main"))
 
         self.auto_load = builder.get_object("_auto_load")
+        self.auto_load.source = getattr(self, "item", None)
         self.auto_load.set_scrolled_window(self.scrolled_window)
         self.auto_load.set_items(tracks)
         if reload_function:
