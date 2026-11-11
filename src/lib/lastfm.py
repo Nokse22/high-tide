@@ -5,13 +5,15 @@
 import hashlib
 import json
 import logging
+import os
 import threading
 import time
 from gettext import gettext as _
+from pathlib import Path
 from urllib.parse import urlencode
 
 import requests
-from gi.repository import Secret
+from gi.repository import GLib, Secret
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +21,27 @@ API_KEY = "fdad22d7b86a0258ad6a0b8dbafa145d"
 API_SECRET = "f83f026124bc1e30a5a074c7e0d3c75e"
 
 
+# Last.fm takes scrobbles up to two weeks old, and at most 50 per request
+MAX_QUEUED_AGE = 14 * 24 * 3600
+MAX_BATCH = 50
+# Error codes worth trying again later: invalid session (until the user connects
+# again), service offline, temporarily unavailable and rate limited
+RETRY_ERRORS = {9, 11, 16, 29}
+
+
 class LastFmError(Exception):
-    """An error returned by the Last.fm API."""
+    """An error returned by the Last.fm API.
+
+    code is Last.fm's error code, or None when Last.fm couldn't be reached.
+    """
+
+    def __init__(self, message: str, code: int | None = None) -> None:
+        super().__init__(message)
+        self.code = code
+
+    @property
+    def retry(self) -> bool:
+        return self.code is None or self.code in RETRY_ERRORS
 
 
 class LastFmSecretStore:
@@ -113,15 +134,20 @@ class LastFmClient:
                 response = requests.get(
                     self.API_URL, params=request_params, timeout=15
                 )
-            response.raise_for_status()
-            result = response.json()
-        except (requests.RequestException, ValueError) as exc:
+        except requests.RequestException as exc:
             raise LastFmError(str(exc)) from exc
 
-        if "error" in result:
+        # Errors come with an error code in the body, also on HTTP errors
+        try:
+            result = response.json()
+        except ValueError:
+            result = None
+        if isinstance(result, dict) and "error" in result:
             raise LastFmError(
-                result.get("message", _("Unknown Last.fm error"))
+                result.get("message", _("Unknown Last.fm error")), result["error"]
             )
+        if not response.ok or not isinstance(result, dict):
+            raise LastFmError(f"HTTP {response.status_code}")
         return result
 
     def begin_authentication(self) -> str:
@@ -175,31 +201,102 @@ class LastFmClient:
         params = {**self._track_params(track), "sk": self.session_key}
         self._request("track.updateNowPlaying", params, post=True)
 
-    def scrobble(self, track, started_at: int):
-        params = {
-            **self._track_params(track),
-            "timestamp": str(started_at),
-            "sk": self.session_key,
-        }
-        self._request("track.scrobble", params, post=True)
+    def scrobble(self, entries: list[dict]) -> None:
+        """Scrobble up to 50 plays, each made by scrobble_entry()"""
+        params = {"sk": self.session_key}
+        for i, entry in enumerate(entries):
+            for key, value in entry.items():
+                params[f"{key}[{i}]"] = value
+        result = self._request("track.scrobble", params, post=True)
+        ignored = result.get("scrobbles", {}).get("@attr", {}).get("ignored", 0)
+        if str(ignored) != "0":
+            logger.info(f"Last.fm ignored {ignored} scrobble(s)")
+
+    @classmethod
+    def scrobble_entry(cls, track, started_at: int) -> dict:
+        return {**cls._track_params(track), "timestamp": str(started_at)}
+
+
+class LastFmQueue:
+    """Plays to scrobble, kept in a file until Last.fm takes them"""
+
+    def __init__(self, client: LastFmClient, path: Path | None = None) -> None:
+        self.client = client
+        self.path = path or Path(
+            GLib.get_user_data_dir(), "high-tide", "lastfm-queue.json"
+        )
+        self.lock = threading.Lock()
+
+    def _load(self) -> list[dict]:
+        try:
+            entries = json.loads(self.path.read_text())
+            return entries if isinstance(entries, list) else []
+        except FileNotFoundError:
+            return []
+        except (OSError, ValueError):
+            logger.exception("Couldn't read the Last.fm queue")
+            return []
+
+    def _save(self, entries: list[dict]) -> None:
+        try:
+            if not entries:
+                self.path.unlink(missing_ok=True)
+                return
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self.path.with_suffix(".tmp")
+            tmp.write_text(json.dumps(entries))
+            os.replace(tmp, self.path)
+        except OSError:
+            logger.exception("Couldn't save the Last.fm queue")
+
+    def send(self, entry: dict | None = None) -> None:
+        """Scrobble entry and everything kept from before, keeping what fails"""
+        with self.lock:
+            entries = self._load() + ([entry] if entry else [])
+            oldest = time.time() - MAX_QUEUED_AGE
+            entries = [e for e in entries if int(e.get("timestamp", 0)) > oldest]
+            if not entries or not self.client.authenticated:
+                self._save(entries)
+                return
+            unsent = []
+            for start in range(0, len(entries), MAX_BATCH):
+                batch = entries[start : start + MAX_BATCH]
+                if unsent:
+                    unsent += batch
+                    continue
+                try:
+                    self.client.scrobble(batch)
+                except LastFmError as exc:
+                    if exc.retry:
+                        logger.info(f"Couldn't scrobble, will try again later: {exc}")
+                        unsent += batch
+                    else:
+                        logger.warning(
+                            f"Last.fm refused {len(batch)} scrobble(s): {exc}"
+                        )
+            if unsent and len(entries) > len(unsent):
+                logger.info(f"Scrobbled {len(entries) - len(unsent)} play(s)")
+            self._save(unsent)
+
+    def clear(self) -> None:
+        with self.lock:
+            self._save([])
 
 
 class LastFmScrobbler:
     """Track listening time and submit eligible plays to Last.fm."""
 
-    MAX_PAUSE_SECONDS = 240
-
-    def __init__(self, player, client: LastFmClient) -> None:
+    def __init__(
+        self, player, client: LastFmClient, queue: LastFmQueue | None = None
+    ) -> None:
         self.player = player
         self.client = client
+        self.queue = queue or LastFmQueue(client)
         self.track = None
         self.started_at = 0
         self.listened_seconds = 0.0
         self.last_tick = None
-        self.paused_since = None
         self.last_position = 0.0
-        self.pause_status = False
-        self.pause_expired = False
         self.playback_started = False
         self.submitted = False
         self.generation = 0
@@ -208,13 +305,8 @@ class LastFmScrobbler:
         player.connect("update-slider", self.on_tick)
         player.connect("notify::playing", self.on_playing_changed)
 
-    def _pause_limit_seconds(self) -> float:
-        duration = getattr(self.track, "duration", 0) or 0
-        return (
-            min(duration / 2, self.MAX_PAUSE_SECONDS)
-            if duration > 0
-            else self.MAX_PAUSE_SECONDS
-        )
+        # Plays kept from an earlier run
+        self._run(self.queue.send)
 
     def _run(self, function, *args):
         generation = self.generation
@@ -233,10 +325,7 @@ class LastFmScrobbler:
         self.started_at = int(time.time())
         self.listened_seconds = 0.0
         self.last_tick = time.monotonic() if self.player.playing else None
-        self.paused_since = None
         self.last_position = 0.0
-        self.pause_status = not self.player.playing
-        self.pause_expired = False
         self.playback_started = self.player.playing
         self.submitted = False
         self.generation += 1
@@ -245,33 +334,18 @@ class LastFmScrobbler:
             self._run(self.client.update_now_playing, self.track)
 
     def on_playing_changed(self, *_args):
-        now = time.monotonic()
-        if self.player.playing:
-            if self.track and not self.playback_started:
-                self.playback_started = True
-                self.started_at = int(time.time())
-                if self.client.authenticated:
-                    self._run(self.client.update_now_playing, self.track)
-            if self.paused_since is not None:
-                if now - self.paused_since >= self._pause_limit_seconds():
-                    self.pause_expired = True
-            self.paused_since = None
-            self.pause_status = False
-            self.last_tick = now
+        if not self.player.playing:
+            self.last_tick = None
             return
-
-        self.pause_status = True
-        self.paused_since = now if self.playback_started else None
-        self.last_tick = None
+        if self.track and not self.playback_started:
+            self.playback_started = True
+            self.started_at = int(time.time())
+            if self.client.authenticated:
+                self._run(self.client.update_now_playing, self.track)
+        self.last_tick = time.monotonic()
 
     def on_tick(self, *_args):
-        if not self.track:
-            return
-
-        if not self.player.playing:
-            if self.paused_since is not None and not self.pause_expired:
-                if time.monotonic() - self.paused_since >= self._pause_limit_seconds():
-                    self.pause_expired = True
+        if not self.track or not self.player.playing:
             return
 
         now = time.monotonic()
@@ -287,19 +361,25 @@ class LastFmScrobbler:
         self.last_tick = now
         self.last_position = position
 
+        # Last.fm's rule: tracks over 30 s, played for half their length or 4 minutes
         duration = getattr(self.track, "duration", 0) or 0
         threshold = min(duration / 2, 240)
         if (
             self.client.authenticated
             and duration > 30
             and not self.submitted
-            and not self.pause_expired
             and self.listened_seconds >= threshold
         ):
             self.submitted = True
-            self._run(self.client.scrobble, self.track, self.started_at)
+            entry = self.client.scrobble_entry(self.track, self.started_at)
+            self._run(self.queue.send, entry)
 
     def credentials_changed(self):
         self.generation += 1
-        if self.track and self.player.playing and self.client.authenticated:
+        if not self.client.authenticated:
+            # The kept plays belong to the account that was disconnected
+            self._run(self.queue.clear)
+            return
+        self._run(self.queue.send)
+        if self.track and self.player.playing:
             self._run(self.client.update_now_playing, self.track)
