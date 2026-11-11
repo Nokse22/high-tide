@@ -196,6 +196,6 @@ def set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
 
 
 if has_pypresence:
-    rpc: Presence = Presence(client_id=1379096506065223680)
+    rpc: Presence = Presence(client_id=1570037786474455050)
     threading.Thread(target=th_run_tasks, name="discord-rpc", daemon=True).start()
     connect()
