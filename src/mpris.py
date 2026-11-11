@@ -239,7 +239,7 @@ class MPRIS(Server):
 
     def Next(self):
         """Skip to the next track in the playlist or queue"""
-        self.player.play_next()
+        self.player.play_next(skip=True)
 
     def Previous(self):
         """Skip to the previous track or restart the current track"""
