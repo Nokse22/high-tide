@@ -17,6 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import html
 import threading
 from gettext import gettext as _
 from pathlib import Path
@@ -60,6 +61,8 @@ class HighTideWindow(Adw.ApplicationWindow):
     play_button = Gtk.Template.Child()
     small_progress_bar = Gtk.Template.Child()
     song_title_label = Gtk.Template.Child()
+    miniplayer_title_label = Gtk.Template.Child()
+    sidebar_title_label = Gtk.Template.Child()
     playing_track_picture = Gtk.Template.Child()
     playing_track_image = Gtk.Template.Child()
     artist_label = Gtk.Template.Child()
@@ -216,6 +219,13 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.artist_label.connect("activate-link", utils.open_uri)
         self.miniplayer_artist_label.connect("activate-link", utils.open_uri)
+        self.title_labels = (
+            self.song_title_label,
+            self.miniplayer_title_label,
+            self.sidebar_title_label,
+        )
+        for label in self.title_labels:
+            label.connect("activate-link", utils.open_uri)
 
         self.session = utils.create_tidal_session()
 
@@ -393,8 +403,14 @@ class HighTideWindow(Adw.ApplicationWindow):
             return
 
         track_name = track.full_name if hasattr(track, "full_name") else track.name
-        self.song_title_label.set_label(track_name)
-        self.song_title_label.set_tooltip_text(track_name)
+        # The title links to its album, like the artists to theirs
+        if album:
+            markup = f"<a href='album:{album.id}'>{html.escape(track_name)}</a>"
+        else:
+            markup = html.escape(track_name)
+        for label in self.title_labels:
+            label.set_markup(markup)
+            label.set_tooltip_text(track_name)
         self.artist_label.set_artists(track.artists)
         self.explicit_label.set_visible(track.explicit)
 

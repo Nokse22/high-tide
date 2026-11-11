@@ -28,6 +28,16 @@
   color: #888;
 }
 
+/* Song titles link to their album but look like titles */
+.title-link link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.title-link link:hover {
+  text-decoration: underline;
+}
+
 .link-text {
   color: #888;
   text-decoration: underline;
