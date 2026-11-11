@@ -68,6 +68,8 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
         )
 
         self.tracks: List[Track] = []
+        # What the tracks belong to (e.g. the artist), see play_this
+        self.source = None
 
     def set_more_function(self, function: Callable) -> None:
         """Register the callback used to load the full list via the "More" button.
@@ -106,4 +108,4 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
     def _on_tracks_row_selected(self, list_box, row) -> None:
         index = int(row.get_name())
 
-        utils.player_object.play_this(self.tracks, index)
+        utils.player_object.play_this(self.tracks, index, source=self.source)

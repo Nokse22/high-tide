@@ -61,6 +61,9 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
 
         self.playlist = None
 
+        # What the tracks belong to (album, playlist, mix), see play_this
+        self.source = None
+
     def reset(self):
         """Reset the widget so it can be reused with new data"""
         self.items = []
@@ -216,4 +219,6 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
             self.parent.append(card)
 
     def _on_tracks_row_selected(self, list_box, row):
-        utils.player_object.play_this(self.items, row.index)
+        utils.player_object.play_this(
+            self.items, row.index, source=self.source
+        )
