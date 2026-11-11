@@ -1036,10 +1036,10 @@ def open_tidal_uri(uri: str) -> None:
         case "track":
             threading.Thread(target=th_play_track, args=(content_id,)).start()
         case "mix":
-            page = HTMixPage(content_id).load()
+            page = HTMixPage.new_from_id(content_id).load()
             navigation_view.push(page)
         case "playlist":
-            page = HTPlaylistPage(content_id).load()
+            page = HTPlaylistPage.new_from_id(content_id).load()
             navigation_view.push(page)
         case _:
             logger.warning(f"Unsupported content type: {content_type}")
