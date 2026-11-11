@@ -59,7 +59,8 @@ class AudioSink(IntEnum):
     ALSA = 2
     JACK = 3
     OSS = 4
-    PIPEWIRE = 5
+    # 5 was GStreamer's native PipeWire sink, which crackled and couldn't play
+    # gapless. Automatic plays through PipeWire too, via its PulseAudio server
 
 
 class PlayerObject(GObject.GObject):
@@ -104,9 +105,6 @@ class PlayerObject(GObject.GObject):
         else:
             logger.error("Could not create playbin3 element, trying playbin...")
             self.playbin = Gst.ElementFactory.make("playbin", "playbin")
-            self.gapless_enabled = False
-
-        if preferred_sink == AudioSink.PIPEWIRE:
             self.gapless_enabled = False
 
         self.use_about_to_finish = True
@@ -229,7 +227,6 @@ class PlayerObject(GObject.GObject):
             AudioSink.ALSA: f"alsasink device={self.alsa_device}",
             AudioSink.JACK: "jackaudiosink",
             AudioSink.OSS: "osssink",
-            AudioSink.PIPEWIRE: "pipewiresink",
         }
 
         sink_name = sink_map.get(sink_type, "autoaudiosink")
@@ -248,11 +245,6 @@ class PlayerObject(GObject.GObject):
         pipeline_str = (
             f"queue ! audioconvert ! {normalization} audioresample ! {sink_name}"
         )
-
-        if sink_type == AudioSink.PIPEWIRE:
-            self.gapless_enabled = False
-        else:
-            self.gapless_enabled = True
 
         try:
             audio_bin = Gst.parse_bin_from_description(pipeline_str, True)

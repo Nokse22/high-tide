@@ -30,6 +30,7 @@ from tidalapi.media import Quality
 from .lib import (HTCache, LastFmClient, LastFmScrobbler, LastFmSecretStore,
                   PlayerObject, RepeatType, SecretStore, utils)
 from .lib.play_reporter import PlayReporter
+from .lib.player_object import AudioSink
 from .login import LoginDialog
 from .mpris import MPRIS
 from .pages import (HTAlbumPage, HTArtistPage, HTCollectionPage, HTCreditsPage,
@@ -164,6 +165,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         #     'play-next',
         #     GLib.VariantType.new("s"),
         #     self.on_play_next)
+
+        if self.settings.get_int("preferred-sink") not in list(AudioSink):
+            # An output that isn't offered anymore
+            self.settings.set_int("preferred-sink", AudioSink.AUTO)
 
         self.player_object = PlayerObject(
             self.settings.get_int("preferred-sink"),
