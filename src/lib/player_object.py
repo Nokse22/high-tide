@@ -43,6 +43,9 @@ logger = logging.getLogger(__name__)
 # segments about 4 s, and track durations are rounded to whole seconds.
 MAX_CACHE_GAP = 1.5
 
+# ALSA output holds the sound card exclusively, so it's let go after pausing this long
+ALSA_RELEASE_SECONDS = 5
+
 
 class RepeatType(IntEnum):
     NONE = 0
@@ -115,6 +118,10 @@ class PlayerObject(GObject.GObject):
         self.discord_rpc_enabled = True
 
         self.alsa_device: str = alsa_device
+        # Position and duration (ns) of the paused track while the sound card is let go
+        self.released_at: tuple[int, int] | None = None
+        self.release_timer: int | None = None
+        self.resuming_released = False
         # Configure audio sink
         self._setup_audio_sink(preferred_sink)
 
@@ -221,6 +228,7 @@ class PlayerObject(GObject.GObject):
         }
 
         sink_name = sink_map.get(sink_type, "autoaudiosink")
+        self.sink_type = sink_type
 
         # add normalization to pipeline if set by settings
         normalization = ""
@@ -259,6 +267,7 @@ class PlayerObject(GObject.GObject):
         Args:
             sink_type (int): The audio sink `AudioSink` enum
         """
+        self._cancel_release()
         self.use_about_to_finish = False
         # Play the same track again after reload
         self.next_track = self.playing_track
@@ -381,6 +390,22 @@ class PlayerObject(GObject.GObject):
             bus: required by Gst
             message: required by Gst
         """
+        if self.resuming_released:
+            # The same track again, after letting go of the sound card while paused.
+            # The duration may not be known yet, so seek to the position itself
+            self.resuming_released = False
+            position = self.released_at[0] if self.released_at else 0
+            self.released_at = None
+            logger.info(f"Continuing at {position / Gst.SECOND:.1f}s")
+            if position:
+                self.last_seek_position = position
+                self.playbin.seek_simple(
+                    Gst.Format.TIME,
+                    Gst.SeekFlags.FLUSH | Gst.SeekFlags.ACCURATE,
+                    position,
+                )
+            return
+
         # apply replaygain first to avoid volume clipping
         # (Idk if that will happen but its the only thing that has effect on audio in here)
         if self.stream:
@@ -492,7 +517,10 @@ class PlayerObject(GObject.GObject):
 
     def play(self) -> None:
         """Start playback of the current track."""
+        self._cancel_release()
         self.playing = True
+        if self.released_at:
+            self.resuming_released = True
         if self._stream_expires_soon():
             # Resuming after a long pause: get new stream urls (or play the track from
             # the cache) now, instead of failing to download the rest of it
@@ -513,9 +541,33 @@ class PlayerObject(GObject.GObject):
         """Pause playback of the current track."""
         self.playing = False
         self.pipeline.set_state(Gst.State.PAUSED)
+        self._cancel_release()
+        if self.sink_type == AudioSink.ALSA:
+            self.release_timer = GLib.timeout_add_seconds(
+                ALSA_RELEASE_SECONDS, self._release_sound_card
+            )
 
         if self.discord_rpc_enabled:
             discord_rpc.set_activity()
+
+    def _cancel_release(self) -> None:
+        if self.release_timer:
+            GLib.source_remove(self.release_timer)
+            self.release_timer = None
+
+    def _release_sound_card(self) -> bool:
+        """Stop the pipeline while paused, so other programs can use the sound card.
+
+        play() starts the track again from the same position.
+        """
+        self.release_timer = None
+        if self.playing or self.released_at or self.next_track:
+            # A track queued for gapless playback would play instead of this one
+            return False
+        self.released_at = (self.query_position(), self.query_duration())
+        self.pipeline.set_state(Gst.State.NULL)
+        logger.info("Paused on ALSA, let go of the sound card")
+        return False
 
     def play_pause(self) -> None:
         """Toggle between play and pause states."""
@@ -804,6 +856,9 @@ class PlayerObject(GObject.GObject):
             if duration:
                 self.seek_after_sink_reload = self.query_position() / duration
         if not gapless:
+            self._cancel_release()
+            self.released_at = None
+            self.resuming_released = False
             # A track played directly replaces the one queued for gapless playback,
             # which would otherwise be shown as playing when this one starts
             self.gapless_request = None
@@ -1129,6 +1184,8 @@ class PlayerObject(GObject.GObject):
         Returns:
             int: Duration in nanoseconds, or 0 if query failed
         """
+        if self.released_at:
+            return self.released_at[1]
         success, duration = self.playbin.query_duration(Gst.Format.TIME)
         return duration if success else 0
 
@@ -1141,6 +1198,8 @@ class PlayerObject(GObject.GObject):
         Returns:
             int: Position in nanoseconds, or default value if query failed
         """
+        if self.released_at:
+            return self.released_at[0]
         success, position = self.playbin.query_position(Gst.Format.TIME)
         return position if success else default
 
@@ -1161,6 +1220,10 @@ class PlayerObject(GObject.GObject):
             self.play_next()
             return
         position = int(seek_fraction * self.query_duration())
+        if self.released_at:
+            # Paused without the sound card: play() continues from here
+            self.released_at = (position, self.released_at[1])
+            return
         flags = Gst.SeekFlags.ACCURATE if accurate else Gst.SeekFlags.KEY_UNIT
         self.last_seek_position = position
         self.playbin.seek_simple(
