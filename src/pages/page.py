@@ -81,6 +81,10 @@ class Page(Adw.NavigationPage, IDisconnectable):
         self.content_stack = self.builder.get_object("_content_stack")
         self.object = self.builder.get_object("_main")
         self.scrolled_window = self.builder.get_object("_scrolled_window")
+        retry_button = self.builder.get_object("_retry_button")
+        self.signals.append(
+            (retry_button, retry_button.connect("clicked", self._on_retry_clicked))
+        )
 
         self.set_child(self.object)
 
@@ -104,6 +108,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
                 self._load_async()
             except Exception:
                 logger.exception("Error while getting Page")
+                GLib.idle_add(self._show_load_error)
                 return
 
             GLib.idle_add(_loaded)
@@ -111,6 +116,15 @@ class Page(Adw.NavigationPage, IDisconnectable):
         threading.Thread(target=_load).start()
 
         return self
+
+    def _show_load_error(self) -> None:
+        self.set_title(_("Error"))
+        self.content_stack.set_visible_child_name("error")
+
+    def _on_retry_clicked(self, *args) -> None:
+        self.set_title(_("Loading..."))
+        self.content_stack.set_visible_child_name("loading")
+        self.load()
 
     def _load_async(self) -> None:
         """Fetch all data for the page in a background thread.
