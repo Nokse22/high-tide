@@ -22,7 +22,7 @@ import threading
 from gettext import gettext as _
 from typing import Any, Callable, List
 
-from gi.repository import Adw, Gdk, Gio, GLib, Gtk
+from gi.repository import Adw, Gio, GLib, Gtk
 
 from .lib import utils
 from .lib.player_object import AudioSink
@@ -90,13 +90,6 @@ class HighTideApplication(Adw.Application):
         """Activate the application by creating and presenting the main window."""
         self.win: HighTideWindow | None = self.props.active_window
         if not self.win:
-            # The custom symbolic icons are bundled in high-tide.gresource
-            # rather than installed into the user's icon theme. The display is
-            # guaranteed to exist by the time the application is activated.
-            icon_theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
-            icon_theme.add_resource_path(
-                "/io/github/nokse22/high-tide/icons",
-            )
             self.win = HighTideWindow(application=self)
 
         self.win.present()

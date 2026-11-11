@@ -425,7 +425,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         dimensions = utils.get_best_dimensions(self.playing_track_picture)
 
         if self.video_covers_enabled and album.video_cover:
-            video_dimensions = utils.get_best_dimensions(self.playing_track_picture)
             threading.Thread(
                 target=utils.add_video_cover,
                 args=(
@@ -435,7 +434,6 @@ class HighTideWindow(Adw.ApplicationWindow):
                     dimensions,
                     self.in_background,
                     self.image_canc,
-                    video_dimensions,
                 ),
             ).start()
         else:
