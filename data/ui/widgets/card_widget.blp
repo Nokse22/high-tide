@@ -58,14 +58,31 @@ template $HTCardWidget: Adw.BreakpointBin {
       }
     }
 
-    Label title_label {
-      styles [
-        "title-4",
-      ]
+    Box {
+      spacing: 6;
 
-      max-width-chars: 13;
-      xalign: 0;
-      ellipsize: end;
+      Label title_label {
+        styles [
+          "title-4",
+        ]
+
+        max-width-chars: 13;
+        xalign: 0;
+        ellipsize: end;
+        hexpand: true;
+      }
+
+      Label ai_label {
+        label: "AI";
+
+        styles [
+          "explicit-label",
+        ]
+
+        visible: false;
+        valign: center;
+        tooltip-text: _("AI-generated");
+      }
     }
 
     Box details_box {

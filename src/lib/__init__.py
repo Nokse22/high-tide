@@ -1,3 +1,4 @@
+from . import ai
 from .cache import HTCache
 from .discord_rpc import *
 from .lastfm import LastFmClient, LastFmScrobbler, LastFmSecretStore

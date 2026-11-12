@@ -30,6 +30,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# How many pages of hidden AI tracks to skip over before giving up
+MAX_EMPTY_PAGES = 20
+
 
 @Gtk.Template(
     resource_path="/io/github/nokse22/high-tide/ui/widgets/auto_load_widget.ui"
@@ -55,6 +58,8 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
 
         self.items_limit = 50
         self.items_n = 0
+        # Items requested so far, including the AI-generated ones left out
+        self.offset = 0
 
         self.handler_id = None
         self.scrolled_window = None
@@ -68,6 +73,7 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         """Reset the widget so it can be reused with new data"""
         self.items = []
         self.items_n = 0
+        self.offset = 0
         self.type = None
         self.is_loading = False
 
@@ -99,7 +105,12 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         if not items:
             return
 
-        self.items = list(items)
+        raw_items = list(items)
+        self.offset = len(raw_items)
+        self.items = utils.filter_ai_items(raw_items)
+
+        if not self.items:
+            return
 
         self.type = utils.get_type(self.items[0])
 
@@ -132,15 +143,31 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
             return
         self.is_loading = True
         GLib.idle_add(self.spinner.set_visible, True)
-        try:
-            new_items = self.function(limit=self.items_limit, offset=self.items_n)
-        except TypeError:
-            new_items = []
-        self.items.extend(new_items)
-        if new_items == []:
+
+        # Keep asking while the pages only hold hidden AI tracks, so the list
+        # fills up instead of stopping early
+        new_items = []
+        for _page in range(MAX_EMPTY_PAGES):
+            try:
+                raw_items = self.function(limit=self.items_limit, offset=self.offset)
+            except TypeError:
+                raw_items = []
+            if not raw_items:
+                GLib.idle_add(self._on_items_exhausted)
+                return
+            # Count what was fetched, so a page of hidden AI tracks doesn't make
+            # the next request repeat the same items
+            self.offset += len(raw_items)
+            new_items = utils.filter_ai_items(raw_items)
+            if new_items:
+                break
+
+        if not new_items:
             GLib.idle_add(self._on_items_exhausted)
             return
-        elif self.type is None:
+
+        self.items.extend(new_items)
+        if self.type is None:
             self.type = utils.get_type(new_items[0])
 
         def _add():

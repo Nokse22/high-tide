@@ -23,7 +23,7 @@ import threading
 from gi.repository import GObject, Gtk
 
 from ..disconnectable_iface import IDisconnectable
-from ..lib import utils
+from ..lib import ai, utils
 from .track_menu import TrackMenu
 
 import logging
@@ -51,6 +51,7 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     track_duration_label = Gtk.Template.Child()
     _grid = Gtk.Template.Child()
     explicit_label = Gtk.Template.Child()
+    ai_label = Gtk.Template.Child()
 
     artist_label = Gtk.Template.Child()
     artist_label_2 = Gtk.Template.Child()
@@ -96,6 +97,7 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         self.artist_label.set_artists(self.track.artists)
 
         self.explicit_label.set_visible(self.track.explicit)
+        self.ai_label.set_visible(ai.is_ai(self.track))
 
         self.track_duration_label.set_label(utils.pretty_duration(self.track.duration))
 

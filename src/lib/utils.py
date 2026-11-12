@@ -42,6 +42,7 @@ from tidalapi.media import Track, Video
 from tidalapi.types import ItemOrder, OrderDirection
 
 from ..pages import HTAlbumPage, HTArtistPage, HTMixPage, HTPlaylistPage
+from . import ai
 from .cache import HTCache
 
 logger = logging.getLogger(__name__)
@@ -67,6 +68,8 @@ def init() -> None:
     Sets up the cache directory structure, creates necessary directories,
     and initializes the global cache object for TIDAL API responses.
     """
+    ai.install()
+
     global CACHE_DIR
     CACHE_DIR = os.environ.get("XDG_CACHE_HOME")
     if CACHE_DIR == "" or CACHE_DIR is None or "high-tide" not in CACHE_DIR:
@@ -533,6 +536,30 @@ def is_hidden_by_block(item: Any) -> bool:
     return False
 
 
+def is_hidden_track(track: Any) -> bool:
+    """Check if the player should leave a track out of playback.
+
+    Args:
+        track: A TIDAL Track
+
+    Returns:
+        bool: True if the track is blocked, or AI-generated and set to be hidden
+    """
+    return is_blocked_by_artist(track) or ai.is_hidden(track)
+
+
+def filter_ai_items(items: List[Any]) -> List[Any]:
+    """Leave out AI-generated items when the preference hides them.
+
+    Args:
+        items: TIDAL tracks or albums
+
+    Returns:
+        list: The items that should be shown
+    """
+    return ai.filter_items(items)
+
+
 def th_block(item: Any, callback: Any = None) -> None:
     """Thread function to block an artist, track or video on TIDAL.
 
@@ -584,7 +611,7 @@ def _on_blocked_changed(item: Any, blocked: bool, callback: Any) -> None:
     if blocked:
         blocked_list.append(item)
         send_toast(_("Blocked {}").format(item.name), 2)
-        player_object.skip_blocked()
+        player_object.skip_hidden()
     else:
         send_toast(_("Unblocked {}").format(item.name), 2)
 

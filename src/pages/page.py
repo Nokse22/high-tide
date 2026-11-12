@@ -299,6 +299,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
             carousel_content: List of items to display in the carousel
             more_function: Optional function to call when "See More" is clicked
         """
+        carousel_content = utils.filter_ai_items(carousel_content)
         if len(carousel_content) == 0 or all(
             isinstance(item, Video) for item in carousel_content
         ):

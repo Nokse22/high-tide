@@ -29,7 +29,7 @@ from tidalapi.playlist import Playlist
 from tidalapi.media import Track
 
 from ..disconnectable_iface import IDisconnectable
-from ..lib import utils
+from ..lib import ai, utils
 from .track_menu import TrackMenu
 
 
@@ -41,6 +41,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
 
     image = Gtk.Template.Child()
     primary_label = Gtk.Template.Child()
+    ai_label = Gtk.Template.Child()
     secondary_label = Gtk.Template.Child()
     play_button = Gtk.Template.Child()
     shuffle_button = Gtk.Template.Child()
@@ -60,6 +61,7 @@ class HTTopHitWidget(Gtk.Box, IDisconnectable):
         )
 
         self.item = _item
+        self.ai_label.set_visible(ai.is_ai(_item))
 
         self.action = None
         self.action_target = str(_item.id)

@@ -54,14 +54,31 @@ template $HTTopHitWidget: Box {
           orientation: vertical;
           spacing: 6;
 
-          Label primary_label {
-            styles [
-              "title-1",
-            ]
+          Box {
+            spacing: 6;
 
-            ellipsize: end;
-            vexpand: true;
-            xalign: 0.0;
+            Label primary_label {
+              styles [
+                "title-1",
+              ]
+
+              ellipsize: end;
+              vexpand: true;
+              xalign: 0.0;
+            }
+
+            Label ai_label {
+              label: "AI";
+
+              styles [
+                "explicit-label",
+                "title-1",
+              ]
+
+              visible: false;
+              valign: center;
+              tooltip-text: _("AI-generated");
+            }
           }
 
           Label secondary_label {
