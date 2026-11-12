@@ -37,6 +37,8 @@ template $HTQueueWidget: Box {
           }
 
           ListBox played_songs_list {
+            row-activated => $on_played_song_activated();
+
             styles [
               "tracks-list-box",
             ]
@@ -59,6 +61,8 @@ template $HTQueueWidget: Box {
           }
 
           ListBox queued_songs_list {
+            row-activated => $on_queued_song_activated();
+
             styles [
               "tracks-list-box",
             ]
@@ -81,6 +85,8 @@ template $HTQueueWidget: Box {
           }
 
           ListBox next_songs_list {
+            row-activated => $on_next_song_activated();
+
             styles [
               "tracks-list-box",
             ]

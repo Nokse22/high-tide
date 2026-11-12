@@ -19,6 +19,7 @@
 
 from gi.repository import Gtk
 
+from ..lib import utils
 from ..widgets.generic_track_widget import HTGenericTrackWidget
 
 
@@ -36,6 +37,30 @@ class HTQueueWidget(Gtk.Box):
     played_songs_box = Gtk.Template.Child()
     queued_songs_box = Gtk.Template.Child()
     next_songs_box = Gtk.Template.Child()
+
+    @Gtk.Template.Callback("on_played_song_activated")
+    def _on_played_song_activated(self, list_box, row) -> None:
+        player = utils.player_object
+        self._play_row(row, player.played_songs, player.play_from_played_songs)
+
+    @Gtk.Template.Callback("on_queued_song_activated")
+    def _on_queued_song_activated(self, list_box, row) -> None:
+        player = utils.player_object
+        self._play_row(row, player.queue, player.play_from_queue)
+
+    @Gtk.Template.Callback("on_next_song_activated")
+    def _on_next_song_activated(self, list_box, row) -> None:
+        player = utils.player_object
+        self._play_row(row, player.tracks_to_play, player.play_from_next_songs)
+
+    def _play_row(self, row, tracks, play) -> None:
+        index = int(row.get_name())
+        if index >= len(tracks) or tracks[index] is not row.track:
+            # The list changed since it was shown
+            index = next((i for i, t in enumerate(tracks) if t is row.track), None)
+            if index is None:
+                return
+        play(index)
 
     def update_all(self, player) -> None:
         """Updates played songs, queue and next songs"""
