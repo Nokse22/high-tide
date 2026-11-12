@@ -14,3 +14,7 @@ node_modules/
 # nix dirs
 /result
 /.direnv
+
+# Python
+__pycache__/
+*.pyc
