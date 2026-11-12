@@ -94,6 +94,39 @@ Adw.PreferencesDialog _preference_window {
         }
       }
     }
+
+    Adw.PreferencesGroup {
+      title: _("ListenBrainz");
+      description: _("Send the songs you play to your ListenBrainz profile.");
+
+      Adw.PasswordEntryRow _listenbrainz_token_row {
+        title: _("User Token");
+        show-apply-button: true;
+      }
+
+      Adw.ActionRow _listenbrainz_token_help_row {
+        title: _("Get Your User Token");
+        subtitle: "listenbrainz.org/settings";
+        activatable: true;
+
+        [suffix]
+        Image {
+          icon-name: "adw-external-link-symbolic";
+        }
+      }
+
+      Adw.ActionRow _listenbrainz_status_row {
+        title: _("Connected");
+        visible: false;
+
+        [suffix]
+        Button _listenbrainz_disconnect_button {
+          label: _("Disconnect");
+          valign: center;
+          visible: false;
+        }
+      }
+    }
   }
 
   Adw.PreferencesPage {

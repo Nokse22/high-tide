@@ -25,6 +25,7 @@ from typing import Any, Callable, List
 from gi.repository import Adw, Gio, GLib, Gtk
 
 from .lib import utils
+from .lib.listenbrainz import SETTINGS_URL as LISTENBRAINZ_SETTINGS_URL
 from .lib.player_object import AudioSink
 from .window import HighTideWindow
 
@@ -203,6 +204,32 @@ class HighTideApplication(Adw.Application):
             )
             self.lastfm_auth_pending = False
             self.update_lastfm_preferences()
+
+            self.listenbrainz_token_row = builder.get_object(
+                "_listenbrainz_token_row"
+            )
+            self.listenbrainz_token_help_row = builder.get_object(
+                "_listenbrainz_token_help_row"
+            )
+            self.listenbrainz_status_row = builder.get_object(
+                "_listenbrainz_status_row"
+            )
+            self.listenbrainz_disconnect_button = builder.get_object(
+                "_listenbrainz_disconnect_button"
+            )
+            self.listenbrainz_token_row.connect(
+                "apply", self.on_listenbrainz_token_applied
+            )
+            self.listenbrainz_token_help_row.connect(
+                "activated",
+                lambda *_: Gio.AppInfo.launch_default_for_uri(
+                    LISTENBRAINZ_SETTINGS_URL, None
+                ),
+            )
+            self.listenbrainz_disconnect_button.connect(
+                "clicked", self.on_listenbrainz_disconnect_clicked
+            )
+            self.update_listenbrainz_preferences()
 
             self.alsa_row = builder.get_object("_alsa_device_row")
 
@@ -389,6 +416,53 @@ class HighTideApplication(Adw.Application):
         self.lastfm_auth_pending = False
         self.win.lastfm_scrobbler.credentials_changed()
         self.update_lastfm_preferences()
+
+    def update_listenbrainz_preferences(self, error: str | None = None) -> None:
+        client = self.win.listenbrainz_client
+        connected = client.authenticated
+        self.listenbrainz_token_row.set_sensitive(True)
+        self.listenbrainz_token_row.set_visible(not connected)
+        self.listenbrainz_token_help_row.set_visible(not connected)
+        self.listenbrainz_disconnect_button.set_visible(connected)
+        self.listenbrainz_status_row.set_visible(connected or bool(error))
+
+        if error:
+            self.listenbrainz_status_row.set_title(_("Connection failed"))
+            self.listenbrainz_status_row.set_subtitle(error)
+        elif connected:
+            self.listenbrainz_status_row.set_title(
+                _("Connected as {username}").format(username=client.username)
+            )
+            self.listenbrainz_status_row.set_subtitle(
+                _("Songs you listen to will be sent to ListenBrainz.")
+            )
+
+    def on_listenbrainz_token_applied(self, row) -> None:
+        token = row.get_text()
+        row.set_sensitive(False)
+
+        def connect():
+            try:
+                self.win.listenbrainz_client.connect(token)
+            except Exception as exc:
+                GLib.idle_add(self.on_listenbrainz_connect_failed, str(exc))
+                return
+            GLib.idle_add(self.on_listenbrainz_connected)
+
+        threading.Thread(target=connect, daemon=True).start()
+
+    def on_listenbrainz_connected(self) -> None:
+        self.listenbrainz_token_row.set_text("")
+        self.win.listenbrainz_scrobbler.credentials_changed()
+        self.update_listenbrainz_preferences()
+
+    def on_listenbrainz_connect_failed(self, message: str) -> None:
+        self.update_listenbrainz_preferences(message)
+
+    def on_listenbrainz_disconnect_clicked(self, *_args) -> None:
+        self.win.listenbrainz_client.disconnect()
+        self.win.listenbrainz_scrobbler.credentials_changed()
+        self.update_listenbrainz_preferences()
 
     def deactive_alsa_device_row(self, widget: Any, *args) -> None:
         alsa_used = widget.get_selected() == AudioSink.ALSA

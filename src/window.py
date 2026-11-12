@@ -28,7 +28,9 @@ from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Xdp, Gdk
 from tidalapi.media import Quality
 
 from .lib import (HTCache, LastFmClient, LastFmScrobbler, LastFmSecretStore,
-                  PlayerObject, RepeatType, SecretStore, ai, utils)
+                  ListenBrainzClient, ListenBrainzScrobbler,
+                  ListenBrainzSecretStore, PlayerObject, RepeatType, SecretStore,
+                  ai, utils)
 from .lib.play_reporter import PlayReporter
 from .lib.player_object import AudioSink
 from .login import LoginDialog
@@ -195,6 +197,12 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.lastfm_client = LastFmClient(LastFmSecretStore())
         self.lastfm_scrobbler = LastFmScrobbler(
             self.player_object, self.lastfm_client
+        )
+        self.listenbrainz_client = ListenBrainzClient(
+            ListenBrainzSecretStore(), self.get_application().get_version() or ""
+        )
+        self.listenbrainz_scrobbler = ListenBrainzScrobbler(
+            self.player_object, self.listenbrainz_client
         )
 
         self.volume_button.get_adjustment().set_value(
