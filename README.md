@@ -46,13 +46,31 @@ If you want/need locales, please build from source.
 
 ### ⚡ From source (binary)
 
-You just need to clone the repository, and build with meson.
+You need:
+
+- Meson 0.62 or newer, blueprint-compiler, gettext and desktop-file-utils
+- Python 3 with PyGObject
+- GTK 4 and libadwaita 1.8 or newer (GNOME 49 or later)
+- GStreamer with the base and good plugins, plus an AAC decoder (from the bad plugins or libav) for the Low and High qualities
+- libsecret, libportal, and a keyring such as GNOME Keyring or KWallet
+- The Python packages tidalapi, requests and pypresence 4.5 or newer
+- Optional: ffmpeg to keep played songs in the cache, alsa-utils for the ALSA output
+
+On Fedora 43 or newer, for example:
+
+```sh
+sudo dnf install meson blueprint-compiler gettext desktop-file-utils python3-gobject python3-requests python3-pip gtk4 libadwaita libsecret libportal gstreamer1-plugins-good gstreamer1-plugins-bad-free
+pip install --user tidalapi pypresence
+```
+
+Then clone the repository, and build with meson.
 
 ```sh
 git clone https://github.com/Nokse22/high-tide.git
-meson builddir
+cd high-tide
+meson setup builddir
 meson compile -C builddir
-meson install -C builddir
+sudo meson install -C builddir
 ```
 
 Or open the project in GNOME Builder and click "Run Project".
