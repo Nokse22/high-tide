@@ -205,9 +205,13 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.player_object, self.listenbrainz_client
         )
 
-        self.volume_button.get_adjustment().set_value(
-            self.settings.get_int("last-volume") / 10
-        )
+        if self.settings.get_user_value("volume") is None:
+            # Saved in tenths by older versions
+            volume = self.settings.get_int("last-volume") / 10
+        else:
+            volume = self.settings.get_double("volume")
+        self.volume_button.get_adjustment().set_value(volume)
+        self._setup_volume_button()
 
         self.player_object.connect("notify::shuffle", self.on_shuffle_changed)
         self.player_object.connect("update-slider", self.update_slider)
@@ -707,7 +711,56 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_volume_changed")
     def on_volume_changed_func(self, widget, value):
         self.player_object.change_volume(value)
-        self.settings.set_int("last-volume", int(value * 10))
+        self.settings.set_double("volume", value)
+
+    def _setup_volume_button(self) -> None:
+        """Let the volume slider move in 1% steps (GTK rounds it to tenths), open it
+        when the pointer is over its button, as tidal.com does, and close it shortly
+        after the pointer leaves the button and slider"""
+        widgets = [self.volume_button.get_popup()]
+        while widgets:
+            widget = widgets.pop()
+            if isinstance(widget, Gtk.Scale):
+                widget.set_round_digits(2)
+                break
+            child = widget.get_first_child()
+            while child:
+                widgets.append(child)
+                child = child.get_next_sibling()
+
+        self._volume_close_id = 0
+        self._volume_motions = []
+        for widget in (self.volume_button, self.volume_button.get_popup()):
+            motion = Gtk.EventControllerMotion()
+            motion.connect("enter", self._on_volume_pointer_enter)
+            motion.connect("leave", self._on_volume_pointer_leave)
+            widget.add_controller(motion)
+            self._volume_motions.append(motion)
+
+    @staticmethod
+    def _from_touch(motion) -> bool:
+        device = motion.get_current_event_device()
+        return bool(device) and device.get_source() == Gdk.InputSource.TOUCHSCREEN
+
+    def _on_volume_pointer_enter(self, motion, x, y) -> None:
+        if self._from_touch(motion):
+            return
+        if self._volume_close_id:
+            GLib.source_remove(self._volume_close_id)
+            self._volume_close_id = 0
+        if not self.volume_button.get_popup().get_visible():
+            self.volume_button.emit("popup")
+
+    def _on_volume_pointer_leave(self, motion) -> None:
+        if self._from_touch(motion) or self._volume_close_id:
+            return
+        self._volume_close_id = GLib.timeout_add(300, self._close_volume_popup)
+
+    def _close_volume_popup(self) -> bool:
+        self._volume_close_id = 0
+        if not any(motion.contains_pointer() for motion in self._volume_motions):
+            self.volume_button.emit("popdown")
+        return False
 
     @Gtk.Template.Callback("on_slider_seek")
     def on_slider_seek(self, *args):
@@ -785,7 +838,11 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.duration = self.player_object.duration
         end_value = self.duration / Gst.SECOND
 
-        self.volume_button.get_adjustment().set_value(self.player_object.query_volume())
+        # Follow changes from elsewhere (media controls, the system's mixer)
+        volume = self.player_object.query_volume()
+        adjustment = self.volume_button.get_adjustment()
+        if abs(adjustment.get_value() - volume) > 0.005:
+            adjustment.set_value(volume)
         self.duration_label.set_label(utils.pretty_duration(end_value))
 
         position_ns = self.player_object.query_position(default=None)
