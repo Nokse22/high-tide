@@ -1111,6 +1111,52 @@ class PlayerObject(GObject.GObject):
             self._tracks_to_play.insert(0, self.playing_track)
         self.play_track(track)
 
+    def play_from_next_songs(self, index: int) -> None:
+        """Play a track from the tracks to play, as shown in the queue.
+
+        Same as pressing Next until it, but the queued tracks stay queued.
+        """
+        track_list = (
+            self._shuffled_tracks_to_play if self.shuffle else self._tracks_to_play
+        )
+        if not 0 <= index < len(track_list):
+            return
+        if self.playing_track:
+            self.played_songs.append(self.playing_track)
+        self.played_songs.extend(track_list[:index])
+        track = track_list[index]
+        del track_list[: index + 1]
+        # Clicking a song plays it, also when paused
+        self.playing = True
+        self.play_track(track)
+
+    def play_from_queue(self, index: int) -> None:
+        """Play a queued track now, the rest of the queue stays as it is"""
+        if not 0 <= index < len(self.queue):
+            return
+        if self.playing_track:
+            self.played_songs.append(self.playing_track)
+        track = self.queue.pop(index)
+        self._last_queued_track = track
+        self.playing = True
+        self.play_track(track)
+
+    def play_from_played_songs(self, index: int) -> None:
+        """Play a track from the played songs, same as pressing Previous until it"""
+        if not 0 <= index < len(self.played_songs):
+            return
+        track = self.played_songs[index]
+        back = self.played_songs[index + 1 :]
+        if self.playing_track:
+            back.append(self.playing_track)
+        del self.played_songs[index:]
+        track_list = (
+            self._shuffled_tracks_to_play if self.shuffle else self._tracks_to_play
+        )
+        track_list[:0] = back
+        self.playing = True
+        self.play_track(track)
+
     def previous_timer_callback(self):
         """Send a notify Event after 2s of the song playing"""
         self.can_go_prev = True
