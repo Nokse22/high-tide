@@ -103,6 +103,10 @@ class Renderer:
     def set_uri(self, url: str, metadata: str) -> None:
         self._transport("SetAVTransportURI", CurrentURI=url, CurrentURIMetaData=metadata)
 
+    def load(self, url: str, mime: str, track) -> None:
+        """Load a track, play() starts it"""
+        self.set_uri(url, track_metadata(track, url, mime))
+
     def play(self) -> None:
         self._transport("Play", Speed=1)
 

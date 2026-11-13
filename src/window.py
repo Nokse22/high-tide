@@ -19,6 +19,7 @@
 
 import html
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from gettext import gettext as _
 from pathlib import Path
 from typing import Callable
@@ -31,7 +32,7 @@ from .lib import (HTCache, LastFmClient, LastFmScrobbler, LastFmSecretStore,
                   ListenBrainzClient, ListenBrainzScrobbler,
                   ListenBrainzSecretStore, PlayerObject, RepeatType, SecretStore,
                   ai, utils)
-from .lib import dlna
+from .lib import cast, dlna
 from .lib.play_reporter import PlayReporter
 from .lib.player_object import AudioSink
 from .login import LoginDialog
@@ -779,7 +780,15 @@ class HighTideWindow(Adw.ApplicationWindow):
         self._fill_output_list(getattr(self, "_found_renderers", []))
 
         def search():
-            renderers = dlna.discover()
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                found = [pool.submit(dlna.discover), pool.submit(cast.discover)]
+                renderers = []
+                for future in found:
+                    try:
+                        renderers += future.result()
+                    except Exception:
+                        logger.exception("Couldn't search for devices")
+            renderers.sort(key=lambda r: r.name.lower())
             GLib.idle_add(self._on_outputs_found, renderers)
 
         threading.Thread(target=search, daemon=True).start()

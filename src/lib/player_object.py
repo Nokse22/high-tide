@@ -37,7 +37,7 @@ from tidalapi.mix import Mix
 from tidalapi.playlist import Playlist
 from tidalapi.media import Track, ManifestMimeType
 
-from . import discord_rpc, dlna, utils
+from . import cast, discord_rpc, dlna, utils
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +94,7 @@ class PlayerObject(GObject.GObject):
         GObject.GObject.__init__(self)
 
         # The DLNA device playing instead of this computer, see set_renderer
-        self.renderer: dlna.Renderer | None = None
+        self.renderer: dlna.Renderer | cast.CastDevice | None = None
 
         Gst.init(None)
 
@@ -1394,8 +1394,8 @@ class PlayerObject(GObject.GObject):
         if self.discord_rpc_enabled:
             discord_rpc.set_activity(self.playing_track, position // 1_000_000_000)
 
-    def set_renderer(self, renderer: "dlna.Renderer | None") -> None:
-        """Play on a DLNA device, or on this computer with None.
+    def set_renderer(self, renderer: "dlna.Renderer | cast.CastDevice | None") -> None:
+        """Play on a DLNA or Google Cast device, or on this computer with None.
 
         The playing track continues at the same position on the new output.
         """
@@ -1407,6 +1407,8 @@ class PlayerObject(GObject.GObject):
         self._remote_resume_at = 0.0
         if old:
             self._remote_command(old.stop)
+            if isinstance(old, cast.CastDevice):
+                self._remote_command(old.close)
         else:
             self._cancel_release()
             self.released_at = None
@@ -1462,12 +1464,11 @@ class PlayerObject(GObject.GObject):
             if token != self._remote_token:
                 return
             url = self._media_server.add(path, "audio/flac", renderer.host, "flac")
-            metadata = dlna.track_metadata(track, url, "audio/flac")
 
             def load():
                 if token != self._remote_token:
                     return
-                renderer.set_uri(url, metadata)
+                renderer.load(url, "audio/flac", track)
                 if self.playing:
                     renderer.play()
                     if position > 1:
