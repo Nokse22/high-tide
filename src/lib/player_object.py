@@ -82,6 +82,8 @@ class PlayerObject(GObject.GObject):
         "duration-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "volume-changed": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
         "buffering": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+        # Playing moved to another device or back here, see set_renderer
+        "renderer-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
     }
 
     def __init__(
@@ -894,6 +896,11 @@ class PlayerObject(GObject.GObject):
 
     def _play_track_url(self, track, music_url, gapless=False):
         """Set up and play track from URL."""
+        if self.renderer:
+            # A device was picked while the track was loading here
+            if not gapless:
+                self._play_remote(track)
+            return
         if gapless:
             self.loading_gapless = False
             if track is not self.gapless_request:
@@ -1421,6 +1428,7 @@ class PlayerObject(GObject.GObject):
             self._media_server = dlna.MediaServer()
         self.renderer = renderer
         logger.info(f"Playing on {renderer.name if renderer else 'this computer'}")
+        self.emit("renderer-changed")
         if renderer:
             self._remote_command(self._read_remote_volume, renderer)
         else:
@@ -1520,17 +1528,21 @@ class PlayerObject(GObject.GObject):
         return False
 
     def _poll_remote(self, renderer, token) -> None:
-        """Follow the position on the device, and play the next track at the end"""
+        """Follow the position on the device, play the next track at the end, and
+        step back when another app takes the device over"""
         was_playing = False
         while token == self._remote_token:
             try:
-                state = renderer.get_state()
                 position, duration = renderer.get_position()
+                state = renderer.get_state()
             except Exception as e:
                 logger.warning(f"DLNA device not answering: {e}")
                 time.sleep(2)
                 continue
             if token != self._remote_token:
+                return
+            if state == "TAKEN_OVER":
+                GLib.idle_add(self._remote_taken_over, renderer, token)
                 return
             if state in ("PLAYING", "PAUSED_PLAYBACK"):
                 was_playing = was_playing or state == "PLAYING"
@@ -1539,9 +1551,35 @@ class PlayerObject(GObject.GObject):
                     self.remote_duration = duration
             elif state in ("STOPPED", "NO_MEDIA_PRESENT") and was_playing:
                 if self.playing:
-                    GLib.idle_add(self._remote_ended, token)
+                    if self.remote_position < self.remote_duration - 5:
+                        # Stopped from elsewhere (its remote, another app), not ended
+                        GLib.idle_add(self._remote_taken_over, renderer, token)
+                    else:
+                        GLib.idle_add(self._remote_ended, token)
                     return
             time.sleep(1)
+
+    def _remote_taken_over(self, renderer, token) -> bool:
+        """Leave the device to the other app: pause here at the same position"""
+        if token != self._remote_token:
+            return False
+        logger.info(f"{renderer.name} was taken over by another app")
+        position = self.remote_position
+        self._remote_token += 1
+        self._remote_resume_at = 0.0
+        self.renderer = None
+        if isinstance(renderer, cast.CastDevice):
+            # Only this app's connection: the other app keeps playing
+            self._remote_command(renderer.close)
+        self.playing = False
+        self.emit("renderer-changed")
+        self.emit("volume-changed", self.query_volume())
+        if self.playing_track:
+            if self.playing_track.duration:
+                self.seek_after_sink_reload = position / self.playing_track.duration
+            self.play_track(self.playing_track)
+        utils.send_toast(_("{} is playing something else").format(renderer.name), 5)
+        return False
 
     def _remote_ended(self, token) -> bool:
         if token != self._remote_token or not self.playing:

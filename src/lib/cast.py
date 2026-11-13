@@ -35,6 +35,10 @@ class CastError(Exception):
     pass
 
 
+class TakenOver(CastError):
+    """Another app is using the device now"""
+
+
 # CastMessage protobuf, written and read by hand: 1 protocol_version, 2 source_id,
 # 3 destination_id, 4 namespace, 5 payload_type (0 = string), 6 payload_utf8
 
@@ -122,7 +126,10 @@ class _Connection:
         self.lock = threading.Lock()
         self.request_id = 0
         self.waiting: dict[int, list] = {}
+        # The newest media session's status, and why the last one ended
         self.media_status: dict | None = None
+        self.media_session_id = 0
+        self.idle_reason: str | None = None
         self.receiver_status: dict | None = None
         self.closed = False
         self.connected_to: set[str] = set()
@@ -177,7 +184,22 @@ class _Connection:
                 if kind == "RECEIVER_STATUS":
                     self.receiver_status = payload.get("status")
                 elif kind == "MEDIA_STATUS" and payload.get("status"):
-                    self.media_status = payload["status"][0]
+                    status = payload["status"][0]
+                    session_id = status.get("mediaSessionId", 0)
+                    # A late status of an earlier session doesn't replace the newer one
+                    if session_id >= self.media_session_id:
+                        if session_id > self.media_session_id or status.get("idleReason"):
+                            # Why the newest session ended, None while it plays
+                            self.idle_reason = status.get("idleReason")
+                        if (
+                            session_id == self.media_session_id
+                            and self.media_status
+                            and "media" not in status
+                        ):
+                            # Updates leave out what didn't change
+                            status = {**self.media_status, **status}
+                        self.media_session_id = session_id
+                        self.media_status = status
                 elif kind == "MEDIA_STATUS":
                     self.media_status = None
                 elif kind == "CLOSE":
@@ -220,7 +242,8 @@ class CastDevice:
     _connection: _Connection | None = field(default=None, repr=False)
     _transport: str | None = field(default=None, repr=False)
     _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
-    _loaded: tuple | None = field(default=None, repr=False)
+    # The media session of the track loaded here
+    _media_session: int | None = field(default=None, repr=False)
 
     def __eq__(self, other) -> bool:
         return isinstance(other, CastDevice) and other.uuid == self.uuid
@@ -228,16 +251,33 @@ class CastDevice:
     def __hash__(self) -> int:
         return hash(self.uuid)
 
-    def _session(self) -> tuple[_Connection, str]:
-        """Connection and media receiver session, started when needed"""
+    def _session(self, launch=True) -> tuple[_Connection, str]:
+        """Connection and media receiver session, started when needed.
+
+        Without launch, raises TakenOver when another app replaced the media
+        receiver this device was playing in.
+        """
         with self._lock:
             if self._connection is None or self._connection.closed:
                 self._connection = _Connection(self.host, self.port)
-                self._transport = None
+                if not launch and self._media_session is not None:
+                    connection = self._connection
+                    status = connection.request(
+                        NS_RECEIVER, "receiver-0", {"type": "GET_STATUS"}
+                    )
+                    connection.receiver_status = status.get("status")
+                    apps = (connection.receiver_status or {}).get("applications") or []
+                    app = next((a for a in apps if a.get("transportId") == self._transport), None)
+                    if not app:
+                        raise TakenOver("Another app is playing")
+                else:
+                    self._transport = None
             connection = self._connection
             if self._transport:
                 apps = (connection.receiver_status or {}).get("applications") or []
                 if not any(a.get("transportId") == self._transport for a in apps):
+                    if not launch and self._media_session is not None:
+                        raise TakenOver("Another app is playing")
                     self._transport = None
             if not self._transport:
                 status = connection.request(NS_RECEIVER, "receiver-0", {"type": "GET_STATUS"})
@@ -289,7 +329,8 @@ class CastDevice:
             except Exception:
                 pass
         connection, transport = self._session()
-        connection.request(
+        connection.idle_reason = None
+        reply = connection.request(
             NS_MEDIA,
             transport,
             {
@@ -305,6 +346,8 @@ class CastDevice:
                 },
             },
         )
+        status = (reply.get("status") or [{}])[0]
+        self._media_session = status.get("mediaSessionId", connection.media_session_id)
 
     def play(self) -> None:
         self._media("PLAY")
@@ -314,7 +357,12 @@ class CastDevice:
 
     def stop(self) -> None:
         if self._connection and not self._connection.closed and self._connection.media_status:
-            self._media("STOP")
+            try:
+                self._media("STOP")
+            except CastError as e:
+                # Already ended on the device: nothing to stop
+                if "INVALID_MEDIA_SESSION_ID" not in str(e):
+                    raise
 
     def seek(self, seconds: float) -> None:
         self._media("SEEK", currentTime=seconds, resumeState="PLAYBACK_START")
@@ -326,13 +374,24 @@ class CastDevice:
         self.seek(seconds)
 
     def _status(self) -> dict | None:
-        connection, transport = self._session()
+        connection, transport = self._session(launch=False)
         connection.request(NS_MEDIA, transport, {"type": "GET_STATUS"})
         return connection.media_status
 
     def get_state(self) -> str:
-        """The same states as DLNA devices report"""
-        status = self._status()
+        """The same states as DLNA devices report, and TAKEN_OVER when another app
+        loaded something else or stopped the track from elsewhere"""
+        try:
+            status = self._status()
+        except TakenOver:
+            return "TAKEN_OVER"
+        connection = self._connection
+        if self._media_session is not None and connection:
+            if connection.media_session_id > self._media_session:
+                return "TAKEN_OVER"
+            idle = (status or {}).get("playerState") in (None, "IDLE")
+            if idle and connection.idle_reason in ("CANCELLED", "INTERRUPTED"):
+                return "TAKEN_OVER"
         if not status:
             return "NO_MEDIA_PRESENT"
         return {

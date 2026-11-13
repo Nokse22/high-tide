@@ -22,7 +22,7 @@ import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -49,6 +49,9 @@ class Renderer:
     location: str
     av_transport_url: str
     rendering_control_url: str | None
+    # The address of the track loaded here, and the one the device last reported
+    _loaded_url: str | None = field(default=None, compare=False, repr=False)
+    _track_uri: str | None = field(default=None, compare=False, repr=False)
 
     @property
     def host(self) -> str:
@@ -102,6 +105,8 @@ class Renderer:
 
     def set_uri(self, url: str, metadata: str) -> None:
         self._transport("SetAVTransportURI", CurrentURI=url, CurrentURIMetaData=metadata)
+        self._loaded_url = url
+        self._track_uri = None
 
     def load(self, url: str, mime: str, track) -> None:
         """Load a track, play() starts it"""
@@ -120,8 +125,17 @@ class Renderer:
         self._transport("Seek", Unit="REL_TIME", Target=format_time(seconds))
 
     def get_state(self) -> str:
-        """PLAYING, PAUSED_PLAYBACK, STOPPED, TRANSITIONING or NO_MEDIA_PRESENT"""
-        return self._transport("GetTransportInfo").get("CurrentTransportState", "")
+        """PLAYING, PAUSED_PLAYBACK, STOPPED, TRANSITIONING or NO_MEDIA_PRESENT, or
+        TAKEN_OVER when another app gave the device something else to play"""
+        state = self._transport("GetTransportInfo").get("CurrentTransportState", "")
+        if (
+            state in ("PLAYING", "PAUSED_PLAYBACK", "TRANSITIONING")
+            and self._loaded_url
+            and self._track_uri
+            and html.unescape(self._track_uri) != self._loaded_url
+        ):
+            return "TAKEN_OVER"
+        return state
 
     def seek_when_playing(self, seconds: float, timeout: float = 10) -> None:
         """Seek once playback has started, devices ignore a seek before that.
@@ -144,6 +158,7 @@ class Renderer:
     def get_position(self) -> tuple[float, float]:
         """Position and duration of the current track in seconds"""
         info = self._transport("GetPositionInfo")
+        self._track_uri = info.get("TrackURI") or None
         return parse_time(info.get("RelTime")), parse_time(info.get("TrackDuration"))
 
     def get_volume(self) -> int | None:

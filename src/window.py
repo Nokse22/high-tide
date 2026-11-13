@@ -222,6 +222,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.connect("notify::shuffle", self.on_shuffle_changed)
         self.player_object.connect("update-slider", self.update_slider)
         self.player_object.connect("song-changed", self.on_song_changed)
+        self.player_object.connect("renderer-changed", self.on_renderer_changed)
         self.player_object.connect("song-added-to-queue", self.on_song_added_to_queue)
         self.player_object.connect("notify::playing", self.update_controls)
 
@@ -831,8 +832,10 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_output_row_activated")
     def on_output_row_activated(self, _list, row):
         self.output_popover.popdown()
-        renderer = row.renderer
-        self.player_object.set_renderer(renderer)
+        self.player_object.set_renderer(row.renderer)
+
+    def on_renderer_changed(self, *args):
+        renderer = self.player_object.renderer
         if renderer:
             self.output_button.add_css_class("accent")
             self.output_button.set_tooltip_text(_("Playing on {}").format(renderer.name))
