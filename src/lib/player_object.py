@@ -19,9 +19,11 @@
 
 import logging
 import random
+import shutil
 import threading
 import time
 import base64
+from concurrent.futures import ThreadPoolExecutor
 from enum import IntEnum
 from gettext import gettext as _
 from pathlib import Path
@@ -35,7 +37,7 @@ from tidalapi.mix import Mix
 from tidalapi.playlist import Playlist
 from tidalapi.media import Track, ManifestMimeType
 
-from . import discord_rpc, utils
+from . import discord_rpc, dlna, utils
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +92,9 @@ class PlayerObject(GObject.GObject):
         quadratic_volume: bool = False,
     ) -> None:
         GObject.GObject.__init__(self)
+
+        # The DLNA device playing instead of this computer, see set_renderer
+        self.renderer: dlna.Renderer | None = None
 
         Gst.init(None)
 
@@ -189,6 +194,19 @@ class PlayerObject(GObject.GObject):
 
         # for not caching on metered networks
         self.monitor = Gio.NetworkMonitor.get_default()
+
+        self._media_server: dlna.MediaServer | None = None
+        # Commands to the device, sent in order and off the main thread
+        self._remote_commands = ThreadPoolExecutor(max_workers=1)
+        # Changes with every track sent to the device, so late results are ignored
+        self._remote_token = 0
+        # Position, duration (seconds) and volume (0 to 1) on the device
+        self.remote_position = 0.0
+        self.remote_duration = 0.0
+        self.remote_volume = 1.0
+        # Where to continue when play is pressed, after switching to it while paused
+        self._remote_resume_at = 0.0
+        self._remote_prepare_locks: dict[str, threading.Lock] = {}
 
     @GObject.Property(type=bool, default=False)
     def playing(self) -> bool:
@@ -534,15 +552,27 @@ class PlayerObject(GObject.GObject):
         """Start playback of the current track."""
         self._cancel_release()
         self.playing = True
-        if self.released_at:
-            self.resuming_released = True
-        if self._stream_expires_soon():
-            # Resuming after a long pause: get new stream urls (or play the track from
-            # the cache) now, instead of failing to download the rest of it
-            logger.info("Stream urls expire soon, reloading track")
-            self._reload_track()
-            return
-        self.pipeline.set_state(Gst.State.PLAYING)
+        if self.renderer:
+            renderer = self.renderer
+            resume_at = self._remote_resume_at
+            self._remote_resume_at = 0.0
+
+            def resume():
+                renderer.play()
+                if resume_at:
+                    renderer.seek_when_playing(resume_at)
+
+            self._remote_command(resume)
+        else:
+            if self.released_at:
+                self.resuming_released = True
+            if self._stream_expires_soon():
+                # Resuming after a long pause: get new stream urls (or play the track
+                # from the cache) now, instead of failing to download the rest of it
+                logger.info("Stream urls expire soon, reloading track")
+                self._reload_track()
+                return
+            self.pipeline.set_state(Gst.State.PLAYING)
 
         if self.discord_rpc_enabled and self.playing_track:
             discord_rpc.set_activity(
@@ -555,9 +585,12 @@ class PlayerObject(GObject.GObject):
     def pause(self) -> None:
         """Pause playback of the current track."""
         self.playing = False
-        self.pipeline.set_state(Gst.State.PAUSED)
+        if self.renderer:
+            self._remote_command(self.renderer.pause)
+        else:
+            self.pipeline.set_state(Gst.State.PAUSED)
         self._cancel_release()
-        if self.sink_type == AudioSink.ALSA:
+        if self.sink_type == AudioSink.ALSA and not self.renderer:
             self.release_timer = GLib.timeout_add_seconds(
                 ALSA_RELEASE_SECONDS, self._release_sound_card
             )
@@ -598,6 +631,11 @@ class PlayerObject(GObject.GObject):
             track: The Track object to play
             gapless: Whether to enqueue the track for gapless playback
         """
+        if self.renderer:
+            # Only this computer plays tracks gaplessly, from about-to-finish
+            if not gapless:
+                self._play_remote(track)
+            return
         if gapless:
             self.gapless_request = track
         handed_off_track = self.handed_off_track
@@ -1218,6 +1256,8 @@ class PlayerObject(GObject.GObject):
         Returns:
             float: Current volume level (0.0 to 1.0), adjusted for quadratic scaling if enabled
         """
+        if self.renderer:
+            return self.remote_volume
         volume = self.playbin.get_property("volume")
         if self.quadratic_volume:
             return volume ** (1 / 2)
@@ -1229,7 +1269,11 @@ class PlayerObject(GObject.GObject):
         Args:
             value (float): Volume level (0.0 to 1.0), will be squared if quadratic volume is enabled
         """
-        if self.quadratic_volume:
+        if self.renderer:
+            # The device's own volume, which has its own curve
+            self.remote_volume = value
+            self._remote_command(self.renderer.set_volume, round(value * 100))
+        elif self.quadratic_volume:
             self.playbin.set_property("volume", value**2)
         else:
             self.playbin.set_property("volume", value)
@@ -1240,10 +1284,11 @@ class PlayerObject(GObject.GObject):
         if not self.duration:
             logger.warning("Duration missing, trying again")
             self.duration = self.query_duration()
-        if self.gapless_enabled and self.duration:
-            if self.duration - self.query_position() < 30 * Gst.SECOND:
-                self._prefetch_next_track()
-        self._check_stream_stuck()
+        if not self.renderer:
+            if self.gapless_enabled and self.duration:
+                if self.duration - self.query_position() < 30 * Gst.SECOND:
+                    self._prefetch_next_track()
+            self._check_stream_stuck()
         self.emit("update-slider")
         if not self.playing:
             # Returning False removes the timer. While it keeps running, keep its id
@@ -1286,6 +1331,8 @@ class PlayerObject(GObject.GObject):
         Returns:
             int: Duration in nanoseconds, or 0 if query failed
         """
+        if self.renderer:
+            return int(self.remote_duration * Gst.SECOND)
         if self.released_at:
             return self.released_at[1]
         success, duration = self.playbin.query_duration(Gst.Format.TIME)
@@ -1300,6 +1347,8 @@ class PlayerObject(GObject.GObject):
         Returns:
             int: Position in nanoseconds, or default value if query failed
         """
+        if self.renderer:
+            return int(self.remote_position * Gst.SECOND)
         if self.released_at:
             return self.released_at[0]
         success, position = self.playbin.query_position(Gst.Format.TIME)
@@ -1323,6 +1372,14 @@ class PlayerObject(GObject.GObject):
             return
         old_position = self.query_position(default=0)
         position = int(seek_fraction * self.query_duration())
+        if self.renderer:
+            self.remote_position = position / Gst.SECOND
+            if self._remote_resume_at:
+                self._remote_resume_at = self.remote_position
+            else:
+                self._remote_command(self.renderer.seek, self.remote_position)
+            self.emit("seeked", old_position / Gst.SECOND, position / Gst.SECOND)
+            return
         if self.released_at:
             # Paused without the sound card: play() continues from here
             self.released_at = (position, self.released_at[1])
@@ -1336,6 +1393,207 @@ class PlayerObject(GObject.GObject):
 
         if self.discord_rpc_enabled:
             discord_rpc.set_activity(self.playing_track, position // 1_000_000_000)
+
+    def set_renderer(self, renderer: "dlna.Renderer | None") -> None:
+        """Play on a DLNA device, or on this computer with None.
+
+        The playing track continues at the same position on the new output.
+        """
+        if renderer == self.renderer:
+            return
+        position = self.query_position() / Gst.SECOND if self.playing_track else 0
+        old = self.renderer
+        self._remote_token += 1
+        self._remote_resume_at = 0.0
+        if old:
+            self._remote_command(old.stop)
+        else:
+            self._cancel_release()
+            self.released_at = None
+            self.next_track = None
+            self.handed_off_track = None
+            self.pipeline.set_state(Gst.State.NULL)
+        if renderer and not self._media_server:
+            # Files left from an earlier run
+            shutil.rmtree(Path(utils.CACHE_DIR, "dlna"), ignore_errors=True)
+            self._media_server = dlna.MediaServer()
+        self.renderer = renderer
+        logger.info(f"Playing on {renderer.name if renderer else 'this computer'}")
+        if renderer:
+            self._remote_command(self._read_remote_volume, renderer)
+        else:
+            self.emit("volume-changed", self.query_volume())
+        if not self.playing_track:
+            return
+        if renderer:
+            self._play_remote(self.playing_track, position, switching=True)
+        else:
+            if self.playing_track.duration:
+                self.seek_after_sink_reload = position / self.playing_track.duration
+            self.play_track(self.playing_track)
+
+    def _read_remote_volume(self, renderer) -> None:
+        volume = renderer.get_volume()
+        if volume is not None and renderer == self.renderer:
+            self.remote_volume = volume / 100
+            GLib.idle_add(self.emit, "volume-changed", self.remote_volume)
+
+    def _remote_command(self, function, *args) -> None:
+        def run():
+            try:
+                function(*args)
+            except Exception as e:
+                logger.warning(f"DLNA device: {e}")
+
+        self._remote_commands.submit(run)
+
+    def _play_remote(self, track: Track, position: float = 0, switching=False) -> None:
+        self._remote_token += 1
+        threading.Thread(
+            target=self._remote_load,
+            args=(self.renderer, track, position, self._remote_token, switching),
+            daemon=True,
+        ).start()
+
+    def _remote_load(self, renderer, track, position, token, switching) -> None:
+        """Get a track ready and send it to the device"""
+        try:
+            path = self._prepare_remote_file(track)
+            if token != self._remote_token:
+                return
+            url = self._media_server.add(path, "audio/flac", renderer.host, "flac")
+            metadata = dlna.track_metadata(track, url, "audio/flac")
+
+            def load():
+                if token != self._remote_token:
+                    return
+                renderer.set_uri(url, metadata)
+                if self.playing:
+                    renderer.play()
+                    if position > 1:
+                        renderer.seek_when_playing(position)
+
+            self._remote_commands.submit(load).result()
+        except Exception:
+            logger.exception("Couldn't play on the DLNA device")
+            GLib.idle_add(self._remote_failed, renderer, token)
+            return
+        GLib.idle_add(self._remote_started, renderer, track, position, token, switching)
+
+    def _remote_started(self, renderer, track, position, token, switching) -> bool:
+        if token != self._remote_token:
+            return False
+        self.remote_position = position
+        self.remote_duration = float(track.duration or 0)
+        if not self.playing and position > 1:
+            self._remote_resume_at = position
+        if switching and track is self.playing_track:
+            # The same play, only on another output
+            self.duration = self.query_duration()
+        else:
+            self.set_track(track)
+        if self.playing and self.discord_rpc_enabled:
+            discord_rpc.set_activity(track, position)
+        if self.update_timer:
+            GLib.source_remove(self.update_timer)
+        self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
+        threading.Thread(
+            target=self._poll_remote, args=(renderer, token), daemon=True
+        ).start()
+
+        # Get the next track ready, so it starts without waiting
+        keep = [self._remote_file_path(track)]
+        next_track = self._peek_next_track()
+        if next_track and next_track is not track:
+            keep.append(self._remote_file_path(next_track))
+            threading.Thread(
+                target=self._prepare_next_remote_file, args=(next_track,), daemon=True
+            ).start()
+        self._media_server.remove_all_but(keep)
+        return False
+
+    def _remote_failed(self, renderer, token) -> bool:
+        if token == self._remote_token:
+            self.playing = False
+            utils.send_toast(_("Couldn't play on {}").format(renderer.name), 5)
+        return False
+
+    def _poll_remote(self, renderer, token) -> None:
+        """Follow the position on the device, and play the next track at the end"""
+        was_playing = False
+        while token == self._remote_token:
+            try:
+                state = renderer.get_state()
+                position, duration = renderer.get_position()
+            except Exception as e:
+                logger.warning(f"DLNA device not answering: {e}")
+                time.sleep(2)
+                continue
+            if token != self._remote_token:
+                return
+            if state in ("PLAYING", "PAUSED_PLAYBACK"):
+                was_playing = was_playing or state == "PLAYING"
+                self.remote_position = position
+                if duration:
+                    self.remote_duration = duration
+            elif state in ("STOPPED", "NO_MEDIA_PRESENT") and was_playing:
+                if self.playing:
+                    GLib.idle_add(self._remote_ended, token)
+                    return
+            time.sleep(1)
+
+    def _remote_ended(self, token) -> bool:
+        if token != self._remote_token or not self.playing:
+            return False
+        logger.info("Track ended on the DLNA device")
+        if self._repeat_type == RepeatType.SONG and self.playing_track:
+            self._play_remote(self.playing_track)
+        else:
+            self.play_next()
+        return False
+
+    def _remote_file_path(self, track: Track) -> Path:
+        quality = utils.session.audio_quality if utils.session else ""
+        return Path(utils.CACHE_DIR, "dlna", f"{track.id}_{quality}.flac")
+
+    def _prepare_next_remote_file(self, track: Track) -> None:
+        try:
+            self._prepare_remote_file(track)
+        except Exception:
+            logger.exception("Couldn't get the next track ready for the DLNA device")
+
+    def _prepare_remote_file(self, track: Track) -> Path:
+        """Turn a track into a FLAC file the device can play"""
+        path = self._remote_file_path(track)
+        lock = self._remote_prepare_locks.setdefault(str(track.id), threading.Lock())
+        with lock:
+            if path.exists():
+                return path
+            path.parent.mkdir(parents=True, exist_ok=True)
+            manifest_path = None
+            cached = self._cached_music_path(track)
+            if cached:
+                source = cached.as_uri()
+            else:
+                stream = track.get_stream()
+                if stream.manifest_mime_type == ManifestMimeType.MPD:
+                    manifest_path = path.with_suffix(".mpd")
+                    manifest_path.write_text(stream.get_manifest_data())
+                    source = manifest_path.as_uri()
+                else:
+                    urls = stream.get_stream_manifest().get_urls()
+                    source = urls[0] if isinstance(urls, list) else urls
+            start = time.monotonic()
+            try:
+                dlna.prepare_flac(source, path)
+            finally:
+                if manifest_path:
+                    manifest_path.unlink(missing_ok=True)
+            logger.info(
+                f"Got {track.id} ready for the DLNA device in "
+                f"{time.monotonic() - start:.1f} s"
+            )
+        return path
 
     def set_discord_rpc(self, enabled: bool = True):
         """Enable or disable Discord Rich Presence integration.
