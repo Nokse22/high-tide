@@ -51,6 +51,9 @@ class Renderer:
     rendering_control_url: str | None
     # The address of the track loaded here, and the one the device last reported
     _loaded_url: str | None = field(default=None, compare=False, repr=False)
+    # Every address sent: right after a new one, some devices (Kodi) still report the
+    # previous track's for a moment, which is no other app taking over
+    _sent_urls: set[str] = field(default_factory=set, compare=False, repr=False)
     _track_uri: str | None = field(default=None, compare=False, repr=False)
 
     @property
@@ -106,6 +109,7 @@ class Renderer:
     def set_uri(self, url: str, metadata: str) -> None:
         self._transport("SetAVTransportURI", CurrentURI=url, CurrentURIMetaData=metadata)
         self._loaded_url = url
+        self._sent_urls.add(url)
         self._track_uri = None
 
     def load(self, url: str, mime: str, track, cover_url: str | None = None) -> None:
@@ -132,7 +136,7 @@ class Renderer:
             state in ("PLAYING", "PAUSED_PLAYBACK", "TRANSITIONING")
             and self._loaded_url
             and self._track_uri
-            and html.unescape(self._track_uri) != self._loaded_url
+            and html.unescape(self._track_uri) not in self._sent_urls
         ):
             return "TAKEN_OVER"
         return state
