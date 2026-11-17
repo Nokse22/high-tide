@@ -132,6 +132,7 @@ class PlayerObject(GObject.GObject):
         self._bus.connect("message::error", self._on_bus_error)
         self._bus.connect("message::buffering", self._on_buffering_message)
         self._bus.connect("message::stream-start", self._on_track_start)
+        self._bus.connect("message::async-done", self._on_async_done)
 
         # Initialize state utils
         self._shuffle = False
@@ -429,16 +430,33 @@ class PlayerObject(GObject.GObject):
 
         self.seeked_to_end = False
         self.last_seek_position = None
-        if self.seek_after_sink_reload:
-            # Continue exactly where it was, without repeating part of the track
-            self.seek(self.seek_after_sink_reload, accurate=True)
-            self.seek_after_sink_reload = None
+        self._continue_after_reload()
 
         self.can_go_prev = len(self.played_songs) > 0
         # Only notify to deactivate
         if not self.can_go_prev:
             self.notify("can-go-prev")
             GLib.timeout_add(2000, self.previous_timer_callback)
+
+    def _continue_after_reload(self) -> None:
+        """Seek to where the track was before it was loaded again.
+
+        The position to continue at is a fraction of the duration, which GStreamer
+        may not know yet when the track starts; seeking then would start it over,
+        so it waits for the track to be ready.
+        """
+        if not self.seek_after_sink_reload:
+            return
+        success, duration = self.playbin.query_duration(Gst.Format.TIME)
+        if not success or duration <= 0:
+            logger.info("Duration not known yet, continuing once the track is ready")
+            return
+        # Continue exactly where it was, without repeating part of the track
+        self.seek(self.seek_after_sink_reload, accurate=True)
+        self.seek_after_sink_reload = None
+
+    def _on_async_done(self, bus: Any, message: Any) -> None:
+        self._continue_after_reload()
 
     def play_this(
         self,
