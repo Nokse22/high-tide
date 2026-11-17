@@ -108,9 +108,9 @@ class Renderer:
         self._loaded_url = url
         self._track_uri = None
 
-    def load(self, url: str, mime: str, track) -> None:
+    def load(self, url: str, mime: str, track, cover_url: str | None = None) -> None:
         """Load a track, play() starts it"""
-        self.set_uri(url, track_metadata(track, url, mime))
+        self.set_uri(url, track_metadata(track, url, mime, cover_url))
 
     def play(self) -> None:
         self._transport("Play", Speed=1)
@@ -288,22 +288,15 @@ def local_address_for(host: str) -> str:
         return sock.getsockname()[0]
 
 
-def track_metadata(track, url: str, mime: str) -> str:
+def track_metadata(track, url: str, mime: str, cover_url: str | None = None) -> str:
     """DIDL-Lite description of a track, shown by devices with a screen"""
-    from .utils import get_image_url
 
     def text(value):
         return html.escape(value or "", quote=False)
 
     artist = track.artist.name if getattr(track, "artist", None) else ""
     album = track.album.name if getattr(track, "album", None) else ""
-    cover = ""
-    try:
-        cover_url = get_image_url(track.album, 640) if track.album else None
-        if cover_url:
-            cover = f"<upnp:albumArtURI>{text(cover_url)}</upnp:albumArtURI>"
-    except Exception:
-        pass
+    cover = f"<upnp:albumArtURI>{text(cover_url)}</upnp:albumArtURI>" if cover_url else ""
     return (
         '<DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" '
         'xmlns:dc="http://purl.org/dc/elements/1.1/" '
@@ -326,6 +319,8 @@ class MediaServer:
     def __init__(self) -> None:
         self._files: dict[str, tuple[Path, str]] = {}
         self._lock = threading.Lock()
+        # Album covers, served from the image cache and never deleted here
+        self._covers: dict[Path, str] = {}
         files = self._files
         lock = self._lock
 
@@ -413,11 +408,22 @@ class MediaServer:
             self._files[key] = (path, mime)
         return f"http://{local_address_for(host)}:{self.port}/{key}.{extension}"
 
-    def remove_all_but(self, paths: list[Path]) -> None:
-        """Stop serving the other files and delete them"""
+    def add_cover(self, path: Path, host: str) -> str:
+        """Serve an album cover, returns its address as seen from host"""
         with self._lock:
+            key = self._covers.get(path)
+            if key is None:
+                key = secrets.token_hex(8)
+                self._covers[path] = key
+                self._files[key] = (path, "image/jpeg")
+        return f"http://{local_address_for(host)}:{self.port}/{key}.jpg"
+
+    def remove_all_but(self, paths: list[Path]) -> None:
+        """Stop serving the other files and delete them (not the covers)"""
+        with self._lock:
+            covers = set(self._covers.values())
             for key, (path, _mime) in list(self._files.items()):
-                if path not in paths:
+                if key not in covers and path not in paths:
                     del self._files[key]
                     try:
                         os.unlink(path)

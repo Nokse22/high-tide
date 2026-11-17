@@ -313,21 +313,15 @@ class CastDevice:
             {"type": kind, "mediaSessionId": status["mediaSessionId"], **args},
         )
 
-    def load(self, url: str, mime: str, track) -> None:
+    def load(self, url: str, mime: str, track, cover_url: str | None = None) -> None:
         """Load a track paused, play() starts it"""
-        from .utils import get_image_url
-
         metadata = {"metadataType": 3, "title": track.name}
         if getattr(track, "artist", None):
             metadata["artist"] = track.artist.name
         if getattr(track, "album", None):
             metadata["albumName"] = track.album.name
-            try:
-                image = get_image_url(track.album, 640)
-                if image:
-                    metadata["images"] = [{"url": image}]
-            except Exception:
-                pass
+        if cover_url:
+            metadata["images"] = [{"url": cover_url}]
         connection, transport = self._session()
         connection.idle_reason = None
         reply = connection.request(

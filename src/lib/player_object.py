@@ -1499,11 +1499,12 @@ class PlayerObject(GObject.GObject):
             if token != self._remote_token:
                 return
             url = self._media_server.add(path, "audio/flac", renderer.host, "flac")
+            cover_url = self._remote_cover_url(renderer, track)
 
             def load():
                 if token != self._remote_token:
                     return
-                renderer.load(url, "audio/flac", track)
+                renderer.load(url, "audio/flac", track, cover_url)
                 if self.playing:
                     renderer.play()
                     if position > 1:
@@ -1515,6 +1516,20 @@ class PlayerObject(GObject.GObject):
             GLib.idle_add(self._remote_failed, renderer, token)
             return
         GLib.idle_add(self._remote_started, renderer, track, position, token, switching)
+
+    def _remote_cover_url(self, renderer, track) -> str | None:
+        """The album cover's address for the device, which can't open files here"""
+        album = getattr(track, "album", None)
+        if not album:
+            return None
+        try:
+            cover = utils.get_image_url(album, 640)
+        except Exception:
+            logger.warning(f"Couldn't get the cover of {track.id} for the device")
+            return None
+        if not cover or not Path(cover).is_file():
+            return None
+        return self._media_server.add_cover(Path(cover), renderer.host)
 
     def _remote_started(self, renderer, track, position, token, switching) -> bool:
         if token != self._remote_token:
