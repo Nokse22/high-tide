@@ -73,6 +73,23 @@
   </screenshots>
 
   <releases>
+    <release version="1.7.0" date="2026-11-13">
+      <description translate="no">
+        <p>Scrobble to Last.fm and ListenBrainz</p>
+        <p>Report plays to TIDAL, so songs show up in Recently played and count toward your recommendations</p>
+        <p>Label AI-generated music, with an option to hide it</p>
+        <p>Click a song in the queue to play it</p>
+        <p>Open the volume slider by hovering over it, and set the volume in 1% steps</p>
+        <p>Open the album from the song title in the player</p>
+        <p>Right-click song cards for the track menu; the song top hit opens its album</p>
+        <p>Show an error page with Try Again instead of loading forever</p>
+        <p>Fix Discord Rich Presence</p>
+        <p>Fix Next restarting the song with repeat one, and shuffle off replaying songs</p>
+        <p>Fix TIDAL playlist and mix links</p>
+        <p>Let other apps use the sound card while paused with the ALSA output</p>
+        <p>Remove the PipeWire output option, which could cause crackling; the default output uses PipeWire</p>
+      </description>
+    </release>
     <release version="1.6.0" date="2026-11-10">
       <description translate="no">
         <p>Block artists and tracks</p>

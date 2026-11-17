@@ -193,6 +193,9 @@ class PlayerObject(GObject.GObject):
         # the last track requested for gapless playback, dropped if another track
         # is played directly while it loads
         self.gapless_request: Track | None = None
+        # counts the tracks played directly; a track that finishes loading after
+        # another one was played is dropped, so only the last one asked for plays
+        self.play_request = 0
 
         # for not caching on metered networks
         self.monitor = Gio.NetworkMonitor.get_default()
@@ -636,6 +639,8 @@ class PlayerObject(GObject.GObject):
         if self.renderer:
             # Only this computer plays tracks gaplessly, from about-to-finish
             if not gapless:
+                # A track still loading here mustn't replace this one on the device
+                self.play_request += 1
                 self._play_remote(track)
             return
         if gapless:
@@ -646,33 +651,49 @@ class PlayerObject(GObject.GObject):
             # The uri was already set in play_next_gapless
             self.next_track = track
             return
+        request = None
         if gapless:
             self.loading_gapless = True
-        threading.Thread(target=self._play_track_thread, args=(track, gapless)).start()
+        else:
+            self.play_request += 1
+            request = self.play_request
+        threading.Thread(
+            target=self._play_track_thread, args=(track, gapless, request)
+        ).start()
 
-    def _play_track_thread(self, track: Track, gapless=False) -> None:
+    def _is_outdated(self, track, request) -> bool:
+        """Whether another track was played directly after this one was asked for"""
+        if request is None or request == self.play_request:
+            return False
+        logger.info(f"Dropping track {track.id}: another track was played")
+        return True
+
+    def _play_track_thread(self, track: Track, gapless=False, request=None) -> None:
         self.stream = None
         self.manifest = None
 
         cached_music = self._cached_music_path(track)
         if cached_music:
-            self._play_cached_track(track, cached_music, gapless)
+            self._play_cached_track(track, cached_music, gapless, request)
             return
 
         try:
-            self.stream = track.get_stream()
+            stream = track.get_stream()
+            if self._is_outdated(track, request):
+                return
+            self.stream = stream
             self.manifest = self.stream.get_stream_manifest()
             urls = self.manifest.get_urls()
 
             music_url = self._get_cached_or_stream_url(track, gapless)
 
-            GLib.idle_add(self._play_track_url, track, music_url, gapless)
+            GLib.idle_add(self._play_track_url, track, music_url, gapless, request)
         except Exception:
             logger.exception("Error getting track URL")
             if gapless:
                 self.loading_gapless = False
 
-    def _play_cached_track(self, track, cached_music, gapless=False) -> None:
+    def _play_cached_track(self, track, cached_music, gapless=False, request=None) -> None:
         """Play a track from the music cache.
 
         Its stream info (ReplayGain, quality label) comes from TIDAL, but a slow or
@@ -695,13 +716,17 @@ class PlayerObject(GObject.GObject):
         thread = threading.Thread(target=get_info, daemon=True)
         thread.start()
         thread.join(2)
+        if self._is_outdated(track, request):
+            return
         if "stream" in info:
             self.stream, self.manifest = info["stream"], info["manifest"]
         else:
             info["late"] = True
             logger.warning(f"Playing {track.id} from the music cache without its stream info")
         logger.info(f"Playing from music cache: {track.id}")
-        GLib.idle_add(self._play_track_url, track, f"file://{cached_music}", gapless)
+        GLib.idle_add(
+            self._play_track_url, track, f"file://{cached_music}", gapless, request
+        )
 
     def _set_late_stream_info(self, track, info) -> None:
         if self.playing_track is track and not self.stream:
@@ -894,8 +919,10 @@ class PlayerObject(GObject.GObject):
         # toggling the option
         self.most_recent_rg_tags = f"tags={tags}"
 
-    def _play_track_url(self, track, music_url, gapless=False):
+    def _play_track_url(self, track, music_url, gapless=False, request=None):
         """Set up and play track from URL."""
+        if self._is_outdated(track, request):
+            return
         if self.renderer:
             # A device was picked while the track was loading here
             if not gapless:

@@ -69,6 +69,7 @@ def init() -> None:
     and initializes the global cache object for TIDAL API responses.
     """
     ai.install()
+    _install_artist_cover_fallback()
 
     global CACHE_DIR
     CACHE_DIR = os.environ.get("XDG_CACHE_HOME")
@@ -1129,6 +1130,27 @@ def get_best_dimensions(widget: Any) -> int:
     return next((x for x in dimensions if x > (edge * scale)), dimensions[-1])
 
 
+def _install_artist_cover_fallback() -> None:
+    """Show one of an artist's album covers when TIDAL has no picture of them.
+
+    TIDAL sends the cover in selectedAlbumCoverFallback and its own apps show it,
+    but python-tidal 0.8 ignores it and uses a placeholder picture instead.
+    """
+    if getattr(Artist.parse_artist, "with_cover_fallback", False):
+        return
+    original_parse = Artist.parse_artist
+
+    def parse(self, json_obj, *args, **kwargs):
+        artist = original_parse(self, json_obj, *args, **kwargs)
+        fallback = json_obj.get("selectedAlbumCoverFallback")
+        if not json_obj.get("picture") and fallback:
+            artist.picture = fallback
+        return artist
+
+    parse.with_cover_fallback = True
+    Artist.parse_artist = parse
+
+
 def get_image_url(item: Any, dimensions: int = 320) -> str | None:
     """Get the local file path for an item's image, downloading if necessary.
 
@@ -1139,7 +1161,11 @@ def get_image_url(item: Any, dimensions: int = 320) -> str | None:
     Returns:
         str: Path to the local image file, or None if download failed
     """
-    if hasattr(item, "id"):
+    if isinstance(item, Artist) and item.picture:
+        # Named after the picture, so a placeholder saved before is replaced when
+        # TIDAL gets a picture or an album cover for the artist
+        file_path = IMG_DIR / f"artist_{item.picture}_{dimensions}.jpg"
+    elif hasattr(item, "id"):
         file_path = IMG_DIR / f"{item.id}_{dimensions}.jpg"
     else:
         file_path = IMG_DIR / f"{uuid.uuid4()}_{dimensions}.jpg"
