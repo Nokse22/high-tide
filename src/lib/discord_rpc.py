@@ -157,9 +157,8 @@ def _set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
                 large_image=track.album.image()
                 if track.album
                 else "hightide_x1024",
-                small_text="High Tide"
-                if track.album
-                else None,
+                small_text="High Tide",
+                small_image="hightide_x1024",
                 name=artists[0] if artists else "High Tide",
                 start=int(time.time() - offset_ms),
                 end=int(
