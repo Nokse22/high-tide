@@ -160,6 +160,7 @@ def _set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
                 small_text="High Tide"
                 if track.album
                 else None,
+                name=artists[0] if artists else "High Tide",
                 start=int(time.time() - offset_ms),
                 end=int(
                     time.time() - offset_ms + track.duration
