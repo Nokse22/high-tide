@@ -19,18 +19,20 @@
 
 import html
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from gettext import gettext as _
 from pathlib import Path
 from typing import Callable
 
 import tidalapi
-from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Xdp, Gdk
+from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Pango, Xdp, Gdk
 from tidalapi.media import Quality
 
 from .lib import (HTCache, LastFmClient, LastFmScrobbler, LastFmSecretStore,
                   ListenBrainzClient, ListenBrainzScrobbler,
                   ListenBrainzSecretStore, PlayerObject, RepeatType, SecretStore,
                   ai, utils)
+from .lib import cast, dlna
 from .lib.play_reporter import PlayReporter
 from .lib.player_object import AudioSink
 from .login import LoginDialog
@@ -71,6 +73,10 @@ class HighTideWindow(Adw.ApplicationWindow):
     artist_label = Gtk.Template.Child()
     miniplayer_artist_label = Gtk.Template.Child()
     volume_button = Gtk.Template.Child()
+    output_button = Gtk.Template.Child()
+    output_popover = Gtk.Template.Child()
+    output_list = Gtk.Template.Child()
+    output_searching_box = Gtk.Template.Child()
     in_my_collection_button = Gtk.Template.Child()
     explicit_label = Gtk.Template.Child()
     ai_label = Gtk.Template.Child()
@@ -216,6 +222,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.connect("notify::shuffle", self.on_shuffle_changed)
         self.player_object.connect("update-slider", self.update_slider)
         self.player_object.connect("song-changed", self.on_song_changed)
+        self.player_object.connect("renderer-changed", self.on_renderer_changed)
         self.player_object.connect("song-added-to-queue", self.on_song_added_to_queue)
         self.player_object.connect("notify::playing", self.update_controls)
 
@@ -711,7 +718,9 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_volume_changed")
     def on_volume_changed_func(self, widget, value):
         self.player_object.change_volume(value)
-        self.settings.set_double("volume", value)
+        if not self.player_object.renderer:
+            # The device's own volume isn't this computer's
+            self.settings.set_double("volume", value)
 
     def _setup_volume_button(self) -> None:
         """Let the volume slider move in 1% steps (GTK rounds it to tenths), open it
@@ -761,6 +770,78 @@ class HighTideWindow(Adw.ApplicationWindow):
         if not any(motion.contains_pointer() for motion in self._volume_motions):
             self.volume_button.emit("popdown")
         return False
+
+    @Gtk.Template.Callback("on_output_popover_shown")
+    def on_output_popover_shown(self, *args):
+        """Look for DLNA devices each time the list is opened"""
+        if getattr(self, "_searching_outputs", False):
+            return
+        self._searching_outputs = True
+        self.output_searching_box.set_visible(True)
+        self._fill_output_list(getattr(self, "_found_renderers", []))
+
+        def search():
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                found = [pool.submit(dlna.discover), pool.submit(cast.discover)]
+                renderers = []
+                for future in found:
+                    try:
+                        renderers += future.result()
+                    except Exception:
+                        logger.exception("Couldn't search for devices")
+            renderers.sort(key=lambda r: r.name.lower())
+            GLib.idle_add(self._on_outputs_found, renderers)
+
+        threading.Thread(target=search, daemon=True).start()
+
+    def _on_outputs_found(self, renderers):
+        self._searching_outputs = False
+        self._found_renderers = renderers
+        self.output_searching_box.set_visible(False)
+        self._fill_output_list(renderers)
+        return False
+
+    def _fill_output_list(self, renderers):
+        current = self.player_object.renderer
+        if current and all(r != current for r in renderers):
+            # Still playing on it, even if it didn't answer this time
+            renderers = [current, *renderers]
+        self.output_list.remove_all()
+        for renderer in [None, *renderers]:
+            box = Gtk.Box(spacing=12, margin_top=6, margin_bottom=6)
+            box.append(
+                Gtk.Image(
+                    icon_name="audio-speakers-symbolic" if renderer else "computer-symbolic"
+                )
+            )
+            box.append(
+                Gtk.Label(
+                    label=renderer.name if renderer else _("This Computer"),
+                    xalign=0,
+                    hexpand=True,
+                    ellipsize=Pango.EllipsizeMode.END,
+                )
+            )
+            check = Gtk.Image(icon_name="object-select-symbolic")
+            check.set_visible(renderer == current)
+            box.append(check)
+            row = Gtk.ListBoxRow(child=box)
+            row.renderer = renderer
+            self.output_list.append(row)
+
+    @Gtk.Template.Callback("on_output_row_activated")
+    def on_output_row_activated(self, _list, row):
+        self.output_popover.popdown()
+        self.player_object.set_renderer(row.renderer)
+
+    def on_renderer_changed(self, *args):
+        renderer = self.player_object.renderer
+        if renderer:
+            self.output_button.add_css_class("accent")
+            self.output_button.set_tooltip_text(_("Playing on {}").format(renderer.name))
+        else:
+            self.output_button.remove_css_class("accent")
+            self.output_button.set_tooltip_text(_("Play On"))
 
     @Gtk.Template.Callback("on_slider_seek")
     def on_slider_seek(self, *args):
