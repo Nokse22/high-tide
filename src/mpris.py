@@ -236,7 +236,7 @@ class MPRIS(Server):
 
     def Quit(self):
         """Quit the High Tide application"""
-        self.window.quit()
+        self.window.get_application().quit()
 
     def Next(self):
         """Skip to the next track in the playlist or queue"""
