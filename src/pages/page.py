@@ -48,6 +48,9 @@ class Page(Adw.NavigationPage, IDisconnectable):
 
     __gtype_name__ = "Page"
 
+    # Wait for the favourites before showing the page (it shows hearts)
+    waits_for_favourites = False
+
     id = None
 
     @classmethod
@@ -110,6 +113,9 @@ class Page(Adw.NavigationPage, IDisconnectable):
                 logger.exception("Error while getting Page")
                 GLib.idle_add(self._show_load_error)
                 return
+
+            if self.waits_for_favourites:
+                utils.favourites_loaded.wait(15)
 
             GLib.idle_add(_loaded)
 

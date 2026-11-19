@@ -58,6 +58,7 @@ blocked_artists: List[Artist] = []
 blocked_tracks: List[Track] = []
 blocked_videos: List[Video] = []
 blocked_loaded = threading.Event()
+favourites_loaded = threading.Event()
 # Pick clean over explicit album versions (the prefer-clean-versions setting)
 prefer_clean_versions = False
 
@@ -355,6 +356,8 @@ def get_favourites() -> None:
         get_playlists()
     except Exception:
         logger.exception("Error while getting Favourites")
+
+    favourites_loaded.set()
 
     logger.info(f"Favorite Artists: {len(favourite_artists)}")
     logger.info(f"Favorite Tracks: {len(favourite_tracks)}")

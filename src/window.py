@@ -348,7 +348,6 @@ class HighTideWindow(Adw.ApplicationWindow):
             logger.exception("Error while logging in!")
             GLib.idle_add(self.on_login_failed)
         else:
-            utils.get_favourites()
             GLib.idle_add(self.on_logged_in)
 
     def logout(self):
@@ -373,6 +372,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_lyrics_queue.set_sensitive(True)
         self.navigation_buttons.set_sensitive(True)
 
+        # The home page doesn't need the favourites, so they load next to it.
+        # Pages that show hearts wait for them (waits_for_favourites).
+        utils.favourites_loaded.clear()
+        threading.Thread(target=self.th_load_favourites, args=()).start()
         threading.Thread(target=self.th_set_last_playing_song, args=()).start()
         threading.Thread(target=utils.get_blocked, args=()).start()
 
@@ -387,6 +390,20 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         page = HTNotLoggedInPage().load()
         self.navigation_view.replace([page])
+
+    def th_load_favourites(self):
+        utils.get_favourites()
+        GLib.idle_add(self.update_in_my_collection_button)
+
+    def update_in_my_collection_button(self):
+        track = self.player_object.playing_track
+        if track is None:
+            return
+
+        if utils.is_favourited(track):
+            self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
+        else:
+            self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
 
     def th_set_last_playing_song(self):
         index = self.settings.get_int("last-playing-index")
@@ -453,10 +470,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.album_button.set_action_target_value(GLib.Variant("s", str(album.id)))
         self.block_button.set_sensitive(True)
 
-        if utils.is_favourited(track):
-            self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
-        else:
-            self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
+        self.update_in_my_collection_button()
 
         self.save_last_playing_thing()
 

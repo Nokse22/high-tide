@@ -33,6 +33,8 @@ class HTCollectionPage(Page):
 
     __gtype_name__ = "HTCollectionPage"
 
+    waits_for_favourites = True
+
     def _load_async(self) -> None: ...
 
     @staticmethod

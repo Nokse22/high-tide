@@ -39,6 +39,8 @@ class HTArtistPage(Page):
 
     __gtype_name__ = "HTArtistPage"
 
+    waits_for_favourites = True
+
     top_tracks: List[Track] = []
     albums: List[Album] = []
     albums_ep_singles = []
