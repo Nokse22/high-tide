@@ -8,7 +8,8 @@
         {
             "type": "git",
             "url": "https://github.com/qwertyquerty/pypresence.git",
-            "commit": "4e882c36d0f800c016c15977243ac9a49177095a"
+            "tag": "v4.6.2",
+            "commit": "99e68b9eec2fde814bcc59e2f5e6c7d012c5e442"
         }
     ]
 }
