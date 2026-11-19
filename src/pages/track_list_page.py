@@ -28,6 +28,8 @@ class TrackListPage(Page):
 
     __gtype_name__ = "TrackListPage"
 
+    waits_for_favourites = True
+
     original_tracks = []
     current_sort = 0
     auto_load = None
