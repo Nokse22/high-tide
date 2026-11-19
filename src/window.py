@@ -1046,52 +1046,69 @@ class HighTideWindow(Adw.ApplicationWindow):
     #
 
     def on_push_artist_page(self, action, parameter):
-        if parameter.get_string() == "":
+        item_id = parameter.get_string()
+        if item_id == "":
             return
-        page = HTArtistPage.new_from_id(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        utils.push_page(
+            f"artist-{item_id}", lambda: HTArtistPage.new_from_id(item_id).load()
+        )
 
     def on_push_album_page(self, action, parameter):
-        if parameter.get_string() == "":
+        item_id = parameter.get_string()
+        if item_id == "":
             return
-        page = HTAlbumPage.new_from_id(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        utils.push_page(
+            f"album-{item_id}", lambda: HTAlbumPage.new_from_id(item_id).load()
+        )
 
     def on_push_track_credits_page(self, action, parameter):
-        if parameter.get_string() == "":
+        item_id = parameter.get_string()
+        if item_id == "":
             return
-        page = HTCreditsPage.new_for_track(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        utils.push_page(
+            f"track-credits-{item_id}",
+            lambda: HTCreditsPage.new_for_track(item_id).load(),
+        )
 
     def on_push_album_info_page(self, action, parameter):
-        if parameter.get_string() == "":
+        item_id = parameter.get_string()
+        if item_id == "":
             return
-        page = HTCreditsPage.new_for_album(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        utils.push_page(
+            f"album-info-{item_id}", lambda: HTCreditsPage.new_for_album(item_id).load()
+        )
 
     def on_push_playlist_page(self, action, parameter):
-        if parameter.get_string() == "":
+        item_id = parameter.get_string()
+        if item_id == "":
             return
-        page = HTPlaylistPage.new_from_id(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        utils.push_page(
+            f"playlist-{item_id}", lambda: HTPlaylistPage.new_from_id(item_id).load()
+        )
 
     def on_push_mix_page(self, action, parameter):
-        if parameter.get_string() == "":
+        item_id = parameter.get_string()
+        if item_id == "":
             return
-        page = HTMixPage.new_from_id(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        utils.push_page(
+            f"mix-{item_id}", lambda: HTMixPage.new_from_id(item_id).load()
+        )
 
     def on_push_track_radio_page(self, action, parameter):
-        if parameter.get_string() == "":
+        item_id = parameter.get_string()
+        if item_id == "":
             return
-        page = HTMixPage.new_from_track(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        utils.push_page(
+            f"track-radio-{item_id}", lambda: HTMixPage.new_from_track(item_id).load()
+        )
 
     def on_push_artist_radio_page(self, action, parameter):
-        if parameter.get_string() == "":
+        item_id = parameter.get_string()
+        if item_id == "":
             return
-        page = HTMixPage.new_from_artist(parameter.get_string()).load()
-        self.navigation_view.push(page)
+        utils.push_page(
+            f"artist-radio-{item_id}", lambda: HTMixPage.new_from_artist(item_id).load()
+        )
 
     #
     #
