@@ -1016,6 +1016,21 @@ def get_type(item: Any) -> str:
         return "playlist"
 
 
+def push_page(key: str, make_page) -> None:
+    """Open a page, unless the same page is already the one shown.
+
+    Args:
+        key: Identifies the page (type and id, e.g. "album-123")
+        make_page: Builds and returns the page to push
+    """
+    if getattr(navigation_view.get_visible_page(), "page_key", None) == key:
+        return
+
+    page = make_page()
+    page.page_key = key
+    navigation_view.push(page)
+
+
 def open_uri(label: str, uri: str) -> bool:
     """Open a URI by navigating to the appropriate page in the application.
 
@@ -1027,11 +1042,17 @@ def open_uri(label: str, uri: str) -> bool:
 
     match uri_parts[0]:
         case "artist":
-            page = HTArtistPage.new_from_id(uri_parts[1]).load()
-            navigation_view.push(page)
+            artist_id = uri_parts[1]
+            push_page(
+                f"artist-{artist_id}",
+                lambda: HTArtistPage.new_from_id(artist_id).load(),
+            )
         case "album":
-            page = HTAlbumPage.new_from_id(uri_parts[1]).load()
-            navigation_view.push(page)
+            album_id = uri_parts[1]
+            push_page(
+                f"album-{album_id}",
+                lambda: HTAlbumPage.new_from_id(album_id).load(),
+            )
 
     # TODO implement the rest?
     return True
@@ -1056,19 +1077,27 @@ def open_tidal_uri(uri: str) -> None:
 
     match content_type:
         case "artist":
-            page = HTArtistPage.new_from_id(content_id).load()
-            navigation_view.push(page)
+            push_page(
+                f"artist-{content_id}",
+                lambda: HTArtistPage.new_from_id(content_id).load(),
+            )
         case "album":
-            page = HTAlbumPage.new_from_id(content_id).load()
-            navigation_view.push(page)
+            push_page(
+                f"album-{content_id}",
+                lambda: HTAlbumPage.new_from_id(content_id).load(),
+            )
         case "track":
             threading.Thread(target=th_play_track, args=(content_id,)).start()
         case "mix":
-            page = HTMixPage.new_from_id(content_id).load()
-            navigation_view.push(page)
+            push_page(
+                f"mix-{content_id}",
+                lambda: HTMixPage.new_from_id(content_id).load(),
+            )
         case "playlist":
-            page = HTPlaylistPage.new_from_id(content_id).load()
-            navigation_view.push(page)
+            push_page(
+                f"playlist-{content_id}",
+                lambda: HTPlaylistPage.new_from_id(content_id).load(),
+            )
         case _:
             logger.warning(f"Unsupported content type: {content_type}")
             return False
