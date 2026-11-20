@@ -199,6 +199,10 @@ class PlayerObject(GObject.GObject):
 
         # for not caching on metered networks
         self.monitor = Gio.NetworkMonitor.get_default()
+        # Music cache downloads in progress, by cache file: one per track at a time
+        self._cache_downloads: dict = {}
+        self._cache_lock = threading.Lock()
+        self._closing = False
 
         self._media_server: dlna.MediaServer | None = None
         # Commands to the device, sent in order and off the main thread
@@ -783,10 +787,7 @@ class PlayerObject(GObject.GObject):
                     f.write(data)
 
                 if not self.monitor.get_network_metered():
-                    threading.Thread(
-                        target=self._cache_mpd_track,
-                        args=(track, mpd_path)
-                    ).start()
+                    self._start_caching(track, self._cache_mpd_track, data)
 
                 return f"file://{mpd_path}"
             else:
@@ -802,24 +803,55 @@ class PlayerObject(GObject.GObject):
             stream_url = urls[0] if isinstance(urls, list) else urls
 
             if not self.monitor.get_network_metered():
-                threading.Thread(
-                    target=self._cache_bts_track,
-                    args=(track, stream_url)
-                ).start()
+                self._start_caching(track, self._cache_bts_track, stream_url)
 
             return stream_url
 
         raise AttributeError(f"Unhandled manifest mime type: {self.stream.manifest_mime_type}")
 
-    def _cache_mpd_track(self, track, mpd_path):
-        """Download and cache MPD track via ffmpeg in background."""
+    def _start_caching(self, track, download, source) -> None:
+        """Download a track into the music cache in the background, unless it's
+        already being downloaded (playing it again while it downloads, e.g. repeat)."""
         cached_music = utils.MUSIC_DIR / f"{track.id}_{utils.session.audio_quality}.m4a"
+        with self._cache_lock:
+            if self._closing or cached_music in self._cache_downloads:
+                return
+            self._cache_downloads[cached_music] = None
+
+        def run():
+            try:
+                download(track, source, cached_music)
+            finally:
+                with self._cache_lock:
+                    self._cache_downloads.pop(cached_music, None)
+
+        # Daemon, so a download never keeps the app running after it closes
+        threading.Thread(target=run, daemon=True).start()
+
+    def stop_caching(self) -> None:
+        """Stop the music cache downloads, e.g. when the app closes."""
+        with self._cache_lock:
+            self._closing = True
+            downloads = list(self._cache_downloads.items())
+        for cached_music, process in downloads:
+            if process:
+                process.kill()
+                process.wait()
+            # The app can end before the download's own thread cleans up
+            cached_music.with_suffix(".tmp").unlink(missing_ok=True)
+            cached_music.with_suffix(".mpd").unlink(missing_ok=True)
+
+    def _cache_mpd_track(self, track, manifest, cached_music):
+        """Download and cache MPD track via ffmpeg in background."""
         tmp = cached_music.with_suffix(".tmp")
+        # Its own copy of the manifest: the shared one is replaced by the next track
+        mpd_path = cached_music.with_suffix(".mpd")
 
         try:
             import subprocess
             logger.info(f"Caching MPD track: {track.id}")
-            result = subprocess.run(
+            mpd_path.write_text(manifest)
+            process = subprocess.Popen(
                 [
                     "ffmpeg",
                     # Leave the terminal alone when started from one: reading it from
@@ -832,15 +864,24 @@ class PlayerObject(GObject.GObject):
                     "-y", str(tmp)
                 ],
                 stdin=subprocess.DEVNULL,
-                capture_output=True
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
             )
+            with self._cache_lock:
+                self._cache_downloads[cached_music] = process
+                closing = self._closing
+            if closing:
+                process.kill()
+            _, stderr = process.communicate()
 
-            if result.returncode != 0:
-                logger.warning(f"ffmpeg failed for {track.id}: {result.stderr.decode()}")
+            if self._closing:
+                tmp.unlink(missing_ok=True)
+            elif process.returncode != 0:
+                logger.warning(f"ffmpeg failed for {track.id}: {stderr.decode()}")
                 tmp.unlink(missing_ok=True)
             elif missing := self._find_missing_audio(tmp, track.duration):
                 errors = [
-                    line for line in result.stderr.decode().splitlines()
+                    line for line in stderr.decode().splitlines()
                     if "error" in line.lower() or "failed" in line.lower()
                 ]
                 logger.warning(f"Not caching {track.id}, {missing}: {errors}")
@@ -851,6 +892,8 @@ class PlayerObject(GObject.GObject):
         except Exception as e:
             logger.warning(f"Failed to cache MPD track {track.id}: {e}")
             tmp.unlink(missing_ok=True)
+        finally:
+            mpd_path.unlink(missing_ok=True)
 
     def _find_missing_audio(self, path, duration) -> str | None:
         """Describe the audio missing from a downloaded track, if any.
@@ -884,9 +927,8 @@ class PlayerObject(GObject.GObject):
             return f"audio ends at {previous:.1f} s of {duration} s"
         return None
 
-    def _cache_bts_track(self, track, stream_url):
+    def _cache_bts_track(self, track, stream_url, cached_music):
         """Download and cache BTS track in background."""
-        cached_music = utils.MUSIC_DIR / f"{track.id}_{utils.session.audio_quality}.m4a"
         tmp = cached_music.with_suffix(".tmp")
 
         try:
@@ -896,7 +938,12 @@ class PlayerObject(GObject.GObject):
             if response.status_code == 200:
                 with open(tmp, "wb") as f:
                     for chunk in response.iter_content(chunk_size=8192):
+                        if self._closing:
+                            break
                         f.write(chunk)
+                if self._closing:
+                    tmp.unlink(missing_ok=True)
+                    return
                 tmp.rename(cached_music)
                 logger.info(f"Cached BTS track: {track.id}")
             else:
