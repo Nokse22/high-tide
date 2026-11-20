@@ -101,6 +101,9 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         # Clear the cards when the items are set again
         child = self.cards_box.get_first_child()
         while child:
+            if child in self.disconnectables:
+                child.disconnect_all()
+                self.disconnectables.remove(child)
             self.cards_box.remove(child)
             child = self.cards_box.get_first_child()
         self.more_button.set_visible(self.more_function is not None)

@@ -686,6 +686,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_collection_button_clicked")
     def on_collection_button_clicked_func(self, widget):
+        utils.refresh_favourites()
         if self.navigation_view.find_page("collection"):
             self.navigation_view.pop_to_tag("collection")
             return

@@ -370,6 +370,39 @@ def get_favourites() -> None:
     logger.info(f"User Playlists: {len(user_playlists)}")
 
 
+_favourites_refresh_lock = threading.Lock()
+_favourites_refresh_again = False
+
+
+def refresh_favourites() -> None:
+    """Load the favourites again in the background, then show them on the
+    Collection page. Asked again while loading, it loads once more after."""
+    global _favourites_refresh_again
+    _favourites_refresh_again = True
+    threading.Thread(target=_th_refresh_favourites, daemon=True).start()
+
+
+def _th_refresh_favourites() -> None:
+    global _favourites_refresh_again
+    while _favourites_refresh_again:
+        if not _favourites_refresh_lock.acquire(blocking=False):
+            return  # the thread already loading picks it up
+        try:
+            while _favourites_refresh_again:
+                _favourites_refresh_again = False
+                get_favourites()
+        finally:
+            _favourites_refresh_lock.release()
+    GLib.idle_add(_on_favourites_refreshed)
+
+
+def _on_favourites_refreshed() -> None:
+    _update_collection_page()
+    window = navigation_view.get_root()
+    if hasattr(window, "update_in_my_collection_button"):
+        window.update_in_my_collection_button()
+
+
 def get_playlists() -> None:
     """Load the user's playlists, and their playlists plus favorite playlists."""
     global playlist_and_favorite_playlists
@@ -694,7 +727,7 @@ def th_add_to_my_collection(btn: Any, item: Any) -> None:
     """Thread function to add a TIDAL item to the user's favorites.
 
     Args:
-        btn: The favorite button widget (for UI updates)
+        btn: The favorite button widget (for UI updates), or None
         item: The TIDAL item to add to favorites
     """
     if isinstance(item, Track):
@@ -712,9 +745,10 @@ def th_add_to_my_collection(btn: Any, item: Any) -> None:
         result = False
 
     if result:
-        GLib.idle_add(set_in_my_collection_button, btn, True)
+        if btn is not None:
+            GLib.idle_add(set_in_my_collection_button, btn, True)
         GLib.idle_add(send_toast, _("Successfully added to my collection"), 2)
-        get_favourites()
+        refresh_favourites()
     else:
         GLib.idle_add(send_toast, _("Failed to add item to my collection"), 2)
 
@@ -743,6 +777,7 @@ def th_remove_from_my_collection(btn: Any, item: Any) -> None:
     if result:
         GLib.idle_add(set_in_my_collection_button, btn, False)
         GLib.idle_add(send_toast, _("Successfully removed from my collection"), 2)
+        refresh_favourites()
     else:
         GLib.idle_add(send_toast, _("Failed to remove item from my collection"), 2)
 
@@ -807,7 +842,7 @@ def _on_playlists_changed() -> None:
 def _update_collection_page() -> None:
     page = navigation_view.find_page("collection")
     if page:
-        page.update_playlists()
+        page.update_items()
 
 
 def th_add_to_playlist(playlist: Playlist, track: Track) -> None:

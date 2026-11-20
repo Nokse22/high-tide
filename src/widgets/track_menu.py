@@ -200,7 +200,7 @@ class TrackMenu:
 
     def _add_to_my_collection(self, *args) -> None:
         threading.Thread(
-            target=utils.session.user.favorites.add_track, args=(self.track.id,)
+            target=utils.th_add_to_my_collection, args=(None, self.track)
         ).start()
 
     def _add_to_playlist(self, action, parameter) -> None:
