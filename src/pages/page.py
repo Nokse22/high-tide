@@ -224,12 +224,14 @@ class Page(Adw.NavigationPage, IDisconnectable):
         )
         prev_button = Gtk.Button(
             icon_name="go-next-symbolic",
+            tooltip_text=_("Next"),
             margin_start=6,
             halign=Gtk.Align.END,
             css_classes=["circular"],
         )
         next_button = Gtk.Button(
             icon_name="go-previous-symbolic",
+            tooltip_text=_("Previous"),
             hexpand=True,
             halign=Gtk.Align.END,
             css_classes=["circular"],

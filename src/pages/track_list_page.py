@@ -97,8 +97,10 @@ class TrackListPage(Page):
                 )
             )
 
-        if getattr(self, "item", None) and utils.is_favourited(self.item):
-            in_my_collection_btn.set_icon_name("heart-filled-symbolic")
+        utils.set_in_my_collection_button(
+            in_my_collection_btn,
+            bool(getattr(self, "item", None)) and utils.is_favourited(self.item),
+        )
 
         image = builder.get_object("_image")
         if getattr(self, "item", None):

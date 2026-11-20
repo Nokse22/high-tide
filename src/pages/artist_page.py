@@ -146,8 +146,9 @@ class HTArtistPage(Page):
             )
         )
 
-        if utils.is_favourited(self.artist):
-            follow_button.set_icon_name("heart-filled-symbolic")
+        utils.set_in_my_collection_button(
+            follow_button, utils.is_favourited(self.artist)
+        )
 
         block_button = builder.get_object("_block_button")
         self._update_block_button(block_button, utils.is_blocked(self.artist))

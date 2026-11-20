@@ -712,7 +712,7 @@ def th_add_to_my_collection(btn: Any, item: Any) -> None:
         result = False
 
     if result:
-        GLib.idle_add(btn.set_icon_name, "heart-filled-symbolic")
+        GLib.idle_add(set_in_my_collection_button, btn, True)
         GLib.idle_add(send_toast, _("Successfully added to my collection"), 2)
         get_favourites()
     else:
@@ -741,10 +741,25 @@ def th_remove_from_my_collection(btn: Any, item: Any) -> None:
         result = False
 
     if result:
-        GLib.idle_add(btn.set_icon_name, "heart-outline-thick-symbolic")
+        GLib.idle_add(set_in_my_collection_button, btn, False)
         GLib.idle_add(send_toast, _("Successfully removed from my collection"), 2)
     else:
         GLib.idle_add(send_toast, _("Failed to remove item from my collection"), 2)
+
+
+def set_in_my_collection_button(btn: Any, in_collection: bool) -> None:
+    """Show on a heart button whether its item is in the user's collection.
+
+    Args:
+        btn: The heart button
+        in_collection: True if the item is in the collection
+    """
+    if in_collection:
+        btn.set_icon_name("heart-filled-symbolic")
+        btn.set_tooltip_text(_("Remove from My Collection"))
+    else:
+        btn.set_icon_name("heart-outline-thick-symbolic")
+        btn.set_tooltip_text(_("Add to My Collection"))
 
 
 def on_in_to_my_collection_button_clicked(btn: Any, item: Any) -> None:
