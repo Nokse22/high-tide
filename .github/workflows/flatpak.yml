@@ -53,3 +53,10 @@ jobs:
           # Discord code, with the pypresence in the bundle
           dbus-run-session -- flatpak run --no-a11y-bus --filesystem="$GITHUB_WORKSPACE:ro" \
             --command=python3 io.github.nokse22.high-tide "$GITHUB_WORKSPACE/build-aux/discord-check.py"
+      - name: Check that scrobbles get through
+        run: |
+          export XDG_RUNTIME_DIR=$(mktemp -d)
+          # Stand-ins for Last.fm and ListenBrainz get "now playing" and the
+          # scrobble of a made-up song from the app's scrobbling code
+          dbus-run-session -- flatpak run --no-a11y-bus --filesystem="$GITHUB_WORKSPACE:ro" \
+            --command=python3 io.github.nokse22.high-tide "$GITHUB_WORKSPACE/build-aux/scrobble-check.py"
