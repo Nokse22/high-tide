@@ -400,10 +400,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         if track is None:
             return
 
-        if utils.is_favourited(track):
-            self.in_my_collection_button.set_icon_name("heart-filled-symbolic")
-        else:
-            self.in_my_collection_button.set_icon_name("heart-outline-thick-symbolic")
+        utils.set_in_my_collection_button(
+            self.in_my_collection_button, utils.is_favourited(track)
+        )
 
     def th_set_last_playing_song(self):
         index = self.settings.get_int("last-playing-index")
