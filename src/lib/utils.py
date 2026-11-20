@@ -1226,7 +1226,8 @@ def _install_artist_cover_fallback() -> None:
         artist = original_parse(self, json_obj, *args, **kwargs)
         fallback = json_obj.get("selectedAlbumCoverFallback")
         if not json_obj.get("picture") and fallback:
-            artist.picture = fallback
+            # Artist(session, id) keeps itself and drops the copy parse returns
+            self.picture = artist.picture = fallback
         return artist
 
     parse.with_cover_fallback = True
