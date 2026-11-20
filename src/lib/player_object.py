@@ -1414,7 +1414,11 @@ class PlayerObject(GObject.GObject):
         """
 
         old_position = self.query_position(default=0)
-        position = int(seek_fraction * self.query_duration())
+        duration = self.query_duration()
+        position = int(seek_fraction * duration)
+        # A stream seeked to its very end can stop without ever ending, so land a
+        # second before it: the song then ends and the next one starts as usual
+        position = min(position, max(duration - Gst.SECOND, 0))
         if self.renderer:
             self.remote_position = position / Gst.SECOND
             if self._remote_resume_at:
