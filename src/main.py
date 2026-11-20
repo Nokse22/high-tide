@@ -62,10 +62,12 @@ class HighTideApplication(Adw.Application):
         self.connect("shutdown", self.on_shutdown)
 
     def on_shutdown(self, *args) -> None:
-        """Report the play in progress before the app closes"""
+        """Report the play in progress and stop downloads before the app closes"""
         win = self.props.active_window
         if win and getattr(win, "play_reporter", None):
             win.play_reporter.flush()
+        if utils.player_object:
+            utils.player_object.stop_caching()
 
     def do_open(self, files: List[Gio.File], n_files: int, hint: str) -> None:
         self.win: HighTideWindow | None = self.props.active_window
