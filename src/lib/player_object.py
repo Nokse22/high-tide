@@ -167,7 +167,6 @@ class PlayerObject(GObject.GObject):
         self.stream: Any | None = None
         self.update_timer: Any | None = None
         self.seek_after_sink_reload: int | None = None
-        self.seeked_to_end = False
         self.last_stream_reload: int = 0
         # the track being loaded again by _reload_track
         self.reloading_track: Track | None = None
@@ -448,7 +447,6 @@ class PlayerObject(GObject.GObject):
             GLib.source_remove(self.update_timer)
         self.update_timer = GLib.timeout_add(1000, self._update_slider_callback)
 
-        self.seeked_to_end = False
         self.last_seek_position = None
         self._continue_after_reload()
 
@@ -1415,13 +1413,6 @@ class PlayerObject(GObject.GObject):
                 keyframe, which can be seconds earlier in a stream
         """
 
-        # If a seek close to the end is performed then skip
-        # Avoids UI desync and stuck tracks
-        if not self.seeked_to_end and seek_fraction > 0.98:
-            self.use_about_to_finish = False
-            self.seeked_to_end = True
-            self.play_next()
-            return
         old_position = self.query_position(default=0)
         position = int(seek_fraction * self.query_duration())
         if self.renderer:
