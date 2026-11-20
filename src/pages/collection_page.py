@@ -20,6 +20,7 @@
 from gettext import gettext as _
 
 from gi.repository import Adw, Gtk
+from tidalapi.media import Video
 from tidalapi.types import ItemOrder, OrderDirection
 
 from ..lib import utils
@@ -84,23 +85,27 @@ class HTCollectionPage(Page):
         self.append(activity_list)
 
         user = utils.session.user
+        # Each carousel with how to get its items, so update_items() can show
+        # the collection again after it changed
+        self._carousels = []
 
-        self.new_carousel_for(
+        self._add_carousel(
             _("My Mixes and Radios"),
-            utils.favourite_mixes,
+            lambda: utils.favourite_mixes,
             self._create_paginated_loader(
                 user.favorites.mixes, lambda: utils.favourite_mixes
             ),
         )
 
-        self.playlists_carousel = HTCarouselWidget(_("Playlists"))
-        self.playlists_carousel.set_more_function(
+        self.playlists_carousel = self._add_carousel(
+            _("Playlists"),
+            lambda: utils.playlist_and_favorite_playlists,
             self._create_paginated_loader(
                 user.playlist_and_favorite_playlists,
                 lambda: utils.playlist_and_favorite_playlists,
-            )
+            ),
+            always_shown=True,
         )
-        self.playlists_carousel.set_items(utils.playlist_and_favorite_playlists)
         new_playlist_button = Gtk.Button(
             icon_name="list-add-symbolic",
             tooltip_text=_("New Playlist"),
@@ -115,18 +120,17 @@ class HTCollectionPage(Page):
             )
         )
         self.playlists_carousel.add_header_button(new_playlist_button)
-        self.append(self.playlists_carousel)
 
-        self.new_carousel_for(
+        self._add_carousel(
             _("Albums"),
-            utils.favourite_albums,
+            lambda: utils.favourite_albums,
             self._create_paginated_loader(
                 user.favorites.albums, lambda: utils.favourite_albums
             ),
         )
-        self.new_carousel_for(
+        self._add_carousel(
             _("Tracks"),
-            utils.favourite_tracks,
+            lambda: utils.favourite_tracks,
             self._create_paginated_loader(
                 user.favorites.tracks,
                 lambda: utils.favourite_tracks,
@@ -134,14 +138,37 @@ class HTCollectionPage(Page):
                 order_direction=OrderDirection.Descending,
             ),
         )
-        self.new_carousel_for(
+        self._add_carousel(
             _("Artists"),
-            utils.favourite_artists,
+            lambda: utils.favourite_artists,
             self._create_paginated_loader(
                 user.favorites.artists, lambda: utils.favourite_artists
             ),
         )
 
-    def update_playlists(self) -> None:
-        """Show the playlists again after they changed"""
-        self.playlists_carousel.set_items(utils.playlist_and_favorite_playlists)
+        self.update_items()
+
+    def _add_carousel(self, title, get_items, more_function, always_shown=False):
+        carousel = HTCarouselWidget(title)
+        carousel.set_more_function(more_function)
+        self._carousels.append((carousel, get_items, always_shown))
+        self.append(carousel)
+        return carousel
+
+    def update_items(self) -> None:
+        """Show the collection again after it changed. Carousels whose items
+        didn't change are left as they are, so they keep their scroll position."""
+        if not hasattr(self, "_carousels"):
+            return  # not loaded yet, it shows the new items when it loads
+
+        def ids(items):
+            return [getattr(item, "id", None) for item in items]
+
+        for carousel, get_items, always_shown in self._carousels:
+            items = utils.filter_ai_items(get_items())
+            shown = len(items) > 0 and not all(
+                isinstance(item, Video) for item in items
+            )
+            carousel.set_visible(always_shown or shown)
+            if ids(items) != ids(carousel.items):
+                carousel.set_items(items)
