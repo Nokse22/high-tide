@@ -1357,8 +1357,9 @@ class PlayerObject(GObject.GObject):
             self.last_position = position
             self.position_stuck_since = now
             return
-        # During a gapless change the next track is loading
-        if now - self.position_stuck_since < 3 or self.next_track:
+        # During a gapless change the next track is loading, also when the track
+        # already ended before it was ready
+        if now - self.position_stuck_since < 3 or self.next_track or self.reached_eos:
             return
         cached_music = self._cached_music_path(self.playing_track)
         uri = self.playbin.get_property("current-uri") or ""
