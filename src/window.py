@@ -738,8 +738,8 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def _setup_volume_button(self) -> None:
         """Let the volume slider move in 1% steps (GTK rounds it to tenths), open it
-        when the pointer is over its button, as tidal.com does, and close it shortly
-        after the pointer leaves the button and slider"""
+        when the pointer rests on its button for a moment, as tidal.com does, and
+        close it shortly after the pointer leaves the button and slider"""
         widgets = [self.volume_button.get_popup()]
         while widgets:
             widget = widgets.pop()
@@ -751,6 +751,7 @@ class HighTideWindow(Adw.ApplicationWindow):
                 widgets.append(child)
                 child = child.get_next_sibling()
 
+        self._volume_open_id = 0
         self._volume_close_id = 0
         self._volume_motions = []
         for widget in (self.volume_button, self.volume_button.get_popup()):
@@ -771,13 +772,27 @@ class HighTideWindow(Adw.ApplicationWindow):
         if self._volume_close_id:
             GLib.source_remove(self._volume_close_id)
             self._volume_close_id = 0
-        if not self.volume_button.get_popup().get_visible():
-            self.volume_button.emit("popup")
+        popup_open = self.volume_button.get_popup().get_visible()
+        if not popup_open and not self._volume_open_id:
+            # a short wait, so passing over the button on the way elsewhere
+            # doesn't open it
+            self._volume_open_id = GLib.timeout_add(250, self._open_volume_popup)
 
     def _on_volume_pointer_leave(self, motion) -> None:
-        if self._from_touch(motion) or self._volume_close_id:
+        if self._from_touch(motion):
+            return
+        if self._volume_open_id:
+            GLib.source_remove(self._volume_open_id)
+            self._volume_open_id = 0
+        if self._volume_close_id:
             return
         self._volume_close_id = GLib.timeout_add(300, self._close_volume_popup)
+
+    def _open_volume_popup(self) -> bool:
+        self._volume_open_id = 0
+        if self._volume_motions[0].contains_pointer():
+            self.volume_button.emit("popup")
+        return False
 
     def _close_volume_popup(self) -> bool:
         self._volume_close_id = 0
