@@ -193,6 +193,9 @@ class PlayerObject(GObject.GObject):
         # the last track requested for gapless playback, dropped if another track
         # is played directly while it loads
         self.gapless_request: Track | None = None
+        # the next track, when loading it for gapless playback failed: it's
+        # loaded again when the current one ends
+        self.failed_next_track: Track | None = None
         # counts the tracks played directly; a track that finishes loading after
         # another one was played is dropped, so only the last one asked for plays
         self.play_request = 0
@@ -321,7 +324,7 @@ class PlayerObject(GObject.GObject):
             # The next uri wasn't set in time, _play_track_url will play it
             logger.warning("Track ended before the next one was loaded")
             self.reached_eos = True
-        elif self.next_track or self._has_next_track():
+        elif self.next_track or self.failed_next_track or self._has_next_track():
             logger.warning("Track ended without switching to the next one")
             self.play_next()
         else:
@@ -711,7 +714,18 @@ class PlayerObject(GObject.GObject):
         except Exception:
             logger.exception("Error getting track URL")
             if gapless:
-                self.loading_gapless = False
+                GLib.idle_add(self._on_gapless_load_failed, track)
+
+    def _on_gapless_load_failed(self, track: Track) -> None:
+        self.loading_gapless = False
+        if track is not self.gapless_request:
+            return  # another track was played meanwhile
+        self.gapless_request = None
+        self.failed_next_track = track
+        if self.reached_eos:
+            # The current track already ended, so nothing would start it
+            self.reached_eos = False
+            self.play_next()
 
     def _play_cached_track(self, track, cached_music, gapless=False, request=None) -> None:
         """Play a track from the music cache.
@@ -1013,6 +1027,7 @@ class PlayerObject(GObject.GObject):
             # which would otherwise be shown as playing when this one starts
             self.gapless_request = None
             self.next_track = None
+            self.failed_next_track = None
             self.reached_eos = False
             self.reloading_track = None
             self.use_about_to_finish = False
@@ -1134,6 +1149,16 @@ class PlayerObject(GObject.GObject):
             if self.playing_track and self.next_track.id == self.playing_track.id:
                 # The repeat queued for gapless playback: play the next track instead
                 self.next_track = None
+        if skip and self._repeat_type == RepeatType.SONG and self.failed_next_track:
+            if self.playing_track and self.failed_next_track.id == self.playing_track.id:
+                self.failed_next_track = None
+
+        if self.failed_next_track:
+            # Loading it for gapless playback failed: try it again
+            track = self.failed_next_track
+            self.failed_next_track = None
+            self.play_track(track, gapless=gapless)
+            return
 
         # A track is already enqueued from an about-to-finish
         if self.next_track:
