@@ -26,7 +26,7 @@ import uuid
 import logging
 from gettext import gettext as _
 from pathlib import Path
-from typing import Any, List
+from typing import Any, Callable, List
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -344,18 +344,26 @@ def get_favourites() -> None:
 
     user = session.user
 
-    try:
-        favourite_artists = user.favorites.artists()
-        favourite_tracks = user.favorites.tracks(
-            order=ItemOrder.Date, 
-            order_direction=OrderDirection.Descending
-        )
-        favourite_albums = user.favorites.albums()
-        favourite_playlists = user.favorites.playlists()
-        favourite_mixes = user.favorites.mixes()
-        get_playlists()
-    except Exception:
-        logger.exception("Error while getting Favourites")
+    # Each list loads on its own: one that fails keeps what it had (empty at
+    # first) without leaving the others empty
+    favourite_artists = _load_favourites(
+        "artists", user.favorites.artists, favourite_artists
+    )
+    favourite_tracks = _load_favourites(
+        "tracks",
+        lambda: user.favorites.tracks(
+            order=ItemOrder.Date, order_direction=OrderDirection.Descending
+        ),
+        favourite_tracks,
+    )
+    favourite_albums = _load_favourites(
+        "albums", user.favorites.albums, favourite_albums
+    )
+    favourite_playlists = _load_favourites(
+        "playlists", user.favorites.playlists, favourite_playlists
+    )
+    favourite_mixes = _load_favourites("mixes", user.favorites.mixes, favourite_mixes)
+    get_playlists()
 
     favourites_loaded.set()
 
@@ -410,18 +418,33 @@ def get_playlists() -> None:
 
     user = session.user
 
-    user_playlists = user.playlists()
+    user_playlists = _load_favourites("user playlists", user.playlists, user_playlists)
 
-    count = user.favorites.get_playlists_count()
-    limit = 50
-    offset = 0
-    pages = []
+    def all_playlists():
+        count = user.favorites.get_playlists_count()
+        limit = 50
+        offset = 0
+        pages = []
 
-    while offset < count:
-        pages += user.playlist_and_favorite_playlists(offset=offset)
-        offset += limit
+        while offset < count:
+            pages += user.playlist_and_favorite_playlists(offset=offset)
+            offset += limit
 
-    playlist_and_favorite_playlists = pages
+        return pages
+
+    playlist_and_favorite_playlists = _load_favourites(
+        "playlists and favorite playlists",
+        all_playlists,
+        playlist_and_favorite_playlists,
+    )
+
+
+def _load_favourites(name: str, load: Callable[[], list], current: list) -> list:
+    try:
+        return load()
+    except Exception:
+        logger.exception(f"Error while getting the favorite {name}")
+        return current
 
 
 def is_favourited(item: Any) -> bool:
