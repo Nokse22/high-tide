@@ -21,7 +21,7 @@
 import threading
 from gettext import gettext as _
 
-from gi.repository import GObject, Gtk
+from gi.repository import Gdk, GObject, Gtk
 
 from ..disconnectable_iface import IDisconnectable
 from ..lib import ai, utils
@@ -88,6 +88,14 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         )
 
         self.track_menu = TrackMenu(self, self.menu_button, track, self.signals)
+        # The same menu on a right click or a long press, as on song cards
+        right_click = Gtk.GestureClick(button=Gdk.BUTTON_SECONDARY)
+        long_press = Gtk.GestureLongPress(touch_only=True)
+        for gesture in (right_click, long_press):
+            self.add_controller(gesture)
+            self.signals.append(
+                (gesture, gesture.connect("pressed", self._on_menu_requested))
+            )
 
         self.track_album_label.set_album(self.track.album)
         self.track_title_label.set_label(
@@ -121,6 +129,11 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         threading.Thread(
             target=utils.add_image, args=(self.image, self.track.album)
         ).start()
+
+    def _on_menu_requested(self, gesture, *args) -> None:
+        gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+        x, y = args[-2], args[-1]
+        self.track_menu.popup(x, y)
 
     def _on_player_song_changed(self, *args):
         self._update_now_playing()
