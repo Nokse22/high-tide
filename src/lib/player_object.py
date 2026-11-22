@@ -1104,6 +1104,8 @@ class PlayerObject(GObject.GObject):
         try:
             stream = track.get_stream()
             manifest = stream.get_stream_manifest()
+            if self.prefetch_id != track.id:
+                return  # the next track changed meanwhile
             self.prefetched = (track.id, stream, manifest, GLib.get_monotonic_time())
             logger.info(f"Prefetched stream: {track.id}")
         except Exception:
@@ -1361,7 +1363,7 @@ class PlayerObject(GObject.GObject):
             track: The Track object to add to the queue
         """
         self.queue.append(track)
-        self.emit("song-added-to-queue")
+        self._on_upcoming_changed()
 
     def add_next(self, track):
         """Add a track to the top of the queue.
@@ -1370,6 +1372,99 @@ class PlayerObject(GObject.GObject):
             track: The Track object to play next
         """
         self.queue.insert(0, track)
+        self._on_upcoming_changed()
+
+    def remove_from_queue(self, index: int) -> None:
+        """Remove a track from the queue"""
+        if not 0 <= index < len(self.queue):
+            return
+        del self.queue[index]
+        self._on_upcoming_changed()
+
+    def move_in_queue(self, index: int, new_index: int) -> None:
+        """Move a queued track to another place in the queue.
+
+        Args:
+            index: Where the track is now
+            new_index: Where it goes, counted without the track itself
+        """
+        if not 0 <= index < len(self.queue):
+            return
+        track = self.queue.pop(index)
+        self.queue.insert(max(0, min(new_index, len(self.queue))), track)
+        self._on_upcoming_changed()
+
+    def clear_queue(self) -> None:
+        """Remove all tracks from the queue"""
+        self.queue.clear()
+        self._on_upcoming_changed()
+
+    def remove_from_next_songs(self, index: int) -> None:
+        """Remove a track from the rest of the playing list, as shown in the queue"""
+        track_list = (
+            self._shuffled_tracks_to_play if self.shuffle else self._tracks_to_play
+        )
+        if not 0 <= index < len(track_list):
+            return
+        track = track_list.pop(index)
+        # Also from the other orders of the list, so it doesn't come back when
+        # shuffle is turned off
+        for other in (self._tracks_to_play, self._shuffled_tracks_to_play, self._play_order):
+            if other is track_list:
+                continue
+            for position, t in enumerate(other):
+                if t is track:
+                    del other[position]
+                    break
+        self.can_go_next = len(self._tracks_to_play) > 0
+        self.notify("can-go-next")
+        self._on_upcoming_changed()
+
+    def clear_next_songs(self) -> None:
+        """Remove the rest of the playing list, as shown in the queue. The current
+        track keeps playing, then the queued tracks, if any."""
+        self._tracks_to_play.clear()
+        self._shuffled_tracks_to_play.clear()
+        # Nothing to continue from when shuffle is turned off
+        self._play_order = []
+        self.can_go_next = False
+        self.notify("can-go-next")
+        self._on_upcoming_changed()
+
+    def move_in_next_songs(self, index: int, new_index: int) -> None:
+        """Move a track to another place in the rest of the playing list.
+
+        With shuffle on this changes the shuffled order only, and turning shuffle
+        off goes back to the list's order. Without shuffle the new order is kept,
+        also when shuffle is turned on and off again.
+
+        Args:
+            index: Where the track is now, as shown in the queue
+            new_index: Where it goes, counted without the track itself
+        """
+        track_list = (
+            self._shuffled_tracks_to_play if self.shuffle else self._tracks_to_play
+        )
+        if not 0 <= index < len(track_list):
+            return
+        track = track_list.pop(index)
+        track_list.insert(max(0, min(new_index, len(track_list))), track)
+        if not self.shuffle:
+            # Turning shuffle off continues from this order
+            self._play_order = [
+                t for t in self._play_order if not any(t is x for x in track_list)
+            ] + track_list
+        self._on_upcoming_changed()
+
+    def _on_upcoming_changed(self) -> None:
+        """The tracks to play next changed: fetch the new next track early instead"""
+        if self.prefetch_id is not None:
+            track = self._peek_next_track()
+            if not track or track.id != self.prefetch_id:
+                self.prefetch_id = None
+                self.prefetched = None
+                if track:
+                    self._prefetch_next_track()
         self.emit("song-added-to-queue")
 
     def query_volume(self):

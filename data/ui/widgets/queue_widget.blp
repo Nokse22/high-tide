@@ -49,15 +49,28 @@ template $HTQueueWidget: Box {
           orientation: vertical;
           spacing: 6;
 
-          Label {
-            styles [
-              "title-4",
-            ]
+          Box {
+            Label {
+              styles [
+                "title-4",
+              ]
 
-            ellipsize: end;
-            hexpand: true;
-            xalign: 0.0;
-            label: _("Queue");
+              ellipsize: end;
+              hexpand: true;
+              xalign: 0.0;
+              label: _("Queue");
+            }
+
+            Button clear_queue_button {
+              label: _("Clear");
+              tooltip-text: _("Remove all songs from the queue");
+              valign: center;
+              clicked => $on_clear_queue_clicked();
+
+              styles [
+                "flat",
+              ]
+            }
           }
 
           ListBox queued_songs_list {
@@ -73,15 +86,28 @@ template $HTQueueWidget: Box {
           orientation: vertical;
           spacing: 6;
 
-          Label {
-            styles [
-              "title-4",
-            ]
+          Box {
+            Label {
+              styles [
+                "title-4",
+              ]
 
-            ellipsize: end;
-            hexpand: true;
-            xalign: -0.0;
-            label: _("Next Songs");
+              ellipsize: end;
+              hexpand: true;
+              xalign: 0.0;
+              label: _("Next Songs");
+            }
+
+            Button clear_next_songs_button {
+              label: _("Clear");
+              tooltip-text: _("Remove all next songs");
+              valign: center;
+              clicked => $on_clear_next_songs_clicked();
+
+              styles [
+                "flat",
+              ]
+            }
           }
 
           ListBox next_songs_list {
