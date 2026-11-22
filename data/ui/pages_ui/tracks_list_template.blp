@@ -107,8 +107,13 @@ Box _main {
               orientation: horizontal;
               halign: end;
               valign: end;
+              spacing: 6;
               margin-end: 12;
               margin-start: 12;
+
+              Adw.LayoutSlot {
+                id: "search-button";
+              }
 
               DropDown _sort_by_dropdown {
                 model: StringList {
@@ -186,8 +191,24 @@ Box _main {
             Adw.LayoutSlot {
               id: "playlist-menu-button";
             }
+
+            Adw.LayoutSlot {
+              id: "search-button";
+            }
           }
         };
+      }
+
+      [search-button]
+      ToggleButton _search_button {
+        icon-name: "system-search-symbolic";
+        tooltip-text: _("Search in This List");
+        valign: center;
+
+        styles [
+          "flat",
+          "circular",
+        ]
       }
 
       [image]
@@ -334,6 +355,14 @@ Box _main {
   Separator {
     valign: start;
   }
+
+  SearchBar _search_bar {
+    child: SearchEntry _search_entry {
+      placeholder-text: _("Filter by title, artist or album");
+      width-request: 300;
+    };
+  }
+
   $HTAutoLoadWidget _auto_load {
     valign: start;
     margin-top: 12;
