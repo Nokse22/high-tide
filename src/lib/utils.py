@@ -49,6 +49,20 @@ logger = logging.getLogger(__name__)
 
 favourite_mixes: List[Mix] = []
 favourite_tracks: List[Track] = []
+
+
+class MyTracks:
+    """The user's saved tracks, as what songs are played from (shown as Playing
+    from in the player). Reported to TIDAL like songs played on their own."""
+
+    id = "my-tracks"
+
+    @property
+    def name(self) -> str:
+        return _("My Tracks")
+
+
+MY_TRACKS = MyTracks()
 favourite_artists: List[Artist] = []
 favourite_albums: List[Album] = []
 favourite_playlists: List[Playlist] = []

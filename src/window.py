@@ -27,6 +27,8 @@ from typing import Callable
 import tidalapi
 from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Pango, Xdp, Gdk
 from tidalapi.media import Quality
+from tidalapi.mix import MixV2
+from tidalapi.types import ItemOrder, OrderDirection
 
 from .lib import (HTCache, LastFmClient, LastFmScrobbler, LastFmSecretStore,
                   ListenBrainzClient, ListenBrainzScrobbler,
@@ -39,8 +41,8 @@ from .widgets.track_menu import TrackMenu
 from .login import LoginDialog
 from .mpris import MPRIS
 from .pages import (HTAlbumPage, HTArtistPage, HTCollectionPage, HTCreditsPage,
-                    HTExplorePage, HTGenericPage, HTMixPage, HTNotLoggedInPage,
-                    HTPlaylistPage)
+                    HTExplorePage, HTFromFunctionPage, HTGenericPage, HTMixPage,
+                    HTNotLoggedInPage, HTPlaylistPage)
 from .widgets import (HTGenericTrackWidget, HTLinkLabelWidget, HTLyricsWidget,
                       HTQueueWidget)
 
@@ -101,6 +103,9 @@ class HighTideWindow(Adw.ApplicationWindow):
     block_menu = Gtk.Template.Child()
     album_button = Gtk.Template.Child()
     more_button = Gtk.Template.Child()
+    playing_from_button = Gtk.Template.Child()
+    playing_from_icon = Gtk.Template.Child()
+    playing_from_label = Gtk.Template.Child()
 
     secret_portal_dialog = Gtk.Template.Child()
 
@@ -139,6 +144,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.create_action_with_target(
             "push-mix-page", GLib.VariantType.new("s"), self.on_push_mix_page
         )
+
+        my_tracks_action = Gio.SimpleAction.new("push-my-tracks-page", None)
+        my_tracks_action.connect("activate", self.on_push_my_tracks_page)
+        self.add_action(my_tracks_action)
 
         self.create_action_with_target(
             "push-track-radio-page",
@@ -413,14 +422,18 @@ class HighTideWindow(Adw.ApplicationWindow):
         logger.info(f"Last playing: {thing_id} of type {thing_type} index: {index}")
 
         tracks = None
+        source = None
 
         try:
             if thing_type == "mix":
-                tracks = self.session.mix(thing_id).items()
+                source = self.session.mix(thing_id)
+                tracks = source.items()
             elif thing_type == "album":
-                tracks = self.session.album(thing_id).tracks()
+                source = self.session.album(thing_id)
+                tracks = source.tracks()
             elif thing_type == "playlist":
-                tracks = self.session.playlist(thing_id).tracks()
+                source = self.session.playlist(thing_id)
+                tracks = source.tracks()
             elif thing_type == "track":
                 tracks = [self.session.track(thing_id)]
         except Exception:
@@ -429,7 +442,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         if tracks is None:
             return
 
-        GLib.idle_add(self.player_object.play_this, tracks, index)
+        # The source too, so the player shows what it's playing from
+        GLib.idle_add(
+            lambda: self.player_object.play_this(tracks, index, source=source) and False
+        )
         GLib.idle_add(self.player_object.pause)
 
     #
@@ -470,6 +486,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.album_button.set_action_target_value(GLib.Variant("s", str(album.id)))
         self.block_button.set_sensitive(True)
         self._set_more_menu(track)
+        self._update_playing_from()
 
         self.update_in_my_collection_button()
 
@@ -658,6 +675,44 @@ class HighTideWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback("on_play_button_clicked")
     def on_play_button_clicked(self, btn):
         self.player_object.play_pause()
+
+    def _update_playing_from(self) -> None:
+        """Show what the playing track is played from (an album, playlist, mix or
+        artist), as TIDAL does; clicking it opens that page"""
+        source = self.player_object.get_playing_source()
+        kinds = (
+            (tidalapi.Album, "album", "library-music-symbolic", "name"),
+            (tidalapi.Playlist, "playlist", "view-list-bullet-symbolic", "name"),
+            ((tidalapi.Mix, MixV2), "mix", "audio-x-generic-symbolic", "title"),
+            (tidalapi.Artist, "artist", "music-artist-symbolic", "name"),
+        )
+        if source is utils.MY_TRACKS:
+            name = source.name
+            self.playing_from_icon.set_from_icon_name("heart-filled-symbolic")
+            self.playing_from_label.set_label(name)
+            self.playing_from_button.set_tooltip_text(
+                _("Playing from: {}").format(name)
+            )
+            self.playing_from_button.set_action_name("win.push-my-tracks-page")
+            self.playing_from_button.set_action_target_value(None)
+            self.playing_from_button.set_visible(True)
+            return
+        for cls, kind, icon, name_attr in kinds:
+            if isinstance(source, cls):
+                name = getattr(source, name_attr, None) or ""
+                self.playing_from_icon.set_from_icon_name(icon)
+                self.playing_from_label.set_label(name)
+                self.playing_from_button.set_tooltip_text(
+                    _("Playing from: {}").format(name)
+                )
+                self.playing_from_button.set_action_name(f"win.push-{kind}-page")
+                self.playing_from_button.set_action_target_value(
+                    GLib.Variant("s", str(source.id))
+                )
+                self.playing_from_button.set_visible(True)
+                return
+        # A track played on its own or from the queue
+        self.playing_from_button.set_visible(False)
 
     def _set_more_menu(self, track) -> None:
         """Give the More button the song menu of the playing track, as on song rows
@@ -1122,6 +1177,24 @@ class HighTideWindow(Adw.ApplicationWindow):
         utils.push_page(
             f"playlist-{item_id}", lambda: HTPlaylistPage.new_from_id(item_id).load()
         )
+
+    def on_push_my_tracks_page(self, *args):
+        """Open the saved tracks, newest first, as the Collection page's Tracks"""
+
+        def make_page():
+            page = HTFromFunctionPage(_("My Tracks"))
+            page.set_function(
+                lambda limit=50, offset=0: utils.session.user.favorites.tracks(
+                    limit=limit,
+                    offset=offset,
+                    order=ItemOrder.Date,
+                    order_direction=OrderDirection.Descending,
+                )
+            )
+            page.auto_load.source = utils.MY_TRACKS
+            return page.load()
+
+        utils.push_page("my-tracks", make_page)
 
     def on_push_mix_page(self, action, parameter):
         item_id = parameter.get_string()

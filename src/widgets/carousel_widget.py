@@ -70,6 +70,8 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         self.title_label.set_label(self.title)
 
         self.more_function = None
+        # What the songs on the More page are played from (see play_this's source)
+        self.more_source = None
 
         self.items = []
 
@@ -153,6 +155,8 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         else:
             page = HTFromFunctionPage(self.title)
             page.set_function(self.more_function)
+        if self.more_source is not None:
+            page.auto_load.source = self.more_source
 
         page.load()
         utils.navigation_view.push(page)
