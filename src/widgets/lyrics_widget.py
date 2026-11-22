@@ -91,6 +91,7 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
 
         self.prev_index = 0
         self.prev_value = 0
+        self._animation = None
 
     def set_lyrics(self, lyrics_text: str):
         """Set the lyrics.
@@ -133,6 +134,8 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
                 if text:
                     self.list_store.append(HTLine(text))
 
+        self._reset_scroll()
+
     def clear(self):
         """Clears the lyrics"""
         self.stack.set_visible_child_name("status_page")
@@ -142,6 +145,7 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
         self.selection_model = None
         self.handler_id = None
         self.has_timestamps = False
+        self._reset_scroll()
 
     def set_time(self, time_seconds: float):
         """Updates the time of the widget to highlight the correct line
@@ -177,6 +181,7 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
                 target_position = max(0, min(target_position, max_height - view_height))
 
             self._scroll_to(target_position)
+            self.prev_index = new_index
 
         if self.has_timestamps and self.handler_id:
             self.selection_model.handler_block(self.handler_id)
@@ -184,13 +189,24 @@ class HTLyricsWidget(Gtk.Box, IDisconnectable):
             self.selection_model.handler_unblock(self.handler_id)
 
     def _scroll_to(self, value):
+        if self._animation:
+            self._animation.pause()
         target = Adw.PropertyAnimationTarget.new(self.adjustment, "value")
-        animation = Adw.TimedAnimation.new(
+        self._animation = Adw.TimedAnimation.new(
             self, self.adjustment.get_value(), value, 200, target
         )
-        animation.play()
+        self._animation.play()
 
         self.prev_value = value
+
+    def _reset_scroll(self):
+        """Start new lyrics at the top, without the previous song's position"""
+        if self._animation:
+            self._animation.pause()
+            self._animation = None
+        self.prev_index = 0
+        self.prev_value = 0
+        self.adjustment.set_value(0)
 
     def _on_selection_changed(self, selection_model, position, n_items):
         if not self.has_timestamps:
