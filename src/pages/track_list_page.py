@@ -17,10 +17,16 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import logging
 import threading
 from gettext import gettext as _
+
+from gi.repository import GLib, GObject, Gtk
+
 from ..lib import utils
 from .page import Page
+
+logger = logging.getLogger(__name__)
 
 
 class TrackListPage(Page):
@@ -108,15 +114,168 @@ class TrackListPage(Page):
 
         sort_dropdown = builder.get_object("_sort_by_dropdown")
         sort_dropdown.connect("notify::selected", self.on_sort_changed)
+        self.sort_dropdown = sort_dropdown
+
+        self._setup_search(builder)
+
+    def _setup_search(self, builder) -> None:
+        """A search field above the list, hidden until the search button, Ctrl+F or
+        typing on the page opens it; it filters the list by title, artist or album"""
+        self.search_query = ""
+        self.loading_all = False
+        self.search_bar = builder.get_object("_search_bar")
+        self.search_entry = builder.get_object("_search_entry")
+        search_button = builder.get_object("_search_button")
+
+        self.search_bar.connect_entry(self.search_entry)
+        self.bindings.append(
+            search_button.bind_property(
+                "active",
+                self.search_bar,
+                "search-mode-enabled",
+                GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.SYNC_CREATE,
+            )
+        )
+
+        def open_search(*_args):
+            if utils.navigation_view.get_visible_page() is not self:
+                return False  # another page's search
+            self.search_bar.set_search_mode(True)
+            self.search_entry.grab_focus()
+            return True
+
+        # Window-wide, so it works wherever the keyboard focus is
+        shortcuts = Gtk.ShortcutController(scope=Gtk.ShortcutScope.GLOBAL)
+        shortcuts.add_shortcut(
+            Gtk.Shortcut.new(
+                Gtk.ShortcutTrigger.parse_string("<Control>f"),
+                Gtk.CallbackAction.new(open_search),
+            )
+        )
+        self.add_controller(shortcuts)
+
+        # Typing anywhere in the window opens the search of the page shown
+        def capture(*_args):
+            self.search_bar.set_key_capture_widget(self.get_root())
+
+        def release(*_args):
+            self.search_bar.set_key_capture_widget(None)
+
+        if utils.navigation_view.get_visible_page() is self:
+            capture()
+
+        self.signals.extend(
+            [
+                (self, self.connect("shown", capture)),
+                (self, self.connect("hiding", release)),
+                (
+                    self.search_entry,
+                    self.search_entry.connect("search-changed", self._on_search_changed),
+                ),
+                (
+                    self.search_bar,
+                    self.search_bar.connect(
+                        "notify::search-mode-enabled", self._on_search_mode_changed
+                    ),
+                ),
+            ]
+        )
+
+    def _on_search_mode_changed(self, search_bar, _pspec) -> None:
+        if search_bar.get_search_mode():
+            # The field is at the top of the list
+            self.scrolled_window.get_vadjustment().set_value(0)
+        else:
+            self.search_entry.set_text("")
+
+    def _on_search_changed(self, entry) -> None:
+        query = entry.get_text().strip().lower()
+        if query == self.search_query:
+            return
+        self.search_query = query
+        if query:
+            self._load_all_tracks()
+        self._show_tracks()
+
+    def _load_all_tracks(self) -> None:
+        """Fetch the songs not loaded yet (pages load 50 at first), so a search
+        covers the whole album or playlist"""
+        item = getattr(self, "item", None)
+        total = getattr(item, "num_tracks", None) or 0
+        if self.loading_all or not hasattr(item, "tracks"):
+            return
+        if len(self.original_tracks) >= total:
+            return
+        self.loading_all = True
+
+        def fetch():
+            tracks = list(self.original_tracks)
+            try:
+                while len(tracks) < total:
+                    page = item.tracks(limit=100, offset=len(tracks))
+                    if not page:
+                        break
+                    tracks.extend(page)
+            except Exception:
+                logger.exception("Error while loading all songs for the search")
+            GLib.idle_add(done, tracks)
+
+        def done(tracks):
+            self.loading_all = False
+            self.original_tracks = tracks
+            if self.search_query:
+                self._show_tracks()
+            return False
+
+        threading.Thread(target=fetch, daemon=True).start()
+
+    def _matches(self, track) -> bool:
+        query = self.search_query
+        names = [getattr(track, "full_name", None) or track.name or ""]
+        names += [a.name or "" for a in (track.artists or []) if a]
+        if track.album:
+            names.append(track.album.name or "")
+        return any(query in name.lower() for name in names)
+
+    def _show_tracks(self) -> None:
+        """Show the list in the chosen order, filtered by the search if any"""
+        if not self.search_query:
+            self.current_sort = None  # shows the list again as sorted
+            self.on_sort_changed(self.sort_dropdown, None)
+            return
+        valid_tracks = [t for t in self.original_tracks if t is not None]
+        if self.current_sort == 5:
+            ordered = list(reversed(valid_tracks))
+        else:
+            ordered = self._sorted(self.current_sort, valid_tracks)
+        self.auto_load.set_function(None)
+        self.auto_load.set_items([t for t in ordered if self._matches(t)])
 
     def on_sort_changed(self, dropdown, _pspec):
         selected = dropdown.get_selected()
         if selected == self.current_sort:
             return
         self.current_sort = selected
+        if getattr(self, "search_query", ""):
+            self._show_tracks()
+            return
 
         valid_tracks = [t for t in self.original_tracks if t is not None]
+        sorted_tracks = self._sorted(selected, valid_tracks)
 
+        if selected == 0 and hasattr(self.item, "tracks"):
+            # After a search loaded all songs: show the first ones again and load the
+            # rest while scrolling, as when the page opened
+            sorted_tracks = sorted_tracks[: self.auto_load.items_limit]
+            self.auto_load.set_function(getattr(self.item, "tracks", None))
+        elif selected == 5 and hasattr(self.item, "tracks"):
+            self.auto_load.set_function(self.load_new_recently_added)
+        else:
+            self.auto_load.set_function(None)
+
+        self.auto_load.set_items(sorted_tracks)
+
+    def _sorted(self, selected, tracks):
         sort_map = {
             0: lambda tracks: tracks.copy(),
             1: lambda tracks: sorted(
@@ -135,17 +294,7 @@ class TrackListPage(Page):
             4: lambda tracks: sorted(tracks, key=lambda t: t.duration or 0),
             5: lambda tracks: self._recently_added(tracks),
         }
-
-        sorted_tracks = sort_map.get(selected, lambda t: t.copy())(valid_tracks)
-
-        if selected == 0 and hasattr(self.item, "tracks"):
-            self.auto_load.set_function(getattr(self.item, "tracks", None))
-        elif selected == 5 and hasattr(self.item, "tracks"):
-            self.auto_load.set_function(self.load_new_recently_added)
-        else:
-            self.auto_load.set_function(None)
-
-        self.auto_load.set_items(sorted_tracks)
+        return sort_map.get(selected, lambda t: t.copy())(tracks)
 
     def _recently_added(self, tracks):
         if not(hasattr(self.item, "num_tracks") and hasattr(self.item, "tracks")):
