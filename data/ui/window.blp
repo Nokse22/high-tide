@@ -669,16 +669,15 @@ template $HighTideWindow: Adw.ApplicationWindow {
                       ]
                     }
 
-                    Button copy_share_link {
-                      icon-name: "share-alt-symbolic";
-                      tooltip-text: _("Copy Share Link");
+                    MenuButton more_button {
+                      icon-name: "view-more-symbolic";
+                      sensitive: false;
+                      tooltip-text: _("More");
                       valign: center;
 
                       styles [
                         "flat",
                       ]
-
-                      clicked => $on_share_clicked();
                     }
                   }
 

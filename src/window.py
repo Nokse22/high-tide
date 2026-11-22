@@ -35,6 +35,7 @@ from .lib import (HTCache, LastFmClient, LastFmScrobbler, LastFmSecretStore,
 from .lib import cast, dlna
 from .lib.play_reporter import PlayReporter
 from .lib.player_object import AudioSink
+from .widgets.track_menu import TrackMenu
 from .login import LoginDialog
 from .mpris import MPRIS
 from .pages import (HTAlbumPage, HTArtistPage, HTCollectionPage, HTCreditsPage,
@@ -99,7 +100,7 @@ class HighTideWindow(Adw.ApplicationWindow):
     block_button = Gtk.Template.Child()
     block_menu = Gtk.Template.Child()
     album_button = Gtk.Template.Child()
-    copy_share_link = Gtk.Template.Child()
+    more_button = Gtk.Template.Child()
 
     secret_portal_dialog = Gtk.Template.Child()
 
@@ -468,6 +469,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         )
         self.album_button.set_action_target_value(GLib.Variant("s", str(album.id)))
         self.block_button.set_sensitive(True)
+        self._set_more_menu(track)
 
         self.update_in_my_collection_button()
 
@@ -657,11 +659,17 @@ class HighTideWindow(Adw.ApplicationWindow):
     def on_play_button_clicked(self, btn):
         self.player_object.play_pause()
 
-    @Gtk.Template.Callback("on_share_clicked")
-    def on_share_clicked(self, *args):
-        track = self.player_object.playing_track
-        if track:
-            utils.share_this(track)
+    def _set_more_menu(self, track) -> None:
+        """Give the More button the song menu of the playing track, as on song rows
+        (add to a playlist, play next, credits, copy share url, block...)"""
+        for obj, handler in getattr(self, "_more_menu_signals", []):
+            if obj.handler_is_connected(handler):
+                obj.disconnect(handler)
+        self._more_menu_signals = []
+        self._more_menu = TrackMenu(
+            self.more_button, self.more_button, track, self._more_menu_signals
+        )
+        self.more_button.set_sensitive(True)
 
     @Gtk.Template.Callback("on_skip_forward_button_clicked")
     def on_skip_forward_button_clicked_func(self, widget):
