@@ -128,7 +128,7 @@ class HTCollectionPage(Page):
                 user.favorites.albums, lambda: utils.favourite_albums
             ),
         )
-        self._add_carousel(
+        tracks_carousel = self._add_carousel(
             _("Tracks"),
             lambda: utils.favourite_tracks,
             self._create_paginated_loader(
@@ -138,6 +138,7 @@ class HTCollectionPage(Page):
                 order_direction=OrderDirection.Descending,
             ),
         )
+        tracks_carousel.more_source = utils.MY_TRACKS
         self._add_carousel(
             _("Artists"),
             lambda: utils.favourite_artists,

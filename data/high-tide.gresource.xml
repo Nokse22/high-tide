@@ -47,6 +47,8 @@
     <file preprocess="xml-stripblanks">icons/16x16/actions/playback-paused-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/copy-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/list-drag-handle-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/16x16/actions/view-list-bullet-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/16x16/actions/audio-x-generic-symbolic.svg</file>
   </gresource>
 </gresources>
 

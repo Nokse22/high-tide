@@ -551,6 +551,34 @@ template $HighTideWindow: Adw.ApplicationWindow {
                     ]
                   }
 
+                  Button playing_from_button {
+                    visible: false;
+                    halign: center;
+
+                    styles [
+                      "flat",
+                    ]
+
+                    child: Box {
+                      spacing: 6;
+
+                      Image playing_from_icon {
+                        styles [
+                          "dim-label",
+                        ]
+                      }
+
+                      Label playing_from_label {
+                        ellipsize: end;
+                        max-width-chars: 30;
+
+                        styles [
+                          "dim-label",
+                        ]
+                      }
+                    };
+                  }
+
                   Box {
                     spacing: 6;
                     halign: center;
