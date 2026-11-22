@@ -1095,6 +1095,11 @@ def get_type(item: Any) -> str:
 def push_page(key: str, make_page) -> None:
     """Open a page, unless the same page is already the one shown.
 
+    If the same page is further back, that page is moved to the top instead of
+    opening a new copy, so going back and forth between pages (a song's album and
+    artist, say) doesn't pile up copies of them, and the page shows at once,
+    already loaded. Nothing opened in between is closed.
+
     Args:
         key: Identifies the page (type and id, e.g. "album-123")
         make_page: Builds and returns the page to push
@@ -1102,9 +1107,29 @@ def push_page(key: str, make_page) -> None:
     if getattr(navigation_view.get_visible_page(), "page_key", None) == key:
         return
 
+    older = _pages_with_key(key)
+    if older:
+        page = older[-1]
+        # Take it out of the stack (the page shown stays the same), then push it
+        # again, so it slides in like a new page
+        navigation_view.replace([p for p in _navigation_pages() if p not in older])
+        for other in older[:-1]:
+            other.disconnect_all()
+        navigation_view.push(page)
+        return
+
     page = make_page()
     page.page_key = key
     navigation_view.push(page)
+
+
+def _navigation_pages() -> list:
+    stack = navigation_view.get_navigation_stack()
+    return [stack.get_item(i) for i in range(stack.get_n_items())]
+
+
+def _pages_with_key(key: str) -> list:
+    return [p for p in _navigation_pages() if getattr(p, "page_key", None) == key]
 
 
 def open_uri(label: str, uri: str) -> bool:
