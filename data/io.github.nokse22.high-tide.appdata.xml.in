@@ -73,6 +73,25 @@
   </screenshots>
 
   <releases>
+    <release version="1.8.0" date="2026-11-22">
+      <description translate="no">
+        <p>Play on DLNA and Chromecast devices, like speakers, TVs and streamers</p>
+        <p>Show the artist's name in the Discord status</p>
+        <p>Start faster: the home page no longer waits for your favourites to load</p>
+        <p>The Collection page updates when you add or remove something, and still shows the rest if one part fails to load</p>
+        <p>Show an album cover for artists without a picture</p>
+        <p>Add tooltips to icon buttons</p>
+        <p>Wait a moment before opening the volume slider on hover</p>
+        <p>Fix seeking into the last seconds of a song skipping to the next one</p>
+        <p>Fix the next song being skipped, or playback stopping, when it fails to load</p>
+        <p>Fix skipped songs playing one after another once they finish loading</p>
+        <p>Fix a reloaded song sometimes starting over</p>
+        <p>Fix Raise and Quit in the media controls</p>
+        <p>Fix headers and song rows being cut off with larger text</p>
+        <p>Fix a page opening a second time when you click a link to it while it's open</p>
+        <p>Fix the same song downloading several times, and High Tide staying open after closing it</p>
+      </description>
+    </release>
     <release version="1.7.0" date="2026-11-13">
       <description translate="no">
         <p>Scrobble to Last.fm and ListenBrainz</p>
