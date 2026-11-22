@@ -57,6 +57,9 @@ class TrackMenu:
 
         if menu_button is not None:
             menu_button.set_menu_model(self.menu)
+            # Submenus (Add to a playlist, Block artist) open beside the menu when
+            # hovered, instead of replacing it after a click
+            menu_button.get_popover().set_flags(Gtk.PopoverMenuFlags.NESTED)
             self.signals.append(
                 (menu_button, menu_button.connect("notify::active", self.prepare))
             )
@@ -75,7 +78,9 @@ class TrackMenu:
     def popup(self, x: float | None = None, y: float | None = None) -> None:
         """Show the menu on owner, pointing at x, y if given"""
         self.prepare()
-        popover = Gtk.PopoverMenu.new_from_model(self.menu)
+        popover = Gtk.PopoverMenu.new_from_model_full(
+            self.menu, Gtk.PopoverMenuFlags.NESTED
+        )
         popover.set_has_arrow(False)
         popover.set_halign(Gtk.Align.START)
         popover.set_parent(self.owner)
