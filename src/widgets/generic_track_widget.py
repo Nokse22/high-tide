@@ -19,6 +19,7 @@
 
 
 import threading
+from gettext import gettext as _
 
 from gi.repository import GObject, Gtk
 
@@ -151,3 +152,34 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             on_removed: Called after the track is removed from the playlist
         """
         self.track_menu.set_playlist(playlist, on_removed)
+
+    def add_remove_button(self, on_clicked) -> None:
+        """Add a button that removes the track from the list it's shown in.
+
+        Args:
+            on_clicked: Called with this row when the button is clicked
+        """
+        button = Gtk.Button(
+            icon_name="window-close-symbolic",
+            tooltip_text=_("Remove"),
+            valign=Gtk.Align.CENTER,
+        )
+        button.add_css_class("flat")
+        self.signals.append(
+            (button, button.connect("clicked", lambda *a: on_clicked(self)))
+        )
+        self.menu_button.get_parent().insert_child_after(
+            button, self.track_duration_label
+        )
+
+    def add_drag_handle(self) -> Gtk.Widget:
+        """Add a handle to drag the row by, at its start, and return it"""
+        handle = Gtk.Image(
+            icon_name="list-drag-handle-symbolic",
+            tooltip_text=_("Drag to move"),
+            margin_end=6,
+        )
+        handle.add_css_class("dim-label")
+        handle.set_cursor_from_name("grab")
+        self.menu_button.get_parent().prepend(handle)
+        return handle
