@@ -22,6 +22,9 @@
 	  <key name="last-playing-thing-type" type="s">
       <default>''</default>
     </key>
+	  <key name="last-playing-track-id" type="s">
+      <default>''</default>
+    </key>
 	  <key name="last-volume" type="i">
       <default>10</default>
     </key>

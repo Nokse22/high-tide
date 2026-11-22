@@ -418,8 +418,11 @@ class HighTideWindow(Adw.ApplicationWindow):
         index = self.settings.get_int("last-playing-index")
         thing_id = self.settings.get_string("last-playing-thing-id")
         thing_type = self.settings.get_string("last-playing-thing-type")
+        track_id = self.settings.get_string("last-playing-track-id")
 
-        logger.info(f"Last playing: {thing_id} of type {thing_type} index: {index}")
+        logger.info(
+            f"Last playing: {thing_id} of type {thing_type} index: {index} track: {track_id}"
+        )
 
         tracks = None
         source = None
@@ -434,13 +437,28 @@ class HighTideWindow(Adw.ApplicationWindow):
             elif thing_type == "playlist":
                 source = self.session.playlist(thing_id)
                 tracks = source.tracks()
+            elif thing_type == "artist":
+                source = self.session.artist(thing_id)
+                tracks = source.get_top_tracks(limit=50)
+            elif thing_type == "my-tracks":
+                source = utils.MY_TRACKS
+                utils.favourites_loaded.wait(15)
+                tracks = list(utils.favourite_tracks)
             elif thing_type == "track":
                 tracks = [self.session.track(thing_id)]
         except Exception:
             logger.exception("Error while setting last played song")
 
-        if tracks is None:
+        if not tracks:
             return
+
+        # Find the song itself: the list may be in another order or have changed
+        # (saved tracks), and older versions saved only the position
+        for position, track in enumerate(tracks):
+            if track_id and str(track.id) == track_id:
+                index = position
+                break
+        index = min(max(index, 0), len(tracks) - 1)
 
         # The source too, so the player shows what it's playing from
         GLib.idle_add(
@@ -537,23 +555,33 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.queue_widget_updated = False
 
     def save_last_playing_thing(self):
-        """Save the current playing context to settings for persistence.
+        """Save what's playing so the app can continue it after a restart.
 
-        Stores information about the currently playing track and its source
-        (album, playlist, mix, etc.) so playback can resume on app restart.
+        Saves what the song is played from (an album, playlist, mix, artist or
+        the saved tracks) and the song itself; a song played on its own or from
+        search results is saved alone. A song from the queue isn't saved, so the
+        list it interrupted continues.
         """
-        mix_album_playlist = self.player_object.current_mix_album_playlist
-        track = self.player_object.playing_track
+        player = self.player_object
+        track = player.playing_track
+        if track is None or player.playing_from_queue:
+            return
 
-        if mix_album_playlist is not None and not isinstance(mix_album_playlist, list):
-            self.settings.set_string(
-                "last-playing-thing-id", str(mix_album_playlist.id)
-            )
-            self.settings.set_string(
-                "last-playing-thing-type", utils.get_type(mix_album_playlist)
-            )
-        if track is not None:
-            self.settings.set_int("last-playing-index", self.player_object.get_index())
+        source = player.play_source
+        if source is utils.MY_TRACKS:
+            thing_type, thing_id = "my-tracks", ""
+        elif isinstance(source, (tidalapi.Album, tidalapi.Playlist, tidalapi.Mix,
+                                 MixV2, tidalapi.Artist)):
+            kind = "mix" if isinstance(source, MixV2) else utils.get_type(source)
+            thing_type, thing_id = kind, str(source.id)
+        else:
+            # Can't be fetched again (search results, a single song): the song alone
+            thing_type, thing_id = "track", str(track.id)
+
+        self.settings.set_string("last-playing-thing-type", thing_type)
+        self.settings.set_string("last-playing-thing-id", thing_id)
+        self.settings.set_string("last-playing-track-id", str(track.id))
+        self.settings.set_int("last-playing-index", player.get_index())
 
     def stop_video_in_background(self, window, param):
         self.in_background = not self.is_active()
