@@ -1881,6 +1881,8 @@ class PlayerObject(GObject.GObject):
         """Follow the position on the device, play the next track at the end, and
         step back when another app takes the device over"""
         was_playing = False
+        # Kodi starts a loaded track by itself, also when it was loaded paused
+        settle_until = time.monotonic() + dlna.LOAD_GRACE
         while token == self._remote_token:
             try:
                 position, duration = renderer.get_position()
@@ -1903,6 +1905,13 @@ class PlayerObject(GObject.GObject):
             if state == "TAKEN_OVER":
                 GLib.idle_add(self._remote_taken_over, renderer, token)
                 return
+            if (
+                state == "PLAYING"
+                and not self.playing
+                and time.monotonic() < settle_until
+            ):
+                logger.info(f"{renderer.name} started by itself, pausing it")
+                self._remote_command(renderer.pause)
             if state in ("PLAYING", "PAUSED_PLAYBACK"):
                 was_playing = was_playing or state == "PLAYING"
                 self.remote_position = position

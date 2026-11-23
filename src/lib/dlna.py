@@ -32,6 +32,8 @@ SSDP_ADDRESS = ("239.255.255.250", 1900)
 RENDERER_TYPE = "urn:schemas-upnp-org:device:MediaRenderer:1"
 AV_TRANSPORT = "urn:schemas-upnp-org:service:AVTransport"
 RENDERING_CONTROL = "urn:schemas-upnp-org:service:RenderingControl"
+# Seconds after a load before a track this app didn't send counts as another app's
+LOAD_GRACE = 10
 DEVICE_NS = "{urn:schemas-upnp-org:device-1-0}"
 TIMEOUT = 5
 
@@ -55,6 +57,10 @@ class Renderer:
     # previous track's for a moment, which is no other app taking over
     _sent_urls: set[str] = field(default_factory=set, compare=False, repr=False)
     _track_uri: str | None = field(default=None, compare=False, repr=False)
+    # Whether the device reported a track this app sent since the last load, and when
+    # that load was: until then it can still report the track it had before
+    _seen_ours: bool = field(default=False, compare=False, repr=False)
+    _loaded_at: float = field(default=0.0, compare=False, repr=False)
 
     @property
     def host(self) -> str:
@@ -111,6 +117,8 @@ class Renderer:
         self._loaded_url = url
         self._sent_urls.add(url)
         self._track_uri = None
+        self._seen_ours = False
+        self._loaded_at = time.monotonic()
 
     def load(self, url: str, mime: str, track, cover_url: str | None = None) -> None:
         """Load a track, play() starts it"""
@@ -132,11 +140,14 @@ class Renderer:
         """PLAYING, PAUSED_PLAYBACK, STOPPED, TRANSITIONING or NO_MEDIA_PRESENT, or
         TAKEN_OVER when another app gave the device something else to play"""
         state = self._transport("GetTransportInfo").get("CurrentTransportState", "")
-        if (
-            state in ("PLAYING", "PAUSED_PLAYBACK", "TRANSITIONING")
-            and self._loaded_url
-            and self._track_uri
-            and html.unescape(self._track_uri) not in self._sent_urls
+        if not (self._loaded_url and self._track_uri):
+            return state
+        if html.unescape(self._track_uri) in self._sent_urls:
+            self._seen_ours = True
+        elif state in ("PLAYING", "PAUSED_PLAYBACK", "TRANSITIONING") and (
+            # Right after a load, Kodi still reports the track it had before
+            # (from another app, or another run of this one) for a moment
+            self._seen_ours or time.monotonic() - self._loaded_at > LOAD_GRACE
         ):
             return "TAKEN_OVER"
         return state
