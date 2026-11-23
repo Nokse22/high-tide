@@ -85,6 +85,8 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         # (placeholder, page size) to let the More page be searched, see
         # HTFromFunctionPage.enable_search
         self.more_search = None
+        # The Collection list the More page can be sorted as (utils.SORTS)
+        self.more_sort = None
 
         self.items = []
 
@@ -207,6 +209,8 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
             page.auto_load.source = self.more_source
         if self.more_search is not None:
             page.enable_search(*self.more_search)
+        if self.more_sort is not None:
+            page.enable_sort(self.more_sort)
 
         page.load()
         utils.navigation_view.push(page)

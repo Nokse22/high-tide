@@ -22,6 +22,7 @@ import os
 import re
 import subprocess
 import threading
+from types import SimpleNamespace
 import time
 import uuid
 import logging
@@ -40,7 +41,6 @@ from tidalapi.artist import Artist
 from tidalapi.mix import Mix
 from tidalapi.playlist import Playlist, UserPlaylist
 from tidalapi.media import Track, Video
-from tidalapi.types import ItemOrder, OrderDirection
 
 from ..pages import HTAlbumPage, HTArtistPage, HTMixPage, HTPlaylistPage
 from . import ai
@@ -74,6 +74,8 @@ blocked_tracks: List[Track] = []
 blocked_videos: List[Video] = []
 blocked_loaded = threading.Event()
 favourites_loaded = threading.Event()
+# Kept, so changes to the sort settings keep being reported
+_sort_settings = None
 # Pick clean over explicit album versions (the prefer-clean-versions setting)
 prefer_clean_versions = False
 
@@ -86,6 +88,10 @@ def init() -> None:
     """
     ai.install()
     _install_artist_cover_fallback()
+
+    global _sort_settings
+    _sort_settings = Gio.Settings.new("io.github.nokse22.high-tide")
+    _sort_settings.connect("changed", _on_sort_setting_changed)
     _install_row_context()
 
     global CACHE_DIR
@@ -363,22 +369,20 @@ def get_favourites() -> None:
     # Each list loads on its own: one that fails keeps what it had (empty at
     # first) without leaving the others empty
     favourite_artists = _load_favourites(
-        "artists", user.favorites.artists, favourite_artists
+        "artists", sorted_fetch("artists", user.favorites.artists), favourite_artists
     )
     favourite_tracks = _load_favourites(
-        "tracks",
-        lambda: user.favorites.tracks(
-            order=ItemOrder.Date, order_direction=OrderDirection.Descending
-        ),
-        favourite_tracks,
+        "tracks", sorted_fetch("tracks", user.favorites.tracks), favourite_tracks
     )
     favourite_albums = _load_favourites(
-        "albums", user.favorites.albums, favourite_albums
+        "albums", sorted_fetch("albums", user.favorites.albums), favourite_albums
     )
     favourite_playlists = _load_favourites(
         "playlists", user.favorites.playlists, favourite_playlists
     )
-    favourite_mixes = _load_favourites("mixes", user.favorites.mixes, favourite_mixes)
+    favourite_mixes = _load_favourites(
+        "mixes", sorted_fetch("mixes", user.favorites.mixes), favourite_mixes
+    )
     get_playlists()
 
     favourites_loaded.set()
@@ -439,29 +443,176 @@ def get_playlists() -> None:
     _load_playlists_and_favorite_playlists()
 
 
+# How each Collection list can be sorted: the sort-<kind> setting's value, its label,
+# TIDAL's order name and the direction it's shown in unless reversed. The defaults
+# keep the orders shown before (TIDAL's default for albums and artists is by name).
+SORTS = {
+    "playlists": [
+        ("created", _("Created date"), "DATE", "DESC"),
+        ("updated", _("Updated date"), "DATE_UPDATED", "DESC"),
+        ("name", _("Alphabetical"), "NAME", "ASC"),
+    ],
+    "albums": [
+        ("date", _("Date added"), "DATE", "DESC"),
+        ("name", _("Alphabetical"), "NAME", "ASC"),
+        ("artist", _("Artist"), "ARTIST", "ASC"),
+        ("release", _("Release date"), "RELEASE_DATE", "DESC"),
+    ],
+    "tracks": [
+        ("date", _("Date added"), "DATE", "DESC"),
+        ("name", _("Title"), "NAME", "ASC"),
+        ("artist", _("Artist"), "ARTIST", "ASC"),
+        ("album", _("Album"), "ALBUM", "ASC"),
+        ("length", _("Length"), "LENGTH", "ASC"),
+    ],
+    "artists": [
+        ("date", _("Date added"), "DATE", "DESC"),
+        ("name", _("Alphabetical"), "NAME", "ASC"),
+    ],
+    "mixes": [
+        ("date", _("Date added"), "DATE", "DESC"),
+        ("name", _("Alphabetical"), "NAME", "ASC"),
+        ("type", _("Mix type"), "MIX_TYPE", "ASC"),
+    ],
+}
+
+
+def sort_order(kind: str) -> tuple:
+    """TIDAL's order and direction names for a Collection list, as chosen"""
+    settings = Gio.Settings.new("io.github.nokse22.high-tide")
+    value = settings.get_string(f"sort-{kind}")
+    order, direction = next(
+        ((o, d) for v, _label, o, d in SORTS[kind] if v == value),
+        SORTS[kind][0][2:],
+    )
+    if settings.get_boolean(f"sort-{kind}-reversed"):
+        direction = "ASC" if direction == "DESC" else "DESC"
+    return order, direction
+
+
+def sorted_fetch(kind: str, fetch: Callable) -> Callable:
+    """fetch (a python-tidal favorites call) asking for the chosen order"""
+
+    def fetch_sorted(*args, **kwargs):
+        order, direction = sort_order(kind)
+        # python-tidal only reads .value from its order enums, and they don't
+        # have every order TIDAL takes (e.g. RELEASE_DATE)
+        kwargs["order"] = SimpleNamespace(value=order)
+        kwargs["order_direction"] = SimpleNamespace(value=direction)
+        return fetch(*args, **kwargs)
+
+    return fetch_sorted
+
+
+def _load_sorted_playlists() -> list:
+    """All the user's playlists and favorite playlists, also those in folders, in
+    the chosen order (TIDAL sorts them; it pages them with a cursor)"""
+    order, direction = sort_order("playlists")
+    playlists = []
+    cursor = None
+    while True:
+        params = {
+            "limit": 50,
+            "order": order,
+            "orderDirection": direction,
+            "includeOnly": "PLAYLIST",
+        }
+        if cursor:
+            params["cursor"] = cursor
+        json_obj = session.request.request(
+            "GET",
+            "my-collection/playlists/folders/flattened",
+            base_url=session.config.api_v2_location,
+            params=params,
+        ).json()
+        for item in json_obj.get("items", []):
+            # This listing sends the creator's missing name as null, which
+            # python-tidal shows as "TIDAL"; the old one left it out ("me")
+            creator = (item.get("data") or {}).get("creator")
+            if isinstance(creator, dict):
+                for key in [k for k, v in creator.items() if v is None]:
+                    del creator[key]
+        page = session.request.map_json(json_obj, parse=session.parse_playlist)
+        playlists.extend(page)
+        cursor = json_obj.get("cursor")
+        if not cursor or not page:
+            return playlists
+
+
+_playlists_load_lock = threading.Lock()
+_playlists_load_count = 0
+
+
 def _load_playlists_and_favorite_playlists() -> None:
     """Load the user's playlists plus favorite playlists (the Collection's row)"""
-    global playlist_and_favorite_playlists
+    global playlist_and_favorite_playlists, _playlists_load_count
 
-    user = session.user
-
-    def all_playlists():
-        count = user.favorites.get_playlists_count()
-        limit = 50
-        offset = 0
-        pages = []
-
-        while offset < count:
-            pages += user.playlist_and_favorite_playlists(offset=offset)
-            offset += limit
-
-        return pages
-
-    playlist_and_favorite_playlists = _load_favourites(
+    with _playlists_load_lock:
+        _playlists_load_count += 1
+        this_load = _playlists_load_count
+    playlists = _load_favourites(
         "playlists and favorite playlists",
-        all_playlists,
+        _load_sorted_playlists,
         playlist_and_favorite_playlists,
     )
+    # Loads can overlap (the order changed twice in a row): the last one started
+    # has the current order, so an older one finishing later is dropped
+    with _playlists_load_lock:
+        if this_load == _playlists_load_count:
+            playlist_and_favorite_playlists = playlists
+
+
+def sort_menu(kind: str) -> tuple:
+    """A "Sort by" menu for a Collection list and the actions it uses (prefix
+    "sort"): its orders, then Reverse order. Insert the actions on the widget
+    showing the menu."""
+    settings = Gio.Settings.new("io.github.nokse22.high-tide")
+    actions = Gio.SimpleActionGroup()
+    actions.add_action(settings.create_action(f"sort-{kind}"))
+    actions.add_action(settings.create_action(f"sort-{kind}-reversed"))
+    actions.settings = settings  # kept alive with the actions
+    menu = Gio.Menu()
+    orders = Gio.Menu()
+    for value, label, _order, _direction in SORTS[kind]:
+        orders.append(label, f"sort.sort-{kind}::{value}")
+    menu.append_section(None, orders)
+    reverse = Gio.Menu()
+    reverse.append(_("Reverse order"), f"sort.sort-{kind}-reversed")
+    menu.append_section(None, reverse)
+    return menu, actions
+
+
+_resort_counts: dict = {}
+
+
+def resort(kind: str) -> None:
+    """Load a Collection list again in its chosen order, and show it"""
+
+    def load():
+        global favourite_albums, favourite_tracks, favourite_artists, favourite_mixes
+        if kind == "playlists":
+            _load_playlists_and_favorite_playlists()
+        else:
+            # Only the last one started may set the list (the order changed twice)
+            with _playlists_load_lock:
+                _resort_counts[kind] = _resort_counts.get(kind, 0) + 1
+                this_load = _resort_counts[kind]
+            user = session.user
+            current = globals()[f"favourite_{kind}"]
+            items = _load_favourites(
+                kind, sorted_fetch(kind, getattr(user.favorites, kind)), current
+            )
+            with _playlists_load_lock:
+                if this_load == _resort_counts[kind]:
+                    globals()[f"favourite_{kind}"] = items
+        GLib.idle_add(_update_collection_page)
+
+    threading.Thread(target=load, daemon=True).start()
+
+
+def _on_sort_setting_changed(settings, key: str) -> None:
+    if key.startswith("sort-"):
+        resort(key.removeprefix("sort-").removesuffix("-reversed"))
 
 
 # Reloading the user's playlists when a song menu opens, so ones made in other

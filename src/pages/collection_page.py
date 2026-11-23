@@ -19,9 +19,8 @@
 
 from gettext import gettext as _
 
-from gi.repository import Adw, Gtk
+from gi.repository import Adw, Gio, Gtk
 from tidalapi.media import Video
-from tidalapi.types import ItemOrder, OrderDirection
 
 from ..lib import utils
 from ..widgets import HTCarouselWidget
@@ -39,9 +38,12 @@ class HTCollectionPage(Page):
     def _load_async(self) -> None: ...
 
     @staticmethod
-    def _create_paginated_loader(fetch_page, get_items_cache=None, **fetch_options):
+    def _create_paginated_loader(fetch_page, get_items_cache=None, sort_kind=None):
+        if sort_kind is not None:
+            fetch_page = utils.sorted_fetch(sort_kind, fetch_page)
+
         def load_page(limit: int = 50, offset: int = 0):
-            page_items = fetch_page(limit=limit, offset=offset, **fetch_options)
+            page_items = fetch_page(limit=limit, offset=offset)
             if get_items_cache is not None:
                 items_cache = get_items_cache()
                 known_item_ids = {getattr(item, "id", None) for item in items_cache}
@@ -93,68 +95,86 @@ class HTCollectionPage(Page):
             _("My Mixes and Radios"),
             lambda: utils.favourite_mixes,
             self._create_paginated_loader(
-                user.favorites.mixes, lambda: utils.favourite_mixes
+                user.favorites.mixes, lambda: utils.favourite_mixes, "mixes"
             ),
         )
 
+        mixes_carousel.more_sort = "mixes"
         mixes_carousel.more_search = (_("Filter by name"), 50)
         self.playlists_carousel = self._add_carousel(
             _("Playlists"),
             lambda: utils.playlist_and_favorite_playlists,
-            self._create_paginated_loader(
-                user.playlist_and_favorite_playlists,
-                lambda: utils.playlist_and_favorite_playlists,
-            ),
+            # All of them are loaded, in the chosen order
+            lambda limit=50, offset=0: utils.playlist_and_favorite_playlists[
+                offset : offset + limit
+            ],
             always_shown=True,
         )
-        new_playlist_button = Gtk.Button(
-            icon_name="list-add-symbolic",
-            tooltip_text=_("New Playlist"),
-            valign=Gtk.Align.CENTER,
-            margin_start=6,
-            css_classes=["circular"],
-        )
-        self.signals.append(
-            (
-                new_playlist_button,
-                new_playlist_button.connect("clicked", lambda *_: utils.new_playlist()),
-            )
-        )
-        self.playlists_carousel.add_header_button(new_playlist_button)
+        self._add_playlists_menu()
         # TIDAL gives at most 50 mixes or playlists at a time, other lists 1000
+        self.playlists_carousel.more_sort = "playlists"
         self.playlists_carousel.more_search = (_("Filter by name"), 50)
 
         albums_carousel = self._add_carousel(
             _("Albums"),
             lambda: utils.favourite_albums,
             self._create_paginated_loader(
-                user.favorites.albums, lambda: utils.favourite_albums
+                user.favorites.albums, lambda: utils.favourite_albums, "albums"
             ),
         )
+        albums_carousel.more_sort = "albums"
         albums_carousel.more_search = (_("Filter by title or artist"), 1000)
         tracks_carousel = self._add_carousel(
             _("Tracks"),
             lambda: utils.favourite_tracks,
             self._create_paginated_loader(
-                user.favorites.tracks,
-                lambda: utils.favourite_tracks,
-                order=ItemOrder.Date,
-                order_direction=OrderDirection.Descending,
+                user.favorites.tracks, lambda: utils.favourite_tracks, "tracks"
             ),
         )
         tracks_carousel.more_source = utils.MY_TRACKS
+        tracks_carousel.more_sort = "tracks"
         tracks_carousel.more_search = (_("Filter by title, artist or album"), 1000)
         artists_carousel = self._add_carousel(
             _("Artists"),
             lambda: utils.favourite_artists,
             self._create_paginated_loader(
-                user.favorites.artists, lambda: utils.favourite_artists
+                user.favorites.artists, lambda: utils.favourite_artists, "artists"
             ),
         )
 
+        artists_carousel.more_sort = "artists"
         artists_carousel.more_search = (_("Filter by name"), 1000)
 
         self.update_items()
+
+    def _add_playlists_menu(self) -> None:
+        """Add the Playlists row's menu: a new playlist, and how they're sorted"""
+        sort_menu, actions = utils.sort_menu("playlists")
+        new_actions = Gio.SimpleActionGroup()
+        new_action = Gio.SimpleAction.new("new-playlist", None)
+        self.signals.append(
+            (new_action, new_action.connect("activate", lambda *_: utils.new_playlist()))
+        )
+        new_actions.add_action(new_action)
+
+        menu = Gio.Menu()
+        menu.append(_("New playlist…"), "collection.new-playlist")
+        menu.append_submenu(_("Sort by"), sort_menu)
+
+        button = Gtk.MenuButton(
+            icon_name="view-more-symbolic",
+            tooltip_text=_("Playlist Options"),
+            valign=Gtk.Align.CENTER,
+            margin_start=6,
+            css_classes=["circular"],
+        )
+        # On the button itself: the row was added before, and GTK then keeps
+        # looking past an ancestor that gets actions later (items show greyed out)
+        button.insert_action_group("collection", new_actions)
+        button.insert_action_group("sort", actions)
+        self.playlists_carousel.add_header_button(button)
+        button.set_menu_model(menu)
+        button.get_popover().set_flags(Gtk.PopoverMenuFlags.NESTED)
 
     def _add_carousel(self, title, get_items, more_function, always_shown=False):
         carousel = HTCarouselWidget(title)
