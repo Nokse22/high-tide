@@ -132,9 +132,14 @@ class HTQueueWidget(Gtk.Box):
         )
 
     def _on_drag_begin(self, source, drag, row) -> None:
-        source.set_icon(Gtk.WidgetPaintable.new(row), 0, row.get_height() // 2)
+        # A still picture, so it doesn't fade with the row left behind
+        icon = Gtk.WidgetPaintable.new(row).get_current_image()
+        source.set_icon(icon, 0, row.get_height() // 2)
+        row.add_css_class("drag-source")
 
     def _on_drag_end(self, *args) -> None:
+        if self._dragged_row is not None:
+            self._dragged_row.remove_css_class("drag-source")
         self._dragged_row = None
         self._show_drop_line(None, False)
 
@@ -256,6 +261,7 @@ class HTQueueWidget(Gtk.Box):
         if track is not None:
             listing = HTGenericTrackWidget(track)
             listing.set_activatable(False)
+            listing.hide_playing_icon()
             self.playing_song_list.append(listing)
 
     def update_queue(self, player) -> None:
