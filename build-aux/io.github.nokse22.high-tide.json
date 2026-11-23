@@ -32,6 +32,7 @@
         "python3-pypresence.json",
         "python3-six.json",
         "python3-tidalapi.json",
+        "python3-segno.json",
         {
             "name": "high-tide",
             "builddir": true,

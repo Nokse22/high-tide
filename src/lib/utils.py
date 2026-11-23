@@ -22,6 +22,7 @@ import os
 import re
 import subprocess
 import threading
+import base64
 from types import SimpleNamespace
 import time
 import uuid
@@ -1169,6 +1170,127 @@ def toggle_blocked(item: Any, callback: Any = None) -> None:
     """
     target = th_unblock if is_blocked(item) else th_block
     threading.Thread(target=target, args=(item, callback)).start()
+
+
+# Logged in with a QR code (TIDAL's device login) rather than in the browser. Its
+# songs come from TIDAL's newer address: the older one gives that login only AAC
+# for CD-quality songs (since April 2026), the newer one FLAC without DRM. The
+# browser login keeps the older address: the newer one gives it DRM-locked audio.
+device_login = False
+
+# What a quality setting may ask the newer address for, best last
+_MANIFEST_FORMATS = {
+    "LOW": "HEAACV1",
+    "HIGH": "HEAACV1,AACLC",
+    "LOSSLESS": "HEAACV1,AACLC,FLAC",
+    "HI_RES_LOSSLESS": "HEAACV1,AACLC,FLAC,FLAC_HIRES",
+}
+_QUALITY_OF_FORMAT = {
+    "FLAC_HIRES": "HI_RES_LOSSLESS",
+    "FLAC": "LOSSLESS",
+    "AACLC": "HIGH",
+    "HEAACV1": "LOW",
+}
+_QUALITY_RANK = {"LOW": 0, "HIGH": 1, "LOSSLESS": 2, "HI_RES_LOSSLESS": 3}
+
+
+def _quality_name(quality: Any) -> str:
+    return str(getattr(quality, "value", quality) or "LOSSLESS")
+
+
+def get_stream(track: Track) -> Any:
+    """The stream of a track to play: from TIDAL's newer address for a QR login,
+    as python-tidal's Stream (DASH), so the player treats both the same."""
+    if not device_login:
+        return track.get_stream()
+    from tidalapi.media import Stream
+
+    quality = _quality_name(session.audio_quality)
+    json_obj = session.request.request(
+        "GET",
+        f"trackManifests/{track.id}",
+        base_url="https://openapi.tidal.com/v2/",
+        params={
+            "manifestType": "MPEG_DASH",
+            "formats": _MANIFEST_FORMATS.get(quality, _MANIFEST_FORMATS["LOSSLESS"]),
+            "uriScheme": "HTTPS",
+            "usage": "PLAYBACK",
+            "adaptive": "false",
+        },
+    ).json()
+    attributes = json_obj["data"]["attributes"]
+    if attributes.get("drmData"):
+        raise RuntimeError(f"TIDAL sent {track.id} with DRM, it can't be played")
+    uri = attributes["uri"]
+    if uri.startswith("data:"):
+        mpd = base64.b64decode(uri.split(",", 1)[1]).decode()
+    else:
+        response = session.request_session.get(uri, timeout=20)
+        response.raise_for_status()
+        mpd = response.text
+    formats = attributes.get("formats") or []
+    best = max(
+        (_QUALITY_OF_FORMAT.get(f, "LOW") for f in formats),
+        key=lambda q: _QUALITY_RANK[q],
+        default="LOW",
+    )
+    rates = re.findall(r'audioSamplingRate="(\d+)"', mpd)
+    track_norm = attributes.get("trackAudioNormalizationData") or {}
+    album_norm = attributes.get("albumAudioNormalizationData") or {}
+    return Stream().parse(
+        {
+            "trackId": track.id,
+            "audioMode": "STEREO",
+            "audioQuality": best,
+            "manifestMimeType": "application/dash+xml",
+            "manifestHash": attributes.get("hash"),
+            "manifest": base64.b64encode(mpd.encode()).decode(),
+            "albumReplayGain": album_norm.get("replayGain", 1.0),
+            "albumPeakAmplitude": album_norm.get("peakAmplitude", 1.0),
+            "trackReplayGain": track_norm.get("replayGain", 1.0),
+            "trackPeakAmplitude": track_norm.get("peakAmplitude", 1.0),
+            "bitDepth": 24 if best == "HI_RES_LOSSLESS" else 16,
+            "sampleRate": int(rates[0]) if rates else 44100,
+        }
+    )
+
+
+_lower_quality_noticed = False
+
+
+def check_stream_quality(track: Track, stream: Any) -> None:
+    """Say so, once a session, when TIDAL sends a song in lower quality than both
+    the quality setting and the best the song comes in"""
+    global _lower_quality_noticed
+    chosen = _quality_name(session.audio_quality)
+    tags = set(getattr(track, "media_metadata_tags", None) or [])
+    if "HIRES_LOSSLESS" in tags:
+        best = "HI_RES_LOSSLESS"
+    elif "LOSSLESS" in tags or getattr(track, "audio_quality", None) in (
+        "LOSSLESS",
+        "HI_RES_LOSSLESS",
+    ):
+        best = "LOSSLESS"
+    else:
+        return  # nothing to compare with
+    expected = min(chosen, best, key=lambda q: _QUALITY_RANK.get(q, 2))
+    sent = _quality_name(getattr(stream, "audio_quality", None))
+    if _QUALITY_RANK.get(sent, 2) >= _QUALITY_RANK.get(expected, 2):
+        return
+    logger.warning(
+        f"TIDAL sent {track.id} as {sent}, chosen {chosen}, the song has {best}"
+    )
+    if _lower_quality_noticed:
+        return
+    _lower_quality_noticed = True
+    if device_login:
+        message = _(
+            "TIDAL sent this song in lower quality than chosen. To get full "
+            "quality again, log out and log back in with “Sign in another way”."
+        )
+    else:
+        message = _("TIDAL sent this song in lower quality than chosen")
+    GLib.idle_add(send_toast, message, 8)
 
 
 def send_toast(toast_title: str, timeout: int) -> None:

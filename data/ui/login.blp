@@ -3,72 +3,193 @@ using Adw 1;
 
 template $LoginDialog: Adw.Dialog {
   title: _("Log In");
-  content-height: 320;
   content-width: 420;
+  content-height: 600;
 
-  Adw.ToolbarView {
-    [top]
-    Adw.HeaderBar {}
+  Adw.NavigationView navigation_view {
+    // Scan a code on the phone (TIDAL's device login), or open the link anywhere
+    Adw.NavigationPage {
+      title: _("Log In");
+      tag: "qr";
 
-    content: Box {
-      margin-bottom: 12;
-      margin-end: 12;
-      margin-start: 12;
-      margin-top: 12;
-      orientation: vertical;
-      spacing: 12;
+      child: Adw.ToolbarView {
+        [top]
+        Adw.HeaderBar {}
 
-      Label {
-        label: _("Sign in on Tidal. Your browser will redirect to a \"Page not found\" — that's expected. Copy the full URL from the address bar and paste it below.");
-        wrap: true;
-        xalign: 0;
-      }
+        content: ScrolledWindow {
+          hscrollbar-policy: never;
+          propagate-natural-height: true;
 
-      LinkButton link_button {
-        halign: center;
-        label: _("Open Tidal Login");
-      }
+          Box {
+            margin-bottom: 18;
+            margin-end: 18;
+            margin-start: 18;
+            margin-top: 6;
+            orientation: vertical;
+            spacing: 12;
 
-      ListBox {
-        selection-mode: none;
+            Label {
+              label: _("Scan the code with your phone, or open the link where you're signed in to TIDAL, and approve High Tide.");
+              wrap: true;
+              justify: center;
+            }
 
-        styles [
-          "boxed-list",
-        ]
+            Stack qr_stack {
+              halign: center;
 
-        Adw.EntryRow redirect_url_entry {
-          title: _("Paste redirected URL here");
-          activates-default: true;
-          changed => $on_redirect_url_changed();
-          entry-activated => $on_login_button_clicked();
-        }
-      }
+              StackPage {
+                name: "loading";
 
-      Label error_label {
-        visible: false;
-        wrap: true;
-        xalign: 0;
+                child: Adw.Spinner {
+                  width-request: 220;
+                  height-request: 220;
+                };
+              }
 
-        styles [
-          "error",
-        ]
-      }
+              StackPage {
+                name: "code";
 
-      Button login_button {
-        sensitive: false;
-        label: _("Log In");
-        halign: center;
-        valign: end;
-        vexpand: true;
-        margin-top: 6;
+                // Dark on light whatever the theme: phones read that best
+                child: Picture qr_picture {
+                  width-request: 220;
+                  height-request: 220;
+                  can-shrink: false;
+                  overflow: hidden;
 
-        styles [
-          "suggested-action",
-          "pill",
-        ]
+                  styles [
+                    "qr-code",
+                  ]
+                };
+              }
+            }
 
-        clicked => $on_login_button_clicked();
-      }
-    };
+            LinkButton link_button {
+              halign: center;
+              visible: false;
+            }
+
+            Label code_label {
+              halign: center;
+              visible: false;
+              selectable: true;
+
+              styles [
+                "title-2",
+              ]
+            }
+
+            Box waiting_box {
+              halign: center;
+              spacing: 6;
+              visible: false;
+
+              Adw.Spinner {}
+
+              Label {
+                label: _("Waiting for approval…");
+
+                styles [
+                  "dim-label",
+                ]
+              }
+            }
+
+            Label qr_error_label {
+              visible: false;
+              wrap: true;
+              justify: center;
+
+              styles [
+                "error",
+              ]
+            }
+
+            Button {
+              label: _("Sign in another way");
+              halign: center;
+              margin-top: 6;
+              action-name: "navigation.push";
+              action-target: "'browser'";
+
+              styles [
+                "flat",
+              ]
+            }
+          }
+        };
+      };
+    }
+
+    // The browser login: sign in on TIDAL's page and paste the address it ends on
+    Adw.NavigationPage {
+      title: _("Sign In With the Browser");
+      tag: "browser";
+
+      child: Adw.ToolbarView {
+        [top]
+        Adw.HeaderBar {}
+
+        content: Box {
+          margin-bottom: 12;
+          margin-end: 12;
+          margin-start: 12;
+          margin-top: 12;
+          orientation: vertical;
+          spacing: 12;
+
+          Label {
+            label: _("Sign in on TIDAL. Your browser then shows a “Page not found” page; that's expected. Copy its full address from the address bar and paste it below.");
+            wrap: true;
+            xalign: 0;
+          }
+
+          LinkButton browser_link_button {
+            halign: center;
+            label: _("Open TIDAL Login");
+          }
+
+          ListBox {
+            selection-mode: none;
+
+            styles [
+              "boxed-list",
+            ]
+
+            Adw.EntryRow redirect_url_entry {
+              title: _("Paste the address here");
+              activates-default: true;
+              changed => $on_redirect_url_changed();
+              entry-activated => $on_login_button_clicked();
+            }
+          }
+
+          Label error_label {
+            visible: false;
+            wrap: true;
+            xalign: 0;
+
+            styles [
+              "error",
+            ]
+          }
+
+          Button login_button {
+            sensitive: false;
+            label: _("Log In");
+            halign: center;
+            valign: end;
+            vexpand: true;
+            margin-top: 6;
+
+            styles [
+              "suggested-action",
+              "pill",
+            ]
+
+            clicked => $on_login_button_clicked();
+          }
+        };
+      };
+    }
   }
 }
