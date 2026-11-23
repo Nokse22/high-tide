@@ -146,6 +146,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         )
 
         self.create_action_with_target(
+            "push-folder-page", GLib.VariantType.new("s"), self.on_push_folder_page
+        )
+
+        self.create_action_with_target(
             "push-mix-page", GLib.VariantType.new("s"), self.on_push_mix_page
         )
 
@@ -188,6 +192,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.add_action(toggle_block_track_action)
 
         self.block_button.connect("notify::active", self.on_block_button_active)
+        # Block artist opens beside the menu on hover, like the song menu's
+        self.block_button.get_popover().set_flags(Gtk.PopoverMenuFlags.NESTED)
 
         # self.create_action_with_target(
         #     'play-next',
@@ -1230,6 +1236,52 @@ class HighTideWindow(Adw.ApplicationWindow):
         utils.push_page(
             f"album-info-{item_id}", lambda: HTCreditsPage.new_for_album(item_id).load()
         )
+
+    def on_push_folder_page(self, action, parameter):
+        """Open one of the user's playlist folders: its playlists and folders"""
+        folder = utils.folders.get(parameter.get_string())
+        if folder is None:
+            return
+
+        def make_page():
+            page = HTFromFunctionPage(folder.name or _("Folder"))
+            contents = []
+
+            def load(limit=50, offset=0):
+                # All at once in the chosen order (asked again from the start)
+                if offset == 0:
+                    contents[:] = utils.folder_contents(folder.id)
+                return contents[offset : offset + limit]
+
+            page.set_function(load)
+            page.enable_search(_("Filter by name"), 50)
+            page.enable_sort("playlists")
+
+            def on_deleted():
+                if self.navigation_view.find_page("collection"):
+                    self.navigation_view.pop_to_tag("collection")
+                else:
+                    self.navigation_view.pop()
+
+            menu, actions = utils.folder_menu(folder, on_deleted)
+            button = Gtk.MenuButton(
+                icon_name="view-more-symbolic", tooltip_text=_("Folder Options")
+            )
+            button.insert_action_group("folder", actions)
+            page.builder.get_object("_header_bar").pack_end(button)
+            button.set_menu_model(menu)
+
+            def on_folders_changed():
+                if page.get_root() is None:
+                    utils.folder_listeners.remove(on_folders_changed)
+                    return
+                page.set_title(folder.name or _("Folder"))
+                page._on_sort_changed()  # loads what's in it again
+
+            utils.folder_listeners.append(on_folders_changed)
+            return page.load()
+
+        utils.push_page(f"folder-{folder.id}", make_page)
 
     def on_push_playlist_page(self, action, parameter):
         item_id = parameter.get_string()

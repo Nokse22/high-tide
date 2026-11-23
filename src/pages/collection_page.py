@@ -156,9 +156,15 @@ class HTCollectionPage(Page):
             (new_action, new_action.connect("activate", lambda *_: utils.new_playlist()))
         )
         new_actions.add_action(new_action)
+        folder_action = Gio.SimpleAction.new("new-folder", None)
+        self.signals.append(
+            (folder_action, folder_action.connect("activate", lambda *_: utils.new_folder()))
+        )
+        new_actions.add_action(folder_action)
 
         menu = Gio.Menu()
         menu.append(_("New playlist…"), "collection.new-playlist")
+        menu.append(_("New folder…"), "collection.new-folder")
         menu.append_submenu(_("Sort by"), sort_menu)
 
         button = Gtk.MenuButton(
@@ -189,8 +195,18 @@ class HTCollectionPage(Page):
         if not hasattr(self, "_carousels"):
             return  # not loaded yet, it shows the new items when it loads
 
-        def ids(items):
-            return [getattr(item, "id", None) for item in items]
+        def shown_as(items):
+            # What the cards show, so a renamed playlist or folder, or a folder
+            # with more or fewer playlists, is shown again too
+            return [
+                (
+                    getattr(item, "id", None),
+                    getattr(item, "name", None),
+                    getattr(item, "title", None),
+                    getattr(item, "total_number_of_items", None),
+                )
+                for item in items
+            ]
 
         for carousel, get_items, always_shown in self._carousels:
             items = utils.filter_ai_items(get_items())
@@ -198,5 +214,9 @@ class HTCollectionPage(Page):
                 isinstance(item, Video) for item in items
             )
             carousel.set_visible(always_shown or shown)
-            if ids(items) != ids(carousel.items):
+            # Compared with what the cards were made from, not carousel.items:
+            # a rename changes the very objects the row holds
+            now = shown_as(items)
+            if now != getattr(carousel, "shown_as", None):
                 carousel.set_items(items)
+                carousel.shown_as = now

@@ -38,11 +38,33 @@ template $HTCardWidget: Adw.BreakpointBin {
         ]
       }
 
+      // Options (⋮) of playlists and folders, shown on hover; playlists with it
+      // have their play button on the other side, like TIDAL
+      [overlay]
+      Revealer more_revealer {
+        halign: end;
+        valign: end;
+        margin-end: 8;
+        margin-bottom: 8;
+        transition-type: crossfade;
+        visible: false;
+
+        Button more_button {
+          icon-name: "view-more-symbolic";
+
+          styles [
+            "circular",
+            "card-play-button",
+          ]
+        }
+      }
+
       [overlay]
       Revealer play_revealer {
         halign: end;
         valign: end;
         margin-end: 8;
+        margin-start: 8;
         margin-bottom: 8;
         transition-type: crossfade;
 
