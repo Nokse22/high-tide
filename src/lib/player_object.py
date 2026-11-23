@@ -224,9 +224,18 @@ class PlayerObject(GObject.GObject):
         self.remote_position = 0.0
         self.remote_duration = 0.0
         self.remote_volume = 1.0
+        # When the volume was last sent to the device: it can take a moment to apply,
+        # and readings from before that would move the slider back
+        self._remote_volume_set_at = 0.0
+        # Volumes waiting to be sent (behind other commands, like loading a track)
+        self._remote_volume_pending = 0
+        self._remote_volume_lock = threading.Lock()
         # Where to continue when play is pressed, after switching to it while paused
         self._remote_resume_at = 0.0
         self._remote_prepare_locks: dict[str, threading.Lock] = {}
+
+    # False while playing on a device whose volume can't be read or set
+    volume_available = GObject.Property(type=bool, default=True)
 
     @GObject.Property(type=bool, default=False)
     def playing(self) -> bool:
@@ -1567,7 +1576,9 @@ class PlayerObject(GObject.GObject):
         if self.renderer:
             # The device's own volume, which has its own curve
             self.remote_volume = value
-            self._remote_command(self.renderer.set_volume, round(value * 100))
+            with self._remote_volume_lock:
+                self._remote_volume_pending += 1
+            self._remote_command(self._set_remote_volume, self.renderer, round(value * 100))
         elif self.quadratic_volume:
             self.playbin.set_property("volume", value**2)
         else:
@@ -1716,8 +1727,13 @@ class PlayerObject(GObject.GObject):
         logger.info(f"Playing on {renderer.name if renderer else 'this computer'}")
         self.emit("renderer-changed")
         if renderer:
+            # Unavailable until the device says its volume, so the slider can't send
+            # this computer's level to it first
+            self.volume_available = False
+            self._remote_volume_set_at = 0.0
             self._remote_command(self._read_remote_volume, renderer)
         else:
+            self.volume_available = True
             self.emit("volume-changed", self.query_volume())
         if not self.playing_track:
             return
@@ -1728,11 +1744,44 @@ class PlayerObject(GObject.GObject):
                 self.seek_after_sink_reload = position / self.playing_track.duration
             self.play_track(self.playing_track)
 
+    def _set_remote_volume(self, renderer, volume: int) -> None:
+        try:
+            renderer.set_volume(volume)
+        finally:
+            with self._remote_volume_lock:
+                self._remote_volume_set_at = time.monotonic()
+                self._remote_volume_pending -= 1
+
     def _read_remote_volume(self, renderer) -> None:
-        volume = renderer.get_volume()
-        if volume is not None and renderer == self.renderer:
-            self.remote_volume = volume / 100
-            GLib.idle_add(self.emit, "volume-changed", self.remote_volume)
+        volume = None
+        try:
+            volume = renderer.get_volume()
+        finally:
+            if volume is None:
+                logger.info(f"No volume from {renderer.name}, the slider is off")
+            GLib.idle_add(
+                self._on_remote_volume, renderer, volume, time.monotonic(), True
+            )
+
+    def _on_remote_volume(
+        self, renderer, volume: int | None, read_at: float, first=False
+    ) -> bool:
+        """Show the device's volume, read at read_at (None: it has none)"""
+        if renderer != self.renderer:
+            return False
+        if volume is None:
+            self.volume_available = False
+            return False
+        if self._remote_volume_pending or read_at - self._remote_volume_set_at < 2:
+            # Read before a volume being sent had reached it
+            self.volume_available = True
+            return False
+        changed = abs(volume / 100 - self.remote_volume) > 0.005
+        self.remote_volume = volume / 100
+        self.volume_available = True
+        if changed or first:
+            self.emit("volume-changed", self.remote_volume)
+        return False
 
     def _remote_command(self, function, *args) -> None:
         def run():
@@ -1832,6 +1881,8 @@ class PlayerObject(GObject.GObject):
         """Follow the position on the device, play the next track at the end, and
         step back when another app takes the device over"""
         was_playing = False
+        # Kodi starts a loaded track by itself, also when it was loaded paused
+        settle_until = time.monotonic() + dlna.LOAD_GRACE
         while token == self._remote_token:
             try:
                 position, duration = renderer.get_position()
@@ -1842,9 +1893,25 @@ class PlayerObject(GObject.GObject):
                 continue
             if token != self._remote_token:
                 return
+            if self.volume_available:
+                # Follows changes made on the device itself or by another app
+                read_at = time.monotonic()
+                try:
+                    volume = renderer.get_volume()
+                except Exception as e:
+                    logger.debug(f"Couldn't read the device's volume: {e}")
+                else:
+                    GLib.idle_add(self._on_remote_volume, renderer, volume, read_at)
             if state == "TAKEN_OVER":
                 GLib.idle_add(self._remote_taken_over, renderer, token)
                 return
+            if (
+                state == "PLAYING"
+                and not self.playing
+                and time.monotonic() < settle_until
+            ):
+                logger.info(f"{renderer.name} started by itself, pausing it")
+                self._remote_command(renderer.pause)
             if state in ("PLAYING", "PAUSED_PLAYBACK"):
                 was_playing = was_playing or state == "PLAYING"
                 self.remote_position = position
@@ -1874,6 +1941,7 @@ class PlayerObject(GObject.GObject):
             self._remote_command(renderer.close)
         self.playing = False
         self.emit("renderer-changed")
+        self.volume_available = True
         self.emit("volume-changed", self.query_volume())
         if self.playing_track:
             if self.playing_track.duration:

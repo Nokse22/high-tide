@@ -236,8 +236,18 @@ class HighTideWindow(Adw.ApplicationWindow):
             volume = self.settings.get_int("last-volume") / 10
         else:
             volume = self.settings.get_double("volume")
+        self._volume_from_player = False
         self.volume_button.get_adjustment().set_value(volume)
         self._setup_volume_button()
+        # The slider shows the volume in use: this app's, or the device's while
+        # playing on one; also when it's changed from elsewhere (media keys, the device)
+        self.player_object.connect("volume-changed", self.on_player_volume_changed)
+        self.player_object.bind_property(
+            "volume-available",
+            self.volume_button,
+            "sensitive",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
 
         self.player_object.connect("notify::shuffle", self.on_shuffle_changed)
         self.player_object.connect("update-slider", self.update_slider)
@@ -847,10 +857,30 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_volume_changed")
     def on_volume_changed_func(self, widget, value):
+        if self._volume_from_player:
+            return
         self.player_object.change_volume(value)
         if not self.player_object.renderer:
-            # The device's own volume isn't this computer's
+            # The device's own volume isn't this app's
             self.settings.set_double("volume", value)
+
+    def on_player_volume_changed(self, player, value):
+        if not player.renderer:
+            self.settings.set_double("volume", value)
+        self._show_volume(value)
+
+    def _show_volume(self, value):
+        """Move the slider without sending the value back to the player.
+        Returns whether it moved."""
+        adjustment = self.volume_button.get_adjustment()
+        if abs(adjustment.get_value() - value) < 0.005:
+            return False
+        self._volume_from_player = True
+        try:
+            adjustment.set_value(value)
+        finally:
+            self._volume_from_player = False
+        return True
 
     def _setup_volume_button(self) -> None:
         """Let the volume slider move in 1% steps (GTK rounds it to tenths), open it
@@ -1090,11 +1120,11 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.duration = self.player_object.duration
         end_value = self.duration / Gst.SECOND
 
-        # Follow changes from elsewhere (media controls, the system's mixer)
-        volume = self.player_object.query_volume()
-        adjustment = self.volume_button.get_adjustment()
-        if abs(adjustment.get_value() - volume) > 0.005:
-            adjustment.set_value(volume)
+        # Follow changes from elsewhere (the system's mixer)
+        if self.player_object.volume_available:
+            volume = self.player_object.query_volume()
+            if self._show_volume(volume) and not self.player_object.renderer:
+                self.settings.set_double("volume", volume)
         self.duration_label.set_label(utils.pretty_duration(end_value))
 
         position_ns = self.player_object.query_position(default=None)
