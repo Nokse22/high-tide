@@ -72,6 +72,9 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         self.more_function = None
         # What the songs on the More page are played from (see play_this's source)
         self.more_source = None
+        # (placeholder, page size) to let the More page be searched, see
+        # HTFromFunctionPage.enable_search
+        self.more_search = None
 
         self.items = []
 
@@ -157,6 +160,8 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
             page.set_function(self.more_function)
         if self.more_source is not None:
             page.auto_load.source = self.more_source
+        if self.more_search is not None:
+            page.enable_search(*self.more_search)
 
         page.load()
         utils.navigation_view.push(page)

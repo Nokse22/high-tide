@@ -1220,6 +1220,7 @@ class HighTideWindow(Adw.ApplicationWindow):
                 )
             )
             page.auto_load.source = utils.MY_TRACKS
+            page.enable_search(_("Filter by title, artist or album"), 1000)
             return page.load()
 
         utils.push_page("my-tracks", make_page)
