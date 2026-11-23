@@ -96,6 +96,12 @@ class HighTideWindow(Adw.ApplicationWindow):
     toast_overlay = Gtk.Template.Child()
     playing_track_widget = Gtk.Template.Child()
     sidebar_stack = Gtk.Template.Child()
+    multilayout_view = Gtk.Template.Child()
+    queue_split_view = Gtk.Template.Child()
+    queue_panel_box = Gtk.Template.Child()
+    queue_tab_box = Gtk.Template.Child()
+    queue_page = Gtk.Template.Child()
+    queue_button = Gtk.Template.Child()
     go_next_button = Gtk.Template.Child()
     go_prev_button = Gtk.Template.Child()
     track_radio_button = Gtk.Template.Child()
@@ -302,6 +308,16 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.in_background = False
 
         self.queue_widget_updated = False
+
+        # The queue is a panel on the right on desktop, a tab in the phone layout
+        self.settings.bind(
+            "queue-panel-open",
+            self.queue_split_view,
+            "show-sidebar",
+            Gio.SettingsBindFlags.DEFAULT,
+        )
+        self.multilayout_view.connect("notify::layout-name", self._place_queue)
+        self._place_queue()
 
         try:
             self.secret_store = SecretStore(self.session)
@@ -1019,6 +1035,24 @@ class HighTideWindow(Adw.ApplicationWindow):
                 self.explore_button.set_active(True)
             case "collection":
                 self.collection_button.set_active(True)
+
+    def _place_queue(self, *args) -> None:
+        """Put the queue in the right-side panel on desktop, and in the Queue tab
+        in the phone layout"""
+        desktop = self.multilayout_view.get_layout_name() == "desktop"
+        target = self.queue_panel_box if desktop else self.queue_tab_box
+        if self.queue_widget.get_parent() is not target:
+            self.queue_widget.get_parent().remove(self.queue_widget)
+            target.append(self.queue_widget)
+            # A new parent only adds its state: the queue would stay greyed out
+            # and unclickable from the player panel, which is off until login.
+            # Turning it off and on takes its state from the new parent again.
+            self.queue_widget.set_sensitive(False)
+            self.queue_widget.set_sensitive(True)
+        self.queue_page.set_visible(not desktop)
+        self.queue_button.set_visible(desktop)
+        if desktop and self.sidebar_stack.get_visible_child_name() == "queue":
+            self.sidebar_stack.set_visible_child_name("player")
 
     @Gtk.Template.Callback("on_sidebar_page_changed")
     def on_sidebar_page_changed(self, *args):
