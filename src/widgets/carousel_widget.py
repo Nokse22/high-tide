@@ -17,9 +17,15 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import threading
 from typing import Callable
 
 from gi.repository import GLib, Gtk, Adw
+from tidalapi.album import Album
+from tidalapi.artist import Artist
+from tidalapi.media import Track
+from tidalapi.mix import Mix, MixV2
+from tidalapi.playlist import Playlist
 
 from ..disconnectable_iface import IDisconnectable
 from ..lib import utils
@@ -41,6 +47,10 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
     __gtype_name__ = "HTCarouselWidget"
 
     title_label = Gtk.Template.Child()
+    context_button = Gtk.Template.Child()
+    context_image = Gtk.Template.Child()
+    context_label = Gtk.Template.Child()
+    context_title_label = Gtk.Template.Child()
     next_button = Gtk.Template.Child()
     prev_button = Gtk.Template.Child()
     carousel_scrolled_window = Gtk.Template.Child()
@@ -92,6 +102,41 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
         """
         self.more_button.set_visible(True)
         self.more_function = function
+
+    def set_context(self, item) -> None:
+        """Show what the row is about, as TIDAL does for "Because you listened
+        to": the item's picture, the row's title small above it and the item's
+        name as the title. Clicking it opens the item.
+
+        Args:
+            item: The album, track, artist, playlist or mix the row is about
+        """
+        if isinstance(item, Track):
+            action, target = "win.push-album-page", item.album.id if item.album else None
+        elif isinstance(item, Album):
+            action, target = "win.push-album-page", item.id
+        elif isinstance(item, Artist):
+            action, target = "win.push-artist-page", item.id
+            self.context_image.add_css_class("artist-picture")
+        elif isinstance(item, Playlist):
+            action, target = "win.push-playlist-page", item.id
+        elif isinstance(item, (Mix, MixV2)):
+            action, target = "win.push-mix-page", item.id
+        else:
+            return
+
+        name = getattr(item, "name", None) or getattr(item, "title", None) or ""
+        self.context_label.set_label(self.title)
+        self.context_title_label.set_label(name)
+        self.context_button.set_tooltip_text(name)
+        if target is not None:
+            self.context_button.set_action_name(action)
+            self.context_button.set_action_target_value(GLib.Variant("s", str(target)))
+        self.title_label.set_visible(False)
+        self.context_button.set_visible(True)
+        threading.Thread(
+            target=utils.add_image, args=(self.context_image, item), daemon=True
+        ).start()
 
     def set_items(self, items_list) -> None:
         """Set the list of items to display in the carousel.

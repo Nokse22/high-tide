@@ -85,6 +85,7 @@ def init() -> None:
     """
     ai.install()
     _install_artist_cover_fallback()
+    _install_row_context()
 
     global CACHE_DIR
     CACHE_DIR = os.environ.get("XDG_CACHE_HOME")
@@ -1289,6 +1290,34 @@ def get_best_dimensions(widget: Any) -> int:
         if surface:
             scale = surface.get_scale()
     return next((x for x in dimensions if x > (edge * scale)), dimensions[-1])
+
+
+def _install_row_context() -> None:
+    """Keep what a home row like "Because you listened to" is about.
+
+    TIDAL sends it as the row's header (an album, track, artist...), but
+    python-tidal 0.8 ignores it. It's kept as the row's context_item.
+    """
+    try:
+        from tidalapi.page import HorizontalListWithContext
+    except ImportError:
+        return
+
+    parse = HorizontalListWithContext.parse
+
+    def parse_with_context(self, json_obj):
+        result = parse(self, json_obj)
+        self.context_item = None
+        header = json_obj.get("header") or {}
+        parse_item = self.item_types.get(header.get("type"))
+        if parse_item is not None and header.get("data"):
+            try:
+                self.context_item = parse_item(header["data"])
+            except Exception:
+                logger.exception("Could not read what a home row is about")
+        return result
+
+    HorizontalListWithContext.parse = parse_with_context
 
 
 def _install_artist_cover_fallback() -> None:
