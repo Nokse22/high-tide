@@ -708,18 +708,6 @@ template $HighTideWindow: Adw.ApplicationWindow {
                       ]
                     }
 
-                    Button album_button {
-                      icon-name: "library-music-symbolic";
-                      tooltip-text: _("Go to album");
-                      valign: center;
-                      action-name: "win.push-album-page";
-                      action-target: "''";
-
-                      styles [
-                        "flat",
-                      ]
-                    }
-
                     MenuButton block_button {
                       icon-name: "action-unavailable-symbolic";
                       sensitive: false;
