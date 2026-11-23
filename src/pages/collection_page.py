@@ -195,8 +195,18 @@ class HTCollectionPage(Page):
         if not hasattr(self, "_carousels"):
             return  # not loaded yet, it shows the new items when it loads
 
-        def ids(items):
-            return [getattr(item, "id", None) for item in items]
+        def shown_as(items):
+            # What the cards show, so a renamed playlist or folder, or a folder
+            # with more or fewer playlists, is shown again too
+            return [
+                (
+                    getattr(item, "id", None),
+                    getattr(item, "name", None),
+                    getattr(item, "title", None),
+                    getattr(item, "total_number_of_items", None),
+                )
+                for item in items
+            ]
 
         for carousel, get_items, always_shown in self._carousels:
             items = utils.filter_ai_items(get_items())
@@ -204,5 +214,9 @@ class HTCollectionPage(Page):
                 isinstance(item, Video) for item in items
             )
             carousel.set_visible(always_shown or shown)
-            if ids(items) != ids(carousel.items):
+            # Compared with what the cards were made from, not carousel.items:
+            # a rename changes the very objects the row holds
+            now = shown_as(items)
+            if now != getattr(carousel, "shown_as", None):
                 carousel.set_items(items)
+                carousel.shown_as = now
