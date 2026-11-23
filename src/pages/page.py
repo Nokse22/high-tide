@@ -299,13 +299,16 @@ class Page(Adw.NavigationPage, IDisconnectable):
 
         carousel.scroll_to(next_page, True)
 
-    def new_carousel_for(self, carousel_title, carousel_content, more_function=None):
+    def new_carousel_for(
+        self, carousel_title, carousel_content, more_function=None, context=None
+    ):
         """Create and append a carousel widget with content.
 
         Args:
             carousel_title (str): The title to display for the carousel
             carousel_content: List of items to display in the carousel
             more_function: Optional function to call when "See More" is clicked
+            context: Optional item the row is about ("Because you listened to")
         """
         carousel_content = utils.filter_ai_items(carousel_content)
         if len(carousel_content) == 0 or all(
@@ -315,6 +318,8 @@ class Page(Adw.NavigationPage, IDisconnectable):
 
         carousel = HTCarouselWidget(carousel_title)
         carousel.set_items(carousel_content)
+        if context is not None:
+            carousel.set_context(context)
 
         if more_function:
             carousel.set_more_function(more_function)

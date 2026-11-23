@@ -12,6 +12,55 @@ template $HTCarouselWidget: Box {
     margin-bottom: 6;
     margin-top: 12;
 
+    // What a row like "Because you listened to" is about, see set_context()
+    Button context_button {
+      visible: false;
+      hexpand: true;
+      halign: start;
+
+      styles [
+        "flat",
+      ]
+
+      child: Box {
+        spacing: 12;
+
+        Image context_image {
+          pixel-size: 48;
+          overflow: hidden;
+          icon-name: 'emblem-music-symbolic';
+
+          styles [
+            "small-image",
+          ]
+        }
+
+        Box {
+          orientation: vertical;
+          valign: center;
+
+          Label context_label {
+            xalign: 0;
+            ellipsize: end;
+
+            styles [
+              "caption",
+              "dim-label",
+            ]
+          }
+
+          Label context_title_label {
+            xalign: 0;
+            ellipsize: end;
+
+            styles [
+              "title-3",
+            ]
+          }
+        }
+      };
+    }
+
     Label title_label {
       styles [
         "title-3",

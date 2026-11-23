@@ -114,4 +114,8 @@ class HTGenericPage(Page):
             elif isinstance(
                 category, (ItemList, HorizontalList, HorizontalListWithContext)
             ):
-                self.new_carousel_for(category.title, items)
+                self.new_carousel_for(
+                    category.title,
+                    items,
+                    context=getattr(category, "context_item", None),
+                )
