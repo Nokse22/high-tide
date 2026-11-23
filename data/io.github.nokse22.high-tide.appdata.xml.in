@@ -73,6 +73,24 @@
   </screenshots>
 
   <releases>
+    <release version="1.9.0" date="2026-11-23">
+      <description translate="no">
+        <p>Log in by scanning a QR code with your phone</p>
+        <p>Keep playing similar songs when the music ends, with Autoplay similar songs in Preferences</p>
+        <p>The queue opens in a panel next to the player and shows the playing song; songs in it can be removed, moved and cleared</p>
+        <p>Search in album, playlist and mix pages, and in every list of your Collection</p>
+        <p>Sort the lists of your Collection</p>
+        <p>Keep playlists in folders</p>
+        <p>Playlist and folder options on their cards, and the song menu on a right click or long press</p>
+        <p>See what the playing song is played from, and open its menu from the player</p>
+        <p>"Because you listened to" rows show the album they're about</p>
+        <p>Search your playlists in Add to a playlist; playlists made in other apps show up there and in your Collection</p>
+        <p>A notice when TIDAL sends a song in lower quality than chosen</p>
+        <p>Fix the wrong song or album coming back after a restart</p>
+        <p>Fix lyrics opening where the previous song's were scrolled to</p>
+        <p>Fix pages piling up when going back and forth between them</p>
+      </description>
+    </release>
     <release version="1.8.0" date="2026-11-22">
       <description translate="no">
         <p>Play on DLNA and Chromecast devices, like speakers, TVs and streamers</p>
