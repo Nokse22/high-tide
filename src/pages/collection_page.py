@@ -156,9 +156,15 @@ class HTCollectionPage(Page):
             (new_action, new_action.connect("activate", lambda *_: utils.new_playlist()))
         )
         new_actions.add_action(new_action)
+        folder_action = Gio.SimpleAction.new("new-folder", None)
+        self.signals.append(
+            (folder_action, folder_action.connect("activate", lambda *_: utils.new_folder()))
+        )
+        new_actions.add_action(folder_action)
 
         menu = Gio.Menu()
         menu.append(_("New playlist…"), "collection.new-playlist")
+        menu.append(_("New folder…"), "collection.new-folder")
         menu.append_submenu(_("Sort by"), sort_menu)
 
         button = Gtk.MenuButton(

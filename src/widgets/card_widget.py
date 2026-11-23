@@ -19,6 +19,7 @@
 
 import threading
 from gettext import gettext as _
+from gettext import ngettext
 from typing import Union
 
 from gi.repository import Adw, Gdk, GLib, Gtk
@@ -26,7 +27,7 @@ from gi.repository import Adw, Gdk, GLib, Gtk
 from tidalapi.album import Album
 from tidalapi.artist import Artist
 from tidalapi.mix import Mix, MixV2
-from tidalapi.playlist import Playlist
+from tidalapi.playlist import Folder, Playlist
 from tidalapi.media import Track
 from tidalapi.page import PageItem
 
@@ -125,6 +126,9 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         elif isinstance(self.item, Playlist):
             self._make_playlist_card()
             self.action = "win.push-playlist-page"
+        elif isinstance(self.item, Folder):
+            self._make_folder_card()
+            self.action = "win.push-folder-page"
         elif isinstance(self.item, Artist):
             self._make_artist_card()
             self.action = "win.push-artist-page"
@@ -201,6 +205,17 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.detail_label.set_label(_("By {}").format(creator_name))
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
+
+    def _make_folder_card(self) -> None:
+        """Configure the card to display a playlist folder"""
+        self.title_label.set_label(self.item.name or "")
+        self.title_label.set_tooltip_text(self.item.name or "")
+        self.track_artist_label.set_visible(False)
+        count = self.item.total_number_of_items or 0
+        self.detail_label.set_label(
+            ngettext("{} playlist", "{} playlists", count).format(count)
+        )
+        self.image.set_from_icon_name("folder-symbolic")
 
     def _make_artist_card(self) -> None:
         """Configure the card to display an Artist item"""

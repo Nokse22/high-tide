@@ -146,6 +146,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         )
 
         self.create_action_with_target(
+            "push-folder-page", GLib.VariantType.new("s"), self.on_push_folder_page
+        )
+
+        self.create_action_with_target(
             "push-mix-page", GLib.VariantType.new("s"), self.on_push_mix_page
         )
 
@@ -1230,6 +1234,29 @@ class HighTideWindow(Adw.ApplicationWindow):
         utils.push_page(
             f"album-info-{item_id}", lambda: HTCreditsPage.new_for_album(item_id).load()
         )
+
+    def on_push_folder_page(self, action, parameter):
+        """Open one of the user's playlist folders: its playlists and folders"""
+        folder = utils.folders.get(parameter.get_string())
+        if folder is None:
+            return
+
+        def make_page():
+            page = HTFromFunctionPage(folder.name or _("Folder"))
+            contents = []
+
+            def load(limit=50, offset=0):
+                # All at once in the chosen order (asked again from the start)
+                if offset == 0:
+                    contents[:] = utils.folder_contents(folder.id)
+                return contents[offset : offset + limit]
+
+            page.set_function(load)
+            page.enable_search(_("Filter by name"), 50)
+            page.enable_sort("playlists")
+            return page.load()
+
+        utils.push_page(f"folder-{folder.id}", make_page)
 
     def on_push_playlist_page(self, action, parameter):
         item_id = parameter.get_string()

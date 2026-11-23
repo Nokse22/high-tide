@@ -28,18 +28,18 @@ import uuid
 import logging
 from gettext import gettext as _
 from pathlib import Path
-from typing import Any, Callable, List
+from typing import Any, Callable, Dict, List
 
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from gi.repository import Adw, Gdk, Gio, GLib
+from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 
 import tidalapi
 from tidalapi.album import Album
 from tidalapi.artist import Artist
 from tidalapi.mix import Mix
-from tidalapi.playlist import Playlist, UserPlaylist
+from tidalapi.playlist import Folder, Playlist, UserPlaylist
 from tidalapi.media import Track, Video
 
 from ..pages import HTAlbumPage, HTArtistPage, HTMixPage, HTPlaylistPage
@@ -76,6 +76,8 @@ blocked_loaded = threading.Event()
 favourites_loaded = threading.Event()
 # Kept, so changes to the sort settings keep being reported
 _sort_settings = None
+# The user's playlist folders seen so far, by id (their pages look them up here)
+folders: Dict[str, Any] = {}
 # Pick clean over explicit album versions (the prefer-clean-versions setting)
 prefer_clean_versions = False
 
@@ -504,39 +506,59 @@ def sorted_fetch(kind: str, fetch: Callable) -> Callable:
     return fetch_sorted
 
 
-def _load_sorted_playlists() -> list:
-    """All the user's playlists and favorite playlists, also those in folders, in
-    the chosen order (TIDAL sorts them; it pages them with a cursor)"""
+def _parse_collection_item(item: dict) -> Any:
+    """A playlist or folder from TIDAL's playlist folder listing"""
+    data = item.get("data") or {}
+    if item.get("itemType") == "FOLDER":
+        folder = Folder(session, None).parse(item)
+        folder.name = folder.name or data.get("name")
+        folders[str(folder.id)] = folder
+        return folder
+    # This listing sends the creator's missing name as null, which python-tidal
+    # shows as "TIDAL"; the old one left it out ("me")
+    creator = data.get("creator")
+    if isinstance(creator, dict):
+        for key in [k for k, v in creator.items() if v is None]:
+            del creator[key]
+    return session.parse_playlist(data)
+
+
+def folder_contents(folder_id: str = "root") -> list:
+    """The playlists and folders in one of the user's playlist folders ("root" for
+    the top level), in the chosen order (TIDAL sorts them; it pages them with a
+    cursor). Like TIDAL, a playlist in a folder is only listed in that folder."""
     order, direction = sort_order("playlists")
-    playlists = []
+    items = []
     cursor = None
     while True:
         params = {
+            "folderId": folder_id,
             "limit": 50,
             "order": order,
             "orderDirection": direction,
-            "includeOnly": "PLAYLIST",
         }
         if cursor:
             params["cursor"] = cursor
         json_obj = session.request.request(
             "GET",
-            "my-collection/playlists/folders/flattened",
+            "my-collection/playlists/folders",
             base_url=session.config.api_v2_location,
             params=params,
         ).json()
+        page = []
         for item in json_obj.get("items", []):
-            # This listing sends the creator's missing name as null, which
-            # python-tidal shows as "TIDAL"; the old one left it out ("me")
-            creator = (item.get("data") or {}).get("creator")
-            if isinstance(creator, dict):
-                for key in [k for k, v in creator.items() if v is None]:
-                    del creator[key]
-        page = session.request.map_json(json_obj, parse=session.parse_playlist)
-        playlists.extend(page)
+            try:
+                page.append(_parse_collection_item(item))
+            except Exception:
+                logger.exception("Could not read an item of a playlist folder")
+        items.extend(page)
         cursor = json_obj.get("cursor")
-        if not cursor or not page:
-            return playlists
+        if not cursor or not json_obj.get("items"):
+            return items
+
+
+def _load_sorted_playlists() -> list:
+    return folder_contents("root")
 
 
 _playlists_load_lock = threading.Lock()
@@ -583,6 +605,42 @@ def sort_menu(kind: str) -> tuple:
 
 
 _resort_counts: dict = {}
+
+
+def new_folder() -> None:
+    """Ask for a name and create a playlist folder at the top level"""
+    entry = Gtk.Entry(placeholder_text=_("Name"), activates_default=True)
+    dialog = Adw.AlertDialog(heading=_("New Folder"), extra_child=entry)
+    dialog.add_response("cancel", _("Cancel"))
+    dialog.add_response("create", _("Create"))
+    dialog.set_response_appearance("create", Adw.ResponseAppearance.SUGGESTED)
+    dialog.set_default_response("create")
+    dialog.set_close_response("cancel")
+    dialog.set_response_enabled("create", False)
+    entry.connect(
+        "changed",
+        lambda e: dialog.set_response_enabled("create", bool(e.get_text().strip())),
+    )
+
+    def on_response(_dialog, response):
+        name = entry.get_text().strip()
+        if response == "create" and name:
+            threading.Thread(target=th_create_folder, args=(name,), daemon=True).start()
+
+    dialog.connect("response", on_response)
+    dialog.present(navigation_view.get_root())
+
+
+def th_create_folder(name: str) -> None:
+    """Thread function to create a playlist folder at the top level"""
+    try:
+        session.user.create_folder(title=name)
+    except Exception:
+        logger.exception(f"Failed to create the folder {name}")
+        GLib.idle_add(send_toast, _("Failed to create the folder"), 2)
+        return
+    GLib.idle_add(send_toast, _("Created {}").format(name), 2)
+    resort("playlists")
 
 
 def resort(kind: str) -> None:
@@ -1323,6 +1381,8 @@ def get_type(item: Any) -> str:
         return "artist"
     elif isinstance(item, Playlist):
         return "playlist"
+    elif isinstance(item, Folder):
+        return "folder"
 
 
 def matches_search(item: Any, query: str) -> bool:
