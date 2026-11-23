@@ -69,13 +69,28 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         # What the tracks belong to (album, playlist, mix), see play_this
         self.source = None
 
+        # Counts set_items() calls, so items still loading for the list shown
+        # before are dropped
+        self.generation = 0
+
     def reset(self):
         """Reset the widget so it can be reused with new data"""
+        self.generation += 1
         self.items = []
         self.items_n = 0
         self.offset = 0
         self.type = None
         self.is_loading = False
+        self.spinner.set_visible(False)
+
+        # Scrolling to the end loads more again, also after the last list ran out
+        if self.scrolled_window is not None and not (
+            self.scrolled_window.handler_is_connected(self.handler_id)
+        ):
+            self.handler_id = self.scrolled_window.connect(
+                "edge-reached", self._on_edge_reached
+            )
+            self.signals.append((self.scrolled_window, self.handler_id))
 
         if self.parent is not None:
             child = self.parent.get_first_child()
@@ -142,35 +157,40 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         if self.is_loading or not self.function:
             return
         self.is_loading = True
-        GLib.idle_add(self.spinner.set_visible, True)
+        generation = self.generation
+        function = self.function
+        offset = self.offset
+        GLib.idle_add(
+            lambda: generation == self.generation and self.spinner.set_visible(True)
+        )
 
         # Keep asking while the pages only hold hidden AI tracks, so the list
         # fills up instead of stopping early
         new_items = []
         for _page in range(MAX_EMPTY_PAGES):
             try:
-                raw_items = self.function(limit=self.items_limit, offset=self.offset)
+                raw_items = function(limit=self.items_limit, offset=offset)
             except TypeError:
                 raw_items = []
             if not raw_items:
-                GLib.idle_add(self._on_items_exhausted)
-                return
+                break
             # Count what was fetched, so a page of hidden AI tracks doesn't make
             # the next request repeat the same items
-            self.offset += len(raw_items)
+            offset += len(raw_items)
             new_items = utils.filter_ai_items(raw_items)
             if new_items:
                 break
 
-        if not new_items:
-            GLib.idle_add(self._on_items_exhausted)
-            return
-
-        self.items.extend(new_items)
-        if self.type is None:
-            self.type = utils.get_type(new_items[0])
-
         def _add():
+            if generation != self.generation:
+                return  # the list was set again meanwhile
+            if not new_items:
+                self._on_items_exhausted()
+                return
+            self.offset = offset
+            self.items.extend(new_items)
+            if self.type is None:
+                self.type = utils.get_type(new_items[0])
             if self.type == "track":
                 self._add_tracks(new_items)
             elif self.type is not None:

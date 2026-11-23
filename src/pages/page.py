@@ -20,7 +20,7 @@
 import threading
 from gettext import gettext as _
 
-from gi.repository import Adw, GLib, Gtk
+from gi.repository import Adw, GLib, GObject, Gtk
 from tidalapi.media import Video
 
 from ..disconnectable_iface import IDisconnectable
@@ -122,6 +122,53 @@ class Page(Adw.NavigationPage, IDisconnectable):
         threading.Thread(target=_load).start()
 
         return self
+
+    def setup_search_bar(self, search_bar, search_entry, search_button) -> None:
+        """Open search_bar with search_button, with Ctrl+F or by typing while
+        this page is shown"""
+        search_bar.connect_entry(search_entry)
+        self.bindings.append(
+            search_button.bind_property(
+                "active",
+                search_bar,
+                "search-mode-enabled",
+                GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.SYNC_CREATE,
+            )
+        )
+
+        def open_search(*_args):
+            if utils.navigation_view.get_visible_page() is not self:
+                return False  # another page's search
+            search_bar.set_search_mode(True)
+            search_entry.grab_focus()
+            return True
+
+        # Window-wide, so it works wherever the keyboard focus is
+        shortcuts = Gtk.ShortcutController(scope=Gtk.ShortcutScope.GLOBAL)
+        shortcuts.add_shortcut(
+            Gtk.Shortcut.new(
+                Gtk.ShortcutTrigger.parse_string("<Control>f"),
+                Gtk.CallbackAction.new(open_search),
+            )
+        )
+        self.add_controller(shortcuts)
+
+        # Typing anywhere in the window opens the search of the page shown
+        def capture(*_args):
+            search_bar.set_key_capture_widget(self.get_root())
+
+        def release(*_args):
+            search_bar.set_key_capture_widget(None)
+
+        if utils.navigation_view.get_visible_page() is self:
+            capture()
+
+        self.signals.extend(
+            [
+                (self, self.connect("shown", capture)),
+                (self, self.connect("hiding", release)),
+            ]
+        )
 
     def _show_load_error(self) -> None:
         self.set_title(_("Error"))

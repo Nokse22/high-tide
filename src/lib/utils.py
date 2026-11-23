@@ -1106,6 +1106,23 @@ def get_type(item: Any) -> str:
         return "playlist"
 
 
+def matches_search(item: Any, query: str) -> bool:
+    """Whether a list search for query (lowercase) finds item: by its name or
+    title, its artists, a song's album, a playlist's creator or a mix's subtitle"""
+    names = [
+        getattr(item, "full_name", None),
+        getattr(item, "name", None),
+        getattr(item, "title", None),
+        getattr(item, "sub_title", None),
+    ]
+    names += [getattr(a, "name", None) for a in (getattr(item, "artists", None) or [])]
+    for attribute in ("album", "creator"):
+        related = getattr(item, attribute, None)
+        if related is not None:
+            names.append(getattr(related, "name", None))
+    return any(query in name.lower() for name in names if isinstance(name, str))
+
+
 def push_page(key: str, make_page) -> None:
     """Open a page, unless the same page is already the one shown.
 

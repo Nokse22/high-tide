@@ -21,7 +21,7 @@ import logging
 import threading
 from gettext import gettext as _
 
-from gi.repository import GLib, GObject, Gtk
+from gi.repository import GLib, Gtk
 
 from ..lib import utils
 from .page import Page
@@ -127,47 +127,10 @@ class TrackListPage(Page):
         self.search_entry = builder.get_object("_search_entry")
         search_button = builder.get_object("_search_button")
 
-        self.search_bar.connect_entry(self.search_entry)
-        self.bindings.append(
-            search_button.bind_property(
-                "active",
-                self.search_bar,
-                "search-mode-enabled",
-                GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.SYNC_CREATE,
-            )
-        )
-
-        def open_search(*_args):
-            if utils.navigation_view.get_visible_page() is not self:
-                return False  # another page's search
-            self.search_bar.set_search_mode(True)
-            self.search_entry.grab_focus()
-            return True
-
-        # Window-wide, so it works wherever the keyboard focus is
-        shortcuts = Gtk.ShortcutController(scope=Gtk.ShortcutScope.GLOBAL)
-        shortcuts.add_shortcut(
-            Gtk.Shortcut.new(
-                Gtk.ShortcutTrigger.parse_string("<Control>f"),
-                Gtk.CallbackAction.new(open_search),
-            )
-        )
-        self.add_controller(shortcuts)
-
-        # Typing anywhere in the window opens the search of the page shown
-        def capture(*_args):
-            self.search_bar.set_key_capture_widget(self.get_root())
-
-        def release(*_args):
-            self.search_bar.set_key_capture_widget(None)
-
-        if utils.navigation_view.get_visible_page() is self:
-            capture()
+        self.setup_search_bar(self.search_bar, self.search_entry, search_button)
 
         self.signals.extend(
             [
-                (self, self.connect("shown", capture)),
-                (self, self.connect("hiding", release)),
                 (
                     self.search_entry,
                     self.search_entry.connect("search-changed", self._on_search_changed),
@@ -229,14 +192,6 @@ class TrackListPage(Page):
 
         threading.Thread(target=fetch, daemon=True).start()
 
-    def _matches(self, track) -> bool:
-        query = self.search_query
-        names = [getattr(track, "full_name", None) or track.name or ""]
-        names += [a.name or "" for a in (track.artists or []) if a]
-        if track.album:
-            names.append(track.album.name or "")
-        return any(query in name.lower() for name in names)
-
     def _show_tracks(self) -> None:
         """Show the list in the chosen order, filtered by the search if any"""
         if not self.search_query:
@@ -249,7 +204,9 @@ class TrackListPage(Page):
         else:
             ordered = self._sorted(self.current_sort, valid_tracks)
         self.auto_load.set_function(None)
-        self.auto_load.set_items([t for t in ordered if self._matches(t)])
+        self.auto_load.set_items(
+            [t for t in ordered if utils.matches_search(t, self.search_query)]
+        )
 
     def on_sort_changed(self, dropdown, _pspec):
         selected = dropdown.get_selected()

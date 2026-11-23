@@ -89,7 +89,7 @@ class HTCollectionPage(Page):
         # the collection again after it changed
         self._carousels = []
 
-        self._add_carousel(
+        mixes_carousel = self._add_carousel(
             _("My Mixes and Radios"),
             lambda: utils.favourite_mixes,
             self._create_paginated_loader(
@@ -97,6 +97,7 @@ class HTCollectionPage(Page):
             ),
         )
 
+        mixes_carousel.more_search = (_("Filter by name"), 50)
         self.playlists_carousel = self._add_carousel(
             _("Playlists"),
             lambda: utils.playlist_and_favorite_playlists,
@@ -120,14 +121,17 @@ class HTCollectionPage(Page):
             )
         )
         self.playlists_carousel.add_header_button(new_playlist_button)
+        # TIDAL gives at most 50 mixes or playlists at a time, other lists 1000
+        self.playlists_carousel.more_search = (_("Filter by name"), 50)
 
-        self._add_carousel(
+        albums_carousel = self._add_carousel(
             _("Albums"),
             lambda: utils.favourite_albums,
             self._create_paginated_loader(
                 user.favorites.albums, lambda: utils.favourite_albums
             ),
         )
+        albums_carousel.more_search = (_("Filter by title or artist"), 1000)
         tracks_carousel = self._add_carousel(
             _("Tracks"),
             lambda: utils.favourite_tracks,
@@ -139,13 +143,16 @@ class HTCollectionPage(Page):
             ),
         )
         tracks_carousel.more_source = utils.MY_TRACKS
-        self._add_carousel(
+        tracks_carousel.more_search = (_("Filter by title, artist or album"), 1000)
+        artists_carousel = self._add_carousel(
             _("Artists"),
             lambda: utils.favourite_artists,
             self._create_paginated_loader(
                 user.favorites.artists, lambda: utils.favourite_artists
             ),
         )
+
+        artists_carousel.more_search = (_("Filter by name"), 1000)
 
         self.update_items()
 
