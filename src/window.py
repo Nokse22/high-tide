@@ -107,7 +107,6 @@ class HighTideWindow(Adw.ApplicationWindow):
     track_radio_button = Gtk.Template.Child()
     block_button = Gtk.Template.Child()
     block_menu = Gtk.Template.Child()
-    album_button = Gtk.Template.Child()
     more_button = Gtk.Template.Child()
     playing_from_button = Gtk.Template.Child()
     playing_from_icon = Gtk.Template.Child()
@@ -517,7 +516,6 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.track_radio_button.set_action_target_value(
             GLib.Variant("s", str(track.id))
         )
-        self.album_button.set_action_target_value(GLib.Variant("s", str(album.id)))
         self.block_button.set_sensitive(True)
         self._set_more_menu(track)
         self._update_playing_from()
