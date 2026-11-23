@@ -22,7 +22,7 @@ from gettext import gettext as _
 from gettext import ngettext
 from typing import Union
 
-from gi.repository import Adw, Gdk, GLib, Gtk
+from gi.repository import Adw, Gdk, GLib, Graphene, Gtk
 
 from tidalapi.album import Album
 from tidalapi.artist import Artist
@@ -225,14 +225,18 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         menu, actions = utils.folder_menu(self.item)
         self.insert_action_group("folder", actions)
         self._folder_menu = menu
-        # Shown on hover where other cards have their play button, like TIDAL's
-        menu_button = Gtk.MenuButton(
+        # Shown on hover where other cards have their play button, like TIDAL's.
+        # It opens the same menu as a right click, attached to the card: a menu of
+        # its own closed right away (the button is in the part that hides again)
+        menu_button = Gtk.Button(
             icon_name="view-more-symbolic",
             tooltip_text=_("Folder Options"),
-            menu_model=menu,
             css_classes=["circular", "card-play-button"],
         )
         self.play_revealer.set_child(menu_button)
+        self.signals.append(
+            (menu_button, menu_button.connect("clicked", self._on_folder_button_clicked))
+        )
         right_click = Gtk.GestureClick(button=Gdk.BUTTON_SECONDARY)
         long_press = Gtk.GestureLongPress(touch_only=True)
         for gesture in (right_click, long_press):
@@ -243,10 +247,19 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
     def _on_folder_menu_requested(self, gesture, *args) -> None:
         gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+        self._show_folder_menu(args[-2], args[-1])
+
+    def _on_folder_button_clicked(self, button) -> None:
+        ok, point = button.compute_point(
+            self, Graphene.Point().init(button.get_width() / 2, button.get_height())
+        )
+        self._show_folder_menu(point.x, point.y)
+
+    def _show_folder_menu(self, x: float, y: float) -> None:
         popover = Gtk.PopoverMenu.new_from_model(self._folder_menu)
         popover.set_has_arrow(False)
         popover.set_parent(self)
-        x, y = args[-2], args[-1]
+        self.folder_popover = popover
         rect = Gdk.Rectangle()
         rect.x, rect.y, rect.width, rect.height = int(x), int(y), 1, 1
         popover.set_pointing_to(rect)
