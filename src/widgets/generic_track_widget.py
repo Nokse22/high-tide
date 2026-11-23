@@ -48,6 +48,9 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     image = Gtk.Template.Child()
     now_playing_indicator = Gtk.Template.Child()
     album_stack = Gtk.Template.Child()
+
+    # The cover is swapped for a play icon while the track plays
+    shows_playing_icon = True
     track_title_label = Gtk.Template.Child()
     track_duration_label = Gtk.Template.Child()
     _grid = Gtk.Template.Child()
@@ -141,12 +144,18 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
     def _on_playing_changed(self, *args):
         self._update_now_playing()
 
+    def hide_playing_icon(self) -> None:
+        """Keep showing the cover while the track plays, where it's clear already
+        that it's the playing one"""
+        self.shows_playing_icon = False
+        self._update_now_playing()
+
     def _update_now_playing(self):
         is_now = (
             utils.player_object.playing_track is not None
             and self.track.id == utils.player_object.playing_track.id
         )
-        if is_now and utils.player_object.playing:
+        if is_now and utils.player_object.playing and self.shows_playing_icon:
             self.album_stack.set_visible_child(self.now_playing_indicator)
         else:
             self.album_stack.set_visible_child(self.image)

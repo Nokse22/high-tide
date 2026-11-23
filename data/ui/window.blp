@@ -59,9 +59,18 @@ template $HighTideWindow: Adw.ApplicationWindow {
   title: "High Tide";
 
   Adw.Breakpoint {
+    condition ("max-width: 1100sp")
+
+    setters {
+      queue_split_view.collapsed: true;
+    }
+  }
+
+  Adw.Breakpoint {
     condition ("max-width: 700sp")
 
     setters {
+      queue_split_view.collapsed: true;
       multilayout_view.layout-name: "mobile";
       player_headerbar.show-start-title-buttons: false;
       player_headerbar.show-end-title-buttons: false;
@@ -73,24 +82,50 @@ template $HighTideWindow: Adw.ApplicationWindow {
       Adw.Layout {
         name: "desktop";
 
-        content: Adw.OverlaySplitView {
-          max-sidebar-width: 500;
-          min-sidebar-width: 320;
-          sidebar-width-fraction: 0.35;
+        // The queue is a panel on the right, so the player stays in view
+        content: Adw.OverlaySplitView queue_split_view {
+          sidebar-position: end;
+          show-sidebar: false;
+          // Opened and closed only by its button, not by the window getting wider or
+          // narrower
+          pin-sidebar: true;
+          max-sidebar-width: 420;
+          min-sidebar-width: 300;
+          sidebar-width-fraction: 0.28;
 
-          content: Adw.ToolbarView {
-            content: Adw.LayoutSlot {
-              id: "content-navigation-view";
+          content: Adw.OverlaySplitView {
+            max-sidebar-width: 500;
+            min-sidebar-width: 320;
+            sidebar-width-fraction: 0.35;
+
+            content: Adw.ToolbarView {
+              content: Adw.LayoutSlot {
+                id: "content-navigation-view";
+              };
+
+              [bottom]
+              Adw.LayoutSlot {
+                id: "content-navigator";
+              }
             };
 
-            [bottom]
-            Adw.LayoutSlot {
-              id: "content-navigator";
-            }
+            sidebar: Adw.LayoutSlot {
+              id: "player-lyrics-queue";
+            };
           };
 
-          sidebar: Adw.LayoutSlot {
-            id: "player-lyrics-queue";
+          sidebar: Adw.ToolbarView {
+            [top]
+            Adw.HeaderBar {
+              title-widget: Adw.WindowTitle {
+                title: _("Queue");
+              };
+            }
+
+            // The queue widget is moved here from the Queue tab, see _place_queue()
+            content: Box queue_panel_box {
+              orientation: vertical;
+            };
           };
         };
       }
@@ -839,9 +874,14 @@ template $HighTideWindow: Adw.ApplicationWindow {
               title: _("Lyrics");
             }
 
-            Adw.ViewStackPage {
-              child: $HTQueueWidget queue_widget {
-                map => $on_queue_widget_mapped();
+            Adw.ViewStackPage queue_page {
+              child: Box queue_tab_box {
+                orientation: vertical;
+
+                $HTQueueWidget queue_widget {
+                  vexpand: true;
+                  map => $on_queue_widget_mapped();
+                }
               };
 
               icon-name: "view-list-ordered-symbolic";
@@ -857,6 +897,14 @@ template $HighTideWindow: Adw.ApplicationWindow {
             stack: sidebar_stack;
             policy: wide;
           };
+
+          [end]
+          ToggleButton queue_button {
+            icon-name: "view-list-ordered-symbolic";
+            tooltip-text: _("Queue");
+            visible: false;
+            active: bind queue_split_view.show-sidebar bidirectional;
+          }
         }
       }
     }

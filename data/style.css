@@ -145,6 +145,32 @@
   color: var(--accent-color);
 }
 
+/* Dragging in the queue: only the line shows where the song lands, not GTK's
+   frame around the row under the pointer; the song's old place fades */
+.tracks-list-box row:drop(active) {
+  outline: none;
+  box-shadow: none;
+}
+
+.tracks-list-box row.drag-source {
+  opacity: 0.4;
+}
+
+/* Where a dragged song in the queue will land */
+.tracks-list-box row.drop-above {
+  background-image: linear-gradient(var(--accent-color), var(--accent-color));
+  background-size: 100% 2px;
+  background-position: top;
+  background-repeat: no-repeat;
+}
+
+.tracks-list-box row.drop-below {
+  background-image: linear-gradient(var(--accent-color), var(--accent-color));
+  background-size: 100% 2px;
+  background-position: bottom;
+  background-repeat: no-repeat;
+}
+
 .quality-label {
   background-color: var(--popover-shade-color);
   border-radius: 4px;
