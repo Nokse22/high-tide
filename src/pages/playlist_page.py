@@ -79,6 +79,9 @@ class HTPlaylistPage(TrackListPage):
         self.playlist_menu = Gio.Menu()
         menu_button = builder.get_object("_playlist_menu_button")
         menu_button.set_menu_model(self.playlist_menu)
+        # Move to folder opens beside the menu on hover, like the song menu's
+        # submenus, instead of replacing it after a click
+        menu_button.get_popover().set_flags(Gtk.PopoverMenuFlags.NESTED)
         menu_button.set_visible(True)
         # The folders can change meanwhile: listed when the menu opens
         self.signals.append(

@@ -192,6 +192,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.add_action(toggle_block_track_action)
 
         self.block_button.connect("notify::active", self.on_block_button_active)
+        # Block artist opens beside the menu on hover, like the song menu's
+        self.block_button.get_popover().set_flags(Gtk.PopoverMenuFlags.NESTED)
 
         # self.create_action_with_target(
         #     'play-next',
