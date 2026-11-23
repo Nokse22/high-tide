@@ -6,7 +6,7 @@ template $HTQueueWidget: Box {
   spacing: 12;
 
   Adw.ToolbarView {
-    content: ScrolledWindow {
+    content: ScrolledWindow scrolled_window {
       vexpand: true;
 
       styles [
@@ -38,6 +38,32 @@ template $HTQueueWidget: Box {
 
           ListBox played_songs_list {
             row-activated => $on_played_song_activated();
+
+            styles [
+              "tracks-list-box",
+            ]
+          }
+        }
+
+        // Between what was played and what comes next
+        Box playing_song_box {
+          orientation: vertical;
+          spacing: 6;
+          visible: false;
+
+          Label {
+            styles [
+              "title-4",
+            ]
+
+            ellipsize: end;
+            hexpand: true;
+            xalign: 0.0;
+            label: _("Now Playing");
+          }
+
+          ListBox playing_song_list {
+            selection-mode: none;
 
             styles [
               "tracks-list-box",

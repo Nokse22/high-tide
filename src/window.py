@@ -1004,6 +1004,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         if not self.queue_widget_updated:
             self.queue_widget.update_all(self.player_object)
             self.queue_widget_updated = True
+        self.queue_widget.scroll_to_playing()
 
     @Gtk.Template.Callback("on_navigation_view_page_popped")
     def on_navigation_view_page_popped_func(self, nav_view, nav_page):
