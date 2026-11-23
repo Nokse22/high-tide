@@ -49,6 +49,9 @@ class HTQueueWidget(Gtk.Box):
         self._dragged_row = None
         # The row showing where the dragged song will land
         self._drop_row = None
+        # On desktop a song is dragged by its whole row; on a phone by a handle,
+        # as dragging a row with a finger would fight with scrolling the list
+        self.drag_whole_rows = False
 
     @Gtk.Template.Callback("on_played_song_activated")
     def _on_played_song_activated(self, list_box, row) -> None:
@@ -110,14 +113,26 @@ class HTQueueWidget(Gtk.Box):
 
         GLib.idle_add(remove, priority=GLib.PRIORITY_HIGH_IDLE)
 
+    def set_drag_whole_rows(self, whole_rows: bool) -> None:
+        """Drag songs by their whole row (desktop) or by a handle (phone)"""
+        if whole_rows == self.drag_whole_rows:
+            return
+        self.drag_whole_rows = whole_rows
+        if utils.player_object is not None:
+            self.update_queue(utils.player_object)
+            self.update_next_songs(utils.player_object)
+
     def _make_draggable(self, row) -> None:
-        """Let a queued or next song row be dragged by its handle to another place
-        in the same list"""
+        """Let a queued or next song row be dragged to another place in the same
+        list, by the whole row or by its handle"""
         source = Gtk.DragSource(actions=Gdk.DragAction.MOVE)
         source.connect("prepare", self._on_drag_prepare, row)
         source.connect("drag-begin", self._on_drag_begin, row)
         source.connect("drag-end", self._on_drag_end)
-        row.add_drag_handle().add_controller(source)
+        if self.drag_whole_rows:
+            row.add_controller(source)
+        else:
+            row.add_drag_handle().add_controller(source)
 
         target = Gtk.DropTarget.new(GObject.TYPE_STRING, Gdk.DragAction.MOVE)
         target.connect("motion", self._on_drop_motion, row)
@@ -126,6 +141,15 @@ class HTQueueWidget(Gtk.Box):
         row.add_controller(target)
 
     def _on_drag_prepare(self, source, x, y, row):
+        if self.drag_whole_rows:
+            # Not from the row's buttons (remove, menu) or links
+            picked = row.pick(x, y, Gtk.PickFlags.DEFAULT)
+            while picked is not None and picked is not row:
+                if isinstance(picked, Gtk.Button) or (
+                    isinstance(picked, Gtk.Label) and picked.get_current_uri()
+                ):
+                    return None
+                picked = picked.get_parent()
         self._dragged_row = row
         return Gdk.ContentProvider.new_for_value(
             GObject.Value(GObject.TYPE_STRING, row.get_name())

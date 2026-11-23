@@ -1049,6 +1049,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             # Turning it off and on takes its state from the new parent again.
             self.queue_widget.set_sensitive(False)
             self.queue_widget.set_sensitive(True)
+        self.queue_widget.set_drag_whole_rows(desktop)
         self.queue_page.set_visible(not desktop)
         self.queue_button.set_visible(desktop)
         if desktop and self.sidebar_stack.get_visible_child_name() == "queue":
