@@ -244,6 +244,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.connect("song-changed", self.on_song_changed)
         self.player_object.connect("renderer-changed", self.on_renderer_changed)
         self.player_object.connect("song-added-to-queue", self.on_song_added_to_queue)
+        self.player_object.connect("next-songs-changed", self.on_next_songs_changed)
+        self.settings.bind(
+            "autoplay", self.player_object, "autoplay", Gio.SettingsBindFlags.DEFAULT
+        )
         self.player_object.connect("notify::playing", self.update_controls)
 
         self.suspend_inhibit_cookie: int = 0
@@ -1010,6 +1014,12 @@ class HighTideWindow(Adw.ApplicationWindow):
         position = time_ms / 1000
 
         self.player_object.seek(position / end_value)
+
+    def on_next_songs_changed(self, *args):
+        if self.queue_widget.get_mapped():
+            self.queue_widget.update_next_songs(self.player_object)
+        else:
+            self.queue_widget_updated = False
 
     def on_song_added_to_queue(self, *args):
         if self.queue_widget.get_mapped():

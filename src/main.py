@@ -143,6 +143,13 @@ class HighTideApplication(Adw.Application):
                 "notify::selected", self.on_sink_changed
             )
 
+            self.settings.bind(
+                "autoplay",
+                builder.get_object("_autoplay_row"),
+                "active",
+                Gio.SettingsBindFlags.DEFAULT,
+            )
+
             bg_row: Gtk.Widget = builder.get_object("_background_row")
             bg_row.set_active(self.settings.get_boolean("run-background"))
             self.settings.bind(

@@ -98,6 +98,9 @@
 	  <key name="sort-mixes-reversed" type="b">
       <default>false</default>
     </key>
+	  <key name="autoplay" type="b">
+      <default>false</default>
+    </key>
 	  <key name="run-background" type="b">
       <default>false</default>
     </key>
