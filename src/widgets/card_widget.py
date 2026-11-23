@@ -215,7 +215,45 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.detail_label.set_label(
             ngettext("{} playlist", "{} playlists", count).format(count)
         )
+        # Like TIDAL's: the folder icon in the accent colour on a tinted tile
         self.image.set_from_icon_name("folder-symbolic")
+        self.image.set_pixel_size(64)
+        self.image.set_size_request(155, 155)
+        self.image.add_css_class("folder-cover")
+
+        # Rename, delete, a new playlist in it: on a right click or a long press
+        menu, actions = utils.folder_menu(self.item)
+        self.insert_action_group("folder", actions)
+        self._folder_menu = menu
+        # Shown on hover where other cards have their play button, like TIDAL's
+        menu_button = Gtk.MenuButton(
+            icon_name="view-more-symbolic",
+            tooltip_text=_("Folder Options"),
+            menu_model=menu,
+            css_classes=["circular", "card-play-button"],
+        )
+        self.play_revealer.set_child(menu_button)
+        right_click = Gtk.GestureClick(button=Gdk.BUTTON_SECONDARY)
+        long_press = Gtk.GestureLongPress(touch_only=True)
+        for gesture in (right_click, long_press):
+            self.add_controller(gesture)
+            self.signals.append(
+                (gesture, gesture.connect("pressed", self._on_folder_menu_requested))
+            )
+
+    def _on_folder_menu_requested(self, gesture, *args) -> None:
+        gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+        popover = Gtk.PopoverMenu.new_from_model(self._folder_menu)
+        popover.set_has_arrow(False)
+        popover.set_parent(self)
+        x, y = args[-2], args[-1]
+        rect = Gdk.Rectangle()
+        rect.x, rect.y, rect.width, rect.height = int(x), int(y), 1, 1
+        popover.set_pointing_to(rect)
+        popover.connect(
+            "closed", lambda p: GLib.idle_add(lambda: (p.unparent(), False)[1])
+        )
+        popover.popup()
 
     def _make_artist_card(self) -> None:
         """Configure the card to display an Artist item"""

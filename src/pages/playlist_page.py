@@ -20,7 +20,7 @@
 import threading
 from gettext import gettext as _
 
-from gi.repository import Adw, Gio, Gtk
+from gi.repository import Adw, Gio, GLib, Gtk
 
 from .track_list_page import TrackListPage
 from ..lib import utils
@@ -59,7 +59,7 @@ class HTPlaylistPage(TrackListPage):
         is_own_playlist = utils.is_own_playlist(self.item)
         if is_own_playlist:
             builder.get_object("_auto_load").set_playlist(self.item)
-            self._add_playlist_actions(builder)
+        self._add_playlist_actions(builder)
 
         self._setup_ui(
             builder,
@@ -69,7 +69,8 @@ class HTPlaylistPage(TrackListPage):
             reload_function=self.item.tracks,
         )
 
-        if is_own_playlist:
+        # Own and saved playlists can be moved into the user's folders
+        if is_own_playlist or utils.is_favourited(self.item):
             self._setup_playlist_menu(builder)
 
     def _setup_playlist_menu(self, builder):
@@ -79,6 +80,16 @@ class HTPlaylistPage(TrackListPage):
         menu_button = builder.get_object("_playlist_menu_button")
         menu_button.set_menu_model(self.playlist_menu)
         menu_button.set_visible(True)
+        # The folders can change meanwhile: listed when the menu opens
+        self.signals.append(
+            (
+                menu_button,
+                menu_button.connect(
+                    "notify::active",
+                    lambda b, _p: b.get_active() and self._update_playlist_menu(),
+                ),
+            )
+        )
 
         self._update_playlist_menu()
 
@@ -92,18 +103,46 @@ class HTPlaylistPage(TrackListPage):
             action = Gio.SimpleAction.new(name, None)
             self.signals.append((action, action.connect("activate", callback)))
             action_group.add_action(action)
+        move = Gio.SimpleAction.new("move-to-folder", GLib.VariantType.new("s"))
+        self.signals.append((move, move.connect("activate", self._on_move_to_folder)))
+        action_group.add_action(move)
         # On the content, not the page: the page's scrolled window doesn't see
         # action groups inserted on the page
         builder.get_object("_main").insert_action_group("playlist", action_group)
 
     def _update_playlist_menu(self):
         self.playlist_menu.remove_all()
-        self.playlist_menu.append(_("Edit playlist"), "playlist.edit")
-        self.playlist_menu.append(
-            _("Make private") if self.item.public else _("Make public"),
-            "playlist.toggle-public",
+        own = utils.is_own_playlist(self.item)
+        if own:
+            self.playlist_menu.append(_("Edit playlist"), "playlist.edit")
+            self.playlist_menu.append(
+                _("Make private") if self.item.public else _("Make public"),
+                "playlist.toggle-public",
+            )
+        folders = sorted(
+            (f for f in utils.folders.values() if f.id),
+            key=lambda f: (f.name or "").lower(),
         )
-        self.playlist_menu.append(_("Delete playlist"), "playlist.delete")
+        move_menu = Gio.Menu()
+        move_menu.append(_("No folder"), "playlist.move-to-folder::root")
+        folder_section = Gio.Menu()
+        for folder in folders:
+            item = Gio.MenuItem.new(folder.name, None)
+            item.set_action_and_target_value(
+                "playlist.move-to-folder", GLib.Variant.new_string(str(folder.id))
+            )
+            folder_section.append_item(item)
+        move_menu.append_section(None, folder_section)
+        self.playlist_menu.append_submenu(_("Move to folder"), move_menu)
+        if own:
+            self.playlist_menu.append(_("Delete playlist"), "playlist.delete")
+
+    def _on_move_to_folder(self, action, parameter):
+        threading.Thread(
+            target=utils.th_move_to_folder,
+            args=(self.item, parameter.get_string()),
+            daemon=True,
+        ).start()
 
     def _on_edit(self, *args):
         dialog = NewPlaylistWindow()

@@ -609,26 +609,14 @@ _resort_counts: dict = {}
 
 def new_folder() -> None:
     """Ask for a name and create a playlist folder at the top level"""
-    entry = Gtk.Entry(placeholder_text=_("Name"), activates_default=True)
-    dialog = Adw.AlertDialog(heading=_("New Folder"), extra_child=entry)
-    dialog.add_response("cancel", _("Cancel"))
-    dialog.add_response("create", _("Create"))
-    dialog.set_response_appearance("create", Adw.ResponseAppearance.SUGGESTED)
-    dialog.set_default_response("create")
-    dialog.set_close_response("cancel")
-    dialog.set_response_enabled("create", False)
-    entry.connect(
-        "changed",
-        lambda e: dialog.set_response_enabled("create", bool(e.get_text().strip())),
+    ask_folder_name(
+        _("New Folder"),
+        _("Create"),
+        "",
+        lambda name: threading.Thread(
+            target=th_create_folder, args=(name,), daemon=True
+        ).start(),
     )
-
-    def on_response(_dialog, response):
-        name = entry.get_text().strip()
-        if response == "create" and name:
-            threading.Thread(target=th_create_folder, args=(name,), daemon=True).start()
-
-    dialog.connect("response", on_response)
-    dialog.present(navigation_view.get_root())
 
 
 def th_create_folder(name: str) -> None:
@@ -640,7 +628,168 @@ def th_create_folder(name: str) -> None:
         GLib.idle_add(send_toast, _("Failed to create the folder"), 2)
         return
     GLib.idle_add(send_toast, _("Created {}").format(name), 2)
+    GLib.idle_add(_on_folders_changed)
+
+
+# Called on the main thread after folders or what's in them changed (open folder
+# pages load again)
+folder_listeners: List[Callable[[], None]] = []
+
+
+def _on_folders_changed() -> None:
     resort("playlists")
+    for listener in list(folder_listeners):
+        listener()
+
+
+def _trn(item: Any) -> str:
+    if isinstance(item, Folder):
+        return item.trn or f"trn:folder:{item.id}"
+    return f"trn:playlist:{item.id}"
+
+
+def _move_to_folder(items: list, folder_id: str) -> None:
+    session.request.request(
+        "PUT",
+        "my-collection/playlists/folders/move",
+        base_url=session.config.api_v2_location,
+        params={"folderId": folder_id, "trns": ",".join(_trn(i) for i in items)},
+    )
+
+
+def th_move_to_folder(item: Any, folder_id: str) -> None:
+    """Thread function to move a playlist or folder into a folder ("root" for none)
+
+    Args:
+        item: The playlist or folder to move
+        folder_id: The folder to move it into, or "root"
+    """
+    try:
+        _move_to_folder([item], folder_id)
+    except Exception:
+        logger.exception(f"Failed to move {item.id} to folder {folder_id}")
+        GLib.idle_add(send_toast, _("Failed to move {}").format(item.name), 2)
+        return
+    folder = folders.get(folder_id)
+    if folder is None:
+        message = _("Moved {} out of its folder").format(item.name)
+    else:
+        message = _("Moved {} to {}").format(item.name, folder.name)
+    GLib.idle_add(send_toast, message, 2)
+    GLib.idle_add(_on_folders_changed)
+
+
+def th_rename_folder(folder: Any, name: str, callback: Any = None) -> None:
+    """Thread function to rename one of the user's playlist folders"""
+    try:
+        if not folder.rename(name):
+            raise RuntimeError("rename failed")
+    except Exception:
+        logger.exception(f"Failed to rename folder {folder.id}")
+        GLib.idle_add(send_toast, _("Failed to rename the folder"), 2)
+        return
+    folder.name = name
+    GLib.idle_add(send_toast, _("Renamed to {}").format(name), 2)
+    if callback:
+        GLib.idle_add(callback)
+    GLib.idle_add(_on_folders_changed)
+
+
+def th_delete_folder(folder: Any, callback: Any = None) -> None:
+    """Thread function to delete one of the user's playlist folders. What's in it
+    is moved to the top level first, so no playlist goes with it."""
+    try:
+        contents = folder_contents(folder.id)
+        if contents:
+            _move_to_folder(contents, "root")
+        if not folder.remove():
+            raise RuntimeError("remove failed")
+    except Exception:
+        logger.exception(f"Failed to delete folder {folder.id}")
+        GLib.idle_add(send_toast, _("Failed to delete the folder"), 2)
+        GLib.idle_add(_on_folders_changed)
+        return
+    folders.pop(str(folder.id), None)
+    GLib.idle_add(send_toast, _("Deleted {}").format(folder.name), 2)
+    if callback:
+        GLib.idle_add(callback)
+    GLib.idle_add(_on_folders_changed)
+
+
+def ask_folder_name(heading: str, response_label: str, name: str, on_name: Callable) -> None:
+    """Ask for a folder name; on_name(name) is called with it"""
+    entry = Gtk.Entry(placeholder_text=_("Name"), activates_default=True, text=name)
+    dialog = Adw.AlertDialog(heading=heading, extra_child=entry)
+    dialog.add_response("cancel", _("Cancel"))
+    dialog.add_response("ok", response_label)
+    dialog.set_response_appearance("ok", Adw.ResponseAppearance.SUGGESTED)
+    dialog.set_default_response("ok")
+    dialog.set_close_response("cancel")
+
+    def update(*_args):
+        text = entry.get_text().strip()
+        dialog.set_response_enabled("ok", bool(text) and text != name)
+
+    entry.connect("changed", update)
+    update()
+
+    def on_response(_dialog, response):
+        text = entry.get_text().strip()
+        if response == "ok" and text:
+            on_name(text)
+
+    dialog.connect("response", on_response)
+    dialog.present(navigation_view.get_root())
+
+
+def folder_menu(folder: Any, on_deleted: Callable | None = None) -> tuple:
+    """The menu of a playlist folder (rename, delete, a new playlist in it) and
+    its actions (prefix "folder"); insert them on the widget showing the menu"""
+    actions = Gio.SimpleActionGroup()
+
+    def rename(*_args):
+        ask_folder_name(
+            _("Rename Folder"),
+            _("Rename"),
+            folder.name or "",
+            lambda name: threading.Thread(
+                target=th_rename_folder, args=(folder, name), daemon=True
+            ).start(),
+        )
+
+    def delete(*_args):
+        dialog = Adw.AlertDialog(
+            heading=_("Delete {}?").format(folder.name),
+            body=_("The playlists in it move to the top level."),
+        )
+        dialog.add_response("cancel", _("Cancel"))
+        dialog.add_response("delete", _("Delete"))
+        dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE)
+        dialog.set_close_response("cancel")
+
+        def on_response(_dialog, response):
+            if response == "delete":
+                threading.Thread(
+                    target=th_delete_folder, args=(folder, on_deleted), daemon=True
+                ).start()
+
+        dialog.connect("response", on_response)
+        dialog.present(navigation_view.get_root())
+
+    for name, callback in (
+        ("rename", rename),
+        ("delete", delete),
+        ("new-playlist", lambda *_: new_playlist(folder_id=folder.id)),
+    ):
+        action = Gio.SimpleAction.new(name, None)
+        action.connect("activate", callback)
+        actions.add_action(action)
+
+    menu = Gio.Menu()
+    menu.append(_("Rename folder…"), "folder.rename")
+    menu.append(_("Delete folder…"), "folder.delete")
+    menu.append(_("New playlist…"), "folder.new-playlist")
+    return menu, actions
 
 
 def resort(kind: str) -> None:
@@ -1212,11 +1361,12 @@ def th_remove_from_playlist(
         GLib.idle_add(callback)
 
 
-def new_playlist(track: Track | None = None) -> None:
+def new_playlist(track: Track | None = None, folder_id: str = "root") -> None:
     """Ask for a name and description and create a new playlist.
 
     Args:
         track: A track to add to the new playlist
+        folder_id: The folder to make it in (the top level by default)
     """
     from ..new_playlist import NewPlaylistWindow
 
@@ -1225,7 +1375,7 @@ def new_playlist(track: Track | None = None) -> None:
     def on_create(dialog, title, description):
         dialog.close()
         threading.Thread(
-            target=th_create_playlist, args=(title, description, track)
+            target=th_create_playlist, args=(title, description, track, folder_id)
         ).start()
 
     dialog.connect("create-playlist", on_create)
@@ -1233,7 +1383,10 @@ def new_playlist(track: Track | None = None) -> None:
 
 
 def th_create_playlist(
-    title: str, description: str, track: Track | None = None
+    title: str,
+    description: str,
+    track: Track | None = None,
+    folder_id: str = "root",
 ) -> None:
     """Thread function to create a playlist and optionally add a track to it.
 
@@ -1243,7 +1396,7 @@ def th_create_playlist(
         track: A track to add to the new playlist
     """
     try:
-        playlist = session.user.create_playlist(title, description)
+        playlist = session.user.create_playlist(title, description, folder_id)
         if track:
             playlist.add([str(track.id)])
     except Exception:
@@ -1256,6 +1409,8 @@ def th_create_playlist(
     else:
         GLib.idle_add(send_toast, _("Created {}").format(title), 2)
     _on_playlists_changed()
+    if folder_id != "root":
+        GLib.idle_add(_on_folders_changed)
 
 
 def th_edit_playlist(

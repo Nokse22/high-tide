@@ -1254,6 +1254,29 @@ class HighTideWindow(Adw.ApplicationWindow):
             page.set_function(load)
             page.enable_search(_("Filter by name"), 50)
             page.enable_sort("playlists")
+
+            def on_deleted():
+                if self.navigation_view.find_page("collection"):
+                    self.navigation_view.pop_to_tag("collection")
+                else:
+                    self.navigation_view.pop()
+
+            menu, actions = utils.folder_menu(folder, on_deleted)
+            button = Gtk.MenuButton(
+                icon_name="view-more-symbolic", tooltip_text=_("Folder Options")
+            )
+            button.insert_action_group("folder", actions)
+            page.builder.get_object("_header_bar").pack_end(button)
+            button.set_menu_model(menu)
+
+            def on_folders_changed():
+                if page.get_root() is None:
+                    utils.folder_listeners.remove(on_folders_changed)
+                    return
+                page.set_title(folder.name or _("Folder"))
+                page._on_sort_changed()  # loads what's in it again
+
+            utils.folder_listeners.append(on_folders_changed)
             return page.load()
 
         utils.push_page(f"folder-{folder.id}", make_page)
