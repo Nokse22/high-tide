@@ -17,14 +17,13 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import threading
 from gettext import gettext as _
 
-from gi.repository import Adw, Gio, GLib, Gtk
+from gi.repository import Gtk
 
 from .track_list_page import TrackListPage
 from ..lib import utils
-from ..new_playlist import NewPlaylistWindow
+from ..widgets.playlist_options import PlaylistOptions
 
 
 class HTPlaylistPage(TrackListPage):
@@ -59,7 +58,6 @@ class HTPlaylistPage(TrackListPage):
         is_own_playlist = utils.is_own_playlist(self.item)
         if is_own_playlist:
             builder.get_object("_auto_load").set_playlist(self.item)
-        self._add_playlist_actions(builder)
 
         self._setup_ui(
             builder,
@@ -69,16 +67,21 @@ class HTPlaylistPage(TrackListPage):
             reload_function=self.item.tracks,
         )
 
-        # Own and saved playlists can be moved into the user's folders
-        if is_own_playlist or utils.is_favourited(self.item):
+        # Own and saved playlists: edit, public/private, move to folder, delete
+        if PlaylistOptions.applies_to(self.item):
             self._setup_playlist_menu(builder)
 
     def _setup_playlist_menu(self, builder):
         self.title_label = builder.get_object("_title_label")
+        self.options = PlaylistOptions(
+            self.item, self._on_playlist_changed, self._on_deleted
+        )
+        # On the content, not the page: the page's scrolled window doesn't see
+        # action groups inserted on the page
+        builder.get_object("_main").insert_action_group("playlist", self.options.actions)
 
-        self.playlist_menu = Gio.Menu()
         menu_button = builder.get_object("_playlist_menu_button")
-        menu_button.set_menu_model(self.playlist_menu)
+        menu_button.set_menu_model(self.options.menu)
         # Move to folder opens beside the menu on hover, like the song menu's
         # submenus, instead of replacing it after a click
         menu_button.get_popover().set_flags(Gtk.PopoverMenuFlags.NESTED)
@@ -89,111 +92,15 @@ class HTPlaylistPage(TrackListPage):
                 menu_button,
                 menu_button.connect(
                     "notify::active",
-                    lambda b, _p: b.get_active() and self._update_playlist_menu(),
+                    lambda b, _p: b.get_active() and self.options.update(),
                 ),
             )
         )
-
-        self._update_playlist_menu()
-
-    def _add_playlist_actions(self, builder):
-        action_group = Gio.SimpleActionGroup()
-        for name, callback in (
-            ("edit", self._on_edit),
-            ("toggle-public", self._on_toggle_public),
-            ("delete", self._on_delete),
-        ):
-            action = Gio.SimpleAction.new(name, None)
-            self.signals.append((action, action.connect("activate", callback)))
-            action_group.add_action(action)
-        move = Gio.SimpleAction.new("move-to-folder", GLib.VariantType.new("s"))
-        self.signals.append((move, move.connect("activate", self._on_move_to_folder)))
-        action_group.add_action(move)
-        # On the content, not the page: the page's scrolled window doesn't see
-        # action groups inserted on the page
-        builder.get_object("_main").insert_action_group("playlist", action_group)
-
-    def _update_playlist_menu(self):
-        self.playlist_menu.remove_all()
-        own = utils.is_own_playlist(self.item)
-        if own:
-            self.playlist_menu.append(_("Edit playlist"), "playlist.edit")
-            self.playlist_menu.append(
-                _("Make private") if self.item.public else _("Make public"),
-                "playlist.toggle-public",
-            )
-        folders = sorted(
-            (f for f in utils.folders.values() if f.id),
-            key=lambda f: (f.name or "").lower(),
-        )
-        move_menu = Gio.Menu()
-        move_menu.append(_("No folder"), "playlist.move-to-folder::root")
-        folder_section = Gio.Menu()
-        for folder in folders:
-            item = Gio.MenuItem.new(folder.name, None)
-            item.set_action_and_target_value(
-                "playlist.move-to-folder", GLib.Variant.new_string(str(folder.id))
-            )
-            folder_section.append_item(item)
-        move_menu.append_section(None, folder_section)
-        self.playlist_menu.append_submenu(_("Move to folder"), move_menu)
-        if own:
-            self.playlist_menu.append(_("Delete playlist"), "playlist.delete")
-
-    def _on_move_to_folder(self, action, parameter):
-        threading.Thread(
-            target=utils.th_move_to_folder,
-            args=(self.item, parameter.get_string()),
-            daemon=True,
-        ).start()
-
-    def _on_edit(self, *args):
-        dialog = NewPlaylistWindow()
-        dialog.set_editing(self.item.name, self.item.description)
-
-        def on_save(dialog, title, description):
-            dialog.close()
-            threading.Thread(
-                target=utils.th_edit_playlist,
-                args=(self.item, title, description, self._on_playlist_changed),
-            ).start()
-
-        dialog.connect("create-playlist", on_save)
-        dialog.present(self.get_root())
-
-    def _on_toggle_public(self, *args):
-        threading.Thread(
-            target=utils.th_set_playlist_public,
-            args=(self.item, not self.item.public, self._on_playlist_changed),
-        ).start()
 
     def _on_playlist_changed(self, playlist):
         self.item = playlist
         self.set_title(playlist.name)
         self.title_label.set_label(playlist.name)
-        self._update_playlist_menu()
-
-    def _on_delete(self, *args):
-        dialog = Adw.AlertDialog(
-            heading=_("Delete {}?").format(self.item.name),
-            body=_("The playlist will be deleted from your TIDAL account."),
-        )
-        dialog.add_response("cancel", _("Cancel"))
-        dialog.add_response("delete", _("Delete"))
-        dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE)
-        dialog.set_default_response("cancel")
-        dialog.set_close_response("cancel")
-
-        def on_response(dialog, response):
-            if response != "delete":
-                return
-            threading.Thread(
-                target=utils.th_delete_playlist,
-                args=(self.item, self._on_deleted),
-            ).start()
-
-        dialog.connect("response", on_response)
-        dialog.present(self.get_root())
 
     def _on_deleted(self):
         if utils.navigation_view.get_visible_page() is self:

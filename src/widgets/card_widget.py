@@ -22,7 +22,7 @@ from gettext import gettext as _
 from gettext import ngettext
 from typing import Union
 
-from gi.repository import Adw, Gdk, GLib, Graphene, Gtk
+from gi.repository import Adw, Gdk, Gio, GLib, Graphene, Gtk
 
 from tidalapi.album import Album
 from tidalapi.artist import Artist
@@ -33,6 +33,7 @@ from tidalapi.page import PageItem
 
 from ..disconnectable_iface import IDisconnectable
 from ..lib import ai, utils
+from .playlist_options import PlaylistOptions
 from .track_menu import TrackMenu
 
 import logging
@@ -57,6 +58,8 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
     motion_controller = Gtk.Template.Child()
     play_revealer = Gtk.Template.Child()
     play_button = Gtk.Template.Child()
+    more_revealer = Gtk.Template.Child()
+    more_button = Gtk.Template.Child()
     title_label = Gtk.Template.Child()
     ai_label = Gtk.Template.Child()
     detail_label = Gtk.Template.Child()
@@ -204,6 +207,18 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             creator_name = self.item.creator.name
         self.detail_label.set_label(_("By {}").format(creator_name))
 
+        if PlaylistOptions.applies_to(self.item):
+            # Own and saved playlists: the options of their page, like TIDAL's
+            # cards, with the play button moved to the other side
+            self.playlist_options = PlaylistOptions(self.item)
+            self.insert_action_group("playlist", self.playlist_options.actions)
+            self._add_options_menu(
+                self.playlist_options.menu,
+                _("Playlist Options"),
+                self.playlist_options.update,
+            )
+            self.play_revealer.set_halign(Gtk.Align.START)
+
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
     def _make_folder_card(self) -> None:
@@ -221,45 +236,54 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.image.set_size_request(155, 155)
         self.image.add_css_class("folder-cover")
 
-        # Rename, delete, a new playlist in it: on a right click or a long press
+        # Rename, delete, a new playlist in it: on hover (⋮) and on a right click
+        # or a long press
         menu, actions = utils.folder_menu(self.item)
         self.insert_action_group("folder", actions)
-        self._folder_menu = menu
-        # Shown on hover where other cards have their play button, like TIDAL's.
-        # It opens the same menu as a right click, attached to the card: a menu of
-        # its own closed right away (the button is in the part that hides again)
-        menu_button = Gtk.Button(
-            icon_name="view-more-symbolic",
-            tooltip_text=_("Folder Options"),
-            css_classes=["circular", "card-play-button"],
-        )
-        self.play_revealer.set_child(menu_button)
+        self._add_options_menu(menu, _("Folder Options"))
+        self.play_revealer.set_visible(False)
+
+    def _add_options_menu(self, menu: Gio.Menu, tooltip: str, before_show=None) -> None:
+        """A menu shown by the ⋮ on hover and by a right click or a long press.
+        It belongs to the card: a menu of the ⋮'s own closed right away (the ⋮ is
+        in the part that hides again)."""
+        self._options_menu = menu
+        self._options_before_show = before_show
+        self.more_revealer.set_visible(True)
+        self.more_button.set_tooltip_text(tooltip)
         self.signals.append(
-            (menu_button, menu_button.connect("clicked", self._on_folder_button_clicked))
+            (
+                self.more_button,
+                self.more_button.connect("clicked", self._on_options_button_clicked),
+            )
         )
         right_click = Gtk.GestureClick(button=Gdk.BUTTON_SECONDARY)
         long_press = Gtk.GestureLongPress(touch_only=True)
         for gesture in (right_click, long_press):
             self.add_controller(gesture)
             self.signals.append(
-                (gesture, gesture.connect("pressed", self._on_folder_menu_requested))
+                (gesture, gesture.connect("pressed", self._on_options_requested))
             )
 
-    def _on_folder_menu_requested(self, gesture, *args) -> None:
+    def _on_options_requested(self, gesture, *args) -> None:
         gesture.set_state(Gtk.EventSequenceState.CLAIMED)
-        self._show_folder_menu(args[-2], args[-1])
+        self._show_options_menu(args[-2], args[-1])
 
-    def _on_folder_button_clicked(self, button) -> None:
+    def _on_options_button_clicked(self, button) -> None:
         ok, point = button.compute_point(
             self, Graphene.Point().init(button.get_width() / 2, button.get_height())
         )
-        self._show_folder_menu(point.x, point.y)
+        self._show_options_menu(point.x, point.y)
 
-    def _show_folder_menu(self, x: float, y: float) -> None:
-        popover = Gtk.PopoverMenu.new_from_model(self._folder_menu)
+    def _show_options_menu(self, x: float, y: float) -> None:
+        if self._options_before_show:
+            self._options_before_show()
+        popover = Gtk.PopoverMenu.new_from_model_full(
+            self._options_menu, Gtk.PopoverMenuFlags.NESTED
+        )
         popover.set_has_arrow(False)
         popover.set_parent(self)
-        self.folder_popover = popover
+        self.options_popover = popover
         rect = Gdk.Rectangle()
         rect.x, rect.y, rect.width, rect.height = int(x), int(y), 1, 1
         popover.set_pointing_to(rect)
@@ -296,9 +320,11 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
 
     def _on_enter(self, *args) -> None:
         self.play_revealer.set_reveal_child(True)
+        self.more_revealer.set_reveal_child(True)
 
     def _on_leave(self, *args) -> None:
         self.play_revealer.set_reveal_child(False)
+        self.more_revealer.set_reveal_child(False)
 
     def _on_play_clicked(self, *args) -> None:
         """Start playback of the card's item without opening its page."""
