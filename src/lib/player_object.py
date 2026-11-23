@@ -71,6 +71,8 @@ class PlayerObject(GObject.GObject):
     current_song_index = GObject.Property(type=int, default=-1)
     can_go_next = GObject.Property(type=bool, default=True)
     can_go_prev = GObject.Property(type=bool, default=True)
+    # When the list ends, keep playing the last song's radio (the autoplay setting)
+    autoplay = GObject.Property(type=bool, default=False)
 
     __gsignals__ = {
         "songs-list-changed": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
@@ -79,6 +81,8 @@ class PlayerObject(GObject.GObject):
         # old and new position in seconds
         "seeked": (GObject.SignalFlags.RUN_FIRST, None, (float, float)),
         "song-added-to-queue": (GObject.SignalFlags.RUN_FIRST, None, ()),
+        # Songs were added to the next songs (autoplay)
+        "next-songs-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "duration-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "volume-changed": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
         "buffering": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
@@ -151,6 +155,10 @@ class PlayerObject(GObject.GObject):
         self.queue: List[Track] = []
         self.current_mix_album_playlist: Union[Mix, Album, Playlist] | None = None
         self.play_source = None
+        # Autoplay: the radio being loaded for (a track id), and the songs it added
+        # with the radio they come from
+        self._autoplay_loading_for = None
+        self._autoplay_sources: dict = {}
         self.playing_from_queue = False
         self._last_queued_track = None
         self._tracks_to_play: List[Track] = []
@@ -415,7 +423,13 @@ class PlayerObject(GObject.GObject):
             self.duration = self.playing_track.duration * 1_000_000_000
         self.notify("can-go-prev")
         self.notify("can-go-next")
+        autoplay_source = self._autoplay_sources.get(self.playing_track.id)
+        if autoplay_source is not None and not self.playing_from_queue:
+            # Played from the radio autoplay added: say so (Playing from, reports)
+            self.play_source = autoplay_source
+            self.current_mix_album_playlist = autoplay_source
         self.emit("song-changed")
+        self._autoplay_if_ending()
 
     def _on_track_start(self, bus: Any, message: Any):
         """This Method is called when a new track starts playing
@@ -501,6 +515,7 @@ class PlayerObject(GObject.GObject):
         """
         self.current_mix_album_playlist = thing
         self.play_source = source if source is not None else thing
+        self._autoplay_sources = {}
         if tracks is None:
             tracks = self.get_track_list(thing)
         else:
@@ -1231,6 +1246,67 @@ class PlayerObject(GObject.GObject):
 
         self.can_go_next = len(self._tracks_to_play) > 0
         self.emit("song-added-to-queue")
+
+    def _autoplay_if_ending(self) -> None:
+        """With autoplay on and repeat off, when the last song of the list starts,
+        load its radio and add the songs not heard yet as the next songs, so the
+        music goes on (and the change to them stays gapless)"""
+        track = self.playing_track
+        if (
+            not self.autoplay
+            or track is None
+            or self._repeat_type != RepeatType.NONE
+            or self.queue
+            or self.tracks_to_play  # the list played from (the shuffled one too)
+            or self._autoplay_loading_for == track.id
+        ):
+            return
+        self._autoplay_loading_for = track.id
+        heard = {t.id for t in self.played_songs} | {track.id}
+
+        def load():
+            try:
+                mix = utils.get_track(track.id).get_radio_mix()
+                songs = [
+                    t
+                    for t in mix.items()
+                    if isinstance(t, Track)
+                    and t.id not in heard
+                    and getattr(t, "available", True)
+                    and not utils.is_hidden_track(t)
+                ]
+            except Exception:
+                logger.exception(f"Could not load the radio of {track.id} for autoplay")
+                mix, songs = None, []
+            GLib.idle_add(add, mix, songs)
+
+        def add(mix, songs):
+            self._autoplay_loading_for = None
+            # Only if the list still ends with this song
+            if (
+                not songs
+                or self.playing_track is not track
+                or self.queue
+                or self.tracks_to_play
+                or self._repeat_type != RepeatType.NONE
+            ):
+                return False
+            logger.info(f"Autoplay: {len(songs)} songs from the radio of {track.id}")
+            for song in songs:
+                self._autoplay_sources[song.id] = mix
+            self._tracks_to_play.extend(songs)
+            self._play_order.extend(songs)
+            if self.shuffle:
+                self._shuffled_tracks_to_play.extend(songs)
+            self.tracks_to_play = (
+                self._shuffled_tracks_to_play if self.shuffle else self._tracks_to_play
+            )
+            self.can_go_next = True
+            self.notify("can-go-next")
+            self.emit("next-songs-changed")
+            return False
+
+        threading.Thread(target=load, daemon=True).start()
 
     def _drop_hidden(self) -> None:
         for track_list in (
