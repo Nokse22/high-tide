@@ -25,6 +25,9 @@ from gi.repository import Gdk, Gio, GLib, Gtk
 
 from ..lib import utils
 
+# With more playlists than this, Add to a playlist gets a search field
+PLAYLIST_SEARCH_MIN = 10
+
 
 class TrackMenu:
     """The menu of a track (go to album, add to queue, add to a playlist, block...).
@@ -51,6 +54,11 @@ class TrackMenu:
 
         self.menu = Gio.Menu()
         self.playlists_submenu = Gio.Menu()
+        self.playlists_section = Gio.Menu()
+        self.playlist_search_section = None
+        self.playlist_query = ""
+        self.playlist_search_entry = None
+        self.menu_button = menu_button
 
         self.action_group = Gio.SimpleActionGroup()
         owner.insert_action_group("trackwidget", self.action_group)
@@ -88,6 +96,7 @@ class TrackMenu:
             rect = Gdk.Rectangle()
             rect.x, rect.y, rect.width, rect.height = int(x), int(y), 1, 1
             popover.set_pointing_to(rect)
+        self._attach_playlist_search(popover)
         # A new one each time, removed when closed, so the owner keeps no children
         popover.connect(
             "closed", lambda p: GLib.idle_add(lambda: (p.unparent(), False)[1])
@@ -103,6 +112,8 @@ class TrackMenu:
         if not self.built:
             self._add_remove_section()
             self.built = True
+        if self.menu_button is not None:
+            self._attach_playlist_search(self.menu_button.get_popover())
 
     def _build(self) -> None:
         self.menu.append(
@@ -121,6 +132,11 @@ class TrackMenu:
         )
         self.menu.append(_("Copy share url"), "trackwidget.copy-share-url")
         self.menu.append_submenu(_("Add to a playlist"), self.playlists_submenu)
+
+        new_section = Gio.Menu()
+        new_section.append(_("New playlist…"), "trackwidget.new-playlist")
+        self.playlists_submenu.append_section(None, new_section)
+        self.playlists_submenu.append_section(None, self.playlists_section)
 
         action_entries = [
             ("play-next", self._play_next),
@@ -155,22 +171,84 @@ class TrackMenu:
             self.menu.append_section(None, remove_section)
 
     def _update_playlists_submenu(self) -> None:
-        # Rebuilt every time, so playlists created meanwhile show up
-        self.playlists_submenu.remove_all()
+        # Filled on every open, so playlists created meanwhile show up
+        self.playlist_query = ""
+        if self.playlist_search_entry is not None:
+            self.playlist_search_entry.set_text("")
 
-        new_section = Gio.Menu()
-        new_section.append(_("New playlist…"), "trackwidget.new-playlist")
-        self.playlists_submenu.append_section(None, new_section)
+        wants_search = len(utils.user_playlists) > PLAYLIST_SEARCH_MIN
+        if wants_search and self.playlist_search_section is None:
+            # The field is a custom item, put in by _attach_playlist_search()
+            self.playlist_search_section = Gio.Menu()
+            item = Gio.MenuItem.new(None, None)
+            item.set_attribute_value("custom", GLib.Variant.new_string("playlist-search"))
+            self.playlist_search_section.append_item(item)
+            self.playlists_submenu.insert_section(1, None, self.playlist_search_section)
+        elif not wants_search and self.playlist_search_section is not None:
+            self.playlists_submenu.remove(1)
+            self.playlist_search_section = None
 
-        playlists_section = Gio.Menu()
+        self._fill_playlists_section()
+
+    def _fill_playlists_section(self) -> None:
+        self.playlists_section.remove_all()
         for index, playlist in enumerate(utils.user_playlists):
+            if self.playlist_query not in (playlist.name or "").lower():
+                continue
             item = Gio.MenuItem.new()
             item.set_label(playlist.name)
             item.set_action_and_target_value(
                 "trackwidget.add-to-playlist", GLib.Variant.new_int16(index)
             )
-            playlists_section.append_item(item)
-        self.playlists_submenu.append_section(None, playlists_section)
+            self.playlists_section.append_item(item)
+        if self.playlist_query and self.playlists_section.get_n_items() == 0:
+            # No action, so it shows dimmed
+            self.playlists_section.append(_("No playlists found"), None)
+
+    def _attach_playlist_search(self, popover: Gtk.PopoverMenu) -> None:
+        """Put the search field into the Add to a playlist submenu of popover"""
+        if self.playlist_search_section is None:
+            return
+        entry = self.playlist_search_entry
+        if entry is None:
+            entry = Gtk.SearchEntry(placeholder_text=_("Search playlists"))
+            self.signals.append(
+                (entry, entry.connect("search-changed", self._on_playlist_search_changed))
+            )
+            self.signals.append(
+                (entry, entry.connect("map", lambda e: e.grab_focus()))
+            )
+            self.playlist_search_entry = entry
+        # Submenus that open beside the menu are popovers of their own, so the
+        # field goes into the one that has a place for it
+        menus = [popover, *self._nested_popovers(popover)]
+        if any(entry.get_ancestor(Gtk.PopoverMenu) is menu for menu in menus):
+            return  # already there
+        if entry.get_parent() is not None:
+            entry.unparent()
+        for menu in menus:
+            if menu.add_child(entry, "playlist-search"):
+                # Pointing at a playlist takes the focus, so typing anywhere in
+                # the submenu goes to the field
+                entry.set_key_capture_widget(entry.get_ancestor(Gtk.PopoverMenu))
+                return
+
+    @staticmethod
+    def _nested_popovers(popover: Gtk.Widget) -> List[Gtk.PopoverMenu]:
+        found = []
+        child = popover.get_first_child()
+        while child is not None:
+            if isinstance(child, Gtk.PopoverMenu):
+                found.append(child)
+            found.extend(TrackMenu._nested_popovers(child))
+            child = child.get_next_sibling()
+        return found
+
+    def _on_playlist_search_changed(self, entry) -> None:
+        query = entry.get_text().strip().lower()
+        if query != self.playlist_query:
+            self.playlist_query = query
+            self._fill_playlists_section()
 
     def _update_block_section(self) -> None:
         if self.block_section is None:
