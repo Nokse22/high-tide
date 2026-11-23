@@ -18,21 +18,35 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
+import io
 import threading
 from gettext import gettext as _
 from typing import Any
 
 import tidalapi
-from gi.repository import Adw, GLib, Gtk
+
+from .lib import utils
+from gi.repository import Adw, Gdk, GLib, Gtk
 
 logger = logging.getLogger(__name__)
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/login.ui")
 class LoginDialog(Adw.Dialog):
+    """Log in with a QR code (TIDAL's device login: approve on the phone or any
+    browser signed in to TIDAL), or with the browser login (paste the address its
+    "Page not found" page ends on)."""
+
     __gtype_name__ = "LoginDialog"
 
+    navigation_view = Gtk.Template.Child()
+    qr_stack = Gtk.Template.Child()
+    qr_picture = Gtk.Template.Child()
     link_button = Gtk.Template.Child()
+    code_label = Gtk.Template.Child()
+    waiting_box = Gtk.Template.Child()
+    qr_error_label = Gtk.Template.Child()
+    browser_link_button = Gtk.Template.Child()
     redirect_url_entry = Gtk.Template.Child()
     login_button = Gtk.Template.Child()
     error_label = Gtk.Template.Child()
@@ -42,9 +56,86 @@ class LoginDialog(Adw.Dialog):
 
         self.session = session
         self.win = win
+        self.done = False
 
-        login_url: str = self.session.pkce_login_url()
-        self.link_button.set_uri(login_url)
+        self.browser_link_button.set_uri(self.session.pkce_login_url())
+        self.connect("closed", self._on_closed)
+
+        self._start_qr_login()
+
+    def _on_closed(self, *_args) -> None:
+        self.done = True
+
+    # QR code login
+
+    def _start_qr_login(self) -> None:
+        self.qr_stack.set_visible_child_name("loading")
+        threading.Thread(target=self._th_qr_login, daemon=True).start()
+
+    def _th_qr_login(self) -> None:
+        try:
+            link_login, future = self.session.login_oauth()
+        except Exception as exc:
+            logger.exception("Could not start the QR code login")
+            GLib.idle_add(self._on_qr_failure, str(exc))
+            return
+        GLib.idle_add(self._show_qr_code, link_login)
+        try:
+            # Polls TIDAL until the link is approved, or it expires
+            future.result()
+        except Exception:
+            if not self.done:
+                logger.info("The QR code login link expired, making a new one")
+                GLib.idle_add(self._start_qr_login)
+            return
+        if self.done:
+            return
+        if self.session.check_login():
+            GLib.idle_add(self._on_success, False)
+        else:
+            GLib.idle_add(self._on_qr_failure, _("Login was rejected by TIDAL."))
+
+    def _show_qr_code(self, link_login) -> None:
+        if self.done:
+            return
+        url = link_login.verification_uri_complete
+        if not url.startswith("http"):
+            url = "https://" + url
+        self.link_button.set_uri(url)
+        self.link_button.set_label(url.removeprefix("https://"))
+        self.link_button.set_visible(True)
+        self.code_label.set_label(link_login.user_code)
+        self.code_label.set_visible(True)
+        self.waiting_box.set_visible(True)
+        self.qr_error_label.set_visible(False)
+
+        texture = self._qr_texture(url)
+        if texture is not None:
+            self.qr_picture.set_paintable(texture)
+            self.qr_stack.set_visible_child_name("code")
+        else:
+            self.qr_stack.set_visible(False)
+
+    @staticmethod
+    def _qr_texture(url: str) -> Gdk.Texture | None:
+        try:
+            import segno
+        except ImportError:
+            logger.warning("segno is missing: the login shows the link without a QR code")
+            return None
+        buffer = io.BytesIO()
+        segno.make(url, error="m").save(
+            buffer, kind="png", scale=8, border=2, dark="#000000", light="#ffffff"
+        )
+        return Gdk.Texture.new_from_bytes(GLib.Bytes.new(buffer.getvalue()))
+
+    def _on_qr_failure(self, message: str) -> None:
+        self.qr_stack.set_visible(False)
+        self.waiting_box.set_visible(False)
+        self.qr_error_label.set_label(_("Login failed: {error}").format(error=message))
+        self.qr_error_label.set_visible(True)
+
+    # Browser login
 
     @Gtk.Template.Callback("on_redirect_url_changed")
     def on_redirect_url_changed(self, entry: Adw.EntryRow) -> None:
@@ -75,12 +166,16 @@ class LoginDialog(Adw.Dialog):
             return
 
         if self.session.check_login():
-            GLib.idle_add(self._on_success)
+            GLib.idle_add(self._on_success, True)
         else:
-            GLib.idle_add(self._on_failure, _("Login was rejected by Tidal."))
+            GLib.idle_add(self._on_failure, _("Login was rejected by TIDAL."))
 
-    def _on_success(self) -> None:
-        self.win.secret_store.save(is_pkce=True)
+    def _on_success(self, is_pkce: bool) -> None:
+        if self.done:
+            return
+        self.done = True
+        utils.device_login = not is_pkce
+        self.win.secret_store.save(is_pkce=is_pkce)
         self.win.on_logged_in()
         self.close()
 

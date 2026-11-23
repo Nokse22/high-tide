@@ -716,9 +716,10 @@ class PlayerObject(GObject.GObject):
             return
 
         try:
-            stream = track.get_stream()
+            stream = utils.get_stream(track)
             if self._is_outdated(track, request):
                 return
+            utils.check_stream_quality(track, stream)
             self.stream = stream
             self.manifest = self.stream.get_stream_manifest()
             urls = self.manifest.get_urls()
@@ -753,7 +754,7 @@ class PlayerObject(GObject.GObject):
 
         def get_info():
             try:
-                stream = track.get_stream()
+                stream = utils.get_stream(track)
                 info["manifest"] = stream.get_stream_manifest()
                 info["stream"] = stream
             except Exception:
@@ -1117,7 +1118,8 @@ class PlayerObject(GObject.GObject):
 
     def _prefetch_thread(self, track: Track) -> None:
         try:
-            stream = track.get_stream()
+            stream = utils.get_stream(track)
+            utils.check_stream_quality(track, stream)
             manifest = stream.get_stream_manifest()
             if self.prefetch_id != track.id:
                 return  # the next track changed meanwhile
@@ -1913,7 +1915,7 @@ class PlayerObject(GObject.GObject):
             if cached:
                 source = cached.as_uri()
             else:
-                stream = track.get_stream()
+                stream = utils.get_stream(track)
                 if stream.manifest_mime_type == ManifestMimeType.MPD:
                     manifest_path = path.with_suffix(".mpd")
                     manifest_path.write_text(stream.get_manifest_data())

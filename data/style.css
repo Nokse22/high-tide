@@ -6,6 +6,12 @@
   border-radius: 60px;
 }
 
+/* The login QR code: dark on light in both themes, so phones can read it */
+.qr-code {
+  background-color: white;
+  border-radius: 12px;
+}
+
 .card-image {
   border-radius: 10px;
 }

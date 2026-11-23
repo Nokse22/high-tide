@@ -363,20 +363,21 @@ class HighTideWindow(Adw.ApplicationWindow):
         login_dialog.present(self)
 
     def th_login(self):
-        if not self.secret_store.token_dictionary.get("is-pkce", False):
-            if self.secret_store.token_dictionary:
-                logger.info("Clearing legacy non-PKCE session, re-auth required")
-                self.secret_store.clear()
+        if not self.secret_store.token_dictionary:
             GLib.idle_add(self.on_login_failed)
             return
 
+        # A browser login (PKCE) or a QR code one (TIDAL's device login), whose
+        # songs come from another address (utils.get_stream)
+        is_pkce = bool(self.secret_store.token_dictionary.get("is-pkce", False))
+        utils.device_login = not is_pkce
         try:
             self.session.load_oauth_session(
                 self.secret_store.token_dictionary["token-type"],
                 self.secret_store.token_dictionary["access-token"],
                 self.secret_store.token_dictionary["refresh-token"],
                 self.secret_store.token_dictionary["expiry-time"],
-                is_pkce=True,
+                is_pkce=is_pkce,
             )
         except Exception:
             logger.exception("Error while logging in!")
@@ -391,6 +392,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         not logged in page.
         """
         self.secret_store.clear()
+        utils.device_login = False
 
         page = HTNotLoggedInPage().load()
         self.navigation_view.replace([page])
