@@ -22,6 +22,7 @@ import os
 import re
 import subprocess
 import threading
+import time
 import uuid
 import logging
 from gettext import gettext as _
@@ -428,12 +429,21 @@ def _on_favourites_refreshed() -> None:
 
 def get_playlists() -> None:
     """Load the user's playlists, and their playlists plus favorite playlists."""
-    global playlist_and_favorite_playlists
     global user_playlists
+    global _user_playlists_loaded_at
 
     user = session.user
 
     user_playlists = _load_favourites("user playlists", user.playlists, user_playlists)
+    _user_playlists_loaded_at = time.monotonic()
+    _load_playlists_and_favorite_playlists()
+
+
+def _load_playlists_and_favorite_playlists() -> None:
+    """Load the user's playlists plus favorite playlists (the Collection's row)"""
+    global playlist_and_favorite_playlists
+
+    user = session.user
 
     def all_playlists():
         count = user.favorites.get_playlists_count()
@@ -452,6 +462,58 @@ def get_playlists() -> None:
         all_playlists,
         playlist_and_favorite_playlists,
     )
+
+
+# Reloading the user's playlists when a song menu opens, so ones made in other
+# apps show up: every time, unless they were loaded less than this many seconds
+# ago (opening several menus in a row asks once)
+USER_PLAYLISTS_RELOAD_INTERVAL = 3
+_user_playlists_loaded_at = 0.0
+_user_playlists_reloading = False
+_user_playlists_reloaded_callbacks: List[Callable[[], None]] = []
+
+
+def reload_user_playlists(on_reloaded: Callable[[], None]) -> None:
+    """Load the user's playlists again in the background, unless that was done in
+    the last USER_PLAYLISTS_RELOAD_INTERVAL seconds. on_reloaded is called on the
+    main thread once they are loaded (not at all when they're recent enough)."""
+    global _user_playlists_reloading
+    if _user_playlists_reloading:
+        _user_playlists_reloaded_callbacks.append(on_reloaded)
+        return
+    since = time.monotonic() - _user_playlists_loaded_at
+    if since < USER_PLAYLISTS_RELOAD_INTERVAL:
+        logger.info(f"User playlists loaded {since:.1f} s ago, not loading them again")
+        return
+    _user_playlists_reloading = True
+    _user_playlists_reloaded_callbacks.append(on_reloaded)
+
+    def reload():
+        global user_playlists, _user_playlists_loaded_at
+        playlists = _load_favourites(
+            "user playlists", session.user.playlists, user_playlists
+        )
+        _user_playlists_loaded_at = time.monotonic()
+        GLib.idle_add(done, playlists)
+
+    logger.info("Loading the user playlists again")
+
+    def done(playlists):
+        global user_playlists, _user_playlists_reloading
+        logger.info(f"User playlists: {len(playlists)} (was {len(user_playlists)})")
+        changed = [p.id for p in playlists] != [p.id for p in user_playlists]
+        user_playlists = playlists
+        _user_playlists_reloading = False
+        if changed:
+            # Made or deleted in another app: the Collection page shows them too
+            threading.Thread(target=_on_user_playlists_reloaded, daemon=True).start()
+        callbacks = list(_user_playlists_reloaded_callbacks)
+        _user_playlists_reloaded_callbacks.clear()
+        for callback in callbacks:
+            callback()
+        return False
+
+    threading.Thread(target=reload, daemon=True).start()
 
 
 def _load_favourites(name: str, load: Callable[[], list], current: list) -> list:
@@ -870,6 +932,11 @@ def _get_fresh_user_playlist(playlist: Playlist) -> UserPlaylist:
     fresh = UserPlaylist(session, playlist.id)
     cache.playlists[str(playlist.id)] = fresh
     return fresh
+
+
+def _on_user_playlists_reloaded() -> None:
+    _load_playlists_and_favorite_playlists()
+    GLib.idle_add(_update_collection_page)
 
 
 def _on_playlists_changed() -> None:
