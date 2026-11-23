@@ -107,6 +107,36 @@ class HTFromFunctionPage(Page):
             ]
         )
 
+    def enable_sort(self, kind: str) -> None:
+        """Add a sort button to the header bar for a Collection list (utils.SORTS);
+        the list loads again in the chosen order"""
+        menu, actions = utils.sort_menu(kind)
+        button = Gtk.MenuButton(
+            icon_name="view-sort-descending-symbolic",
+            tooltip_text=_("Sort"),
+        )
+        # On the button: GTK may not see actions added to an ancestor later
+        button.insert_action_group("sort", actions)
+        self.builder.get_object("_header_bar").pack_end(button)
+        button.set_menu_model(menu)
+
+        settings = actions.settings
+        for key in (f"sort-{kind}", f"sort-{kind}-reversed"):
+            self.signals.append(
+                (settings, settings.connect(f"changed::{key}", self._on_sort_changed))
+            )
+
+    def _on_sort_changed(self, *args) -> None:
+        # The function asks TIDAL for the chosen order: load the list again
+        self.all_items = None
+        self.items_before_search = []
+        self.offset_before_search = 0
+        self.auto_load.set_function(self.function)
+        self.auto_load.set_items([])
+        threading.Thread(target=self.auto_load.th_load_items, daemon=True).start()
+        if self.search_query:
+            self._load_all_items()
+
     def _on_search_mode_changed(self, search_bar, _pspec) -> None:
         if not search_bar.get_search_mode():
             self.search_entry.set_text("")

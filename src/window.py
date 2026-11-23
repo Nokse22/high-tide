@@ -28,7 +28,6 @@ import tidalapi
 from gi.repository import Adw, Gio, GLib, GObject, Gst, Gtk, Pango, Xdp, Gdk
 from tidalapi.media import Quality
 from tidalapi.mix import MixV2
-from tidalapi.types import ItemOrder, OrderDirection
 
 from .lib import (HTCache, LastFmClient, LastFmScrobbler, LastFmSecretStore,
                   ListenBrainzClient, ListenBrainzScrobbler,
@@ -1245,16 +1244,13 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         def make_page():
             page = HTFromFunctionPage(_("My Tracks"))
+            tracks = utils.sorted_fetch("tracks", utils.session.user.favorites.tracks)
             page.set_function(
-                lambda limit=50, offset=0: utils.session.user.favorites.tracks(
-                    limit=limit,
-                    offset=offset,
-                    order=ItemOrder.Date,
-                    order_direction=OrderDirection.Descending,
-                )
+                lambda limit=50, offset=0: tracks(limit=limit, offset=offset)
             )
             page.auto_load.source = utils.MY_TRACKS
             page.enable_search(_("Filter by title, artist or album"), 1000)
+            page.enable_sort("tracks")
             return page.load()
 
         utils.push_page("my-tracks", make_page)

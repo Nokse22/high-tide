@@ -41,6 +41,63 @@
 	  <key name="queue-panel-open" type="b">
       <default>false</default>
     </key>
+	  <key name="sort-playlists" type="s">
+      <choices>
+        <choice value="created"/>
+        <choice value="updated"/>
+        <choice value="name"/>
+      </choices>
+      <default>"created"</default>
+    </key>
+	  <key name="sort-playlists-reversed" type="b">
+      <default>false</default>
+    </key>
+	  <key name="sort-albums" type="s">
+      <choices>
+        <choice value="date"/>
+        <choice value="name"/>
+        <choice value="artist"/>
+        <choice value="release"/>
+      </choices>
+      <default>"name"</default>
+    </key>
+	  <key name="sort-albums-reversed" type="b">
+      <default>false</default>
+    </key>
+	  <key name="sort-tracks" type="s">
+      <choices>
+        <choice value="date"/>
+        <choice value="name"/>
+        <choice value="artist"/>
+        <choice value="album"/>
+        <choice value="length"/>
+      </choices>
+      <default>"date"</default>
+    </key>
+	  <key name="sort-tracks-reversed" type="b">
+      <default>false</default>
+    </key>
+	  <key name="sort-artists" type="s">
+      <choices>
+        <choice value="date"/>
+        <choice value="name"/>
+      </choices>
+      <default>"name"</default>
+    </key>
+	  <key name="sort-artists-reversed" type="b">
+      <default>false</default>
+    </key>
+	  <key name="sort-mixes" type="s">
+      <choices>
+        <choice value="date"/>
+        <choice value="name"/>
+        <choice value="type"/>
+      </choices>
+      <default>"date"</default>
+    </key>
+	  <key name="sort-mixes-reversed" type="b">
+      <default>false</default>
+    </key>
 	  <key name="run-background" type="b">
       <default>false</default>
     </key>
