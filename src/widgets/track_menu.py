@@ -59,6 +59,8 @@ class TrackMenu:
         self.playlist_query = ""
         self.playlist_search_entry = None
         self.menu_button = menu_button
+        # The menu's popover while it's open
+        self._popover = None
 
         self.action_group = Gio.SimpleActionGroup()
         owner.insert_action_group("trackwidget", self.action_group)
@@ -92,6 +94,8 @@ class TrackMenu:
         popover.set_has_arrow(False)
         popover.set_halign(Gtk.Align.START)
         popover.set_parent(self.owner)
+        self._popover = popover
+        self._reload_playlists()
         if x is not None and y is not None:
             rect = Gdk.Rectangle()
             rect.x, rect.y, rect.width, rect.height = int(x), int(y), 1, 1
@@ -113,7 +117,20 @@ class TrackMenu:
             self._add_remove_section()
             self.built = True
         if self.menu_button is not None:
-            self._attach_playlist_search(self.menu_button.get_popover())
+            self._popover = self.menu_button.get_popover()
+            self._attach_playlist_search(self._popover)
+        if self.menu_button is not None and self.menu_button.get_active():
+            self._reload_playlists()
+
+    def _reload_playlists(self) -> None:
+        # Playlists made in other apps (a phone) show up once TIDAL answers
+        utils.reload_user_playlists(self._on_playlists_reloaded)
+
+    def _on_playlists_reloaded(self) -> None:
+        if self._popover is None or not self._popover.get_mapped():
+            return  # closed meanwhile: it's filled again when opened
+        self._update_playlists_submenu(keep_search=True)
+        self._attach_playlist_search(self._popover)
 
     def _build(self) -> None:
         self.menu.append(
@@ -152,7 +169,7 @@ class TrackMenu:
             self.action_group.add_action(action)
 
         add_to_playlist_action = Gio.SimpleAction.new(
-            "add-to-playlist", GLib.VariantType.new("n")
+            "add-to-playlist", GLib.VariantType.new("s")
         )
         self.signals.append(
             (
@@ -170,11 +187,12 @@ class TrackMenu:
             )
             self.menu.append_section(None, remove_section)
 
-    def _update_playlists_submenu(self) -> None:
+    def _update_playlists_submenu(self, keep_search: bool = False) -> None:
         # Filled on every open, so playlists created meanwhile show up
-        self.playlist_query = ""
-        if self.playlist_search_entry is not None:
-            self.playlist_search_entry.set_text("")
+        if not keep_search:
+            self.playlist_query = ""
+            if self.playlist_search_entry is not None:
+                self.playlist_search_entry.set_text("")
 
         wants_search = len(utils.user_playlists) > PLAYLIST_SEARCH_MIN
         if wants_search and self.playlist_search_section is None:
@@ -192,13 +210,14 @@ class TrackMenu:
 
     def _fill_playlists_section(self) -> None:
         self.playlists_section.remove_all()
-        for index, playlist in enumerate(utils.user_playlists):
+        for playlist in utils.user_playlists:
             if self.playlist_query not in (playlist.name or "").lower():
                 continue
             item = Gio.MenuItem.new()
             item.set_label(playlist.name)
+            # By id: the list can be loaded again while the menu is open
             item.set_action_and_target_value(
-                "trackwidget.add-to-playlist", GLib.Variant.new_int16(index)
+                "trackwidget.add-to-playlist", GLib.Variant.new_string(str(playlist.id))
             )
             self.playlists_section.append_item(item)
         if self.playlist_query and self.playlists_section.get_n_items() == 0:
@@ -287,7 +306,12 @@ class TrackMenu:
         ).start()
 
     def _add_to_playlist(self, action, parameter) -> None:
-        selected_playlist = utils.user_playlists[parameter.get_int16()]
+        playlist_id = parameter.get_string()
+        selected_playlist = next(
+            (p for p in utils.user_playlists if str(p.id) == playlist_id), None
+        )
+        if selected_playlist is None:
+            return
         threading.Thread(
             target=utils.th_add_to_playlist, args=(selected_playlist, self.track)
         ).start()
