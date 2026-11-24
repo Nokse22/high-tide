@@ -714,16 +714,19 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.suspend_inhibit_cookie = 0
 
     def update_repeat_button(self, player, repeat_type):
-        """Update the repeat button icon and tooltip based on current repeat mode"""
-        if player.repeat_type == RepeatType.NONE:
-            self.repeat_button.set_icon_name("media-playlist-consecutive-symbolic")
-            self.repeat_button.set_tooltip_text(_("Repeat Off"))
-        elif player.repeat_type == RepeatType.LIST:
-            self.repeat_button.set_icon_name("media-playlist-repeat-symbolic")
-            self.repeat_button.set_tooltip_text(_("Repeat All"))
-        elif player.repeat_type == RepeatType.SONG:
-            self.repeat_button.set_icon_name("playlist-repeat-song-symbolic")
+        """Update the repeat button icon and tooltip based on current repeat mode.
+        It's lit like the shuffle button while repeat is on."""
+        if player.repeat_type == RepeatType.SONG:
+            self.repeat_button.set_icon_name("playlist-repeat-one-symbolic")
             self.repeat_button.set_tooltip_text(_("Repeat One"))
+        else:
+            self.repeat_button.set_icon_name("playlist-repeat-symbolic")
+            if player.repeat_type == RepeatType.LIST:
+                self.repeat_button.set_tooltip_text(_("Repeat All"))
+            else:
+                self.repeat_button.set_tooltip_text(_("Repeat Off"))
+        # A click toggles the button by itself: it follows the mode instead
+        self.repeat_button.set_active(player.repeat_type != RepeatType.NONE)
 
     def on_song_buffering(self, player, percentage):
         if percentage != 100:
