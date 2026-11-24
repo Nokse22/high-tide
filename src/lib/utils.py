@@ -1015,6 +1015,23 @@ def is_blocked_by_artist(item: Any) -> bool:
     return any(is_blocked(artist) for artist in artists)
 
 
+_queued_toast = None
+
+
+def show_queued_toast() -> None:
+    """"Added to queue", one toast shown again on each click instead of a pile"""
+    global _queued_toast
+    if _queued_toast is None:
+        _queued_toast = Adw.Toast(title=_("Added to queue"), timeout=2)
+        _queued_toast.connect("dismissed", lambda *_: _forget_queued_toast())
+    toast_overlay.add_toast(_queued_toast)
+
+
+def _forget_queued_toast() -> None:
+    global _queued_toast
+    _queued_toast = None
+
+
 def queue_menu(item) -> tuple:
     """A menu section with Play next and Add to queue for a whole album,
     playlist or mix (#259), and its actions (prefix "queue")"""

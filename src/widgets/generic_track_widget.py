@@ -91,6 +91,7 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         )
 
         self.track_menu = TrackMenu(self, self.menu_button, track, self.signals)
+        self._add_queue_button()
         # The same menu on a right click or a long press, as on song cards
         right_click = Gtk.GestureClick(button=Gdk.BUTTON_SECONDARY)
         long_press = Gtk.GestureLongPress(touch_only=True)
@@ -174,6 +175,46 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             on_removed: Called after the track is removed from the playlist
         """
         self.track_menu.set_playlist(playlist, on_removed)
+
+    def _add_queue_button(self) -> None:
+        """Add to Queue in one click (#259): a button beside the menu, shown and
+        clickable only while the pointer is over the row, so lists stay clean.
+        Touch screens keep using the menu."""
+        self.queue_button = Gtk.Button(
+            icon_name="view-list-ordered-symbolic",
+            tooltip_text=_("Add to Queue"),
+            valign=Gtk.Align.CENTER,
+            opacity=0,
+            can_target=False,
+        )
+        self.queue_button.add_css_class("flat")
+        self.menu_button.get_parent().insert_child_after(
+            self.queue_button, self.track_duration_label
+        )
+        hover = Gtk.EventControllerMotion()
+        self.add_controller(hover)
+        self.signals.extend(
+            [
+                (
+                    self.queue_button,
+                    self.queue_button.connect("clicked", self._on_queue_clicked),
+                ),
+                (hover, hover.connect("enter", lambda *_: self._show_queue_button(True))),
+                (hover, hover.connect("leave", lambda *_: self._show_queue_button(False))),
+            ]
+        )
+
+    def _show_queue_button(self, shown: bool) -> None:
+        self.queue_button.set_opacity(1 if shown else 0)
+        self.queue_button.set_can_target(shown)
+
+    def _on_queue_clicked(self, *args) -> None:
+        utils.player_object.add_to_queue(self.track)
+        utils.show_queued_toast()
+
+    def hide_queue_button(self) -> None:
+        """For rows in the queue itself"""
+        self.queue_button.set_visible(False)
 
     def add_remove_button(self, on_clicked) -> None:
         """Add a button that removes the track from the list it's shown in.
