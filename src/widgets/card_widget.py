@@ -172,8 +172,18 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         ).start()
 
     def _add_track_menu(self) -> None:
-        """Open the track menu on a right click or a long press."""
+        """Open the track menu on a right click or a long press, and from the ⋮
+        shown on hover, with the play button moved to the left like other cards"""
         self.track_menu = TrackMenu(self, None, self.item, self.signals)
+        self.more_revealer.set_visible(True)
+        self.more_button.set_tooltip_text(_("More"))
+        self.play_revealer.set_halign(Gtk.Align.START)
+        self.signals.append(
+            (
+                self.more_button,
+                self.more_button.connect("clicked", self._on_track_more_clicked),
+            )
+        )
 
         right_click = Gtk.GestureClick(button=Gdk.BUTTON_SECONDARY)
         long_press = Gtk.GestureLongPress(touch_only=True)
@@ -187,6 +197,18 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
                     ),
                 )
             )
+
+    def _on_track_more_clicked(self, button) -> None:
+        # The menu belongs to the card: one of the ⋮'s own would close right
+        # away (the ⋮ is in the part that hides again)
+        ok, point = button.compute_point(
+            self,
+            Graphene.Point().init(button.get_width() / 2, button.get_height()),
+        )
+        if ok:
+            self.track_menu.popup(point.x, point.y)
+        else:
+            self.track_menu.popup()
 
     def _on_menu_requested(self, gesture, *args) -> None:
         gesture.set_state(Gtk.EventSequenceState.CLAIMED)
@@ -328,8 +350,58 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.title_label.set_tooltip_text(self.item.name)
         self.detail_label.set_label(_("Artist"))
         self.track_artist_label.set_visible(False)
+        self._add_artist_menu()
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
+
+    def _add_artist_menu(self) -> None:
+        """The ⋮ and right-click menu of an artist card: what the artist page's
+        buttons do (radio, collection, share, block), so the page needn't open"""
+        artist = self.item
+        actions = Gio.SimpleActionGroup()
+
+        def add(name, function):
+            action = Gio.SimpleAction.new(name, None)
+            action.connect("activate", lambda *_: function())
+            actions.add_action(action)
+
+        def toggle_collection():
+            if utils.is_favourited(artist):
+                target = utils.th_remove_from_my_collection
+            else:
+                target = utils.th_add_to_my_collection
+            threading.Thread(target=target, args=(None, artist), daemon=True).start()
+
+        add(
+            "radio",
+            lambda: self.activate_action(
+                "win.push-artist-radio-page", GLib.Variant("s", str(artist.id))
+            ),
+        )
+        add("collection", toggle_collection)
+        add("share", lambda: utils.share_this(artist))
+        add("block", lambda: utils.toggle_blocked(artist))
+        self.insert_action_group("artist", actions)
+
+        menu = Gio.Menu()
+
+        def fill():
+            # Following and blocking can change meanwhile: labelled when shown
+            menu.remove_all()
+            menu.append(_("Go to artist radio"), "artist.radio")
+            if utils.is_favourited(artist):
+                menu.append(_("Remove from my collection"), "artist.collection")
+            else:
+                menu.append(_("Add to my collection"), "artist.collection")
+            menu.append(_("Copy share url"), "artist.share")
+            if utils.is_blocked(artist):
+                menu.append(_("Unblock artist"), "artist.block")
+            else:
+                menu.append(_("Block artist"), "artist.block")
+
+        fill()
+        self._add_options_menu(menu, _("Artist Options"), fill)
+        self.play_revealer.set_halign(Gtk.Align.START)
 
     def _make_page_item_card(self) -> None:
         """Configure the card to display a PageItem"""
