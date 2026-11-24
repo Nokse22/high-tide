@@ -832,8 +832,9 @@ template $HighTideWindow: Adw.ApplicationWindow {
                       clicked => $on_skip_forward_button_clicked();
                     }
 
-                    Button repeat_button {
-                      icon-name: "media-playlist-repeat-symbolic";
+                    ToggleButton repeat_button {
+                      icon-name: "playlist-repeat-symbolic";
+                      tooltip-text: _("Repeat Off");
                       valign: center;
 
                       styles [
