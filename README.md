@@ -87,6 +87,22 @@ flatpak override --user --env=GTK_IM_MODULE=simple io.github.nokse22.high-tide
 
 This turns off input methods in High Tide, so skip it if you use one to type, for example, Chinese or Japanese.
 
+### My DAC doesn't run at the song's sample rate
+
+High Tide's quality label shows what TIDAL sends, for example 24-bit/96 kHz. Your DAC can still show another rate, because PipeWire by default runs it at one fixed rate (often 48 kHz) and converts everything to that. There are two ways around it:
+
+1. Let PipeWire switch rates. Create `~/.config/pipewire/pipewire.conf.d/10-rates.conf` with:
+
+   ```
+   context.properties = {
+       default.clock.allowed-rates = [ 44100 48000 88200 96000 176400 192000 ]
+   }
+   ```
+
+   Then run `systemctl --user restart pipewire`. PipeWire then switches the DAC to the song's rate, as long as nothing else is playing at a different rate at the same time.
+
+2. Skip PipeWire. In Preferences, set *Preferred Audio Sink* to ALSA and pick your DAC under *ALSA Device*. High Tide then sends the song to the DAC directly at its own rate, and other apps can't use the DAC while High Tide plays. For an untouched (bit-perfect) signal, also keep High Tide's volume at 100% and *Normalize volume* off, and set the volume on the DAC or amplifier instead.
+
 ## ❌ Uninstallation
 We're sorry to see you go! If you want to remove the High Tide flatpak package from your system, here's how to do so:
 
