@@ -40,13 +40,9 @@
   color: #888;
 }
 
-/* Artist and album names stand out by color; underlined only on hover, like song titles */
+/* Artist and album names stand out by color, like song titles */
 .artist-link link {
   text-decoration: none;
-}
-
-.artist-link link:hover {
-  text-decoration: underline;
 }
 
 /* Song titles link to their album but look like titles */
