@@ -27,6 +27,7 @@ from gi.repository import GLib, Gtk
 from tidalapi.album import Album
 from tidalapi.artist import Artist
 from tidalapi.media import Track
+from tidalapi.playlist import Playlist
 
 from ..lib import utils
 from .page import Page
@@ -44,7 +45,6 @@ class HTArtistPage(Page):
     top_tracks: List[Track] = []
     albums: List[Album] = []
     albums_ep_singles = []
-    albums_other = []
     similar: List[Artist] = []
     bio: str = ""
 
@@ -63,13 +63,6 @@ class HTArtistPage(Page):
             self.top_tracks = []
 
         try:
-            self.get_albums = utils.AlbumVersionFilter(self.artist.get_albums)
-            self.albums = self.get_albums(limit=10)
-        except Exception as e:
-            logger.warning(f"Failed to load albums for {self.artist}: {e}")
-            self.albums = []
-
-        try:
             self.get_albums_ep_singles = utils.AlbumVersionFilter(
                 self.artist.get_albums_ep_singles
             )
@@ -78,14 +71,7 @@ class HTArtistPage(Page):
             logger.warning(f"Failed to load EPs/singles for {self.artist}: {e}")
             self.albums_ep_singles = []
 
-        try:
-            self.get_albums_other = utils.AlbumVersionFilter(
-                self.artist.get_albums_other
-            )
-            self.albums_other = self.get_albums_other(limit=10)
-        except Exception as e:
-            logger.warning(f"Failed to load other albums for {self.artist}: {e}")
-            self.albums_other = []
+        self.rows = self._get_page_rows()
 
         try:
             self.similar = self.artist.get_similar()
@@ -98,6 +84,78 @@ class HTArtistPage(Page):
         except Exception as e:
             logger.warning(f"Failed to load bio for {self.artist}: {e}")
             self.bio = ""
+
+    def _get_page_rows(self) -> list:
+        """The rows of TIDAL's own artist page, after Top Tracks: Albums, EP &
+        Singles, Compilations, Live albums, Playlists, Appears On, Influencers...
+        (#208). Albums and EP & Singles stay High Tide's own lists, which hide
+        other versions of a release; live albums and compilations are left out
+        of Albums, as TIDAL has rows for them. Videos, credits, links and Fans
+        Also Like (Similar Artists is shown instead) are left out."""
+        try:
+            categories = self.artist.page().categories
+        except Exception as e:
+            logger.warning(f"Failed to load the artist page of {self.artist}: {e}")
+            categories = []
+
+        rows = []
+        in_other_rows = set()
+        for category in categories:
+            title = getattr(category, "title", None) or ""
+            items = [i for i in getattr(category, "items", None) or [] if i is not None]
+            key = title.casefold()
+            # (the untitled first row is the page's header: the artist again)
+            if not items or not title or key == "top tracks":
+                continue
+            if key in ("featured albums", "albums"):
+                rows.append(("albums", None))
+            elif key in ("ep & singles", "eps & singles"):
+                rows.append(("ep", None))
+            elif key == "fans also like":
+                rows.append(("similar", None))
+            elif all(isinstance(i, (Album, Artist, Playlist)) for i in items):
+                full = self._full_row(category, items)
+                if key in ("compilations", "live albums"):
+                    in_other_rows.update(utils.album_release_key(a) for a in full())
+                rows.append((title, (items, full)))
+        for name in ("albums", "ep", "similar"):
+            if (name, None) not in rows:
+                rows.append((name, None))
+
+        self.get_albums = utils.AlbumVersionFilter(
+            self.artist.get_albums, exclude=in_other_rows
+        )
+        try:
+            self.albums = self.get_albums(limit=10)
+        except Exception as e:
+            logger.warning(f"Failed to load albums for {self.artist}: {e}")
+            self.albums = []
+        return rows
+
+    @staticmethod
+    def _full_row(category, items):
+        """The whole row for "See all", loaded once when first asked for"""
+        cache = []
+
+        def full(limit=None, offset=0):
+            if not cache:
+                try:
+                    more = category.show_more()
+                    cache.extend(
+                        i
+                        for c in more.categories
+                        for i in getattr(c, "items", None) or []
+                        if i is not None
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to load the whole row {category.title}: {e}")
+                if not cache:
+                    cache.extend(items)
+            if limit is None:
+                return cache[offset:]
+            return cache[offset : offset + limit]
+
+        return full
 
     def _load_finish(self) -> None:
         self.set_title(self.artist.name)
@@ -182,17 +240,20 @@ class HTArtistPage(Page):
             source=self.artist,
         )
 
-        self.new_carousel_for(_("Albums"), self.albums, self.get_albums)
-
-        self.new_carousel_for(
-            _("EP & Singles"), self.albums_ep_singles, self.get_albums_ep_singles
-        )
-
-        self.new_carousel_for(
-            _("Appears On"), self.albums_other, self.get_albums_other
-        )
-
-        self.new_carousel_for(_("Similar Artists"), self.similar)
+        for name, row in self.rows:
+            if name == "albums":
+                self.new_carousel_for(_("Albums"), self.albums, self.get_albums)
+            elif name == "ep":
+                self.new_carousel_for(
+                    _("EP & Singles"),
+                    self.albums_ep_singles,
+                    self.get_albums_ep_singles,
+                )
+            elif name == "similar":
+                self.new_carousel_for(_("Similar Artists"), self.similar)
+            else:
+                items, full = row
+                self.new_carousel_for(name, items, full)
 
         builder.get_object("_radio_button").set_action_target_value(
             GLib.Variant("s", str(self.artist.id))
