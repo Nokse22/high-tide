@@ -184,8 +184,22 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.title_label.set_tooltip_text(self.item.title)
         self.detail_label.set_label(self.item.sub_title)
         self.track_artist_label.set_visible(False)
+        self._add_queue_menu(Gio.Menu(), _("Mix Options"))
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
+
+    def _add_queue_menu(self, menu: Gio.Menu, tooltip: str, before_show=None) -> None:
+        """The ⋮ and right-click menu with Play next and Add to queue for the
+        whole album, playlist or mix (#259), then the items already in menu"""
+        queue, actions = utils.queue_menu(self.item)
+        self.insert_action_group("queue", actions)
+        full = Gio.Menu()
+        full.append_section(None, queue)
+        if menu.get_n_items():
+            full.append_section(None, menu)
+        self._add_options_menu(full, tooltip, before_show)
+        # The ⋮ is on the right: the play button moves to the left, like TIDAL's
+        self.play_revealer.set_halign(Gtk.Align.START)
 
     def _make_album_card(self) -> None:
         """Configure the card to display an Album item"""
@@ -193,6 +207,7 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.title_label.set_tooltip_text(self.item.name)
         self.track_artist_label.set_artists(self.item.artists)
         self.detail_label.set_visible(False)
+        self._add_queue_menu(Gio.Menu(), _("Album Options"))
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
@@ -208,16 +223,16 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         self.detail_label.set_label(_("By {}").format(creator_name))
 
         if PlaylistOptions.applies_to(self.item):
-            # Own and saved playlists: the options of their page, like TIDAL's
-            # cards, with the play button moved to the other side
+            # Own and saved playlists: also the options of their page, like TIDAL's
             self.playlist_options = PlaylistOptions(self.item)
             self.insert_action_group("playlist", self.playlist_options.actions)
-            self._add_options_menu(
+            self._add_queue_menu(
                 self.playlist_options.menu,
                 _("Playlist Options"),
                 self.playlist_options.update,
             )
-            self.play_revealer.set_halign(Gtk.Align.START)
+        else:
+            self._add_queue_menu(Gio.Menu(), _("Playlist Options"))
 
         threading.Thread(target=utils.add_image, args=(self.image, self.item)).start()
 
