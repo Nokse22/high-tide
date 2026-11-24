@@ -31,6 +31,10 @@ from .window import HighTideWindow
 
 # The "Convert Songs To" choices, in the order the preferences row lists them
 OUTPUT_RATES = [0, 44100, 48000, 88200, 96000, 176400, 192000]
+# The README's steps for letting the sound card follow each song's rate
+SAMPLE_RATE_HELP_URL = (
+    "https://github.com/Nokse22/high-tide#my-dac-doesnt-run-at-the-songs-sample-rate"
+)
 
 
 class HighTideApplication(Adw.Application):
@@ -163,6 +167,10 @@ class HighTideApplication(Adw.Application):
             rate = self.settings.get_int("output-rate")
             rate_row.set_selected(OUTPUT_RATES.index(rate) if rate in OUTPUT_RATES else 0)
             rate_row.connect("notify::selected", self.on_output_rate_changed)
+            builder.get_object("_sample_rate_help_row").connect(
+                "activated",
+                lambda *_: Gio.AppInfo.launch_default_for_uri(SAMPLE_RATE_HELP_URL, None),
+            )
 
             builder.get_object("_normalize_row").set_active(
                 self.settings.get_boolean("normalize")

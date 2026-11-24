@@ -37,9 +37,32 @@ Adw.PreferencesDialog _preference_window {
         title: _("ALSA Device");
         subtitle: _("Device used for exclusive ALSA access");
       }
+      Adw.SwitchRow _normalize_row {
+        title: _("Normalize volume");
+      }
+      Adw.SwitchRow _autoplay_row {
+        title: _("Autoplay similar songs");
+        subtitle: _("When the music ends, keep playing songs like the last one, as TIDAL does");
+      }
+    }
+
+    Adw.PreferencesGroup {
+      title: _("Sample Rate");
+      description: _("Your computer normally plays everything at one rate, usually 48 kHz, and converts each song to it. Hi-res songs only reach your sound card at their own rate through the ALSA output above, or if your system is set up to switch rates. Some sound cards then pop when the next song has a different rate.");
+
+      Adw.ActionRow _sample_rate_help_row {
+        title: _("Play Songs at Their Own Rate");
+        activatable: true;
+
+        [suffix]
+        Image {
+          icon-name: "adw-external-link-symbolic";
+        }
+      }
+
       Adw.ComboRow _output_rate_row {
         title: _("Convert Songs To");
-        subtitle: _("Stops the pop some sound cards make when the next song has a different rate. Your system decides the rate the card itself runs at");
+        subtitle: _("Pick a rate to stop the pop");
         model: StringList {
           strings [
             _("Don't Convert"),
@@ -51,13 +74,6 @@ Adw.PreferencesDialog _preference_window {
             "192 kHz",
           ]
         };
-      }
-      Adw.SwitchRow _normalize_row {
-        title: _("Normalize volume");
-      }
-      Adw.SwitchRow _autoplay_row {
-        title: _("Autoplay similar songs");
-        subtitle: _("When the music ends, keep playing songs like the last one, as TIDAL does");
       }
     }
 
