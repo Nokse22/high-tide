@@ -123,6 +123,10 @@ High Tide's quality label shows what TIDAL sends, for example 24-bit/96 kHz. You
 
 2. Skip PipeWire. In Preferences, set *Preferred Audio Sink* to ALSA and pick your DAC under *ALSA Device*. High Tide then sends the song to the DAC directly at its own rate, and other apps can't use the DAC while High Tide plays. For an untouched (bit-perfect) signal, also keep High Tide's volume at 100% and *Normalize volume* off, and set the volume on the DAC or amplifier instead.
 
+### My sound card pops when the song changes
+
+With either of the two ways above, the sound card switches rate whenever two songs in a row have different rates, and many cards and DACs make a pop when they do. To stop it, set *Output Sample Rate* in Preferences to a fixed rate, for example 96 kHz: High Tide then converts every song to that rate, so the card stays at it. Songs at other rates are then no longer bit-perfect.
+
 ## ❌ Uninstallation
 We're sorry to see you go! If you want to remove the High Tide flatpak package from your system, here's how to do so:
 
