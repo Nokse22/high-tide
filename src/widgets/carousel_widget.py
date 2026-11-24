@@ -95,6 +95,12 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
             adjustment,
             adjustment.connect("value-changed", self._update_button_sensitivity),
         ))
+        # A row built off screen (Home under the tab the app opens on) has no
+        # width yet, so the arrows are checked again once it gets one
+        self.signals.append((
+            adjustment,
+            adjustment.connect("changed", self._update_button_sensitivity),
+        ))
 
     def set_more_function(self, function: Callable) -> None:
         """Set the function to call when the "See More" button is clicked.
