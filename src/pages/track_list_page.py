@@ -21,7 +21,7 @@ import logging
 import threading
 from gettext import gettext as _
 
-from gi.repository import GLib, Gtk
+from gi.repository import Gio, GLib, Gtk
 
 from ..lib import utils
 from .page import Page
@@ -112,11 +112,35 @@ class TrackListPage(Page):
         if getattr(self, "item", None):
             threading.Thread(target=utils.add_image, args=(image, self.item)).start()
 
+        self._setup_page_menu(builder)
+
         sort_dropdown = builder.get_object("_sort_by_dropdown")
         sort_dropdown.connect("notify::selected", self.on_sort_changed)
         self.sort_dropdown = sort_dropdown
 
         self._setup_search(builder)
+
+    def _setup_page_menu(self, builder) -> None:
+        """The ⋮ menu: Play next and Add to queue for the whole album, playlist
+        or mix (#259). Playlist pages add their own options to page_menu."""
+        self.page_menu = Gio.Menu()
+        item = getattr(self, "item", None)
+        if item is None:
+            return
+        queue, actions = utils.queue_menu(item)
+        self.page_menu.append_section(None, queue)
+        # On the content, not the page: the page's scrolled window doesn't see
+        # action groups inserted on the page
+        builder.get_object("_main").insert_action_group("queue", actions)
+        menu_button = builder.get_object("_playlist_menu_button")
+        menu_button.set_menu_model(self.page_menu)
+        menu_button.set_tooltip_text(
+            {
+                "album": _("Album Options"),
+                "mix": _("Mix Options"),
+            }.get(utils.get_type(item), _("Playlist Options"))
+        )
+        menu_button.set_visible(True)
 
     def _setup_search(self, builder) -> None:
         """A search field above the list, hidden until the search button, Ctrl+F or

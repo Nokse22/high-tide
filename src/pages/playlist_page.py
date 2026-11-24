@@ -81,7 +81,8 @@ class HTPlaylistPage(TrackListPage):
         builder.get_object("_main").insert_action_group("playlist", self.options.actions)
 
         menu_button = builder.get_object("_playlist_menu_button")
-        menu_button.set_menu_model(self.options.menu)
+        # After Play next and Add to queue
+        self.page_menu.append_section(None, self.options.menu)
         # Move to folder opens beside the menu on hover, like the song menu's
         # submenus, instead of replacing it after a click
         menu_button.get_popover().set_flags(Gtk.PopoverMenuFlags.NESTED)

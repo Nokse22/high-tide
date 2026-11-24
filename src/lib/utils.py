@@ -28,6 +28,7 @@ import time
 import uuid
 import logging
 from gettext import gettext as _
+from gettext import ngettext
 from pathlib import Path
 from typing import Any, Callable, Dict, List
 
@@ -1013,6 +1014,68 @@ def is_blocked_by_artist(item: Any) -> bool:
 
     artists = getattr(item, "artists", None) or []
     return any(is_blocked(artist) for artist in artists)
+
+
+_queued_toast = None
+
+
+def show_queued_toast() -> None:
+    """"Added to queue", one toast shown again on each click instead of a pile"""
+    global _queued_toast
+    if _queued_toast is None:
+        _queued_toast = Adw.Toast(title=_("Added to queue"), timeout=2)
+        _queued_toast.connect("dismissed", lambda *_: _forget_queued_toast())
+    toast_overlay.add_toast(_queued_toast)
+
+
+def _forget_queued_toast() -> None:
+    global _queued_toast
+    _queued_toast = None
+
+
+def queue_menu(item) -> tuple:
+    """A menu section with Play next and Add to queue for a whole album,
+    playlist or mix (#259), and its actions (prefix "queue")"""
+    menu = Gio.Menu()
+    menu.append(_("Play next"), "queue.play-next")
+    menu.append(_("Add to queue"), "queue.add-to-queue")
+    actions = Gio.SimpleActionGroup()
+    for name, next_up in (("play-next", True), ("add-to-queue", False)):
+        action = Gio.SimpleAction.new(name, None)
+        action.connect("activate", lambda *_args, n=next_up: queue_whole(item, n))
+        actions.add_action(action)
+    return menu, actions
+
+
+def queue_whole(item, next_up: bool) -> None:
+    """Queue every song of an album, playlist or mix, the songs Play would play"""
+
+    def fetch():
+        tracks = []
+        try:
+            thing = get_mix(item.id) if type(item).__name__ == "MixV2" else item
+            tracks = player_object.get_track_list(thing) or []
+        except Exception:
+            logger.exception(f"Couldn't get the songs of {item} to queue them")
+        tracks = [
+            t for t in tracks if not ai.is_hidden(t) and not is_hidden_by_block(t)
+        ]
+        GLib.idle_add(done, tracks)
+
+    def done(tracks):
+        if not tracks:
+            send_toast(_("Couldn't add the songs to the queue"), 3)
+            return False
+        player_object.add_tracks_to_queue(tracks, next_up)
+        count = len(tracks)
+        if next_up:
+            text = ngettext("{} song plays next", "{} songs play next", count)
+        else:
+            text = ngettext("{} song added to the queue", "{} songs added to the queue", count)
+        send_toast(text.format(count), 2)
+        return False
+
+    threading.Thread(target=fetch, daemon=True).start()
 
 
 def is_hidden_by_block(item: Any) -> bool:

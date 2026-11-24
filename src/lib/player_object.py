@@ -1466,6 +1466,15 @@ class PlayerObject(GObject.GObject):
         self.queue.insert(0, track)
         self._on_upcoming_changed()
 
+    def add_tracks_to_queue(self, tracks: List[Track], next_up: bool = False) -> None:
+        """Queue several songs in their order: at the end of the queue, or before
+        everything queued with next_up (a whole album or playlist, #259)"""
+        if next_up:
+            self.queue[0:0] = tracks
+        else:
+            self.queue.extend(tracks)
+        self._on_upcoming_changed()
+
     def remove_from_queue(self, index: int) -> None:
         """Remove a track from the queue"""
         if not 0 <= index < len(self.queue):
