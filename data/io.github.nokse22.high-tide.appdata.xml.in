@@ -73,6 +73,20 @@
   </screenshots>
 
   <releases>
+    <release version="1.10.0" date="2026-11-24">
+      <description translate="no">
+        <p>Artist pages show Compilations, Live albums, Playlists, Influencers and the albums the artist appears on, like TIDAL</p>
+        <p>Queue whole albums, playlists and mixes, and add a song to the queue with one click from its row</p>
+        <p>Play and Shuffle on My Tracks</p>
+        <p>High Tide opens on the tab used last; Alt+1, Alt+2 and Alt+3 switch tabs, and typing on Explore searches</p>
+        <p>Song and artist cards get a menu, like album and playlist cards</p>
+        <p>The My Tracks card TIDAL puts on Home shows up</p>
+        <p>The repeat button lights up while repeat is on, with one loop icon and a 1 for repeat one</p>
+        <p>Convert songs to one sample rate, to stop the pop some sound cards make between songs</p>
+        <p>The volume slider shows the volume of the DLNA or Cast device playing</p>
+        <p>Fix picking a DLNA or Cast device setting it to full volume, and Kodi being taken for another app</p>
+      </description>
+    </release>
     <release version="1.9.0" date="2026-11-23">
       <description translate="no">
         <p>Log in by scanning a QR code with your phone</p>
