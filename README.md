@@ -75,6 +75,26 @@ sudo meson install -C builddir
 
 Or open the project in GNOME Builder and click "Run Project".
 
+## 🎨 Changing the look
+
+High Tide uses libadwaita, which doesn't follow GTK themes. It does follow your system's light or dark style and its accent color.
+
+To change more, you can write your own CSS. With the Flatpak, put it in `~/.var/app/io.github.nokse22.high-tide/config/gtk-4.0/gtk.css`, which only changes High Tide. When built from source, the file is `~/.config/gtk-4.0/gtk.css`, which changes every GTK 4 app. Restart High Tide after editing it. For example, this makes the accent color red:
+
+```css
+:root {
+  --accent-bg-color: #c01c28;
+}
+```
+
+The colors you can change are listed in [libadwaita's documentation](https://gnome.pages.gitlab.gnome.org/libadwaita/doc/main/css-variables.html). To find out what to change for a part of the app, start it with GTK's inspector, click the crosshair at its top left, then click that part of High Tide:
+
+```sh
+flatpak run --env=GTK_DEBUG=interactive io.github.nokse22.high-tide
+```
+
+This isn't an official way to theme the app, so a later version of High Tide or libadwaita may need changes to your CSS.
+
 ## 🔧 Troubleshooting
 
 ### Accented characters can't be typed (KDE Plasma)
