@@ -35,7 +35,7 @@ Adw.PreferencesDialog _preference_window {
       }
       Adw.ComboRow _alsa_device_row{
         title: _("ALSA Device");
-        subtitle: _("Device used for exclusive ALSA access");
+        subtitle: _("Mutes everything else while playing");
       }
       Adw.SwitchRow _normalize_row {
         title: _("Normalize volume");
@@ -48,7 +48,7 @@ Adw.PreferencesDialog _preference_window {
 
     Adw.PreferencesGroup {
       title: _("Sample Rate");
-      description: _("Your computer normally plays everything at one rate, usually 48 kHz, and converts each song to it. Hi-res songs only reach your sound card at their own rate through the ALSA output above, or if your system is set up to switch rates. Some sound cards then pop when the next song has a different rate.");
+      description: _("Your computer normally plays everything at one rate, usually 48 kHz, and converts each song to it. Hi-res songs only reach your sound card at their own rate through the ALSA output above, which mutes everything else while playing, or if your system is set up to switch rates. Some sound cards then pop when the next song has a different rate.");
 
       Adw.ActionRow _sample_rate_help_row {
         title: _("Play Songs at Their Own Rate");
