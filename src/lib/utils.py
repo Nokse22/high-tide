@@ -285,7 +285,7 @@ def get_mix(mix_id: str) -> Mix:
     return cache.get_mix(mix_id)
 
 
-def _album_release_key(album: Album) -> tuple:
+def album_release_key(album: Album) -> tuple:
     return (album.name.casefold(), album.version or "", album.num_tracks)
 
 
@@ -312,8 +312,10 @@ class AlbumVersionFilter:
 
     page_size = 50
 
-    def __init__(self, function) -> None:
+    def __init__(self, function, exclude=()) -> None:
         self.function = function
+        # Releases (album_release_key) shown elsewhere, left out of this list
+        self.exclude = set(exclude)
         self._reset()
 
     def _reset(self) -> None:
@@ -333,9 +335,9 @@ class AlbumVersionFilter:
                 self.done = True
             else:
                 # Versions of the last release may continue on the next page
-                last_key = _album_release_key(albums[-1])
+                last_key = album_release_key(albums[-1])
                 complete = len(albums)
-                while complete > 0 and _album_release_key(albums[complete - 1]) == last_key:
+                while complete > 0 and album_release_key(albums[complete - 1]) == last_key:
                     complete -= 1
                 if complete > 0:
                     albums = albums[:complete]
@@ -343,8 +345,8 @@ class AlbumVersionFilter:
 
             best = {}
             for album in albums:
-                key = _album_release_key(album)
-                if key in self.seen:
+                key = album_release_key(album)
+                if key in self.seen or key in self.exclude:
                     continue
                 if key not in best or _album_version_rank(album) > _album_version_rank(best[key]):
                     best[key] = album
