@@ -306,6 +306,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
         spacing: 6;
 
         ToggleButton home_button {
+          tooltip-text: _("Home (Alt+1)");
           clicked => $on_home_button_clicked();
 
           Box {
@@ -330,6 +331,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
         }
 
         ToggleButton explore_button {
+          tooltip-text: _("Explore (Alt+2)");
           group: home_button;
           clicked => $on_explore_button_clicked();
 
@@ -355,6 +357,7 @@ template $HighTideWindow: Adw.ApplicationWindow {
         }
 
         ToggleButton collection_button {
+          tooltip-text: _("Collection (Alt+3)");
           group: home_button;
           clicked => $on_collection_button_clicked();
 

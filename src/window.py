@@ -239,6 +239,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self._volume_from_player = False
         self.volume_button.get_adjustment().set_value(volume)
         self._setup_volume_button()
+        self._setup_tab_shortcuts()
         # The slider shows the volume in use: this app's, or the device's while
         # playing on one; also when it's changed from elsewhere (media keys, the device)
         self.player_object.connect("volume-changed", self.on_player_volume_changed)
@@ -901,6 +902,27 @@ class HighTideWindow(Adw.ApplicationWindow):
         finally:
             self._volume_from_player = False
         return True
+
+    def _setup_tab_shortcuts(self) -> None:
+        """Alt+1, Alt+2 and Alt+3 open Home, Explore and Collection (#189)"""
+        shortcuts = Gtk.ShortcutController(scope=Gtk.ShortcutScope.GLOBAL)
+        for number, button in enumerate(
+            (self.home_button, self.explore_button, self.collection_button), 1
+        ):
+
+            def open_tab(_widget, _args, button=button):
+                if not self.is_logged_in:
+                    return False
+                button.emit("clicked")
+                return True
+
+            shortcuts.add_shortcut(
+                Gtk.Shortcut.new(
+                    Gtk.ShortcutTrigger.parse_string(f"<Alt>{number}"),
+                    Gtk.CallbackAction.new(open_tab),
+                )
+            )
+        self.add_controller(shortcuts)
 
     def _setup_volume_button(self) -> None:
         """Let the volume slider move in 1% steps (GTK rounds it to tenths), open it
