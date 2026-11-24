@@ -207,6 +207,7 @@ class HTCarouselWidget(Gtk.Box, IDisconnectable):
             page.set_function(self.more_function)
         if self.more_source is not None:
             page.auto_load.source = self.more_source
+            page.enable_play(self.more_source)
         if self.more_search is not None:
             page.enable_search(*self.more_search)
         if self.more_sort is not None:
