@@ -29,7 +29,7 @@ from .lib.listenbrainz import SETTINGS_URL as LISTENBRAINZ_SETTINGS_URL
 from .lib.player_object import AudioSink
 from .window import HighTideWindow
 
-# The Output Sample Rate choices, in the order the preferences row lists them
+# The "Convert Songs To" choices, in the order the preferences row lists them
 OUTPUT_RATES = [0, 44100, 48000, 88200, 96000, 176400, 192000]
 
 

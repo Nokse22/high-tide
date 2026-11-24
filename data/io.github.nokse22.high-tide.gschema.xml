@@ -118,7 +118,7 @@
     </key>
 	  <key name="output-rate" type="i">
       <default>0</default>
-      <summary>Sample rate the music is converted to before the output, 0 for each song's own</summary>
+      <summary>Sample rate songs are converted to before the output ("Convert Songs To"), 0 for no conversion</summary>
     </key>
 	  <key name="quadratic-volume" type="b">
       <default>false</default>

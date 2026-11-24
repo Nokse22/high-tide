@@ -38,11 +38,11 @@ Adw.PreferencesDialog _preference_window {
         subtitle: _("Device used for exclusive ALSA access");
       }
       Adw.ComboRow _output_rate_row {
-        title: _("Output Sample Rate");
-        subtitle: _("A fixed rate stops the pop some sound cards make when the rate changes between songs");
+        title: _("Convert Songs To");
+        subtitle: _("Stops the pop some sound cards make when the next song has a different rate. Your system decides the rate the card itself runs at");
         model: StringList {
           strings [
-            _("Each Song's Own"),
+            _("Don't Convert"),
             "44.1 kHz",
             "48 kHz",
             "88.2 kHz",

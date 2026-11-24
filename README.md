@@ -125,7 +125,7 @@ High Tide's quality label shows what TIDAL sends, for example 24-bit/96 kHz. You
 
 ### My sound card pops when the song changes
 
-With either of the two ways above, the sound card switches rate whenever two songs in a row have different rates, and many cards and DACs make a pop when they do. To stop it, set *Output Sample Rate* in Preferences to a fixed rate, for example 96 kHz: High Tide then converts every song to that rate, so the card stays at it. Songs at other rates are then no longer bit-perfect.
+With either of the two ways above, the sound card switches rate whenever two songs in a row have different rates, and many cards and DACs make a pop when they do. To stop it, set *Convert Songs To* in Preferences to a rate, for example 96 kHz: High Tide then converts every song to that rate, so with either way above the card stays at it. Songs at other rates are then no longer bit-perfect. Without either way above, PipeWire still runs the card at its own rate, so this setting changes nothing there.
 
 ## ❌ Uninstallation
 We're sorry to see you go! If you want to remove the High Tide flatpak package from your system, here's how to do so:
