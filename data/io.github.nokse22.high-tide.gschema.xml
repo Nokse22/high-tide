@@ -116,6 +116,10 @@
 	  <key name="normalize" type="b">
       <default>false</default>
     </key>
+	  <key name="output-rate" type="i">
+      <default>0</default>
+      <summary>Sample rate the music is converted to before the output, 0 for each song's own</summary>
+    </key>
 	  <key name="quadratic-volume" type="b">
       <default>false</default>
     </key>

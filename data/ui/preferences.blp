@@ -37,6 +37,21 @@ Adw.PreferencesDialog _preference_window {
         title: _("ALSA Device");
         subtitle: _("Device used for exclusive ALSA access");
       }
+      Adw.ComboRow _output_rate_row {
+        title: _("Output Sample Rate");
+        subtitle: _("A fixed rate stops the pop some sound cards make when the rate changes between songs");
+        model: StringList {
+          strings [
+            _("Each Song's Own"),
+            "44.1 kHz",
+            "48 kHz",
+            "88.2 kHz",
+            "96 kHz",
+            "176.4 kHz",
+            "192 kHz",
+          ]
+        };
+      }
       Adw.SwitchRow _normalize_row {
         title: _("Normalize volume");
       }
