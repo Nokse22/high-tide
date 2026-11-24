@@ -411,6 +411,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         """Handle successful user login"""
         logger.info("logged in")
 
+        # Read before Home is shown, which counts as using Home
+        last_tab = self.settings.get_string("last-tab")
         page = HTGenericPage.new_from_function(utils.session.home).load()
         page.set_tag("home")
         self.navigation_view.replace([page])
@@ -426,6 +428,18 @@ class HighTideWindow(Adw.ApplicationWindow):
         threading.Thread(target=utils.get_blocked, args=()).start()
 
         self.is_logged_in = True
+
+        # Open on the tab used last, with Home under it for Back (#148)
+        # (the page gets its tag only once loaded, so the button is set here)
+        if last_tab == "explore":
+            self.navigation_view.push(HTExplorePage().load())
+            self.explore_button.set_active(True)
+        elif last_tab == "collection":
+            # The favourites are loading already
+            self.navigation_view.push(HTCollectionPage().load())
+            self.collection_button.set_active(True)
+        # Showing Home above saved "home"
+        self.settings.set_string("last-tab", last_tab)
 
         if self.queued_uri:
             utils.open_tidal_uri(self.queued_uri)
@@ -806,6 +820,8 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_explore_button_clicked")
     def on_explore_button_clicked_func(self, widget):
+        # Saved here: a new page gets its tag only once it's loaded
+        self.settings.set_string("last-tab", "explore")
         if self.navigation_view.find_page("explore"):
             self.navigation_view.pop_to_tag("explore")
             return
@@ -815,6 +831,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_collection_button_clicked")
     def on_collection_button_clicked_func(self, widget):
+        self.settings.set_string("last-tab", "collection")
         utils.refresh_favourites()
         if self.navigation_view.find_page("collection"):
             self.navigation_view.pop_to_tag("collection")
@@ -1076,13 +1093,17 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback("on_visible_page_changed")
     def on_visible_page_changed(self, nav_view, *args):
-        match self.navigation_view.get_visible_page().get_tag():
+        tag = self.navigation_view.get_visible_page().get_tag()
+        match tag:
             case "home":
                 self.home_button.set_active(True)
             case "explore":
                 self.explore_button.set_active(True)
             case "collection":
                 self.collection_button.set_active(True)
+        if tag in ("home", "explore", "collection"):
+            # Opened again at the next start (also when Back leads to it)
+            self.settings.set_string("last-tab", tag)
 
     def _place_queue(self, *args) -> None:
         """Put the queue in the right-side panel on desktop, and in the Queue tab
