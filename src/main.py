@@ -29,6 +29,13 @@ from .lib.listenbrainz import SETTINGS_URL as LISTENBRAINZ_SETTINGS_URL
 from .lib.player_object import AudioSink
 from .window import HighTideWindow
 
+# The "Convert Songs To" choices, in the order the preferences row lists them
+OUTPUT_RATES = [0, 44100, 48000, 88200, 96000, 176400, 192000]
+# The README's steps for letting the sound card follow each song's rate
+SAMPLE_RATE_HELP_URL = (
+    "https://github.com/Nokse22/high-tide#my-dac-doesnt-run-at-the-songs-sample-rate"
+)
+
 
 class HighTideApplication(Adw.Application):
     """The main application singleton class.
@@ -154,6 +161,15 @@ class HighTideApplication(Adw.Application):
             bg_row.set_active(self.settings.get_boolean("run-background"))
             self.settings.bind(
                 "run-background", bg_row, "active", Gio.SettingsBindFlags.DEFAULT
+            )
+
+            rate_row = builder.get_object("_output_rate_row")
+            rate = self.settings.get_int("output-rate")
+            rate_row.set_selected(OUTPUT_RATES.index(rate) if rate in OUTPUT_RATES else 0)
+            rate_row.connect("notify::selected", self.on_output_rate_changed)
+            builder.get_object("_sample_rate_help_row").connect(
+                "activated",
+                lambda *_: Gio.AppInfo.launch_default_for_uri(SAMPLE_RATE_HELP_URL, None),
             )
 
             builder.get_object("_normalize_row").set_active(
@@ -341,6 +357,9 @@ class HighTideApplication(Adw.Application):
         index = widget.get_selected()
         device_string = self.alsa_devices[index]["hw_device"]
         self.win.change_alsa_device(device_string)
+
+    def on_output_rate_changed(self, widget: Any, *args) -> None:
+        self.win.change_output_rate(OUTPUT_RATES[widget.get_selected()])
 
     def on_normalize_changed(self, widget: Any, *args) -> None:
         self.win.change_normalization(widget.get_active())

@@ -209,6 +209,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.settings.get_string("alsa-device"),
             self.settings.get_boolean("normalize"),
             self.settings.get_boolean("quadratic-volume"),
+            self.settings.get_int("output-rate"),
         )
         utils.player_object = self.player_object
 
@@ -1231,6 +1232,14 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.player_object.normalize = state
             self.settings.set_boolean("normalize", state)
             # recreate audio pipeline, kinda dirty ngl
+            self.player_object.change_audio_sink(
+                self.settings.get_int("preferred-sink")
+            )
+
+    def change_output_rate(self, rate: int) -> None:
+        if self.settings.get_int("output-rate") != rate:
+            self.settings.set_int("output-rate", rate)
+            self.player_object.output_rate = rate
             self.player_object.change_audio_sink(
                 self.settings.get_int("preferred-sink")
             )

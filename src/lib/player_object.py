@@ -96,8 +96,12 @@ class PlayerObject(GObject.GObject):
         alsa_device: str = "default",
         normalize: bool = False,
         quadratic_volume: bool = False,
+        output_rate: int = 0,
     ) -> None:
         GObject.GObject.__init__(self)
+        # Sample rate everything is converted to before the output, 0 for each
+        # song's own: cards and DACs that pop when the rate changes stay at one
+        self.output_rate = output_rate
 
         # The DLNA device playing instead of this computer, see set_renderer
         self.renderer: dlna.Renderer | cast.CastDevice | None = None
@@ -295,8 +299,9 @@ class PlayerObject(GObject.GObject):
                 f"rglimiter ! audioconvert !"
             )
 
+        rate = f"audio/x-raw,rate={self.output_rate} ! " if self.output_rate else ""
         pipeline_str = (
-            f"queue ! audioconvert ! {normalization} audioresample ! {sink_name}"
+            f"queue ! audioconvert ! {normalization} audioresample ! {rate}{sink_name}"
         )
 
         try:
