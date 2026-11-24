@@ -40,6 +40,11 @@
   color: #888;
 }
 
+/* Artist and album names stand out by color, like song titles */
+.artist-link link {
+  text-decoration: none;
+}
+
 /* Song titles link to their album but look like titles */
 .title-link link {
   color: inherit;
