@@ -63,6 +63,57 @@ class HTFromFunctionPage(Page):
         # while the whole list isn't loaded
         self.items_before_search = []
         self.offset_before_search = 0
+        # Play or shuffle waiting for the whole list (see enable_play)
+        self._play_when_loaded = None
+
+    def enable_play(self, source) -> None:
+        """Add Play and Shuffle buttons, as on playlist pages (#237). They play
+        the whole list (filtered by the search, if any) from source."""
+        self.play_source = source
+        box = Gtk.Box(spacing=12, margin_start=12, margin_end=12, margin_top=12)
+        self.play_button = Gtk.Button(
+            icon_name="media-playback-start-symbolic",
+            tooltip_text=_("Play"),
+            css_classes=["suggested-action", "pill"],
+        )
+        self.shuffle_button = Gtk.Button(
+            icon_name="media-playlist-shuffle-symbolic",
+            tooltip_text=_("Shuffle"),
+            css_classes=["flat", "pill"],
+        )
+        box.append(self.play_button)
+        box.append(self.shuffle_button)
+        self.content.prepend(box)
+        self.signals.extend(
+            [
+                (
+                    self.play_button,
+                    self.play_button.connect("clicked", lambda *_: self._play(False)),
+                ),
+                (
+                    self.shuffle_button,
+                    self.shuffle_button.connect("clicked", lambda *_: self._play(True)),
+                ),
+            ]
+        )
+
+    def _play(self, shuffle: bool) -> None:
+        if self.fixed_items is None and self.all_items is None:
+            # The rest of the list loads first
+            self._play_when_loaded = shuffle
+            self.play_button.set_sensitive(False)
+            self.shuffle_button.set_sensitive(False)
+            self._load_all_items()
+            return
+        items = self.fixed_items if self.fixed_items is not None else self.all_items
+        if self.search_query:
+            items = [i for i in items if utils.matches_search(i, self.search_query)]
+        if not items:
+            return
+        if shuffle:
+            utils.player_object.shuffle_this(list(items), source=self.play_source)
+        else:
+            utils.player_object.play_this(list(items), 0, source=self.play_source)
 
     def _load_async(self) -> None:
         self.auto_load.th_load_items()
@@ -218,6 +269,12 @@ class HTFromFunctionPage(Page):
                 self.all_items = items
             if self.search_query:
                 self._show_items()
+            if self._play_when_loaded is not None:
+                shuffle, self._play_when_loaded = self._play_when_loaded, None
+                self.play_button.set_sensitive(True)
+                self.shuffle_button.set_sensitive(True)
+                if self.all_items is not None:
+                    self._play(shuffle)
             return False
 
         threading.Thread(target=fetch, daemon=True).start()

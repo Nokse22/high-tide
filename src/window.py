@@ -1389,6 +1389,7 @@ class HighTideWindow(Adw.ApplicationWindow):
                 lambda limit=50, offset=0: tracks(limit=limit, offset=offset)
             )
             page.auto_load.source = utils.MY_TRACKS
+            page.enable_play(utils.MY_TRACKS)
             page.enable_search(_("Filter by title, artist or album"), 1000)
             page.enable_sort("tracks")
             return page.load()
