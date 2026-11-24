@@ -123,6 +123,23 @@ class Page(Adw.NavigationPage, IDisconnectable):
 
         return self
 
+    def focus_entry_on_typing(self, search_entry) -> None:
+        """Typing that goes into search_entry from elsewhere (key capture) moves
+        the keyboard focus there. Key capture only gets keys the focused widget
+        doesn't use, so a space would otherwise press a focused button (like
+        play/pause) instead of going into the search."""
+
+        def on_changed(entry):
+            if utils.navigation_view.get_visible_page() is not self:
+                return
+            focus = entry.get_root().get_focus() if entry.get_root() else None
+            if not entry.get_text() or (focus and focus.is_ancestor(entry)):
+                return
+            # Without selecting, so the next letters are added, not replacing
+            entry.get_delegate().grab_focus_without_selecting()
+
+        self.signals.append((search_entry, search_entry.connect("changed", on_changed)))
+
     def setup_search_bar(self, search_bar, search_entry, search_button) -> None:
         """Open search_bar with search_button, with Ctrl+F or by typing while
         this page is shown"""

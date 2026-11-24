@@ -60,8 +60,44 @@ class HTExplorePage(HTGenericPage):
         ))
 
         self.append(search_entry)
+        self._setup_search_shortcuts(search_entry)
 
         HTGenericPage._load_finish(self)
+
+    def _setup_search_shortcuts(self, search_entry) -> None:
+        """Typing anywhere while Explore is shown goes into its search box, and
+        Ctrl+F jumps to it, as on pages that search their own list (#189)"""
+
+        def open_search(*_args):
+            if utils.navigation_view.get_visible_page() is not self:
+                return False
+            search_entry.grab_focus()
+            return True
+
+        shortcuts = Gtk.ShortcutController(scope=Gtk.ShortcutScope.GLOBAL)
+        shortcuts.add_shortcut(
+            Gtk.Shortcut.new(
+                Gtk.ShortcutTrigger.parse_string("<Control>f"),
+                Gtk.CallbackAction.new(open_search),
+            )
+        )
+        self.add_controller(shortcuts)
+
+        def capture(*_args):
+            search_entry.set_key_capture_widget(self.get_root())
+
+        def release(*_args):
+            search_entry.set_key_capture_widget(None)
+
+        self.focus_entry_on_typing(search_entry)
+        if utils.navigation_view.get_visible_page() is self:
+            capture()
+        self.signals.extend(
+            [
+                (self, self.connect("shown", capture)),
+                (self, self.connect("hiding", release)),
+            ]
+        )
 
     def on_search_activated(self, entry) -> None:
         query = entry.get_text()
