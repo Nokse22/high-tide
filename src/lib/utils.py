@@ -96,6 +96,7 @@ def init() -> None:
     _sort_settings = Gio.Settings.new("io.github.nokse22.high-tide")
     _sort_settings.connect("changed", _on_sort_setting_changed)
     _install_row_context()
+    _install_my_tracks_link()
 
     global CACHE_DIR
     CACHE_DIR = os.environ.get("XDG_CACHE_HOME")
@@ -1875,6 +1876,32 @@ def _install_row_context() -> None:
         return result
 
     HorizontalListWithContext.parse = parse_with_context
+
+
+def _install_my_tracks_link() -> None:
+    """Show the "My Tracks" card TIDAL puts in home rows like Recently played.
+
+    TIDAL sends it as a DEEP_LINK item (to tidal://my-collection/tracks), which
+    python-tidal 0.8 skips, so people missed their liked songs there (#179).
+    It becomes MY_TRACKS, shown as a card opening the saved tracks.
+    """
+    try:
+        from tidalapi.page import SimpleList
+    except ImportError:
+        return
+    if getattr(SimpleList.get_item, "with_my_tracks", False):
+        return
+    get_item = SimpleList.get_item
+
+    def get_item_with_my_tracks(self, json_obj):
+        if json_obj.get("type") == "DEEP_LINK":
+            data = json_obj.get("data") or {}
+            if (data.get("url") or data.get("id")) == "tidal://my-collection/tracks":
+                return MY_TRACKS
+        return get_item(self, json_obj)
+
+    get_item_with_my_tracks.with_my_tracks = True
+    SimpleList.get_item = get_item_with_my_tracks
 
 
 def _install_artist_cover_fallback() -> None:

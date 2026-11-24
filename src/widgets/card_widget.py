@@ -139,6 +139,21 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
             self._make_track_card()
         elif isinstance(self.item, PageItem):
             self._make_page_item_card()
+        elif isinstance(self.item, utils.MyTracks):
+            self._make_my_tracks_card()
+
+    def _make_my_tracks_card(self) -> None:
+        """Configure the card to open the saved tracks (TIDAL's My Tracks)"""
+        self.title_label.set_label(self.item.name)
+        self.title_label.set_tooltip_text(self.item.name)
+        self.track_artist_label.set_visible(False)
+        self.detail_label.set_visible(False)
+        # A tile like the playlist folders', with a heart
+        self.image.set_from_icon_name("heart-filled-symbolic")
+        self.image.set_pixel_size(64)
+        self.image.set_size_request(155, 155)
+        self.image.add_css_class("folder-cover")
+        self.play_revealer.set_visible(False)
 
     def _make_track_card(self) -> None:
         """Configure the card to display a Track item"""
@@ -362,7 +377,9 @@ class HTCardWidget(Adw.BreakpointBin, IDisconnectable):
         For non-track items, activates the appropriate navigation action to show
         the detail page. For track items, starts playback immediately.
         """
-        if self.action:
+        if isinstance(self.item, utils.MyTracks):
+            self.activate_action("win.push-my-tracks-page", None)
+        elif self.action:
             self.activate_action(self.action, GLib.Variant("s", str(self.item.id)))
         elif isinstance(self.item, Track):
             utils.player_object.play_this(self.item)
