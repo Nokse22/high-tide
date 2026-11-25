@@ -30,6 +30,7 @@
         "python3 -m compileall --invalidation-mode=unchecked-hash /app"
     ],
     "modules": [
+        "gst-plugin-jack.json",
         "python3-requirements.json",
         {
             "name": "high-tide",

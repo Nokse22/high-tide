@@ -27,6 +27,7 @@ from gi.repository import Adw, Gio, GLib, Gtk
 from .lib import utils
 from .lib.listenbrainz import SETTINGS_URL as LISTENBRAINZ_SETTINGS_URL
 from .lib.player_object import AudioSink
+from .lib import jack
 from .window import HighTideWindow
 
 # The "Convert Songs To" choices, in the order the preferences row lists them
@@ -305,6 +306,9 @@ class HighTideApplication(Adw.Application):
                 "notify::selected-item", self.deactive_alsa_device_row
             )
 
+            self.builder_sink_row = builder.get_object("_sink_row")
+            self._setup_jack_connect_row(builder.get_object("_jack_connect_row"), setup, bind)
+
             self.blocked_groups = [
                 (builder.get_object("_blocked_artists_group"), "artists"),
                 (builder.get_object("_blocked_tracks_group"), "tracks"),
@@ -493,6 +497,48 @@ class HighTideApplication(Adw.Application):
         self.win.listenbrainz_client.disconnect()
         self.win.listenbrainz_scrobbler.credentials_changed()
         self.update_listenbrainz_preferences()
+
+    def _setup_jack_connect_row(self, row, setup, bind) -> None:
+        """Where the JACK output connects to: the sound card, nothing (a
+        patchbay connects it) or one of the JACK clients, like a sink"""
+        if jack.IN_FLATPAK:
+            # Flatpak apps can't connect their own JACK ports
+            self.jack_destinations = [jack.NOTHING]
+            labels = [_("Nothing (Use a Patchbay)")]
+            row.set_subtitle(_("Apps from Flathub can't connect themselves"))
+        else:
+            saved = self.settings.get_string("jack-connect")
+            clients = jack.list_destinations()
+            if saved not in (jack.SOUND_CARD, jack.NOTHING) and saved not in clients:
+                clients.append(saved)
+            self.jack_destinations = [jack.SOUND_CARD, jack.NOTHING] + clients
+            labels = [_("Sound Card"), _("Nothing (Use a Patchbay)")] + clients
+
+        factory = Gtk.SignalListItemFactory()
+        factory.connect("setup", setup)
+        factory.connect("bind", bind)
+        row.set_factory(factory)
+        row.set_model(Gtk.StringList.new(labels))
+
+        saved = self.settings.get_string("jack-connect")
+        if saved in self.jack_destinations:
+            row.set_selected(self.jack_destinations.index(saved))
+        row.connect("notify::selected", self.on_jack_connect_changed)
+
+        self.jack_row = row
+        self._update_jack_row(self.settings.get_int("preferred-sink"))
+        self.builder_sink_row.connect(
+            "notify::selected",
+            lambda r, *_: self._update_jack_row(r.get_selected()),
+        )
+
+    def _update_jack_row(self, sink: int) -> None:
+        self.jack_row.set_sensitive(sink == AudioSink.JACK)
+
+    def on_jack_connect_changed(self, widget: Any, *args) -> None:
+        index = widget.get_selected()
+        if 0 <= index < len(self.jack_destinations):
+            self.win.change_jack_connect(self.jack_destinations[index])
 
     def deactive_alsa_device_row(self, widget: Any, *args) -> None:
         alsa_used = widget.get_selected() == AudioSink.ALSA

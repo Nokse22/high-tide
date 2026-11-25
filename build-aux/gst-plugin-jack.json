@@ -1,0 +1,25 @@
+{
+  "name": "gst-plugin-jack",
+  "buildsystem": "meson",
+  "config-opts": [
+    "-Dauto_features=disabled",
+    "-Djack=enabled",
+    "-Dexamples=disabled",
+    "-Dtests=disabled",
+    "-Ddoc=disabled",
+    "-Dnls=disabled",
+    "-Dorc=disabled"
+  ],
+  "sources": [
+    {
+      "type": "archive",
+      "url": "https://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugins-good-1.28.6.tar.xz",
+      "sha256": "b0c620a4b18b6ee931b4c43bbf1760d308666dc37f730a7e7f1ad327e59ce2df"
+    }
+  ],
+  "cleanup": [
+    "/include",
+    "/lib/pkgconfig",
+    "/share"
+  ]
+}

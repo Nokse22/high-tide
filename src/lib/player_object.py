@@ -37,6 +37,7 @@ from tidalapi.mix import Mix
 from tidalapi.playlist import Playlist
 from tidalapi.media import Track, ManifestMimeType
 
+from . import jack
 from . import cast, discord_rpc, dlna, utils
 
 logger = logging.getLogger(__name__)
@@ -97,6 +98,7 @@ class PlayerObject(GObject.GObject):
         normalize: bool = False,
         quadratic_volume: bool = False,
         output_rate: int = 0,
+        jack_connect: str = "",
     ) -> None:
         GObject.GObject.__init__(self)
         # Sample rate everything is converted to before the output, 0 for each
@@ -133,6 +135,9 @@ class PlayerObject(GObject.GObject):
         self.discord_rpc_enabled = True
 
         self.alsa_device: str = alsa_device
+        # Where the JACK output connects to: a JACK client's name, or
+        # jack.SOUND_CARD / jack.NOTHING
+        self.jack_connect: str = jack_connect
         # Position and duration (ns) of the paused track while the sound card is let go
         self.released_at: tuple[int, int] | None = None
         self.release_timer: int | None = None
@@ -282,7 +287,7 @@ class PlayerObject(GObject.GObject):
             AudioSink.AUTO: "autoaudiosink",
             AudioSink.PULSE: "pulsesink",
             AudioSink.ALSA: f"alsasink device={self.alsa_device}",
-            AudioSink.JACK: "jackaudiosink",
+            AudioSink.JACK: "jackaudiosink name=jacksink",
             AudioSink.OSS: "osssink",
         }
 
@@ -309,12 +314,24 @@ class PlayerObject(GObject.GObject):
             if not audio_bin:
                 raise RuntimeError("Failed to create audio bin")
 
+            if sink_type == AudioSink.JACK:
+                self._set_jack_connect(audio_bin.get_by_name("jacksink"))
             self.playbin.set_property("audio-sink", audio_bin)
         except GLib.Error:
             logger.exception("Error creating pipeline")
             self.playbin.set_property(
                 "audio-sink", Gst.ElementFactory.make("autoaudiosink", None)
             )
+
+    def _set_jack_connect(self, sink) -> None:
+        """Connect the JACK output where the user chose, so it doesn't start on
+        the sound card and get moved there by a patchbay a moment later."""
+        if sink is None:
+            return
+        if jack.IN_FLATPAK or self.jack_connect == jack.NOTHING:
+            Gst.util_set_object_arg(sink, "connect", "none")
+        elif self.jack_connect != jack.SOUND_CARD:
+            sink.set_property("port-pattern", jack.port_pattern(self.jack_connect))
 
     def change_audio_sink(self, sink_type: AudioSink) -> None:
         """Change the audio sink while maintaining playback state.
