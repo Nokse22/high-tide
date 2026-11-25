@@ -135,6 +135,10 @@
 	  <key name="hide-ai-music" type="b">
       <default>false</default>
     </key>
+	  <key name="home-my-tracks" type="b">
+      <default>false</default>
+      <summary>Always show a My Tracks button on Home</summary>
+    </key>
 	  <key name="home-hidden-rows" type="a{ss}">
       <default>{}</default>
       <summary>Home rows turned off in Customize Home</summary>

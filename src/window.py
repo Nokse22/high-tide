@@ -1242,6 +1242,22 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         dialog = Adw.PreferencesDialog(title=_("Customize Home"))
         page = Adw.PreferencesPage()
+
+        my_tracks_group = Adw.PreferencesGroup()
+        my_tracks_row = Adw.SwitchRow(
+            title=_("My Tracks"),
+            subtitle=_("Always show a button to your liked songs at the top"),
+        )
+        self.settings.bind(
+            "home-my-tracks", my_tracks_row, "active", Gio.SettingsBindFlags.DEFAULT
+        )
+        my_tracks_row.connect(
+            "notify::active",
+            lambda *_: home.apply_hidden_rows() if home is not None else None,
+        )
+        my_tracks_group.add(my_tracks_row)
+        page.add(my_tracks_group)
+
         group = Adw.PreferencesGroup(
             description=_("Turn off the rows you don't want on Home")
         )

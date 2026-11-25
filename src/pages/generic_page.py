@@ -33,7 +33,7 @@ from tidalapi.page import (
 )
 
 from ..lib import utils
-from ..widgets import HTShorcutsWidget
+from ..widgets import HTShorcutsWidget, HTShorcutWidget
 from .page import Page
 
 
@@ -96,12 +96,42 @@ class HTGenericPage(Page):
             self.apply_hidden_rows()
 
     def apply_hidden_rows(self) -> None:
-        """Hide the rows the user turned off in Customize Home"""
-        hidden = Gio.Settings.new("io.github.nokse22.high-tide").get_value(
-            "home-hidden-rows"
-        ).unpack()
+        """Hide the rows the user turned off in Customize Home, and add the My
+        Tracks button if it's turned on there"""
+        settings = Gio.Settings.new("io.github.nokse22.high-tide")
+        hidden = settings.get_value("home-hidden-rows").unpack()
         for module_id, _title, widget in self.rows:
             widget.set_visible(module_id not in hidden)
+        self._show_my_tracks_shortcut(settings.get_boolean("home-my-tracks"))
+
+    def _show_my_tracks_shortcut(self, wanted: bool) -> None:
+        """Put a button to the liked songs first in the grid of shortcuts, or
+        on its own at the top when that grid isn't shown"""
+        added = getattr(self, "_my_tracks_shortcut", None)
+        if added is not None:
+            added.get_parent().remove(added)
+            added.disconnect_all()
+            self._my_tracks_shortcut = None
+        if not wanted:
+            return
+
+        shortcuts = next(
+            (w for m, _t, w in self.rows if m == "SHORTCUT_LIST" and w.get_visible()),
+            None,
+        )
+        if shortcuts is None:
+            added = HTShorcutsWidget([utils.MY_TRACKS])
+            self.content.prepend(added)
+        else:
+            flow_box = shortcuts.shorcuts_flow_box
+            child = flow_box.get_first_child()
+            while child:
+                if getattr(child, "item", None) is utils.MY_TRACKS:
+                    return  # TIDAL sent it today
+                child = child.get_next_sibling()
+            added = HTShorcutWidget(utils.MY_TRACKS)
+            flow_box.insert(added, 0)
+        self._my_tracks_shortcut = added
 
     def _add_category(self, category) -> None:
         """Add the widget showing one of TIDAL's rows"""
