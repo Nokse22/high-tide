@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import queue
 import threading
@@ -52,6 +53,22 @@ def _submit(func, *args) -> None:
     _tasks.put((func, args))
 
 
+CONNECT_TIMEOUT = 10
+
+
+def _close_connection() -> None:
+    """Close the previous connection, if any, before making a new one"""
+    writer = rpc.sock_writer
+    rpc.sock_writer = None
+    if writer is None or rpc.loop.is_closed():
+        return
+    try:
+        writer.close()
+        rpc.loop.run_until_complete(writer.wait_closed())
+    except Exception:
+        pass
+
+
 def _connect() -> bool:
     """Connect to Discord Rich Presence IPC.
 
@@ -68,7 +85,14 @@ def _connect() -> bool:
         return False
 
     try:
-        rpc.connect()
+        _close_connection()
+        if rpc.loop.is_closed():
+            rpc.update_event_loop(asyncio.new_event_loop())
+        # Discord sometimes never answers a new connection, and pypresence's
+        # own connect() would then wait forever and hold up every later update
+        rpc.loop.run_until_complete(
+            asyncio.wait_for(rpc.handshake(), CONNECT_TIMEOUT)
+        )
     except pypresence.exceptions.InvalidID:
         logger.warning("Discord rejected the client ID, disabling Rich Presence")
         _client_rejected = True
@@ -108,6 +132,17 @@ def _disconnect() -> bool:
         logger.info("Disconnected from discord IPC")
         state = State.DISCONNECTED
         return True
+
+
+def _fit(text: str) -> str:
+    """Discord rejects the whole update when a text is shorter than 2 or
+    longer than 128 characters, and the previous song stays shown"""
+    # Discord counts UTF-16 units, so an emoji counts as two
+    if len(text.encode("utf-16-le")) > 256:
+        while len(text.encode("utf-16-le")) > 254:
+            text = text[:-1]
+        text += "…"
+    return text.ljust(2, "\u3000")
 
 
 def _set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
@@ -150,22 +185,23 @@ def _set_activity(track: Track | None = None, offset_ms: int = 0) -> None:
 
             rpc.update(
                 activity_type=ActivityType.LISTENING,
-                details=track.name,
-                state=", ".join(artists)
-                if artists
-                else "Unknown Artist",
+                details=_fit(track.name or "Unknown Title"),
+                state=_fit(", ".join(artists) if artists else "Unknown Artist"),
                 large_image=track.album.image()
                 if track.album
                 else "hightide_x1024",
                 small_text="High Tide",
                 small_image="hightide_x1024",
-                name=artists[0] if artists else "High Tide",
+                name=_fit(artists[0]) if artists else "High Tide",
                 start=int(time.time() - offset_ms),
                 end=int(
                     time.time() - offset_ms + track.duration
                 ),
             )
             state = State.PLAYING
+    except pypresence.exceptions.ServerError as e:
+        # Discord refused this update; the connection itself is still fine
+        logger.warning(f"Discord refused the status update: {e}")
     except (pypresence.exceptions.PipeClosed, AssertionError) as e:
         if _connect():
             _set_activity(track, offset_ms)
