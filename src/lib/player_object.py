@@ -184,6 +184,8 @@ class PlayerObject(GObject.GObject):
         self.stream: Any | None = None
         self.update_timer: Any | None = None
         self.seek_after_sink_reload: int | None = None
+        # Pending check whether the JACK output stopped after one of its errors
+        self.jack_stall_check: int | None = None
         self.last_stream_reload: int = 0
         # the track being loaded again by _reload_track
         self.reloading_track: Track | None = None
@@ -404,6 +406,31 @@ class PlayerObject(GObject.GObject):
                 "Stream error: Couldn't download fragments. Reloading track..."
             )
             self._reload_track()
+
+        elif self.sink_type == AudioSink.JACK and message.src.get_name() == "jacksink":
+            self._check_jack_stall()
+
+    def _check_jack_stall(self) -> None:
+        """GStreamer's JACK output stops while JACK runs at another sample rate
+        than the one it started at (PipeWire switches it for other apps), and
+        only reports a server shutdown. If the song stopped moving, start the
+        output again, at the new rate, from the same place."""
+        if self.jack_stall_check:
+            return
+        position = self.query_position()
+
+        def check():
+            self.jack_stall_check = None
+            if (
+                self.playing
+                and self.sink_type == AudioSink.JACK
+                and self.query_position() - position < 200_000_000
+            ):
+                logger.warning("The JACK output stopped, starting it again")
+                self.change_audio_sink(AudioSink.JACK)
+            return False
+
+        self.jack_stall_check = GLib.timeout_add(1500, check)
 
     def _reload_track(self) -> None:
         """Load the playing track again and continue from the same position"""
