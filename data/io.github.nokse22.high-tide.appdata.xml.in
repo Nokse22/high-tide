@@ -73,6 +73,20 @@
   </screenshots>
 
   <releases>
+    <release version="1.11.0" date="2026-11-25">
+      <description translate="no">
+        <p>Customize Home: pick which rows it shows, and keep a My Tracks button at the top</p>
+        <p>Search finds playlists people made, next to TIDAL's</p>
+        <p>An album stops after its last song instead of starting over; repeat plays the whole album again</p>
+        <p>Shuffle and its order are kept after a restart, and the queue follows the shuffle button</p>
+        <p>Choose where the JACK output connects, and the Flatpak can now use JACK</p>
+        <p>Dragging the volume slider and resizing the window no longer lag</p>
+        <p>Fix pictures showing half-loaded or not at all</p>
+        <p>Fix the My Tracks button on Home being empty</p>
+        <p>Log in even when the login can't be saved to the keyring</p>
+        <p>Page buttons follow the player's order, row arrows grey out at the end, and search results are titled with the search</p>
+      </description>
+    </release>
     <release version="1.10.0" date="2026-11-24">
       <description translate="no">
         <p>Artist pages show Compilations, Live albums, Playlists, Influencers and the albums the artist appears on, like TIDAL</p>
