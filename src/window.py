@@ -242,6 +242,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         else:
             volume = self.settings.get_double("volume")
         self._volume_from_player = False
+        # See _save_volume
+        self._volume_to_save: float | None = None
+        self._volume_save_timer: int | None = None
         self.volume_button.get_adjustment().set_value(volume)
         self._setup_volume_button()
         self._setup_tab_shortcuts()
@@ -887,15 +890,37 @@ class HighTideWindow(Adw.ApplicationWindow):
     def on_volume_changed_func(self, widget, value):
         if self._volume_from_player:
             return
+        # Saved by on_player_volume_changed, which change_volume calls
         self.player_object.change_volume(value)
-        if not self.player_object.renderer:
-            # The device's own volume isn't this app's
-            self.settings.set_double("volume", value)
 
     def on_player_volume_changed(self, player, value):
         if not player.renderer:
-            self.settings.set_double("volume", value)
+            # The device's own volume isn't this app's
+            self._save_volume(value)
         self._show_volume(value)
+
+    def _save_volume(self, value: float) -> None:
+        """Save the volume once it stops changing. Each save rewrites the
+        settings file, which can take a tenth of a second, and dragging the
+        slider changes the volume dozens of times a second."""
+        self._volume_to_save = value
+        if self._volume_save_timer is not None:
+            GLib.source_remove(self._volume_save_timer)
+        self._volume_save_timer = GLib.timeout_add(500, self._on_volume_save_timer)
+
+    def _on_volume_save_timer(self) -> bool:
+        self._volume_save_timer = None
+        self.save_pending_volume()
+        return False
+
+    def save_pending_volume(self) -> None:
+        """Save a volume change still waiting in _save_volume"""
+        if self._volume_save_timer is not None:
+            GLib.source_remove(self._volume_save_timer)
+            self._volume_save_timer = None
+        if self._volume_to_save is not None:
+            self.settings.set_double("volume", self._volume_to_save)
+            self._volume_to_save = None
 
     def _show_volume(self, value):
         """Move the slider without sending the value back to the player.
@@ -1177,7 +1202,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         if self.player_object.volume_available:
             volume = self.player_object.query_volume()
             if self._show_volume(volume) and not self.player_object.renderer:
-                self.settings.set_double("volume", volume)
+                self._save_volume(volume)
         self.duration_label.set_label(utils.pretty_duration(end_value))
 
         position_ns = self.player_object.query_position(default=None)

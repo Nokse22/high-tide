@@ -71,6 +71,8 @@ class HighTideApplication(Adw.Application):
     def on_shutdown(self, *args) -> None:
         """Report the play in progress and stop downloads before the app closes"""
         win = self.props.active_window
+        if win and hasattr(win, "save_pending_volume"):
+            win.save_pending_volume()
         if win and getattr(win, "play_reporter", None):
             win.play_reporter.flush()
         if utils.player_object:
