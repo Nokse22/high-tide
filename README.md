@@ -54,13 +54,13 @@ You need:
 - GStreamer with the base and good plugins, plus an AAC decoder (from the bad plugins or libav) for the Low and High qualities
 - libsecret, libportal, and a keyring such as GNOME Keyring or KWallet
 - The Python packages tidalapi, requests and pypresence 4.5 or newer
-- Optional: ffmpeg to keep played songs in the cache, alsa-utils for the ALSA output
+- Optional: ffmpeg to keep played songs in the cache, alsa-utils for the ALSA output, and the Python package segno to show the login as a QR code
 
 On Fedora 43 or newer, for example:
 
 ```sh
 sudo dnf install meson blueprint-compiler gettext desktop-file-utils python3-gobject python3-requests python3-pip gtk4 libadwaita libsecret libportal gstreamer1-plugins-good gstreamer1-plugins-bad-free
-pip install --user tidalapi pypresence
+pip install --user tidalapi pypresence segno
 ```
 
 Then clone the repository, and build with meson.
