@@ -270,6 +270,8 @@ class PlayerObject(GObject.GObject):
             self._continue_in_order()
         self._update_shuffle_queue()
         self.emit("song-added-to-queue")
+        # The queue panel shows the next songs in their new order
+        self.emit("next-songs-changed")
         # self.emit("song-changed")
 
     @GObject.Property(type=int, default=0)
