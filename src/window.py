@@ -123,11 +123,19 @@ class HighTideWindow(Adw.ApplicationWindow):
             "changed::hide-ai-music", self.on_hide_ai_music_changed
         )
 
-        self.settings.bind(
-            "window-width", self, "default-width", Gio.SettingsBindFlags.DEFAULT
+        # Saved once a resize stops, not at every step of it: each save rewrites
+        # the settings file, which can take a tenth of a second
+        self.set_default_size(
+            self.settings.get_int("window-width"),
+            self.settings.get_int("window-height"),
         )
-        self.settings.bind(
-            "window-height", self, "default-height", Gio.SettingsBindFlags.DEFAULT
+        self._window_size_timer: int | None = None
+        self.connect("notify::default-width", self._on_window_resized)
+        self.connect("notify::default-height", self._on_window_resized)
+        self.connect("close-request", lambda *_: self.save_window_size() or False)
+        # Quitting from the menu or with Ctrl+Q doesn't close the window first
+        Gio.Application.get_default().connect(
+            "shutdown", lambda *_: self.save_window_size()
         )
         self.settings.bind(
             "run-background", self, "hide-on-close", Gio.SettingsBindFlags.DEFAULT
@@ -152,6 +160,10 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.create_action_with_target(
             "push-mix-page", GLib.VariantType.new("s"), self.on_push_mix_page
         )
+
+        customize_home_action = Gio.SimpleAction.new("customize-home", None)
+        customize_home_action.connect("activate", self.on_customize_home)
+        self.add_action(customize_home_action)
 
         my_tracks_action = Gio.SimpleAction.new("push-my-tracks-page", None)
         my_tracks_action.connect("activate", self.on_push_my_tracks_page)
@@ -239,6 +251,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         else:
             volume = self.settings.get_double("volume")
         self._volume_from_player = False
+        # See _save_volume
+        self._volume_to_save: float | None = None
+        self._volume_save_timer: int | None = None
         self.volume_button.get_adjustment().set_value(volume)
         self._setup_volume_button()
         self._setup_tab_shortcuts()
@@ -416,7 +431,9 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         # Read before Home is shown, which counts as using Home
         last_tab = self.settings.get_string("last-tab")
-        page = HTGenericPage.new_from_function(utils.session.home).load()
+        page = HTGenericPage.new_from_function(utils.session.home)
+        page.hideable = True
+        page.load()
         page.set_tag("home")
         self.navigation_view.replace([page])
 
@@ -882,15 +899,37 @@ class HighTideWindow(Adw.ApplicationWindow):
     def on_volume_changed_func(self, widget, value):
         if self._volume_from_player:
             return
+        # Saved by on_player_volume_changed, which change_volume calls
         self.player_object.change_volume(value)
-        if not self.player_object.renderer:
-            # The device's own volume isn't this app's
-            self.settings.set_double("volume", value)
 
     def on_player_volume_changed(self, player, value):
         if not player.renderer:
-            self.settings.set_double("volume", value)
+            # The device's own volume isn't this app's
+            self._save_volume(value)
         self._show_volume(value)
+
+    def _save_volume(self, value: float) -> None:
+        """Save the volume once it stops changing. Each save rewrites the
+        settings file, which can take a tenth of a second, and dragging the
+        slider changes the volume dozens of times a second."""
+        self._volume_to_save = value
+        if self._volume_save_timer is not None:
+            GLib.source_remove(self._volume_save_timer)
+        self._volume_save_timer = GLib.timeout_add(500, self._on_volume_save_timer)
+
+    def _on_volume_save_timer(self) -> bool:
+        self._volume_save_timer = None
+        self.save_pending_volume()
+        return False
+
+    def save_pending_volume(self) -> None:
+        """Save a volume change still waiting in _save_volume"""
+        if self._volume_save_timer is not None:
+            GLib.source_remove(self._volume_save_timer)
+            self._volume_save_timer = None
+        if self._volume_to_save is not None:
+            self.settings.set_double("volume", self._volume_to_save)
+            self._volume_to_save = None
 
     def _show_volume(self, value):
         """Move the slider without sending the value back to the player.
@@ -904,6 +943,27 @@ class HighTideWindow(Adw.ApplicationWindow):
         finally:
             self._volume_from_player = False
         return True
+
+    def _on_window_resized(self, *_args) -> None:
+        if self._window_size_timer is not None:
+            GLib.source_remove(self._window_size_timer)
+        self._window_size_timer = GLib.timeout_add(500, self._on_window_size_timer)
+
+    def _on_window_size_timer(self) -> bool:
+        self._window_size_timer = None
+        self.save_window_size()
+        return False
+
+    def save_window_size(self) -> None:
+        if self._window_size_timer is not None:
+            GLib.source_remove(self._window_size_timer)
+            self._window_size_timer = None
+        width, height = self.get_default_size()
+        if width > 0 and height > 0:
+            if self.settings.get_int("window-width") != width:
+                self.settings.set_int("window-width", width)
+            if self.settings.get_int("window-height") != height:
+                self.settings.set_int("window-height", height)
 
     def _setup_tab_shortcuts(self) -> None:
         """Alt+1, Alt+2 and Alt+3 open Home, Explore and Collection (#189)"""
@@ -1172,7 +1232,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         if self.player_object.volume_available:
             volume = self.player_object.query_volume()
             if self._show_volume(volume) and not self.player_object.renderer:
-                self.settings.set_double("volume", volume)
+                self._save_volume(volume)
         self.duration_label.set_label(utils.pretty_duration(end_value))
 
         position_ns = self.player_object.query_position(default=None)
@@ -1234,6 +1294,71 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.player_object.jack_connect = destination
             if self.settings.get_int("preferred-sink") == AudioSink.JACK:
                 self.player_object.change_audio_sink(AudioSink.JACK)
+
+    def on_customize_home(self, *_args) -> None:
+        """Pick which of TIDAL's rows Home shows. A row stays hidden by its id,
+        so rows whose title changes (the genre rows) stay hidden too."""
+        home = self.navigation_view.find_page("home")
+        rows = getattr(home, "rows", None) or []
+        hidden = dict(self.settings.get_value("home-hidden-rows").unpack())
+
+        dialog = Adw.PreferencesDialog(title=_("Customize Home"))
+        page = Adw.PreferencesPage()
+
+        my_tracks_group = Adw.PreferencesGroup()
+        my_tracks_row = Adw.SwitchRow(
+            title=_("My Tracks"),
+            subtitle=_("Always show a button to your liked songs at the top"),
+        )
+        self.settings.bind(
+            "home-my-tracks", my_tracks_row, "active", Gio.SettingsBindFlags.DEFAULT
+        )
+        my_tracks_row.connect(
+            "notify::active",
+            lambda *_: home.apply_hidden_rows() if home is not None else None,
+        )
+        my_tracks_group.add(my_tracks_row)
+        page.add(my_tracks_group)
+
+        group = Adw.PreferencesGroup(
+            description=_("Turn off the rows you don't want on Home")
+        )
+        page.add(group)
+        dialog.add(page)
+
+        def add_row(module_id, title, subtitle=None):
+            row = Adw.SwitchRow(title=title or module_id, active=module_id not in hidden)
+            if subtitle:
+                row.set_subtitle(subtitle)
+            row.connect("notify::active", on_toggled, module_id, title)
+            group.add(row)
+
+        def on_toggled(row, _pspec, module_id, title):
+            if row.get_active():
+                hidden.pop(module_id, None)
+            else:
+                hidden[module_id] = title
+            self.settings.set_value(
+                "home-hidden-rows", GLib.Variant("a{ss}", hidden)
+            )
+            if home is not None:
+                home.apply_hidden_rows()
+
+        shown_ids = set()
+        for module_id, title, _widget in rows:
+            if module_id in shown_ids:
+                continue
+            shown_ids.add(module_id)
+            subtitle = None
+            if module_id.startswith("BASED_ON_YOUR_INTERESTS"):
+                subtitle = _("Genre picks based on what you listen to")
+            add_row(module_id, title, subtitle)
+        # Hidden rows TIDAL didn't send today, so they can be turned back on
+        for module_id, title in hidden.items():
+            if module_id not in shown_ids:
+                add_row(module_id, title, _("Not on Home today"))
+
+        dialog.present(self)
 
     def change_normalization(self, state):
         if self.player_object.normalize != state:

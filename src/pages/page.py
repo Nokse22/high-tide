@@ -286,22 +286,22 @@ class Page(Adw.NavigationPage, IDisconnectable):
         title_box.append(
             Gtk.Label(label=title, xalign=0, css_classes=["title-3"], ellipsize=3)
         )
-        prev_button = Gtk.Button(
+        next_button = Gtk.Button(
             icon_name="go-next-symbolic",
             tooltip_text=_("Next"),
             margin_start=6,
             halign=Gtk.Align.END,
             css_classes=["circular"],
         )
-        next_button = Gtk.Button(
+        prev_button = Gtk.Button(
             icon_name="go-previous-symbolic",
             tooltip_text=_("Previous"),
             hexpand=True,
             halign=Gtk.Align.END,
             css_classes=["circular"],
         )
-        title_box.append(next_button)
         title_box.append(prev_button)
+        title_box.append(next_button)
 
         box.append(title_box)
         cards_box = Adw.Carousel(
@@ -312,17 +312,27 @@ class Page(Adw.NavigationPage, IDisconnectable):
 
         self.signals.append(
             (
-                prev_button,
-                prev_button.connect("clicked", self.carousel_go_prev, cards_box),
+                next_button,
+                next_button.connect("clicked", self.carousel_go_next, cards_box),
             )
         )
 
         self.signals.append(
             (
-                next_button,
-                next_button.connect("clicked", self.carousel_go_next, cards_box),
+                prev_button,
+                prev_button.connect("clicked", self.carousel_go_prev, cards_box),
             )
         )
+
+        def update_arrows(*_args):
+            # Greyed out at the ends, so it's clear whether there's more
+            position = cards_box.get_position()
+            prev_button.set_sensitive(position > 0.01)
+            next_button.set_sensitive(position < cards_box.get_n_pages() - 1.01)
+
+        for prop in ("notify::position", "notify::n-pages"):
+            self.signals.append((cards_box, cards_box.connect(prop, update_arrows)))
+        update_arrows()
 
         buttons_for_page = 0
 
@@ -339,7 +349,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
             flow_box.append(button)
             buttons_for_page += 1
 
-    def carousel_go_prev(self, btn, carousel) -> None:
+    def carousel_go_next(self, btn, carousel) -> None:
         pos = carousel.get_position()
         if pos + 2 >= carousel.get_n_pages():
             if pos + 1 == carousel.get_n_pages():
@@ -351,7 +361,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
         if next_page is not None:
             carousel.scroll_to(next_page, True)
 
-    def carousel_go_next(self, btn, carousel) -> None:
+    def carousel_go_prev(self, btn, carousel) -> None:
         pos = carousel.get_position()
         if pos - 2 < 0:
             if pos - 1 < 0:

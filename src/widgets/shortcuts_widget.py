@@ -59,6 +59,17 @@ class HTShorcutWidget(Gtk.FlowBoxChild, IDisconnectable):
             )
         )
 
+        if self.item is utils.MY_TRACKS:
+            # TIDAL's button to the liked songs (a link, see _install_my_tracks_link)
+            self.title_label.set_label(self.item.name)
+            self.subtitle_label.set_label(_("Your liked songs"))
+            self.image.set_from_icon_name("heart-filled-symbolic")
+            self.image.set_pixel_size(20)
+            self.image.set_size_request(40, 40)
+            self.image.add_css_class("folder-cover")
+            self.action = "win.push-my-tracks-page"
+            return
+
         if isinstance(self.item, Mix) or isinstance(self.item, MixV2):
             self.title_label.set_label(self.item.title)
             self.subtitle_label.set_label(self.item.sub_title)
@@ -85,6 +96,9 @@ class HTShorcutWidget(Gtk.FlowBoxChild, IDisconnectable):
         if self.action is None:
             return
 
+        if self.item is utils.MY_TRACKS:
+            self.activate_action(self.action, None)
+            return
         self.activate_action(self.action, GLib.Variant("s", str(self.item.id)))
 
 
