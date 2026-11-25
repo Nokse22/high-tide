@@ -153,6 +153,10 @@ class HighTideWindow(Adw.ApplicationWindow):
             "push-mix-page", GLib.VariantType.new("s"), self.on_push_mix_page
         )
 
+        customize_home_action = Gio.SimpleAction.new("customize-home", None)
+        customize_home_action.connect("activate", self.on_customize_home)
+        self.add_action(customize_home_action)
+
         my_tracks_action = Gio.SimpleAction.new("push-my-tracks-page", None)
         my_tracks_action.connect("activate", self.on_push_my_tracks_page)
         self.add_action(my_tracks_action)
@@ -415,7 +419,9 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         # Read before Home is shown, which counts as using Home
         last_tab = self.settings.get_string("last-tab")
-        page = HTGenericPage.new_from_function(utils.session.home).load()
+        page = HTGenericPage.new_from_function(utils.session.home)
+        page.hideable = True
+        page.load()
         page.set_tag("home")
         self.navigation_view.replace([page])
 
@@ -1226,6 +1232,71 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.player_object.change_audio_sink(
                 self.settings.get_int("preferred-sink")
             )
+
+    def on_customize_home(self, *_args) -> None:
+        """Pick which of TIDAL's rows Home shows. A row stays hidden by its id,
+        so rows whose title changes (the genre rows) stay hidden too."""
+        home = self.navigation_view.find_page("home")
+        rows = getattr(home, "rows", None) or []
+        hidden = dict(self.settings.get_value("home-hidden-rows").unpack())
+
+        dialog = Adw.PreferencesDialog(title=_("Customize Home"))
+        page = Adw.PreferencesPage()
+
+        my_tracks_group = Adw.PreferencesGroup()
+        my_tracks_row = Adw.SwitchRow(
+            title=_("My Tracks"),
+            subtitle=_("Always show a button to your liked songs at the top"),
+        )
+        self.settings.bind(
+            "home-my-tracks", my_tracks_row, "active", Gio.SettingsBindFlags.DEFAULT
+        )
+        my_tracks_row.connect(
+            "notify::active",
+            lambda *_: home.apply_hidden_rows() if home is not None else None,
+        )
+        my_tracks_group.add(my_tracks_row)
+        page.add(my_tracks_group)
+
+        group = Adw.PreferencesGroup(
+            description=_("Turn off the rows you don't want on Home")
+        )
+        page.add(group)
+        dialog.add(page)
+
+        def add_row(module_id, title, subtitle=None):
+            row = Adw.SwitchRow(title=title or module_id, active=module_id not in hidden)
+            if subtitle:
+                row.set_subtitle(subtitle)
+            row.connect("notify::active", on_toggled, module_id, title)
+            group.add(row)
+
+        def on_toggled(row, _pspec, module_id, title):
+            if row.get_active():
+                hidden.pop(module_id, None)
+            else:
+                hidden[module_id] = title
+            self.settings.set_value(
+                "home-hidden-rows", GLib.Variant("a{ss}", hidden)
+            )
+            if home is not None:
+                home.apply_hidden_rows()
+
+        shown_ids = set()
+        for module_id, title, _widget in rows:
+            if module_id in shown_ids:
+                continue
+            shown_ids.add(module_id)
+            subtitle = None
+            if module_id.startswith("BASED_ON_YOUR_INTERESTS"):
+                subtitle = _("Genre picks based on what you listen to")
+            add_row(module_id, title, subtitle)
+        # Hidden rows TIDAL didn't send today, so they can be turned back on
+        for module_id, title in hidden.items():
+            if module_id not in shown_ids:
+                add_row(module_id, title, _("Not on Home today"))
+
+        dialog.present(self)
 
     def change_normalization(self, state):
         if self.player_object.normalize != state:
