@@ -22,6 +22,14 @@
 	  <key name="last-playing-thing-type" type="s">
       <default>''</default>
     </key>
+	  <key name="shuffle" type="b">
+      <default>false</default>
+      <summary>Whether shuffle is on</summary>
+    </key>
+	  <key name="last-playing-shuffle-order" type="as">
+      <default>[]</default>
+      <summary>The songs still to play, in their shuffled order</summary>
+    </key>
 	  <key name="last-playing-track-id" type="s">
       <default>''</default>
     </key>
