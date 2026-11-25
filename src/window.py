@@ -210,6 +210,7 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.settings.get_boolean("normalize"),
             self.settings.get_boolean("quadratic-volume"),
             self.settings.get_int("output-rate"),
+            self.settings.get_string("jack-connect"),
         )
         utils.player_object = self.player_object
 
@@ -1226,6 +1227,13 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.player_object.change_audio_sink(
                 self.settings.get_int("preferred-sink")
             )
+
+    def change_jack_connect(self, destination: str) -> None:
+        if self.settings.get_string("jack-connect") != destination:
+            self.settings.set_string("jack-connect", destination)
+            self.player_object.jack_connect = destination
+            if self.settings.get_int("preferred-sink") == AudioSink.JACK:
+                self.player_object.change_audio_sink(AudioSink.JACK)
 
     def change_normalization(self, state):
         if self.player_object.normalize != state:

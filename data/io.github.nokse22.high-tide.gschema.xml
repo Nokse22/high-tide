@@ -138,5 +138,10 @@
 	  <key name="alsa-device" type="s">
       <default>'default'</default>
     </key>
+	  <key name="jack-connect" type="s">
+      <default>''</default>
+      <summary>Where the JACK output connects to</summary>
+      <description>A JACK client's name, '' for the sound card or '@nothing' to leave connecting to a patchbay</description>
+    </key>
 	</schema>
 </schemalist>
