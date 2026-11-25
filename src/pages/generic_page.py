@@ -19,7 +19,7 @@
 
 from gettext import gettext as _
 
-from gi.repository import Gtk
+from gi.repository import Gio, Gtk
 
 from tidalapi.media import Track
 from tidalapi.page import (
@@ -50,6 +50,8 @@ class HTGenericPage(Page):
 
     function = None
     page = None
+    # Home: rows can be hidden with Customize Home (setting home-hidden-rows)
+    hideable = False
 
     @classmethod
     def new_from_function(cls, function) -> "HTGenericPage":
@@ -79,43 +81,66 @@ class HTGenericPage(Page):
     def _load_finish(self) -> None:
         self.set_title(self.page.title or "")
 
+        # (TIDAL's row id, title, widget) of each row shown, for Customize Home
+        self.rows = []
+
         for category in self.page.categories:
-            items = [
-                item
-                for item in getattr(category, "items", [])
-                if item is not None and not utils.is_hidden_by_block(item)
-            ]
+            last_widget = self.content.get_last_child()
+            self._add_category(category)
+            widget = self.content.get_last_child()
+            module_id = getattr(category, "module_id", None)
+            if widget is not last_widget and module_id:
+                self.rows.append((module_id, category.title or "", widget))
 
-            if isinstance(category, TrackList) or all(
-                isinstance(item, Track) for item in items
-            ):
-                self.new_track_list_for(category.title, items)
+        if self.hideable:
+            self.apply_hidden_rows()
 
-            elif isinstance(category, TextBlock):
-                self.append(
-                    Gtk.Label(
-                        justify=0,
-                        xalign=0,
-                        wrap=True,
-                        margin_start=12,
-                        margin_top=12,
-                        margin_bottom=12,
-                        margin_end=12,
-                        label=category.text,
-                    )
+    def apply_hidden_rows(self) -> None:
+        """Hide the rows the user turned off in Customize Home"""
+        hidden = Gio.Settings.new("io.github.nokse22.high-tide").get_value(
+            "home-hidden-rows"
+        ).unpack()
+        for module_id, _title, widget in self.rows:
+            widget.set_visible(module_id not in hidden)
+
+    def _add_category(self, category) -> None:
+        """Add the widget showing one of TIDAL's rows"""
+        items = [
+            item
+            for item in getattr(category, "items", [])
+            if item is not None and not utils.is_hidden_by_block(item)
+        ]
+
+        if isinstance(category, TrackList) or all(
+            isinstance(item, Track) for item in items
+        ):
+            self.new_track_list_for(category.title, items)
+
+        elif isinstance(category, TextBlock):
+            self.append(
+                Gtk.Label(
+                    justify=0,
+                    xalign=0,
+                    wrap=True,
+                    margin_start=12,
+                    margin_top=12,
+                    margin_bottom=12,
+                    margin_end=12,
+                    label=category.text,
                 )
+            )
 
-            elif isinstance(category, PageLinks):
-                self.new_link_carousel_for(category.title or _("More"), items)
+        elif isinstance(category, PageLinks):
+            self.new_link_carousel_for(category.title or _("More"), items)
 
-            elif isinstance(category, ShortcutList):
-                self.append(HTShorcutsWidget(items))
+        elif isinstance(category, ShortcutList):
+            self.append(HTShorcutsWidget(items))
 
-            elif isinstance(
-                category, (ItemList, HorizontalList, HorizontalListWithContext)
-            ):
-                self.new_carousel_for(
-                    category.title,
-                    items,
-                    context=getattr(category, "context_item", None),
-                )
+        elif isinstance(
+            category, (ItemList, HorizontalList, HorizontalListWithContext)
+        ):
+            self.new_carousel_for(
+                category.title,
+                items,
+                context=getattr(category, "context_item", None),
+            )

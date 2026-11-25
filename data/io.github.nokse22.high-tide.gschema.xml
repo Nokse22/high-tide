@@ -135,6 +135,11 @@
 	  <key name="hide-ai-music" type="b">
       <default>false</default>
     </key>
+	  <key name="home-hidden-rows" type="a{ss}">
+      <default>{}</default>
+      <summary>Home rows turned off in Customize Home</summary>
+      <description>TIDAL's id of each hidden row, with its title when it was hidden</description>
+    </key>
 	  <key name="alsa-device" type="s">
       <default>'default'</default>
     </key>
