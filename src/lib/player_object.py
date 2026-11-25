@@ -541,18 +541,24 @@ class PlayerObject(GObject.GObject):
 
         self.id_list = [track.id for track in tracks]
 
-        self._tracks_to_play = tracks[index:] + tracks[:index]
-        self._play_order = self._tracks_to_play.copy()
-        if not self._tracks_to_play:
+        if not 0 <= index < len(tracks):
             return
-
-        track: Track = self._tracks_to_play.pop(0)
+        self._play_order = list(tracks)
+        track: Track = tracks[index]
 
         if not track.available:
             self.play_this(thing, index + 1, tracks, source=source)
         else:
+            # As in TIDAL's apps, the songs before the picked one are the history
+            # (Back plays them) and the music stops after the last one, unless
+            # repeat is on (#261). With shuffle on, all the others are shuffled.
+            if self.shuffle:
+                self._tracks_to_play = tracks[index + 1 :] + tracks[:index]
+                self.played_songs = []
+            else:
+                self._tracks_to_play = tracks[index + 1 :]
+                self.played_songs = tracks[:index]
             self.tracks_to_play = self._tracks_to_play
-            self.played_songs = []
 
             if self.shuffle:
                 self._update_shuffle_queue()
@@ -571,8 +577,11 @@ class PlayerObject(GObject.GObject):
             source: What a list of tracks was played from, see play_this
         """
         tracks: List[Track] = self.get_track_list(thing)
-        self.play_this(thing, random.randint(0, len(tracks)), tracks, source=source)
+        if not tracks:
+            return
+        # On first, so the songs after a random first one are all of the others
         self.shuffle = True
+        self.play_this(thing, random.randrange(len(tracks)), tracks, source=source)
 
     def get_track_list(
         self, thing: Union[Mix, Album, Playlist, Artist, List[Track], Track]
