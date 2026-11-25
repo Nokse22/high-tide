@@ -429,7 +429,7 @@ class PlayerObject(GObject.GObject):
         self.song_album = self.playing_track.album
         self.playing_from_queue = self.playing_track is self._last_queued_track
         self.can_go_next = len(self._tracks_to_play) > 0
-        self.can_go_prev = len(self.played_songs) > 0
+        self.can_go_prev = self._can_go_back()
         self.duration = self.query_duration()
         # Should only trigger when track is enqued on start without playback
         if not self.duration:
@@ -485,7 +485,7 @@ class PlayerObject(GObject.GObject):
         self.last_seek_position = None
         self._continue_after_reload()
 
-        self.can_go_prev = len(self.played_songs) > 0
+        self.can_go_prev = self._can_go_back()
         # Only notify to deactivate
         if not self.can_go_prev:
             self.notify("can-go-prev")
@@ -541,18 +541,24 @@ class PlayerObject(GObject.GObject):
 
         self.id_list = [track.id for track in tracks]
 
-        self._tracks_to_play = tracks[index:] + tracks[:index]
-        self._play_order = self._tracks_to_play.copy()
-        if not self._tracks_to_play:
+        if not 0 <= index < len(tracks):
             return
-
-        track: Track = self._tracks_to_play.pop(0)
+        self._play_order = list(tracks)
+        track: Track = tracks[index]
 
         if not track.available:
             self.play_this(thing, index + 1, tracks, source=source)
         else:
-            self.tracks_to_play = self._tracks_to_play
+            # As in TIDAL's apps, the music stops after the last song unless
+            # repeat is on, and Back plays the songs before the picked one (see
+            # _previous_in_order) (#261). With shuffle on, all the others are
+            # shuffled.
+            if self.shuffle:
+                self._tracks_to_play = tracks[index + 1 :] + tracks[:index]
+            else:
+                self._tracks_to_play = tracks[index + 1 :]
             self.played_songs = []
+            self.tracks_to_play = self._tracks_to_play
 
             if self.shuffle:
                 self._update_shuffle_queue()
@@ -571,8 +577,11 @@ class PlayerObject(GObject.GObject):
             source: What a list of tracks was played from, see play_this
         """
         tracks: List[Track] = self.get_track_list(thing)
-        self.play_this(thing, random.randint(0, len(tracks)), tracks, source=source)
+        if not tracks:
+            return
+        # On first, so the songs after a random first one are all of the others
         self.shuffle = True
+        self.play_this(thing, random.randrange(len(tracks)), tracks, source=source)
 
     def get_track_list(
         self, thing: Union[Mix, Album, Playlist, Artist, List[Track], Track]
@@ -1115,7 +1124,7 @@ class PlayerObject(GObject.GObject):
             track_list = self._tracks_to_play
         if not track_list and self._repeat_type == RepeatType.LIST and not self.shuffle:
             # play_next starts the list again
-            return (self.played_songs or [self.playing_track])[0]
+            return (self._play_order or self.played_songs or [self.playing_track])[0]
         return track_list[0] if track_list else None
 
     def _prefetch_next_track(self) -> None:
@@ -1219,7 +1228,8 @@ class PlayerObject(GObject.GObject):
             return
 
         if not self.tracks_to_play and self._repeat_type == RepeatType.LIST:
-            self._tracks_to_play = self.played_songs
+            # The whole list again from its first song
+            self._tracks_to_play = list(self._play_order) or self.played_songs
             self.played_songs = []
             self._update_shuffle_queue()
 
@@ -1251,7 +1261,10 @@ class PlayerObject(GObject.GObject):
             has_next = (
                 self.queue
                 or self._tracks_to_play
-                or (self._repeat_type == RepeatType.LIST and self.played_songs)
+                or (
+                    self._repeat_type == RepeatType.LIST
+                    and (self._play_order or self.played_songs)
+                )
             )
             if self._repeat_type == RepeatType.SONG or not has_next:
                 self.pause()
@@ -1349,21 +1362,36 @@ class PlayerObject(GObject.GObject):
         # if not in the first 2 seconds of the track restart song
         if self.query_position() > 2 * Gst.SECOND:
             self.seek(0)
-            self.can_go_prev = len(self.played_songs) > 0
+            self.can_go_prev = self._can_go_back()
             # only notify when can't go to previous
             if not self.can_go_prev:
                 self.notify("can-go-prev")
                 GLib.timeout_add(2000, self.previous_timer_callback)
             return
 
-        if not self.played_songs:
-            return
-
-        last_index = len(self.played_songs) - 1
-        track = self.played_songs.pop(last_index)
+        if self.played_songs:
+            track = self.played_songs.pop()
+        else:
+            track = self._previous_in_order()
+            if track is None:
+                return
         if self.playing_track:
             self._tracks_to_play.insert(0, self.playing_track)
         self.play_track(track)
+
+    def _previous_in_order(self) -> Track | None:
+        """The song before the current one in the list played from, for Back
+        when nothing was played before it: after picking a song in the middle of
+        an album, the played songs only hold what was really played (#261)"""
+        if self.shuffle or self.playing_from_queue or not self.playing_track:
+            return None
+        for position, track in enumerate(self._play_order):
+            if track is self.playing_track:
+                return self._play_order[position - 1] if position > 0 else None
+        return None
+
+    def _can_go_back(self) -> bool:
+        return bool(self.played_songs) or self._previous_in_order() is not None
 
     def play_from_next_songs(self, index: int) -> None:
         """Play a track from the tracks to play, as shown in the queue.
