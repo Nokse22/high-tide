@@ -52,6 +52,9 @@ class HTSearchPage(Page):
             self.results["playlists"] = playlists
 
     def _load_finish(self) -> None:
+        # Instead of the "Loading..." every page starts with
+        self.set_title(self.search)
+
         top_hit = self.results.get("top_hit")
         if top_hit is not None and utils.filter_ai_items([top_hit]):
             self.append(HTTopHitWidget(top_hit))

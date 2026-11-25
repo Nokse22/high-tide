@@ -2032,6 +2032,43 @@ def search_playlists(query: str, limit: int = 10) -> List[Playlist] | None:
     return playlists
 
 
+# Seconds to wait for a picture's server to answer, and between parts of it
+DOWNLOAD_TIMEOUT = (10, 30)
+
+
+def _download_cached(
+    file_path: Path, get_url: Callable[[], str], what: str
+) -> str | None:
+    """Download a picture or video cover to the cache, unless it's there already.
+
+    Returns:
+        str: The file's path, or None if it couldn't be downloaded
+    """
+    if file_path.is_file():
+        return str(file_path)
+
+    try:
+        response = requests.get(get_url(), timeout=DOWNLOAD_TIMEOUT)
+    except Exception:
+        logger.exception(f"Could not get {what}")
+        return None
+    if response.status_code != 200:
+        logger.warning(f"Could not get {what}: HTTP {response.status_code}")
+        return None
+
+    # Written under another name and renamed once complete, so a file that is
+    # there is whole: all the rows of an album ask for its cover at once
+    part_path = file_path.with_name(f".{file_path.name}.{uuid.uuid4().hex}.part")
+    try:
+        part_path.write_bytes(response.content)
+        os.replace(part_path, file_path)
+    except OSError:
+        logger.exception(f"Could not save {what}")
+        part_path.unlink(missing_ok=True)
+        return None
+    return str(file_path)
+
+
 def get_image_url(item: Any, dimensions: int = 320) -> str | None:
     """Get the local file path for an item's image, downloading if necessary.
 
@@ -2051,22 +2088,9 @@ def get_image_url(item: Any, dimensions: int = 320) -> str | None:
     else:
         file_path = IMG_DIR / f"{uuid.uuid4()}_{dimensions}.jpg"
 
-    if file_path.is_file():
-        return str(file_path)
-
-    try:
-        picture_url = item.image(dimensions=dimensions)
-        response = requests.get(picture_url)
-    except Exception:
-        logger.exception("Could not get image")
-        return None
-    if response.status_code == 200:
-        picture_data = response.content
-
-        with open(file_path, "wb") as file:
-            file.write(picture_data)
-
-    return str(file_path)
+    return _download_cached(
+        file_path, lambda: item.image(dimensions=dimensions), "image"
+    )
 
 
 def add_picture(
@@ -2090,7 +2114,7 @@ def add_picture(
         cancellable = Gio.Cancellable.new()
 
     def _add_picture(widget, file_path, cancellable):
-        if not cancellable.is_cancelled():
+        if file_path and not cancellable.is_cancelled():
             widget.set_filename(file_path)
 
     GLib.idle_add(
@@ -2117,7 +2141,7 @@ def add_image(
     def _add_image(
         widget: Any, file_path: str | None, cancellable: Gio.Cancellable
     ) -> None:
-        if not cancellable.is_cancelled():
+        if file_path and not cancellable.is_cancelled():
             widget.set_from_file(file_path)
 
     GLib.idle_add(_add_image, widget, get_image_url(item), cancellable)
@@ -2138,22 +2162,9 @@ def get_video_cover_url(item: Any, dimensions: int = 320) -> str | None:
     else:
         file_path = IMG_DIR / f"{uuid.uuid4()}_{dimensions}.mp4"
 
-    if file_path.is_file():
-        return str(file_path)
-
-    try:
-        video_url = item.video(dimensions=dimensions)
-        response = requests.get(video_url)
-    except Exception:
-        logger.exception("Could not get video")
-        return None
-    if response.status_code == 200:
-        picture_data = response.content
-
-        with open(file_path, "wb") as file:
-            file.write(picture_data)
-
-    return str(file_path)
+    return _download_cached(
+        file_path, lambda: item.video(dimensions=dimensions), "video"
+    )
 
 
 def add_video_cover(
@@ -2218,7 +2229,7 @@ def add_image_to_avatar(
     def _add_image_to_avatar(
         avatar_widget: Any, file_path: str | None, cancellable: Gio.Cancellable
     ) -> None:
-        if not cancellable.is_cancelled():
+        if file_path and not cancellable.is_cancelled():
             file = Gio.File.new_for_path(file_path)
             image = Gdk.Texture.new_from_file(file)
             widget.set_custom_image(image)
