@@ -1989,6 +1989,49 @@ def _install_artist_cover_fallback() -> None:
     Artist.parse_artist = parse
 
 
+def search_playlists(query: str, limit: int = 10) -> List[Playlist] | None:
+    """Search playlists the way tidal.com does, so playlists people made show
+    up next to TIDAL's (#216). The search tidalapi uses only finds TIDAL's.
+
+    Returns:
+        The playlists, or None if TIDAL's search couldn't be used
+    """
+    try:
+        json_obj = session.request.request(
+            "GET",
+            "search/",
+            params={
+                "query": query,
+                "limit": limit,
+                "types": "PLAYLISTS",
+                "includeUserPlaylists": "true",
+                "countryCode": session.country_code,
+                "locale": session.locale,
+                "deviceType": "BROWSER",
+                "platform": "WEB",
+            },
+            base_url=session.config.api_v2_location,
+        ).json()
+        items = json_obj["playlists"]["items"]
+    except Exception:
+        logger.exception("Could not search playlists made by people")
+        return None
+
+    playlists = []
+    for item in items:
+        # Named a little differently than in the search tidalapi reads
+        item.setdefault("numberOfVideos", item.get("numberOfVideoTracks", 0))
+        if item.get("type") == "USER" and not item.get("creator"):
+            item["creator"] = {"id": item.get("userId")}
+            if item.get("profileName"):
+                item["creator"]["name"] = item["profileName"]
+        try:
+            playlists.append(session.parse_playlist(item))
+        except Exception:
+            logger.exception(f"Could not read playlist {item.get('uuid')}")
+    return playlists
+
+
 # Seconds to wait for a picture's server to answer, and between parts of it
 DOWNLOAD_TIMEOUT = (10, 30)
 

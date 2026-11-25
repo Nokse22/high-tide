@@ -47,6 +47,9 @@ class HTSearchPage(Page):
         self.results = utils.session.search(
             self.search, [Artist, Album, Playlist, Track], 10
         )
+        playlists = utils.search_playlists(self.search, 10)
+        if playlists is not None:
+            self.results["playlists"] = playlists
 
     def _load_finish(self) -> None:
         # Instead of the "Loading..." every page starts with
