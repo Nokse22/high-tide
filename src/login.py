@@ -175,9 +175,21 @@ class LoginDialog(Adw.Dialog):
             return
         self.done = True
         utils.device_login = not is_pkce
-        self.win.secret_store.save(is_pkce=is_pkce)
+        try:
+            self.win.secret_store.save(is_pkce=is_pkce)
+            saved = True
+        except Exception:
+            # No usable keyring, e.g. no default collection outside a full
+            # desktop (#228): the login still works until the app is closed
+            logger.exception("Could not save the login to the keyring")
+            saved = False
         self.win.on_logged_in()
         self.close()
+        if not saved:
+            utils.send_toast(
+                _("Couldn't save your login to the keyring, so you'll need to log in again next time"),
+                10,
+            )
 
     def _on_failure(self, message: str) -> None:
         self.error_label.set_label(_("Login failed: {error}").format(error=message))
