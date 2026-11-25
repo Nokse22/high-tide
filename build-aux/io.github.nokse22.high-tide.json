@@ -1,7 +1,7 @@
 {
     "app-id": "io.github.nokse22.high-tide",
     "runtime": "org.gnome.Platform",
-    "runtime-version": "50",
+    "runtime-version": "51",
     "sdk": "org.gnome.Sdk",
     "command": "high-tide",
     "finish-args": [
@@ -12,6 +12,7 @@
         "--socket=wayland",
         "--socket=pulseaudio",
         "--filesystem=xdg-run/pipewire-0:ro",
+        "--filesystem=xdg-run/app/com.discordapp.Discord:create",
         "--filesystem=xdg-run/discord-ipc-0"
     ],
     "cleanup": [
@@ -25,15 +26,12 @@
         "*.la",
         "*.a"
     ],
+    "cleanup-commands": [
+        "python3 -m compileall --invalidation-mode=unchecked-hash /app"
+    ],
     "modules": [
-        "libportal.json",
-        "blueprint-compiler.json",
-        "alsa-utils.json",
         "gst-plugin-jack.json",
-        "python3-pypresence.json",
-        "python3-six.json",
-        "python3-tidalapi.json",
-        "python3-segno.json",
+        "python3-requirements.json",
         {
             "name": "high-tide",
             "builddir": true,
