@@ -123,11 +123,19 @@ class HighTideWindow(Adw.ApplicationWindow):
             "changed::hide-ai-music", self.on_hide_ai_music_changed
         )
 
-        self.settings.bind(
-            "window-width", self, "default-width", Gio.SettingsBindFlags.DEFAULT
+        # Saved once a resize stops, not at every step of it: each save rewrites
+        # the settings file, which can take a tenth of a second
+        self.set_default_size(
+            self.settings.get_int("window-width"),
+            self.settings.get_int("window-height"),
         )
-        self.settings.bind(
-            "window-height", self, "default-height", Gio.SettingsBindFlags.DEFAULT
+        self._window_size_timer: int | None = None
+        self.connect("notify::default-width", self._on_window_resized)
+        self.connect("notify::default-height", self._on_window_resized)
+        self.connect("close-request", lambda *_: self.save_window_size() or False)
+        # Quitting from the menu or with Ctrl+Q doesn't close the window first
+        Gio.Application.get_default().connect(
+            "shutdown", lambda *_: self.save_window_size()
         )
         self.settings.bind(
             "run-background", self, "hide-on-close", Gio.SettingsBindFlags.DEFAULT
@@ -909,6 +917,27 @@ class HighTideWindow(Adw.ApplicationWindow):
         finally:
             self._volume_from_player = False
         return True
+
+    def _on_window_resized(self, *_args) -> None:
+        if self._window_size_timer is not None:
+            GLib.source_remove(self._window_size_timer)
+        self._window_size_timer = GLib.timeout_add(500, self._on_window_size_timer)
+
+    def _on_window_size_timer(self) -> bool:
+        self._window_size_timer = None
+        self.save_window_size()
+        return False
+
+    def save_window_size(self) -> None:
+        if self._window_size_timer is not None:
+            GLib.source_remove(self._window_size_timer)
+            self._window_size_timer = None
+        width, height = self.get_default_size()
+        if width > 0 and height > 0:
+            if self.settings.get_int("window-width") != width:
+                self.settings.set_int("window-width", width)
+            if self.settings.get_int("window-height") != height:
+                self.settings.set_int("window-height", height)
 
     def _setup_tab_shortcuts(self) -> None:
         """Alt+1, Alt+2 and Alt+3 open Home, Explore and Collection (#189)"""
