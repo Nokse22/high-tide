@@ -13,8 +13,8 @@
   "sources": [
     {
       "type": "archive",
-      "url": "https://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugins-good-1.26.11.tar.xz",
-      "sha256": "001deb0876d5d743cd3448abf74a27adec3fd850012fcb1b00994861bd6c1145"
+      "url": "https://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugins-good-1.28.6.tar.xz",
+      "sha256": "b0c620a4b18b6ee931b4c43bbf1760d308666dc37f730a7e7f1ad327e59ce2df"
     }
   ],
   "cleanup": [
