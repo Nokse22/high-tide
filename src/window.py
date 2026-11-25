@@ -530,10 +530,19 @@ class HighTideWindow(Adw.ApplicationWindow):
                 break
         index = min(max(index, 0), len(tracks) - 1)
 
-        # The source too, so the player shows what it's playing from
-        GLib.idle_add(
-            lambda: self.player_object.play_this(tracks, index, source=source) and False
-        )
+        shuffle = self.settings.get_boolean("shuffle")
+        shuffle_order = self.settings.get_strv("last-playing-shuffle-order")
+
+        def restore():
+            # Shuffle first, so the other songs are the shuffled ones (#255)
+            self.player_object.shuffle = shuffle
+            # The source too, so the player shows what it's playing from
+            self.player_object.play_this(tracks, index, source=source)
+            if shuffle:
+                self.player_object.restore_shuffled_order(shuffle_order)
+            return False
+
+        GLib.idle_add(restore)
         GLib.idle_add(self.player_object.pause)
 
     #
@@ -651,6 +660,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.settings.set_string("last-playing-thing-id", thing_id)
         self.settings.set_string("last-playing-track-id", str(track.id))
         self.settings.set_int("last-playing-index", player.get_index())
+        # The shuffled order too, so it continues the same after a restart (#255)
+        order = [str(t.id) for t in player.tracks_to_play] if player.shuffle else []
+        self.settings.set_strv("last-playing-shuffle-order", order)
 
     def stop_video_in_background(self, window, param):
         self.in_background = not self.is_active()
@@ -1217,6 +1229,8 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def on_shuffle_changed(self, *args):
         self.shuffle_button.set_active(self.player_object.shuffle)
+        self.settings.set_boolean("shuffle", self.player_object.shuffle)
+        self.save_last_playing_thing()
 
     def update_slider(self, *args):
         """Update the progress bar and playback information.

@@ -1487,6 +1487,21 @@ class PlayerObject(GObject.GObject):
     def _in_play_order(self, track: Track) -> bool:
         return any(t is track for t in self._play_order)
 
+    def restore_shuffled_order(self, track_ids: List[str]) -> None:
+        """Play the songs still to come in the shuffled order saved before a
+        restart. Songs not in it were played already."""
+        if not self.shuffle:
+            return
+        waiting = {}
+        for track in self._shuffled_tracks_to_play:
+            waiting.setdefault(str(track.id), []).append(track)
+        order = [waiting[i].pop(0) for i in track_ids if waiting.get(i)]
+        self._shuffled_tracks_to_play[:] = order
+        self.tracks_to_play = self._shuffled_tracks_to_play
+        self.can_go_next = len(order) > 0
+        self.notify("can-go-next")
+        self.emit("next-songs-changed")
+
     def _update_shuffle_queue(self):
         if self.shuffle:
             self._shuffled_tracks_to_play = self._tracks_to_play.copy()
