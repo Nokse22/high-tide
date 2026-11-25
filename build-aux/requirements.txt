@@ -1,0 +1,7 @@
+# Use the following command to regenaret the Python modules
+# flatpak-pip-generator -r requirements.txt --runtime=org.gnome.Sdk//51
+
+pypresence
+six
+tidalapi
+segno
