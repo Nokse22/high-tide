@@ -119,6 +119,9 @@ class HighTideWindow(Adw.ApplicationWindow):
         utils.fix_theme_icons(self)
 
         self.settings = Gio.Settings.new("io.github.nokse22.high-tide")
+        # See-through, with the desktop blurring what's behind (see style.css)
+        self.settings.connect("changed::background-blur", self._apply_background_blur)
+        self._apply_background_blur()
 
         ai.set_hidden(self.settings.get_boolean("hide-ai-music"))
         self.settings.connect(
@@ -377,6 +380,12 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.connect("notify::is-active", self.stop_video_in_background)
 
         threading.Thread(target=utils.evict_cache, args=(utils.MUSIC_DIR, 5)).start()
+
+    def _apply_background_blur(self, *args) -> None:
+        if self.settings.get_boolean("background-blur"):
+            self.add_css_class("background-blur")
+        else:
+            self.remove_css_class("background-blur")
 
     @Gtk.Template.Callback("copy_secret_service_override_command")
     def copy_secret_service_override_command (self, *args):
