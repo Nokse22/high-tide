@@ -284,6 +284,7 @@ class PlayerObject(GObject.GObject):
     def repeat_type(self, _repeat_type: RepeatType) -> None:
         self._repeat_type = _repeat_type
         self.notify("repeat-type")
+        self._update_can_go_next()
 
     def _setup_audio_sink(self, sink_type: AudioSink) -> None:
         """Configure the audio sink using parse_launch for simplicity."""
@@ -474,7 +475,6 @@ class PlayerObject(GObject.GObject):
             self.next_track = None
         self.song_album = self.playing_track.album
         self.playing_from_queue = self.playing_track is self._last_queued_track
-        self.can_go_next = len(self._tracks_to_play) > 0
         self.can_go_prev = self._can_go_back()
         self.duration = self.query_duration()
         # Should only trigger when track is enqued on start without playback
@@ -482,7 +482,7 @@ class PlayerObject(GObject.GObject):
             # self.duration is microseconds, but self.playing_track.duration is seconds
             self.duration = self.playing_track.duration * 1_000_000_000
         self.notify("can-go-prev")
-        self.notify("can-go-next")
+        self._update_can_go_next()
         autoplay_source = self._autoplay_sources.get(self.playing_track.id)
         if autoplay_source is not None and not self.playing_from_queue:
             # Played from the radio autoplay added: say so (Playing from, reports)
@@ -1158,6 +1158,18 @@ class PlayerObject(GObject.GObject):
             or (self.playing_track and self._repeat_type != RepeatType.NONE)
         )
 
+    def _update_can_go_next(self) -> None:
+        """Whether Next does something: a song still to play in the list (the
+        shuffled one with shuffle on), a queued song, or the list starting again
+        with repeat all. The queue counts too: Next was greyed out on an album's
+        last song with songs queued, though the media key played them."""
+        self.can_go_next = bool(
+            self.tracks_to_play
+            or self.queue
+            or (self._repeat_type == RepeatType.LIST and self.playing_track)
+        )
+        self.notify("can-go-next")
+
     def _peek_next_track(self) -> Track | None:
         """Get the track play_next(gapless=True) would play, without removing it"""
         if self._repeat_type == RepeatType.SONG:
@@ -1319,7 +1331,7 @@ class PlayerObject(GObject.GObject):
                 # play_next adds the hidden track to the played songs
                 self._drop_hidden()
 
-        self.can_go_next = len(self._tracks_to_play) > 0
+        self._update_can_go_next()
         self.emit("song-added-to-queue")
 
     def _autoplay_if_ending(self) -> None:
@@ -1376,8 +1388,7 @@ class PlayerObject(GObject.GObject):
             self.tracks_to_play = (
                 self._shuffled_tracks_to_play if self.shuffle else self._tracks_to_play
             )
-            self.can_go_next = True
-            self.notify("can-go-next")
+            self._update_can_go_next()
             self.emit("next-songs-changed")
             return False
 
@@ -1507,8 +1518,7 @@ class PlayerObject(GObject.GObject):
         for position, track in enumerate(self._play_order):
             if track is current:
                 self._tracks_to_play = self._play_order[position + 1 :]
-                self.can_go_next = len(self._tracks_to_play) > 0
-                self.notify("can-go-next")
+                self._update_can_go_next()
                 return
 
     def _in_play_order(self, track: Track) -> bool:
@@ -1525,8 +1535,7 @@ class PlayerObject(GObject.GObject):
         order = [waiting[i].pop(0) for i in track_ids if waiting.get(i)]
         self._shuffled_tracks_to_play[:] = order
         self.tracks_to_play = self._shuffled_tracks_to_play
-        self.can_go_next = len(order) > 0
-        self.notify("can-go-next")
+        self._update_can_go_next()
         self.emit("next-songs-changed")
 
     def _update_shuffle_queue(self):
@@ -1606,8 +1615,7 @@ class PlayerObject(GObject.GObject):
                 if t is track:
                     del other[position]
                     break
-        self.can_go_next = len(self._tracks_to_play) > 0
-        self.notify("can-go-next")
+        self._update_can_go_next()
         self._on_upcoming_changed()
 
     def clear_next_songs(self) -> None:
@@ -1617,8 +1625,7 @@ class PlayerObject(GObject.GObject):
         self._shuffled_tracks_to_play.clear()
         # Nothing to continue from when shuffle is turned off
         self._play_order = []
-        self.can_go_next = False
-        self.notify("can-go-next")
+        self._update_can_go_next()
         self._on_upcoming_changed()
 
     def move_in_next_songs(self, index: int, new_index: int) -> None:
@@ -1655,6 +1662,7 @@ class PlayerObject(GObject.GObject):
                 self.prefetched = None
                 if track:
                     self._prefetch_next_track()
+        self._update_can_go_next()
         self.emit("song-added-to-queue")
 
     def query_volume(self):
