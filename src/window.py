@@ -120,6 +120,17 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.settings = Gio.Settings.new("io.github.nokse22.high-tide")
         # See-through, with the desktop blurring what's behind (see style.css)
+        self.see_through_css = Gtk.CssProvider()
+        Gtk.StyleContext.add_provider_for_display(
+            self.get_display(),
+            self.see_through_css,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION + 1,
+        )
+        self.set_see_through(self.settings.get_double("background-see-through"))
+        self.settings.connect(
+            "changed::background-see-through",
+            lambda s, k: self.set_see_through(s.get_double(k)),
+        )
         self.settings.connect("changed::background-blur", self._apply_background_blur)
         self._apply_background_blur()
 
@@ -380,6 +391,30 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.connect("notify::is-active", self.stop_video_in_background)
 
         threading.Thread(target=utils.evict_cache, args=(utils.MUSIC_DIR, 5)).start()
+
+    def set_see_through(self, amount: float) -> None:
+        """How see-through the window is with "Blur behind the window" on,
+        0.1 to 0.9. The window carries most of the colour; the surfaces on top of
+        it (sidebars, header bars, lists) keep the same share of it, so the
+        see-through amount stays even across the window."""
+        amount = min(max(amount, 0.1), 0.9)
+        window = 1 - amount
+        layer = window * 0.35 / 0.72
+        colours = {
+            "--window-bg-color": ("window_bg_color", window),
+            "--sidebar-bg-color": ("sidebar_bg_color", layer),
+            "--secondary-sidebar-bg-color": ("secondary_sidebar_bg_color", layer),
+            "--headerbar-bg-color": ("headerbar_bg_color", layer),
+            "--headerbar-backdrop-color": ("headerbar_backdrop_color", layer),
+            "--view-bg-color": ("view_bg_color", layer),
+        }
+        lines = [
+            f"  {variable}: alpha(@{named}, {alpha:.3f});"
+            for variable, (named, alpha) in colours.items()
+        ]
+        self.see_through_css.load_from_string(
+            "window.background-blur {\n" + "\n".join(lines) + "\n}\n"
+        )
 
     def _apply_background_blur(self, *args) -> None:
         if self.settings.get_boolean("background-blur"):

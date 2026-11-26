@@ -145,6 +145,11 @@
       <default>false</default>
       <summary>Make the window see-through with the desktop blurred behind it</summary>
     </key>
+	  <key name="background-see-through" type="d">
+      <range min="0.1" max="0.9"/>
+      <default>0.28</default>
+      <summary>How see-through the window is with background-blur on</summary>
+    </key>
 	  <key name="discord-rpc" type="b">
       <default>true</default>
     </key>

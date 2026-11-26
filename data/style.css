@@ -236,11 +236,7 @@ dropdown button:not(:hover) {
    GTK 4.24, KDE Plasma 6.7, GNOME 51). The window carries most of the colour; the
    surfaces on top of it only a little, so the see-through amount stays even. */
 window.background-blur {
-  --window-bg-color: alpha(@window_bg_color, 0.72);
-  --sidebar-bg-color: alpha(@sidebar_bg_color, 0.35);
-  --secondary-sidebar-bg-color: alpha(@secondary_sidebar_bg_color, 0.35);
-  --headerbar-bg-color: alpha(@headerbar_bg_color, 0.35);
-  --headerbar-backdrop-color: alpha(@headerbar_backdrop_color, 0.35);
-  --view-bg-color: alpha(@view_bg_color, 0.35);
+  /* The see-through backgrounds are set from the "How see-through" setting
+     (HighTideWindow.set_see_through) */
   backdrop-filter: blur(24px);
 }
