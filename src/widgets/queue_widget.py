@@ -17,10 +17,15 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import time
 from gi.repository import Gdk, GLib, GObject, Graphene, Gtk
 
 from ..lib import utils
 from ..widgets.generic_track_widget import HTGenericTrackWidget
+
+
+# Seconds after scrolling the queue by hand before it follows the playing song again
+FOLLOW_PAUSE = 10
 
 
 @Gtk.Template(resource_path="/io/github/nokse22/high-tide/ui/widgets/queue_widget.ui")
@@ -52,6 +57,9 @@ class HTQueueWidget(Gtk.Box):
         # On desktop a song is dragged by its whole row; on a phone by a handle,
         # as dragging a row with a finger would fight with scrolling the list
         self.drag_whole_rows = False
+        # When the list was last scrolled by hand, see follow_playing
+        self.scrolled_by_hand_at = 0.0
+        self._watch_hand_scrolling()
 
     @Gtk.Template.Callback("on_played_song_activated")
     def _on_played_song_activated(self, list_box, row) -> None:
@@ -226,6 +234,36 @@ class HTQueueWidget(Gtk.Box):
         # Not while the row handles the drop: the list is rebuilt
         GLib.idle_add(apply, priority=GLib.PRIORITY_HIGH_IDLE)
         return True
+
+    def _watch_hand_scrolling(self) -> None:
+        """Note when the list is scrolled by hand: the mouse wheel or touchpad,
+        a finger, or the scrollbar"""
+
+        def scrolled(*args):
+            self.scrolled_by_hand_at = time.monotonic()
+
+        wheel = Gtk.EventControllerScroll(
+            flags=Gtk.EventControllerScrollFlags.VERTICAL
+        )
+        wheel.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        wheel.connect("scroll", lambda *args: (scrolled(), False)[1])
+        self.scrolled_window.add_controller(wheel)
+        finger = Gtk.GestureDrag(touch_only=True)
+        finger.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        finger.connect("drag-update", scrolled)
+        self.scrolled_window.add_controller(finger)
+        bar = Gtk.GestureDrag()
+        bar.connect("drag-begin", scrolled)
+        bar.connect("drag-update", scrolled)
+        self.scrolled_window.get_vscrollbar().add_controller(bar)
+
+    def follow_playing(self) -> None:
+        """Keep the playing song in view as songs change: the history above it
+        grows by a row each time and pushed it down. Not while the list is being
+        looked through: for FOLLOW_PAUSE seconds after it was scrolled by hand."""
+        if time.monotonic() - self.scrolled_by_hand_at < FOLLOW_PAUSE:
+            return
+        self.scroll_to_playing()
 
     def scroll_to_playing(self) -> None:
         """Scroll so the playing song is at the top, below the songs played"""

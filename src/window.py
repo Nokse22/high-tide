@@ -629,6 +629,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         if self.queue_widget.get_mapped():
             self.queue_widget.update_all(self.player_object)
             self.queue_widget_updated = True
+            self.queue_widget.follow_playing()
         else:
             self.queue_widget_updated = False
 
