@@ -93,6 +93,9 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
             )
         )
 
+        # Set by the list showing the song: returns what that list plays from,
+        # so a song queued from it says where it's from
+        self.source_of = None
         self.track_menu = TrackMenu(self, self.menu_button, track, self.signals)
         self._add_queue_button()
         # The same menu on a right click or a long press, as on song cards
@@ -219,7 +222,8 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         self.queue_button.set_can_target(shown)
 
     def _on_queue_clicked(self, *args) -> None:
-        utils.player_object.add_to_queue(self.track)
+        source = self.source_of() if self.source_of else None
+        utils.player_object.add_to_queue(self.track, source)
         utils.show_queued_toast()
 
     def hide_queue_button(self) -> None:

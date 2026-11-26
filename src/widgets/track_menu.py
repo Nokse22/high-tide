@@ -296,11 +296,17 @@ class TrackMenu:
         artists = utils.get_track_artists(self.track)
         utils.toggle_blocked(artists[parameter.get_int16()])
 
+    def _list_source(self):
+        """What the list the song is in plays from (an album, playlist, mix,
+        artist or My Tracks), or None: the queued song says it's from there"""
+        source_of = getattr(self.owner, "source_of", None)
+        return source_of() if source_of else None
+
     def _play_next(self, *args) -> None:
-        utils.player_object.add_next(self.track)
+        utils.player_object.add_next(self.track, self._list_source())
 
     def _add_to_queue(self, *args) -> None:
-        utils.player_object.add_to_queue(self.track)
+        utils.player_object.add_to_queue(self.track, self._list_source())
 
     def _add_to_end(self, *args) -> None:
         utils.player_object.add_to_end([self.track])

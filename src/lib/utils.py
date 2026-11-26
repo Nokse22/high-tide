@@ -1168,7 +1168,7 @@ def queue_whole(item, where: str) -> None:
             player_object.add_to_end(tracks, item)
             text = ngettext("{} song added to the end", "{} songs added to the end", count)
         else:
-            player_object.add_tracks_to_queue(tracks, where == "next")
+            player_object.add_tracks_to_queue(tracks, where == "next", item)
         if where == "next":
             text = ngettext("{} song plays next", "{} songs play next", count)
         elif where == "queue":

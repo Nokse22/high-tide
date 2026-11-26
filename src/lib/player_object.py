@@ -1426,8 +1426,9 @@ class PlayerObject(GObject.GObject):
         or from the queue"""
         track = self.playing_track
         if track is not None and "_ht_source" in track.__dict__:
-            # Back or the history went to a song played from something else, or
-            # it was added to the end from somewhere else (add_to_end)
+            # Back or the history went to a song played from something else, it
+            # was added to the end from somewhere else (add_to_end), or it was
+            # queued from a list or on its own from its album (_queued)
             source = track.__dict__["_ht_source"]
             return track if source is None else source
         if self.playing_from_queue:
@@ -1585,22 +1586,36 @@ class PlayerObject(GObject.GObject):
         else:
             self.tracks_to_play = self._tracks_to_play
 
-    def add_to_queue(self, track):
+    @staticmethod
+    def _queued(track: Track, source=None) -> Track:
+        """A copy of a song to queue, knowing what it's played from: the list it
+        was queued from (an album, playlist, mix, artist or My Tracks), or else
+        its own album. "Playing from" shows it, and plays report it. A copy, so
+        the song shown in that list isn't marked."""
+        queued = copy.copy(track)
+        if source is None:
+            source = getattr(track, "album", None)
+        queued.__dict__["_ht_source"] = source
+        return queued
+
+    def add_to_queue(self, track, source=None):
         """Add a track to the end of the play queue.
 
         Args:
             track: The Track object to add to the queue
+            source: What it was queued from, see _queued
         """
-        self.queue.append(track)
+        self.queue.append(self._queued(track, source))
         self._on_upcoming_changed()
 
-    def add_next(self, track):
+    def add_next(self, track, source=None):
         """Add a track to the top of the queue.
 
         Args:
             track: The Track object to play next
+            source: What it was queued from, see _queued
         """
-        self.queue.insert(0, track)
+        self.queue.insert(0, self._queued(track, source))
         self._on_upcoming_changed()
 
     def add_to_end(self, tracks: List[Track], source=None) -> None:
@@ -1627,9 +1642,12 @@ class PlayerObject(GObject.GObject):
         self.emit("next-songs-changed")
         self._on_upcoming_changed()
 
-    def add_tracks_to_queue(self, tracks: List[Track], next_up: bool = False) -> None:
+    def add_tracks_to_queue(
+        self, tracks: List[Track], next_up: bool = False, source=None
+    ) -> None:
         """Queue several songs in their order: at the end of the queue, or before
         everything queued with next_up (a whole album or playlist, #259)"""
+        tracks = [self._queued(track, source) for track in tracks]
         if next_up:
             self.queue[0:0] = tracks
         else:
