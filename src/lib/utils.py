@@ -1129,16 +1129,23 @@ def queue_menu(item) -> tuple:
     menu = Gio.Menu()
     menu.append(_("Play next"), "queue.play-next")
     menu.append(_("Add to queue"), "queue.add-to-queue")
+    menu.append(_("Add to end"), "queue.add-to-end")
     actions = Gio.SimpleActionGroup()
-    for name, next_up in (("play-next", True), ("add-to-queue", False)):
+    for name, where in (
+        ("play-next", "next"),
+        ("add-to-queue", "queue"),
+        ("add-to-end", "end"),
+    ):
         action = Gio.SimpleAction.new(name, None)
-        action.connect("activate", lambda *_args, n=next_up: queue_whole(item, n))
+        action.connect("activate", lambda *_args, w=where: queue_whole(item, w))
         actions.add_action(action)
     return menu, actions
 
 
-def queue_whole(item, next_up: bool) -> None:
-    """Queue every song of an album, playlist or mix, the songs Play would play"""
+def queue_whole(item, where: str) -> None:
+    """Queue every song of an album, playlist or mix, the songs Play would play:
+    where is "next" (before everything queued), "queue" (after it) or "end"
+    (after everything still to play)"""
 
     def fetch():
         tracks = []
@@ -1156,11 +1163,15 @@ def queue_whole(item, next_up: bool) -> None:
         if not tracks:
             send_toast(_("Couldn't add the songs to the queue"), 3)
             return False
-        player_object.add_tracks_to_queue(tracks, next_up)
         count = len(tracks)
-        if next_up:
-            text = ngettext("{} song plays next", "{} songs play next", count)
+        if where == "end":
+            player_object.add_to_end(tracks, item)
+            text = ngettext("{} song added to the end", "{} songs added to the end", count)
         else:
+            player_object.add_tracks_to_queue(tracks, where == "next")
+        if where == "next":
+            text = ngettext("{} song plays next", "{} songs play next", count)
+        elif where == "queue":
             text = ngettext("{} song added to the queue", "{} songs added to the queue", count)
         send_toast(text.format(count), 2)
         return False

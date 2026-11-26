@@ -23,6 +23,7 @@ import shutil
 import threading
 import time
 import base64
+import copy
 from concurrent.futures import ThreadPoolExecutor
 from enum import IntEnum
 from gettext import gettext as _
@@ -1425,7 +1426,8 @@ class PlayerObject(GObject.GObject):
         or from the queue"""
         track = self.playing_track
         if track is not None and "_ht_source" in track.__dict__:
-            # Back or the history went to a song played from something else
+            # Back or the history went to a song played from something else, or
+            # it was added to the end from somewhere else (add_to_end)
             source = track.__dict__["_ht_source"]
             return track if source is None else source
         if self.playing_from_queue:
@@ -1599,6 +1601,30 @@ class PlayerObject(GObject.GObject):
             track: The Track object to play next
         """
         self.queue.insert(0, track)
+        self._on_upcoming_changed()
+
+    def add_to_end(self, tracks: List[Track], source=None) -> None:
+        """Add songs after everything still to play, as the end of the list
+        played from (Winamp's Enqueue), instead of before the rest of it as the
+        queue does.
+
+        Args:
+            tracks: the songs, in their order
+            source: what they come from (an album, playlist, mix), shown as
+                "Playing from" when they play; None for a song on its own
+        """
+        # Copies, so a song that is also in the list stays a separate entry
+        tracks = [copy.copy(track) for track in tracks]
+        for track in tracks:
+            track.__dict__["_ht_source"] = source
+        self._tracks_to_play.extend(tracks)
+        # Turning shuffle off continues from this order: they stay at the end
+        self._play_order.extend(tracks)
+        if self.shuffle:
+            self._shuffled_tracks_to_play.extend(tracks)
+        self.can_go_next = len(self.tracks_to_play) > 0
+        self.notify("can-go-next")
+        self.emit("next-songs-changed")
         self._on_upcoming_changed()
 
     def add_tracks_to_queue(self, tracks: List[Track], next_up: bool = False) -> None:
