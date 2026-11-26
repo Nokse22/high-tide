@@ -51,6 +51,9 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
 
     # The cover is swapped for a play icon while the track plays
     shows_playing_icon = True
+    # Whether the row lights up when its song plays; off for the queue panel's
+    # history, queue and next songs, where only the Now Playing row is the one
+    marks_playing = True
     track_title_label = Gtk.Template.Child()
     track_duration_label = Gtk.Template.Child()
     _grid = Gtk.Template.Child()
@@ -151,9 +154,16 @@ class HTGenericTrackWidget(Gtk.ListBoxRow, IDisconnectable):
         self.shows_playing_icon = False
         self._update_now_playing()
 
+    def never_mark_playing(self) -> None:
+        """Don't light up when this song plays: the row is a past or future play
+        of it (the queue panel), not the one playing"""
+        self.marks_playing = False
+        self._update_now_playing()
+
     def _update_now_playing(self):
         is_now = (
-            utils.player_object.playing_track is not None
+            self.marks_playing
+            and utils.player_object.playing_track is not None
             and self.track.id == utils.player_object.playing_track.id
         )
         if is_now and utils.player_object.playing and self.shows_playing_icon:
