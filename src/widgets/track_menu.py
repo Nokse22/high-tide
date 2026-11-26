@@ -144,7 +144,7 @@ class TrackMenu:
         )
         self.menu.append(_("Play next"), "trackwidget.play-next")
         self.menu.append(_("Add to queue"), "trackwidget.add-to-queue")
-        self.menu.append(_("Add to end"), "trackwidget.add-to-end")
+        self.menu.append(_("Play last"), "trackwidget.play-last")
         self.menu.append(
             _("Add to my collection"), "trackwidget.add-to-my-collection"
         )
@@ -159,7 +159,7 @@ class TrackMenu:
         action_entries = [
             ("play-next", self._play_next),
             ("add-to-queue", self._add_to_queue),
-            ("add-to-end", self._add_to_end),
+            ("play-last", self._add_to_end),
             ("add-to-my-collection", self._add_to_my_collection),
             ("copy-share-url", self._copy_share_url),
             ("new-playlist", self._new_playlist),

@@ -1129,12 +1129,12 @@ def queue_menu(item) -> tuple:
     menu = Gio.Menu()
     menu.append(_("Play next"), "queue.play-next")
     menu.append(_("Add to queue"), "queue.add-to-queue")
-    menu.append(_("Add to end"), "queue.add-to-end")
+    menu.append(_("Play last"), "queue.play-last")
     actions = Gio.SimpleActionGroup()
     for name, where in (
         ("play-next", "next"),
         ("add-to-queue", "queue"),
-        ("add-to-end", "end"),
+        ("play-last", "end"),
     ):
         action = Gio.SimpleAction.new(name, None)
         action.connect("activate", lambda *_args, w=where: queue_whole(item, w))
@@ -1166,7 +1166,7 @@ def queue_whole(item, where: str) -> None:
         count = len(tracks)
         if where == "end":
             player_object.add_to_end(tracks, item)
-            text = ngettext("{} song added to the end", "{} songs added to the end", count)
+            text = ngettext("{} song plays last", "{} songs play last", count)
         else:
             player_object.add_tracks_to_queue(tracks, where == "next", item)
         if where == "next":
