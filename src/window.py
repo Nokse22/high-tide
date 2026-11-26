@@ -351,6 +351,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.queue_widget_updated = False
         # Saving the history waits until the saved one is back (th_restore_history)
         self.history_restored = False
+        # Saving the queue waits until the saved one is back (th_set_last_playing_song)
+        self.queue_restored = False
 
         # The queue is a panel on the right on desktop, a tab in the phone layout
         self.settings.bind(
@@ -527,7 +529,19 @@ class HighTideWindow(Adw.ApplicationWindow):
         except Exception:
             logger.exception("Error while setting last played song")
 
+        queue, queue_playing = self._fetch_saved_queue()
+
         if not tracks:
+            def restore_queue_only():
+                if queue:
+                    self.player_object.restore_queue(queue, queue_playing)
+                self.queue_restored = True
+                self.save_queue()
+                return False
+
+            GLib.idle_add(restore_queue_only)
+            if queue_playing:
+                GLib.idle_add(self.player_object.pause)
             return
 
         # Find the song itself: the list may be in another order or have changed
@@ -548,6 +562,12 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.player_object.play_this(tracks, index, source=source)
             if shuffle:
                 self.player_object.restore_shuffled_order(shuffle_order)
+            # The queue goes before the rest of the list; a queued song that was
+            # playing plays again
+            if queue:
+                self.player_object.restore_queue(queue, queue_playing)
+            self.queue_restored = True
+            self.save_queue()
             return False
 
         GLib.idle_add(restore)
@@ -663,6 +683,65 @@ class HighTideWindow(Adw.ApplicationWindow):
             return utils.MY_TRACKS
         return None
 
+    def save_queue(self) -> None:
+        """Save the queue, with what each song was queued from and the queued
+        song playing, if any, so the queue is still there after a restart"""
+        if not self.queue_restored:
+            # Saving now would drop the queue that is still being restored
+            return
+        player = self.player_object
+        songs = list(player.queue)
+        playing = player.playing_from_queue and player.playing_track is not None
+        if playing:
+            songs.insert(0, player.playing_track)
+        entries = []
+        for position, track in enumerate(songs):
+            kind, thing_id = self._source_ref(track.__dict__.get("_ht_source"))
+            current = "1" if playing and position == 0 else "0"
+            entries.append(f"{current}\t{track.id}\t{kind}\t{thing_id}")
+        self.settings.set_strv("queue-songs", entries)
+
+    def _fetch_saved_queue(self) -> tuple:
+        """Get the songs of the queue saved before the last restart, with what
+        they were queued from, and whether the first one was playing"""
+        try:
+            saved = [e.split("\t") for e in self.settings.get_strv("queue-songs")]
+            saved = [e for e in saved if len(e) == 4 and e[1]]
+            if not saved:
+                return [], False
+
+            def get_track(entry):
+                try:
+                    return self.session.track(entry[1])
+                except Exception:
+                    logger.info(f"Song {entry[1]} of the queue can't be found")
+                    return None
+
+            def get_source(ref):
+                try:
+                    return self._fetch_source(*ref)
+                except Exception:
+                    logger.info(f"Can't get {ref} for the queue")
+                    return None
+
+            refs = {(kind, thing_id) for _, _, kind, thing_id in saved}
+            with ThreadPoolExecutor(max_workers=8) as pool:
+                tracks = list(pool.map(get_track, saved))
+                sources = dict(zip(refs, pool.map(get_source, refs)))
+            queue = []
+            playing = False
+            for track, (current, _, kind, thing_id) in zip(tracks, saved):
+                if track is None or utils.is_hidden_track(track):
+                    continue
+                if current == "1" and not queue:
+                    playing = True
+                queue.append((track, sources.get((kind, thing_id))))
+            logger.info(f"Queue restored: {len(queue)} songs, first playing: {playing}")
+            return queue, playing
+        except Exception:
+            logger.exception("Error while restoring the queue")
+            return [], False
+
     def save_history(self) -> None:
         """Save the played songs, with what each was played from, so the history
         is still there after a restart"""
@@ -734,15 +813,28 @@ class HighTideWindow(Adw.ApplicationWindow):
         Saves what the song is played from (an album, playlist, mix, artist or
         the saved tracks) and the song itself; a song played on its own or from
         search results is saved alone. A song from the queue isn't saved, so the
-        list it interrupted continues. Also saves the history.
+        list it interrupted continues: its next song is saved as where it goes on,
+        and the queue itself (with the queued song playing) by save_queue. Also
+        saves the history.
         """
         self.save_history()
+        self.save_queue()
         player = self.player_object
         track = player.playing_track
-        if track is None or player.playing_from_queue:
+        if track is None:
             return
+        upcoming = list(player.tracks_to_play)
+        if player.playing_from_queue:
+            if not upcoming:
+                # The list is over: after the queue, nothing
+                self.settings.set_string("last-playing-thing-type", "")
+                return
+            track = upcoming.pop(0)
+            source = player.play_source
+        else:
+            source = player.get_playing_source()
 
-        thing_type, thing_id = self._source_ref(player.get_playing_source())
+        thing_type, thing_id = self._source_ref(source)
         if not thing_type:
             # Can't be fetched again (search results, a single song): the song alone
             thing_type, thing_id = "track", str(track.id)
@@ -750,9 +842,12 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.settings.set_string("last-playing-thing-type", thing_type)
         self.settings.set_string("last-playing-thing-id", thing_id)
         self.settings.set_string("last-playing-track-id", str(track.id))
-        self.settings.set_int("last-playing-index", player.get_index())
+        self.settings.set_int(
+            "last-playing-index",
+            player.id_list.index(track.id) if track.id in player.id_list else 0,
+        )
         # The shuffled order too, so it continues the same after a restart (#255)
-        order = [str(t.id) for t in player.tracks_to_play] if player.shuffle else []
+        order = [str(t.id) for t in upcoming] if player.shuffle else []
         self.settings.set_strv("last-playing-shuffle-order", order)
 
     def _load_video_cover(self, album) -> None:
@@ -1283,6 +1378,8 @@ class HighTideWindow(Adw.ApplicationWindow):
             self.queue_widget_updated = False
 
     def on_song_added_to_queue(self, *args):
+        # The queue changed (added, removed, moved, cleared): keep it for a restart
+        self.save_queue()
         if self.queue_widget.get_mapped():
             self.queue_widget.update_queue(self.player_object)
             self.queue_widget_updated = True
