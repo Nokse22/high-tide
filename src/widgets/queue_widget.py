@@ -268,6 +268,7 @@ class HTQueueWidget(Gtk.Box):
             for index, track in enumerate(player.played_songs):
                 listing = HTGenericTrackWidget(track)
                 listing.hide_queue_button()
+                listing.never_mark_playing()
                 listing.set_name(str(index))
                 self.played_songs_list.append(listing)
         else:
@@ -303,6 +304,7 @@ class HTQueueWidget(Gtk.Box):
             for index, track in enumerate(player.queue):
                 listing = HTGenericTrackWidget(track)
                 listing.hide_queue_button()
+                listing.never_mark_playing()
                 listing.set_name(str(index))
                 listing.add_remove_button(self._remove_queued)
                 self._make_draggable(listing)
@@ -323,6 +325,7 @@ class HTQueueWidget(Gtk.Box):
             for index, track in enumerate(player.tracks_to_play):
                 listing = HTGenericTrackWidget(track)
                 listing.hide_queue_button()
+                listing.never_mark_playing()
                 listing.set_name(str(index))
                 listing.add_remove_button(self._remove_next)
                 self._make_draggable(listing)
