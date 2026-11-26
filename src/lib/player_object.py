@@ -27,7 +27,7 @@ from concurrent.futures import ThreadPoolExecutor
 from enum import IntEnum
 from gettext import gettext as _
 from pathlib import Path
-from typing import Any, List, Union
+from typing import Any, List, Tuple, Union
 
 from gi.repository import GLib, GObject, Gst, Gio
 
@@ -41,6 +41,9 @@ from . import jack
 from . import cast, discord_rpc, dlna, utils
 
 logger = logging.getLogger(__name__)
+
+# How many played songs the history keeps
+HISTORY_LIMIT = 100
 
 # Seconds of audio a cached track can lack. Audio frames are under 0.1 s and MPD
 # segments about 4 s, and track durations are rounded to whole seconds.
@@ -84,6 +87,8 @@ class PlayerObject(GObject.GObject):
         "song-added-to-queue": (GObject.SignalFlags.RUN_FIRST, None, ()),
         # Songs were added to the next songs (autoplay)
         "next-songs-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
+        # The history was restored after a restart
+        "history-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "duration-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "volume-changed": (GObject.SignalFlags.RUN_FIRST, None, (float,)),
         "buffering": (GObject.SignalFlags.RUN_FIRST, None, (int,)),
@@ -176,6 +181,8 @@ class PlayerObject(GObject.GObject):
         # The list in the order it was started in, to continue from when shuffle is
         # turned off
         self._play_order: List[Track] = []
+        # Every song played before the current one, oldest first, whatever it was
+        # played from: switching albums doesn't clear it. Back goes through it.
         self.played_songs: List[Track] = []
         self.playing_track: Track | None = None
         self.song_album: Album | None = None
@@ -573,6 +580,9 @@ class PlayerObject(GObject.GObject):
             source: What a list of tracks was played from (Album, Playlist, Mix,
                 Artist), for the plays reported to TIDAL
         """
+        # What the playing song was played from, before it changes to this list
+        if self.playing_track is not None:
+            self._remember_source(self.playing_track)
         self.current_mix_album_playlist = thing
         self.play_source = source if source is not None else thing
         self._autoplay_sources = {}
@@ -596,15 +606,18 @@ class PlayerObject(GObject.GObject):
             self.play_this(thing, index + 1, tracks, source=source)
         else:
             # As in TIDAL's apps, the music stops after the last song unless
-            # repeat is on, and Back plays the songs before the picked one (see
-            # _previous_in_order) (#261). With shuffle on, all the others are
-            # shuffled.
+            # repeat is on (#261). With shuffle on, all the others are shuffled.
             if self.shuffle:
                 self._tracks_to_play = tracks[index + 1 :] + tracks[:index]
             else:
                 self._tracks_to_play = tracks[index + 1 :]
-            self.played_songs = []
             self.tracks_to_play = self._tracks_to_play
+            # The song that was playing goes to the history, so Back returns to it
+            if self.playing_track is not None:
+                self._add_to_history(self.playing_track)
+            # These songs are now played from this list
+            for listed in tracks:
+                listed.__dict__.pop("_ht_source", None)
 
             if self.shuffle:
                 self._update_shuffle_queue()
@@ -1182,7 +1195,7 @@ class PlayerObject(GObject.GObject):
             track_list = self._tracks_to_play
         if not track_list and self._repeat_type == RepeatType.LIST and not self.shuffle:
             # play_next starts the list again
-            return (self._play_order or self.played_songs or [self.playing_track])[0]
+            return (self._play_order or [self.playing_track])[0]
         return track_list[0] if track_list else None
 
     def _prefetch_next_track(self) -> None:
@@ -1276,25 +1289,28 @@ class PlayerObject(GObject.GObject):
             self.play_track(self.playing_track, gapless=True)
             return
 
-        if self.playing_track:
-            self.played_songs.append(self.playing_track)
-
         if self.queue:
+            self._leave_playing_track()
             track = self.queue.pop(0)
             self._last_queued_track = track
             self.play_track(track, gapless=gapless)
             return
 
         if not self.tracks_to_play and self._repeat_type == RepeatType.LIST:
-            # The whole list again from its first song
-            self._tracks_to_play = list(self._play_order) or self.played_songs
-            self.played_songs = []
+            # The whole list again from its first song (the list's own order, not
+            # the history, which also holds what was played before it). After
+            # Clear on Next Songs, the list is only the current song.
+            self._tracks_to_play = list(self._play_order) or (
+                [self.playing_track] if self.playing_track else []
+            )
             self._update_shuffle_queue()
 
         if not self.tracks_to_play:
+            # The music stops on this song: it isn't history until another starts
             self.pause()
             return
 
+        self._leave_playing_track()
         track_list = []
         if self.shuffle:
             track_list = self._shuffled_tracks_to_play
@@ -1319,10 +1335,7 @@ class PlayerObject(GObject.GObject):
             has_next = (
                 self.queue
                 or self._tracks_to_play
-                or (
-                    self._repeat_type == RepeatType.LIST
-                    and (self._play_order or self.played_songs)
-                )
+                or (self._repeat_type == RepeatType.LIST and self._play_order)
             )
             if self._repeat_type == RepeatType.SONG or not has_next:
                 self.pause()
@@ -1410,9 +1423,46 @@ class PlayerObject(GObject.GObject):
         """What the playing track was played from: an Album, Playlist, Mix or
         Artist, or something else (a track or a list) when it was played on its own
         or from the queue"""
+        track = self.playing_track
+        if track is not None and "_ht_source" in track.__dict__:
+            # Back or the history went to a song played from something else
+            source = track.__dict__["_ht_source"]
+            return track if source is None else source
         if self.playing_from_queue:
             return self.playing_track
         return self.play_source
+
+    def _remember_source(self, track: Track) -> None:
+        """Keep what the playing track is played from on it, for when Back or the
+        history plays it again (None: on its own or from the queue)"""
+        if track is not self.playing_track:
+            return
+        source = self.get_playing_source()
+        track.__dict__["_ht_source"] = None if source is track else source
+
+    def _leave_playing_track(self) -> None:
+        """The playing song is about to be replaced by another: it joins the
+        history"""
+        if self.playing_track is not None:
+            self._add_to_history(self.playing_track)
+
+    def _add_to_history(self, track: Track) -> None:
+        """Add a played song to the end of the history, keeping the last
+        HISTORY_LIMIT"""
+        self._remember_source(track)
+        self.played_songs.append(track)
+        del self.played_songs[: -HISTORY_LIMIT]
+
+    def restore_history(self, entries: List[Tuple[Track, Any]]) -> None:
+        """Put the history saved before a restart (songs with what they were
+        played from) before the songs played since"""
+        for track, source in entries:
+            track.__dict__["_ht_source"] = source
+        self.played_songs[:0] = [track for track, source in entries]
+        del self.played_songs[: -HISTORY_LIMIT]
+        self.can_go_prev = self._can_go_back()
+        self.notify("can-go-prev")
+        self.emit("history-changed")
 
     def play_previous(self):
         """Play the previous track or restart current track if near beginning."""
@@ -1426,29 +1476,21 @@ class PlayerObject(GObject.GObject):
                 GLib.timeout_add(2000, self.previous_timer_callback)
             return
 
-        if self.played_songs:
-            track = self.played_songs.pop()
-        else:
-            track = self._previous_in_order()
-            if track is None:
-                return
+        # Back goes to the song played before, whatever it was played from; the
+        # current song comes next again, so Next returns to it
+        if not self.played_songs:
+            return
+        track = self.played_songs.pop()
         if self.playing_track:
-            self._tracks_to_play.insert(0, self.playing_track)
+            self._remember_source(self.playing_track)
+            track_list = (
+                self._shuffled_tracks_to_play if self.shuffle else self._tracks_to_play
+            )
+            track_list.insert(0, self.playing_track)
         self.play_track(track)
 
-    def _previous_in_order(self) -> Track | None:
-        """The song before the current one in the list played from, for Back
-        when nothing was played before it: after picking a song in the middle of
-        an album, the played songs only hold what was really played (#261)"""
-        if self.shuffle or self.playing_from_queue or not self.playing_track:
-            return None
-        for position, track in enumerate(self._play_order):
-            if track is self.playing_track:
-                return self._play_order[position - 1] if position > 0 else None
-        return None
-
     def _can_go_back(self) -> bool:
-        return bool(self.played_songs) or self._previous_in_order() is not None
+        return bool(self.played_songs)
 
     def play_from_next_songs(self, index: int) -> None:
         """Play a track from the tracks to play, as shown in the queue.
@@ -1460,9 +1502,9 @@ class PlayerObject(GObject.GObject):
         )
         if not 0 <= index < len(track_list):
             return
+        # The skipped songs weren't played: they don't go to the history
         if self.playing_track:
-            self.played_songs.append(self.playing_track)
-        self.played_songs.extend(track_list[:index])
+            self._add_to_history(self.playing_track)
         track = track_list[index]
         del track_list[: index + 1]
         # Clicking a song plays it, also when paused
@@ -1474,25 +1516,20 @@ class PlayerObject(GObject.GObject):
         if not 0 <= index < len(self.queue):
             return
         if self.playing_track:
-            self.played_songs.append(self.playing_track)
+            self._add_to_history(self.playing_track)
         track = self.queue.pop(index)
         self._last_queued_track = track
         self.playing = True
         self.play_track(track)
 
     def play_from_played_songs(self, index: int) -> None:
-        """Play a track from the played songs, same as pressing Previous until it"""
+        """Play a song from the history now. The history stays as it is (the
+        current song joins it) and so do the songs to play next."""
         if not 0 <= index < len(self.played_songs):
             return
         track = self.played_songs[index]
-        back = self.played_songs[index + 1 :]
         if self.playing_track:
-            back.append(self.playing_track)
-        del self.played_songs[index:]
-        track_list = (
-            self._shuffled_tracks_to_play if self.shuffle else self._tracks_to_play
-        )
-        track_list[:0] = back
+            self._add_to_history(self.playing_track)
         self.playing = True
         self.play_track(track)
 
@@ -1623,7 +1660,8 @@ class PlayerObject(GObject.GObject):
         track keeps playing, then the queued tracks, if any."""
         self._tracks_to_play.clear()
         self._shuffled_tracks_to_play.clear()
-        # Nothing to continue from when shuffle is turned off
+        # Nothing to continue from when shuffle is turned off; repeat all then
+        # repeats the current song, all that is left of the list
         self._play_order = []
         self._update_can_go_next()
         self._on_upcoming_changed()

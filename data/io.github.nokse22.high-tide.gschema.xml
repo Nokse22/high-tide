@@ -33,6 +33,10 @@
 	  <key name="last-playing-track-id" type="s">
       <default>''</default>
     </key>
+	  <key name="played-songs" type="as">
+      <default>[]</default>
+      <summary>The history: played songs, oldest first, each as "track id, tab, type of what it was played from, tab, its id"</summary>
+    </key>
 	  <key name="last-volume" type="i">
       <default>10</default>
     </key>
