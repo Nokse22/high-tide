@@ -273,6 +273,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.player_object.connect("renderer-changed", self.on_renderer_changed)
         self.player_object.connect("song-added-to-queue", self.on_song_added_to_queue)
         self.player_object.connect("next-songs-changed", self.on_next_songs_changed)
+        self.player_object.connect("history-changed", self.on_history_changed)
         self.settings.bind(
             "autoplay", self.player_object, "autoplay", Gio.SettingsBindFlags.DEFAULT
         )
@@ -346,6 +347,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.video_cover_pending = None
 
         self.queue_widget_updated = False
+        # Saving the history waits until the saved one is back (th_restore_history)
+        self.history_restored = False
 
         # The queue is a panel on the right on desktop, a tab in the phone layout
         self.settings.bind(
@@ -447,6 +450,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         utils.favourites_loaded.clear()
         threading.Thread(target=self.th_load_favourites, args=()).start()
         threading.Thread(target=self.th_set_last_playing_song, args=()).start()
+        threading.Thread(target=self.th_restore_history, args=()).start()
         threading.Thread(target=utils.get_blocked, args=()).start()
 
         self.is_logged_in = True
@@ -631,27 +635,113 @@ class HighTideWindow(Adw.ApplicationWindow):
         else:
             self.queue_widget_updated = False
 
+    @staticmethod
+    def _source_ref(source) -> tuple:
+        """What a song was played from, as a type and id that can be fetched again
+        after a restart, or ("", "") when it can't (search results, a single song)"""
+        if source is utils.MY_TRACKS:
+            return "my-tracks", ""
+        if isinstance(source, (tidalapi.Album, tidalapi.Playlist, tidalapi.Mix,
+                               MixV2, tidalapi.Artist)):
+            kind = "mix" if isinstance(source, MixV2) else utils.get_type(source)
+            return kind, str(source.id)
+        return "", ""
+
+    def _fetch_source(self, kind: str, thing_id: str):
+        """Get what a song was played from again, from _source_ref's type and id"""
+        if kind == "mix":
+            return self.session.mix(thing_id)
+        if kind == "album":
+            return self.session.album(thing_id)
+        if kind == "playlist":
+            return self.session.playlist(thing_id)
+        if kind == "artist":
+            return self.session.artist(thing_id)
+        if kind == "my-tracks":
+            return utils.MY_TRACKS
+        return None
+
+    def save_history(self) -> None:
+        """Save the played songs, with what each was played from, so the history
+        is still there after a restart"""
+        if not self.history_restored:
+            # Saving now would drop the history that is still being restored
+            return
+        player = self.player_object
+        entries = []
+        for track in player.played_songs:
+            source = track.__dict__.get("_ht_source")
+            kind, thing_id = self._source_ref(source)
+            entries.append(f"{track.id}\t{kind}\t{thing_id}")
+        self.settings.set_strv("played-songs", entries)
+
+    def th_restore_history(self) -> None:
+        """Get the songs of the history saved before the last restart"""
+        entries = []
+        try:
+            saved = [e.split("\t") for e in self.settings.get_strv("played-songs")]
+            saved = [e for e in saved if len(e) == 3 and e[0]]
+
+            def get_track(entry):
+                try:
+                    return self.session.track(entry[0])
+                except Exception:
+                    logger.info(f"Song {entry[0]} of the history can't be found")
+                    return None
+
+            def get_source(ref):
+                try:
+                    return self._fetch_source(*ref)
+                except Exception:
+                    logger.info(f"Can't get {ref} for the history")
+                    return None
+
+            refs = {(kind, thing_id) for _, kind, thing_id in saved}
+            with ThreadPoolExecutor(max_workers=8) as pool:
+                tracks = list(pool.map(get_track, saved))
+                sources = dict(zip(refs, pool.map(get_source, refs)))
+            entries = [
+                (track, sources.get((kind, thing_id)))
+                for track, (_, kind, thing_id) in zip(tracks, saved)
+                if track is not None and not utils.is_hidden_track(track)
+            ]
+        except Exception:
+            logger.exception("Error while restoring the history")
+
+        def restore():
+            logger.info(f"History restored: {len(entries)} songs")
+            if entries:
+                self.player_object.restore_history(entries)
+            self.history_restored = True
+            self.save_history()
+            return False
+
+        GLib.idle_add(restore)
+
+    def on_history_changed(self, *args):
+        if self.queue_widget.get_mapped():
+            self.queue_widget.update_played_songs(self.player_object)
+            # The restored history goes above Now Playing
+            self.queue_widget.follow_playing()
+        else:
+            self.queue_widget_updated = False
+
     def save_last_playing_thing(self):
         """Save what's playing so the app can continue it after a restart.
 
         Saves what the song is played from (an album, playlist, mix, artist or
         the saved tracks) and the song itself; a song played on its own or from
         search results is saved alone. A song from the queue isn't saved, so the
-        list it interrupted continues.
+        list it interrupted continues. Also saves the history.
         """
+        self.save_history()
         player = self.player_object
         track = player.playing_track
         if track is None or player.playing_from_queue:
             return
 
-        source = player.play_source
-        if source is utils.MY_TRACKS:
-            thing_type, thing_id = "my-tracks", ""
-        elif isinstance(source, (tidalapi.Album, tidalapi.Playlist, tidalapi.Mix,
-                                 MixV2, tidalapi.Artist)):
-            kind = "mix" if isinstance(source, MixV2) else utils.get_type(source)
-            thing_type, thing_id = kind, str(source.id)
-        else:
+        thing_type, thing_id = self._source_ref(player.get_playing_source())
+        if not thing_type:
             # Can't be fetched again (search results, a single song): the song alone
             thing_type, thing_id = "track", str(track.id)
 
