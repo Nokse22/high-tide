@@ -33,6 +33,10 @@
 	  <key name="last-playing-track-id" type="s">
       <default>''</default>
     </key>
+	  <key name="queue-songs" type="as">
+      <default>[]</default>
+      <summary>The queue, each as "1 if it's the song playing, tab, track id, tab, type of what it was queued from, tab, its id"</summary>
+    </key>
 	  <key name="played-songs" type="as">
       <default>[]</default>
       <summary>The history: played songs, oldest first, each as "track id, tab, type of what it was played from, tab, its id"</summary>

@@ -1598,6 +1598,25 @@ class PlayerObject(GObject.GObject):
         queued.__dict__["_ht_source"] = source
         return queued
 
+    def restore_queue(self, entries: List[Tuple[Track, Any]], playing: bool) -> None:
+        """Put back the queue saved before a restart (songs with what they were
+        queued from). playing: its first song was the one playing, so it plays
+        again and the list's current song comes after the queue."""
+        queued = [self._queued(track, source) for track, source in entries]
+        self.queue[0:0] = queued
+        if playing and queued:
+            first = self.queue.pop(0)
+            if self.playing_track is not None:
+                track_list = (
+                    self._shuffled_tracks_to_play
+                    if self.shuffle
+                    else self._tracks_to_play
+                )
+                track_list.insert(0, self.playing_track)
+            self._last_queued_track = first
+            self.play_track(first)
+        self._on_upcoming_changed()
+
     def add_to_queue(self, track, source=None):
         """Add a track to the end of the play queue.
 
