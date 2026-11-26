@@ -142,6 +142,15 @@
 	  <key name="app-id-change-understood" type="b">
       <default>false</default>
     </key>
+	  <key name="color-scheme" type="s">
+      <choices>
+        <choice value="default"/>
+        <choice value="light"/>
+        <choice value="dark"/>
+      </choices>
+      <default>"default"</default>
+      <summary>Light or dark: follow the system (default), or always light or dark</summary>
+    </key>
 	  <key name="video-covers" type="b">
       <default>true</default>
     </key>

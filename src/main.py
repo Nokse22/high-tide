@@ -68,6 +68,9 @@ class HighTideApplication(Adw.Application):
         self.alsa_devices = utils.get_alsa_devices()
 
         self.connect("shutdown", self.on_shutdown)
+        # Follow the system, or always light or dark (the main menu's switcher)
+        self.connect("startup", lambda *_: utils.apply_color_scheme(self.settings))
+        self.settings.connect("changed::color-scheme", utils.apply_color_scheme)
 
     def on_shutdown(self, *args) -> None:
         """Report the play in progress and stop downloads before the app closes"""

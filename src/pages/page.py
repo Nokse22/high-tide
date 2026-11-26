@@ -89,6 +89,12 @@ class Page(Adw.NavigationPage, IDisconnectable):
             (retry_button, retry_button.connect("clicked", self._on_retry_clicked))
         )
 
+        # Follow the system, light or dark, at the top of the main menu
+        menu_button = self.builder.get_object("_main_menu_button")
+        menu_button.get_popover().add_child(
+            utils.style_switcher(self.signals), "style-switcher"
+        )
+
         self.set_child(self.object)
 
     def load(self):

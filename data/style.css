@@ -240,3 +240,53 @@ window.background-blur {
      (HighTideWindow.set_see_through) */
   backdrop-filter: blur(24px);
 }
+
+/* The main menu's follow system / light / dark buttons (utils.style_switcher): round
+   pictures of the sea, for a thing called High Tide. Follow system is split day and night,
+   light has the sun, dark the moon. The chosen one is ringed in the accent colour. */
+.style-switcher {
+  margin: 6px 0;
+}
+
+.style-switcher checkbutton {
+  padding: 1px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 9999px;
+  background-clip: content-box;
+  background-size: cover;
+  background-position: center;
+  box-shadow: inset 0 0 0 1px alpha(currentColor, 0.15);
+}
+
+.style-switcher checkbutton:hover {
+  box-shadow: inset 0 0 0 1px alpha(currentColor, 0.15), 0 0 0 2px alpha(@accent_bg_color, 0.4);
+}
+
+.style-switcher checkbutton:checked {
+  box-shadow: 0 0 0 2px @accent_bg_color;
+}
+
+.style-switcher checkbutton.default {
+  background-image: url("resource:///io/github/nokse22/high-tide/style-switcher/system.svg");
+}
+
+.style-switcher checkbutton.light {
+  background-image: url("resource:///io/github/nokse22/high-tide/style-switcher/light.svg");
+}
+
+.style-switcher checkbutton.dark {
+  background-image: url("resource:///io/github/nokse22/high-tide/style-switcher/dark.svg");
+}
+
+.style-switcher checkbutton radio,
+.style-switcher checkbutton check {
+  -gtk-icon-source: none;
+  border: none;
+  box-shadow: none;
+  background: none;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+}

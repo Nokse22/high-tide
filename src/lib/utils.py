@@ -124,6 +124,55 @@ def init() -> None:
     cache = HTCache(session)
 
 
+COLOR_SCHEMES = {
+    "default": Adw.ColorScheme.DEFAULT,
+    "light": Adw.ColorScheme.FORCE_LIGHT,
+    "dark": Adw.ColorScheme.FORCE_DARK,
+}
+
+
+def apply_color_scheme(settings: Gio.Settings, *args) -> None:
+    """Follow the system, or always light or dark, from the color-scheme setting"""
+    scheme = COLOR_SCHEMES.get(settings.get_string("color-scheme"), Adw.ColorScheme.DEFAULT)
+    Adw.StyleManager.get_default().set_color_scheme(scheme)
+
+
+def style_switcher(signals: list) -> Gtk.Widget:
+    """Three round buttons for the main menu, as in GNOME's apps: follow the
+    system, light, dark. They show and set the color-scheme setting; signals
+    gets the connection to it, for the page to disconnect"""
+    settings = Gio.Settings.new("io.github.nokse22.high-tide")
+    box = Gtk.Box(halign=Gtk.Align.CENTER, spacing=12, css_classes=["style-switcher"])
+    buttons = {}
+    group = None
+    for value, tooltip in (
+        ("default", _("Follow System Style")),
+        ("light", _("Light Style")),
+        ("dark", _("Dark Style")),
+    ):
+        button = Gtk.CheckButton(tooltip_text=tooltip, css_classes=[value])
+        button.update_property([Gtk.AccessibleProperty.LABEL], [tooltip])
+        if group is None:
+            group = button
+        else:
+            button.set_group(group)
+        button.connect(
+            "toggled",
+            lambda b, v=value: b.get_active()
+            and settings.get_string("color-scheme") != v
+            and settings.set_string("color-scheme", v),
+        )
+        buttons[value] = button
+        box.append(button)
+
+    def show(*args):
+        buttons.get(settings.get_string("color-scheme"), buttons["default"]).set_active(True)
+
+    show()
+    signals.append((settings, settings.connect("changed::color-scheme", show)))
+    return box
+
+
 # Icons High Tide takes from the desktop's icon theme, with its own copies (under
 # names no theme has) for themes that only have full-colour versions of them.
 # GTK also tries the plain names ("system-search" for "system-search-symbolic")
