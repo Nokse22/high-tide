@@ -2,6 +2,9 @@
 <gresources>
   <gresource prefix="/io/github/nokse22/high-tide">
     <file>style.css</file>
+    <file preprocess="xml-stripblanks">style-switcher/system.svg</file>
+    <file preprocess="xml-stripblanks">style-switcher/light.svg</file>
+    <file preprocess="xml-stripblanks">style-switcher/dark.svg</file>
     <file>style-dark.css</file>
     <file preprocess="xml-stripblanks">ui/window.ui</file>
     <file preprocess="xml-stripblanks">ui/login.ui</file>
