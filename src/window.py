@@ -342,6 +342,8 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         self.video_covers_enabled = self.settings.get_boolean("video-covers")
         self.in_background = False
+        # Album whose moving cover waits for the window to be in front again
+        self.video_cover_pending = None
 
         self.queue_widget_updated = False
 
@@ -590,7 +592,7 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         if self.image_canc:
             self.image_canc.cancel()
-            self.image_canc = Gio.Cancellable.new()
+        self.image_canc = Gio.Cancellable.new()
 
         # Remove old video cover should maybe be threaded
         if self.video_covers_enabled:
@@ -599,19 +601,15 @@ class HighTideWindow(Adw.ApplicationWindow):
 
         dimensions = utils.get_best_dimensions(self.playing_track_picture)
 
-        if self.video_covers_enabled and album.video_cover:
-            threading.Thread(
-                target=utils.add_video_cover,
-                args=(
-                    self.playing_track_picture,
-                    self.videoplayer,
-                    album,
-                    dimensions,
-                    self.in_background,
-                    self.image_canc,
-                ),
-            ).start()
+        self.video_cover_pending = None
+        if self.video_covers_enabled and album.video_cover and not self.in_background:
+            self._load_video_cover(album)
         else:
+            if self.video_covers_enabled and album.video_cover:
+                # Loading a video makes GTK decode it on the graphics card even
+                # while paused, so the moving cover waits until the window is in
+                # front again and the still cover is shown meanwhile
+                self.video_cover_pending = album
             threading.Thread(
                 target=utils.add_picture,
                 args=(self.playing_track_picture, album, dimensions, self.image_canc),
@@ -664,9 +662,31 @@ class HighTideWindow(Adw.ApplicationWindow):
         order = [str(t.id) for t in player.tracks_to_play] if player.shuffle else []
         self.settings.set_strv("last-playing-shuffle-order", order)
 
+    def _load_video_cover(self, album) -> None:
+        threading.Thread(
+            target=utils.add_video_cover,
+            args=(
+                self.playing_track_picture,
+                self.videoplayer,
+                album,
+                utils.get_best_dimensions(self.playing_track_picture),
+                self.in_background,
+                self.image_canc,
+            ),
+        ).start()
+
     def stop_video_in_background(self, window, param):
         self.in_background = not self.is_active()
         album = self.player_object.song_album
+        if self.video_cover_pending is not None and not self.in_background:
+            pending = self.video_cover_pending
+            self.video_cover_pending = None
+            if self.video_covers_enabled and pending is album:
+                # The still cover may still be loading: it mustn't replace the video
+                self.image_canc.cancel()
+                self.image_canc = Gio.Cancellable.new()
+                self._load_video_cover(album)
+            return
         if not self.video_covers_enabled or not album or not album.video_cover:
             return
 
