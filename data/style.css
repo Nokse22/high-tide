@@ -230,3 +230,13 @@ dropdown button:not(:hover) {
 .playable-tracks row:hover .track-hover-play {
   opacity: 1;
 }
+
+/* "Blur behind the window": the backgrounds are see-through, and backdrop-filter makes
+   GTK ask the desktop to blur what's behind the window (Wayland's background effect,
+   GTK 4.24, KDE Plasma 6.7, GNOME 51). The window carries most of the colour; the
+   surfaces on top of it only a little, so the see-through amount stays even. */
+window.background-blur {
+  /* The see-through backgrounds are set from the "How see-through" setting
+     (HighTideWindow.set_see_through) */
+  backdrop-filter: blur(24px);
+}

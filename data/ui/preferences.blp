@@ -99,6 +99,28 @@ Adw.PreferencesDialog _preference_window {
       Adw.SwitchRow _video_cover_row {
         title: _("Display animated covers");
       }
+      Adw.SwitchRow _background_blur_row {
+        title: _("Blur behind the window");
+        subtitle: _("See the desktop through the window, blurred. Needs a desktop that can blur, like KDE Plasma 6.7 or GNOME 51 and newer");
+      }
+      Adw.ActionRow _see_through_row {
+        title: _("How see-through");
+
+        [suffix]
+        Scale _see_through_scale {
+          hexpand: true;
+          width-request: 200;
+          valign: center;
+          draw-value: false;
+
+          adjustment: Adjustment {
+            lower: 0.1;
+            upper: 0.9;
+            step-increment: 0.05;
+            page-increment: 0.1;
+          };
+        }
+      }
       Adw.SwitchRow _discord_rpc_row {
         title: _("Enable Discord Rich Presence");
       }

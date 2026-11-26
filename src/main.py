@@ -22,7 +22,7 @@ import threading
 from gettext import gettext as _
 from typing import Any, Callable, List
 
-from gi.repository import Adw, Gio, GLib, Gtk
+from gi.repository import Adw, Gio, GLib, GObject, Gtk
 
 from .lib import utils
 from .lib.listenbrainz import SETTINGS_URL as LISTENBRAINZ_SETTINGS_URL
@@ -159,6 +159,48 @@ class HighTideApplication(Adw.Application):
                 "active",
                 Gio.SettingsBindFlags.DEFAULT,
             )
+
+            blur_row = builder.get_object("_background_blur_row")
+            self.settings.bind(
+                "background-blur", blur_row, "active", Gio.SettingsBindFlags.DEFAULT
+            )
+            # How see-through: only with the blur on. Each change restyles and
+            # redraws the whole see-through window (~100 ms on an older CPU). The
+            # window still follows the slider at once: seeing it right away, even
+            # if it lags, beat waiting for the slider to rest (tried 50-150 ms).
+            # Steps that arrive together are drawn once. The setting is saved
+            # once the slider rests (saving each step is slow, see the volume
+            # slider)
+            see_through_row = builder.get_object("_see_through_row")
+            blur_row.bind_property(
+                "active", see_through_row, "sensitive",
+                GObject.BindingFlags.SYNC_CREATE,
+            )
+            see_through = builder.get_object("_see_through_scale")
+            see_through.set_value(self.settings.get_double("background-see-through"))
+            self._see_through_show = 0
+            self._see_through_save = 0
+
+            def show_see_through():
+                self._see_through_show = 0
+                self.win.set_see_through(see_through.get_value())
+                return False
+
+            def save_see_through():
+                self._see_through_save = 0
+                self.settings.set_double("background-see-through", see_through.get_value())
+                return False
+
+            def on_see_through(scale):
+                for name, delay, callback in (
+                    ("_see_through_show", 0, show_see_through),
+                    ("_see_through_save", 500, save_see_through),
+                ):
+                    if getattr(self, name):
+                        GLib.source_remove(getattr(self, name))
+                    setattr(self, name, GLib.timeout_add(delay, callback))
+
+            see_through.connect("value-changed", on_see_through)
 
             bg_row: Gtk.Widget = builder.get_object("_background_row")
             bg_row.set_active(self.settings.get_boolean("run-background"))
