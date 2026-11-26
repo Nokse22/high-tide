@@ -124,6 +124,96 @@ def init() -> None:
     cache = HTCache(session)
 
 
+# Icons High Tide takes from the desktop's icon theme, with its own copies (under
+# names no theme has) for themes that only have full-colour versions of them.
+# GTK also tries the plain names ("system-search" for "system-search-symbolic")
+# in the theme before its own one-colour copies, so with such a theme (Oxygen
+# without Breeze) the buttons got colourful pictures: binoculars, a house...
+THEME_ICON_COPIES = {
+    "user-home-symbolic": "ht-home-symbolic",
+    "system-search-symbolic": "ht-search-symbolic",
+    "help-about-symbolic": "ht-info-symbolic",
+    "action-unavailable-symbolic": "ht-block-symbolic",
+    "applications-system-symbolic": "ht-settings-symbolic",
+    "media-playlist-shuffle-symbolic": "playlist-shuffle-symbolic",
+}
+# The name to use for each, for the current icon theme (see fix_theme_icons)
+_theme_icon_choice: Dict[str, str] = {}
+_theme_icon_roots: List[Any] = []
+
+
+def _choose_theme_icons(display) -> None:
+    """Keep the theme's icon where it has a one-colour version, so High Tide
+    matches the desktop; otherwise use High Tide's own copy"""
+    theme = Gtk.IconTheme.get_for_display(display)
+    for name, own in THEME_ICON_COPIES.items():
+        icon = theme.lookup_icon(name, None, 16, 1, Gtk.TextDirection.NONE, 0)
+        file = icon.get_file()
+        # Found in an icon theme's folder (not GTK's built-in copy), and that
+        # icon itself: a theme without it gives its "image-missing" picture
+        in_theme = (
+            file is not None
+            and file.get_uri_scheme() == "file"
+            and file.get_basename().rsplit(".", 1)[0] == name
+        )
+        _theme_icon_choice[name] = name if in_theme else own
+    logger.info(f"Icons from the theme or High Tide's own: {_theme_icon_choice}")
+
+
+def _on_icon_theme_changed(*args) -> None:
+    _theme_icon_choice.clear()
+    for root in list(_theme_icon_roots):
+        fix_theme_icons(root, remember=False)
+
+
+def fix_theme_icons(root: Gtk.Widget, remember: bool = True) -> None:
+    """Give the widgets in root (and an Adw.ViewStack's pages) the icon to use
+    for the icon theme, from THEME_ICON_COPIES. Window-wide roots are kept
+    (remember) and fixed again when the icon theme changes."""
+    if root is None:
+        return
+    if not _theme_icon_choice:
+        display = root.get_display()
+        if display is None:
+            return
+        _choose_theme_icons(display)
+        theme = Gtk.IconTheme.get_for_display(display)
+        if not getattr(theme, "_ht_watched", False):
+            theme._ht_watched = True
+            theme.connect("changed", _on_icon_theme_changed)
+    if remember and root not in _theme_icon_roots:
+        _theme_icon_roots.append(root)
+
+    def fix(obj) -> None:
+        try:
+            name = obj.get_property("icon-name")
+        except TypeError:
+            return
+        # The name it was made with, also after it was swapped
+        wanted = getattr(obj, "_ht_theme_icon", None)
+        if wanted is None:
+            if name not in THEME_ICON_COPIES:
+                return
+            wanted = name
+            obj._ht_theme_icon = name
+        use = _theme_icon_choice.get(wanted, wanted)
+        if name != use:
+            obj.set_property("icon-name", use)
+
+    todo = [root]
+    while todo:
+        widget = todo.pop()
+        fix(widget)
+        if isinstance(widget, Adw.ViewStack):
+            pages = widget.get_pages()
+            for i in range(pages.get_n_items()):
+                fix(pages.get_item(i))
+        child = widget.get_first_child()
+        while child is not None:
+            todo.append(child)
+            child = child.get_next_sibling()
+
+
 def get_alsa_devices() -> List[dict]:
     """Get ALSA devices"""
     try:

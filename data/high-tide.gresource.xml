@@ -37,6 +37,11 @@
     <file preprocess="xml-stripblanks">icons/16x16/actions/library-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/emblem-music-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/playlist-shuffle-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/16x16/actions/ht-home-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/16x16/actions/ht-search-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/16x16/actions/ht-info-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/16x16/actions/ht-block-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/16x16/actions/ht-settings-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/media-skip-forward-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/media-skip-backward-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/16x16/actions/key-login-symbolic.svg</file>

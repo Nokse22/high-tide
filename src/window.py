@@ -115,6 +115,8 @@ class HighTideWindow(Adw.ApplicationWindow):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        # Own copies of icons the icon theme only has in colour (Oxygen)
+        utils.fix_theme_icons(self)
 
         self.settings = Gio.Settings.new("io.github.nokse22.high-tide")
 

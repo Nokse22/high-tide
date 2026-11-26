@@ -320,6 +320,8 @@ class HighTideApplication(Adw.Application):
 
         self.update_blocked_rows()
         self.preferences.present(self.win)
+        # Its contents are only there once it's shown
+        utils.fix_theme_icons(self.preferences)
 
     def update_blocked_rows(self) -> None:
         """Fill the Blocked preferences page with the blocked items"""

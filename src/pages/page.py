@@ -105,6 +105,7 @@ class Page(Adw.NavigationPage, IDisconnectable):
         def _loaded():
             self._load_finish()
             self.content_stack.set_visible_child_name("content")
+            utils.fix_theme_icons(self, remember=False)
 
         def _load():
             try:
