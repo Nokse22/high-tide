@@ -102,14 +102,21 @@ spec.loader.exec_module(discord_rpc)
 track = SimpleNamespace(
     name="Check Song",
     artists=[SimpleNamespace(name="Check Artist")],
-    album=SimpleNamespace(image=lambda *args: "https://example.com/cover.jpg"),
+    album=SimpleNamespace(
+        name="Check Album", image=lambda *args: "https://example.com/cover.jpg"
+    ),
     duration=200,
 )
 discord_rpc.set_activity(track, 0)
 got_activity.wait(15)
 
 activity = activities[0] if activities else None
-ok = bool(activity) and activity.get("details") == track.name and not errors
+ok = (
+    bool(activity)
+    and activity.get("details") == track.name
+    and activity.get("assets", {}).get("large_text") == track.album.name
+    and not errors
+)
 print(
     f"Discord check {'passed' if ok else 'failed'}: status sent: "
     f"{json.dumps(activity)}, errors: {errors or 'none'}",
