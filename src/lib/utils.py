@@ -40,7 +40,7 @@ from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 import tidalapi
 from tidalapi.album import Album
 from tidalapi.artist import Artist
-from tidalapi.mix import Mix
+from tidalapi.mix import Mix, MixV2
 from tidalapi.playlist import Folder, Playlist, UserPlaylist
 from tidalapi.media import Track, Video
 
@@ -1866,7 +1866,7 @@ def get_type(item: Any) -> str:
     """
     if isinstance(item, Track):
         return "track"
-    elif isinstance(item, Mix):
+    elif isinstance(item, (Mix, MixV2)):
         return "mix"
     elif isinstance(item, Album):
         return "album"
