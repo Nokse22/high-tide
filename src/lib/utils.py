@@ -98,6 +98,7 @@ def init() -> None:
     _sort_settings.connect("changed", _on_sort_setting_changed)
     _install_row_context()
     _install_my_tracks_link()
+    _install_null_media_metadata_fix()
 
     global CACHE_DIR
     CACHE_DIR = os.environ.get("XDG_CACHE_HOME")
@@ -2089,6 +2090,32 @@ def _install_row_context() -> None:
         return result
 
     HorizontalListWithContext.parse = parse_with_context
+
+
+def _install_null_media_metadata_fix() -> None:
+    """Read songs and albums whose "mediaMetadata" TIDAL sends as null.
+
+    python-tidal 0.8 crashes on those (0.8.9 fixed only unavailable songs), so a
+    playlist or album with one wouldn't play or load (#217, #218). The field is
+    dropped before python-tidal reads it, as if TIDAL hadn't sent it.
+    Fixed upstream by https://github.com/EbbLabs/python-tidal/pull/419.
+    """
+    from tidalapi.media import Track as _Track
+
+    def without_null_metadata(parse):
+        if getattr(parse, "without_null_metadata", False):
+            return parse
+
+        def wrapper(self, json_obj, *args, **kwargs):
+            if isinstance(json_obj, dict) and json_obj.get("mediaMetadata", {}) is None:
+                json_obj = {k: v for k, v in json_obj.items() if k != "mediaMetadata"}
+            return parse(self, json_obj, *args, **kwargs)
+
+        wrapper.without_null_metadata = True
+        return wrapper
+
+    _Track.parse_track = without_null_metadata(_Track.parse_track)
+    Album.parse = without_null_metadata(Album.parse)
 
 
 def _install_my_tracks_link() -> None:
