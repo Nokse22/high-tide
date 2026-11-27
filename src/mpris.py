@@ -12,6 +12,7 @@
 # Copyright (c) 2023 Nokse22
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import threading
 from random import randint
 
 from gi.repository import Gdk, Gio, GLib
@@ -444,8 +445,14 @@ class MPRIS(Server):
             "x", track.duration * 1_000_000
         )
 
-        # 320 px should always be fetched for example by queue logic
-        url = f"file://{utils.IMG_DIR}/{track.album.id}_320.jpg"
+        path = utils.IMG_DIR / f"{track.album.id}_320.jpg"
+        if not path.is_file():
+            # Not downloaded yet: announce the song again once it is, or the
+            # previous song's cover stays shown
+            threading.Thread(
+                target=self.th_fetch_cover, args=(track,), daemon=True
+            ).start()
+        url = f"file://{path}"
 
         self.__metadata["mpris:artUrl"] = GLib.Variant("s", url)
 
@@ -456,6 +463,14 @@ class MPRIS(Server):
             "CanGoPrevious": GLib.Variant("b", self.player.can_go_prev),
         }
         self.PropertiesChanged(self.__MPRIS_PLAYER_IFACE, changed_properties, [])
+
+    def th_fetch_cover(self, track):
+        if utils.get_image_url(track.album, 320):
+            GLib.idle_add(self._on_cover_fetched, track)
+
+    def _on_cover_fetched(self, track):
+        if track is self.player.playing_track:
+            self._on_preset_changed()
 
     def _on_volume_changed(self, _player, volume):
         self.PropertiesChanged(
