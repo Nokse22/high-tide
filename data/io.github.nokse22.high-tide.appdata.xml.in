@@ -73,6 +73,24 @@
   </screenshots>
 
   <releases>
+    <release version="1.12.0" date="2026-11-27">
+      <description translate="no">
+        <p>Play history: Back goes through what you played, across albums and after a restart, and repeat plays the list again</p>
+        <p>Play last: add songs after everything still to play</p>
+        <p>The queue is kept after a restart, queued songs show what they're played from, and the queue panel keeps the playing song in view</p>
+        <p>Follow system, light or dark style, from the main menu</p>
+        <p>Blur behind the window, with a slider for how see-through it is</p>
+        <p>Translations updated for all languages</p>
+        <p>Icons show up with icon themes that lack one-colour versions</p>
+        <p>Discord shows the album when hovering the song</p>
+        <p>Fix playlists and albums that wouldn't play or load</p>
+        <p>Fix the Next button greyed out on an album's last song with songs queued</p>
+        <p>Fix the desktop's media controls showing the previous song's cover</p>
+        <p>Fix empty More pages of Home's mix and radio rows</p>
+        <p>Fix the Discord status stuck on an old song after a very long title</p>
+        <p>Fix JACK output stopping after PipeWire changes the sample rate</p>
+      </description>
+    </release>
     <release version="1.11.0" date="2026-11-25">
       <description translate="no">
         <p>Customize Home: pick which rows it shows, and keep a My Tracks button at the top</p>
