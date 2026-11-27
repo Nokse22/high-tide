@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-22 20:42+0200\n"
+"POT-Creation-Date: 2026-11-27 23:03+0000\n"
 "PO-Revision-Date: 2025-08-27 11:00+0200\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -16,70 +15,91 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.6\n"
 
-#: data/gtk/help-overlay.blp:11
-msgctxt "shortcut window"
-msgid "General"
-msgstr "Algemeen"
-
-#: data/gtk/help-overlay.blp:14
-msgctxt "shortcut window"
-msgid "Show Shortcuts"
-msgstr "Sneltoetsen tonen"
-
-#: data/gtk/help-overlay.blp:19
-msgctxt "shortcut window"
-msgid "Edit preferences"
-msgstr "Voorkeuren aanpassen"
-
-#: data/gtk/help-overlay.blp:24
-msgctxt "shortcut window"
-msgid "Quit"
-msgstr "Afsluiten"
-
-#: data/ui/detailed_track_listing.blp:46 src/widgets/top_hit_widget.py:131
+#: data/ui/detailed_track_listing.blp:46
+#: data/ui/pages_ui/tracks_list_template.blp:124
+#: src/widgets/top_hit_widget.py:156 src/lib/utils.py:612
 msgid "Album"
 msgstr "Album"
 
 #: data/ui/detailed_track_listing.blp:62 data/ui/detailed_track_listing.blp:93
-#: data/ui/widgets/generic_track_widget.blp:68
+#: data/ui/pages_ui/tracks_list_template.blp:122
+#: data/ui/widgets/generic_track_widget.blp:98 src/lib/utils.py:610
 msgid "Title"
 msgstr "Titel"
 
 #: data/ui/detailed_track_listing.blp:137
-#: data/ui/detailed_track_listing.blp:162 data/ui/window.blp:528
+#: data/ui/detailed_track_listing.blp:162 data/ui/window.blp:708
+#: src/widgets/track_menu.py:140
 msgid "Go to track radio"
 msgstr "Ga naar radiostation"
 
 #: data/ui/detailed_track_listing.blp:142
-#: data/ui/detailed_track_listing.blp:167
-#: data/ui/widgets/generic_track_widget.blp:160
+#: data/ui/detailed_track_listing.blp:167 src/lib/utils.py:1180
+#: src/widgets/track_menu.py:145
 msgid "Play next"
 msgstr "Volgend nummer afspelen"
 
 #: data/ui/detailed_track_listing.blp:147
-#: data/ui/detailed_track_listing.blp:177
-#: data/ui/widgets/generic_track_widget.blp:170
+#: data/ui/detailed_track_listing.blp:177 src/widgets/card_widget.py:395
+#: src/widgets/track_menu.py:149
 msgid "Add to my collection"
 msgstr "Toevoegen aan collectie"
 
-#: data/ui/detailed_track_listing.blp:172
-#: data/ui/widgets/generic_track_widget.blp:165
+#: data/ui/detailed_track_listing.blp:172 src/lib/utils.py:1181
+#: src/widgets/track_menu.py:146
 msgid "Add to queue"
 msgstr "Toevoegen aan wachtrij"
 
-#: data/ui/login.blp:5
+#: data/ui/login.blp:5 data/ui/login.blp:12 data/ui/login.blp:178
 msgid "Log In"
 msgstr "Inloggen"
 
-#: data/ui/login.blp:23
+# machine-translated
+#: data/ui/login.blp:32
 msgid ""
-"Go to this website and login with your account, if it asks for a code insert "
-"the code provided below."
+"Scan the code with your phone, or open the link where you're signed in to "
+"TIDAL, and approve High Tide."
 msgstr ""
-"Ga naar deze website en log in op je account. Voer vervolgens onderstaande "
-"code in."
+"Scan de code met je telefoon, of open de link waar je bij TIDAL bent "
+"ingelogd, en keur High Tide goed."
+
+# machine-translated
+#: data/ui/login.blp:89
+msgid "Waiting for approval…"
+msgstr "Wachten op goedkeuring…"
+
+# machine-translated
+#: data/ui/login.blp:108
+msgid "Sign in another way"
+msgstr "Op een andere manier inloggen"
+
+# machine-translated
+#: data/ui/login.blp:125
+msgid "Sign In With the Browser"
+msgstr "Inloggen via de browser"
+
+# machine-translated
+#: data/ui/login.blp:141
+msgid ""
+"Sign in on TIDAL. Your browser then shows a “Page not found” page; that's "
+"expected. Copy its full address from the address bar and paste it below."
+msgstr ""
+"Log in bij TIDAL. Je browser toont daarna een pagina “Page not found” "
+"(pagina niet gevonden); dat is de bedoeling. Kopieer het volledige adres uit "
+"de adresbalk en plak het hieronder."
+
+# machine-translated
+#: data/ui/login.blp:148
+msgid "Open TIDAL Login"
+msgstr "TIDAL-inlogpagina openen"
+
+# machine-translated
+#: data/ui/login.blp:159
+msgid "Paste the address here"
+msgstr "Plak het adres hier"
 
 #: data/ui/new_playlist.blp:29
 msgid "Playlist Name"
@@ -89,207 +109,540 @@ msgstr "Afspeellijstnaam"
 msgid "Playlist Description"
 msgstr "Afspeellijstbeschrijving"
 
-#: data/ui/new_playlist.blp:47
+#: data/ui/new_playlist.blp:47 src/lib/utils.py:759
 msgid "Create"
 msgstr "Maken"
 
-#: data/ui/preferences.blp:7
+# machine-translated
+#: data/ui/preferences.blp:6
+msgid "General"
+msgstr "Algemeen"
+
+#: data/ui/preferences.blp:10
 msgid "Audio"
 msgstr "Geluidskwaliteit"
 
-#: data/ui/preferences.blp:11
+#: data/ui/preferences.blp:14
 msgid "Low 96k"
 msgstr "Laag (96k)"
 
-#: data/ui/preferences.blp:12
+#: data/ui/preferences.blp:15
 msgid "High 320k"
 msgstr "Hoog (320k)"
 
-#: data/ui/preferences.blp:13
+#: data/ui/preferences.blp:16 src/pages/album_page.py:66
 msgid "Lossless"
 msgstr "Zonder kwaliteitsverlies"
 
-#: data/ui/preferences.blp:14
+#: data/ui/preferences.blp:17
 msgid "Hi-res Lossless"
 msgstr "Hi-res zonder kwaliteitsverlies"
 
-#: data/ui/preferences.blp:18
+#: data/ui/preferences.blp:21
 msgid "Quality"
 msgstr "Kwaliteit"
 
-#: data/ui/preferences.blp:23
+#: data/ui/preferences.blp:26
 msgid "Automatic"
 msgstr "Automatisch"
 
-#: data/ui/preferences.blp:32
+#: data/ui/preferences.blp:34
 msgid "Preferred Audio Sink"
 msgstr "Voorkeursgeluidssysteem"
 
-#: data/ui/preferences.blp:33
-msgid ""
-"Gapless playback is disabled for the native Pipewire Sink due to a bug. Use "
-"'Automatic' for gapless playback."
-msgstr ""
-"Naadloze overgangen zijn wegens een bug uitgeschakeld voor het Pipewire-"
-"systeem. Gebruik de instelling ‘automatisch’."
-
-#: data/ui/preferences.blp:36
+#: data/ui/preferences.blp:37
 msgid "ALSA Device"
 msgstr "ALSA-apparaat"
 
-#: data/ui/preferences.blp:37
-msgid "Device used for exclusive ALSA access"
-msgstr "Het apparaat dat ALSA-toegang dient te krijgen"
+# machine-translated
+#: data/ui/preferences.blp:38
+msgid "Mutes everything else while playing"
+msgstr "Dempt al het andere geluid tijdens het afspelen"
 
-#: data/ui/preferences.blp:40
+# machine-translated
+#: data/ui/preferences.blp:41
+msgid "JACK Connects To"
+msgstr "JACK verbinden met"
+
+#: data/ui/preferences.blp:44
 msgid "Normalize volume"
 msgstr "Volumeniveau normaliseren"
 
-#: data/ui/preferences.blp:45
+# machine-translated
+#: data/ui/preferences.blp:47
+msgid "Autoplay similar songs"
+msgstr "Vergelijkbare nummers automatisch afspelen"
+
+# machine-translated
+#: data/ui/preferences.blp:48
+msgid ""
+"When the music ends, keep playing songs like the last one, as TIDAL does"
+msgstr ""
+"Blijf na afloop nummers afspelen die lijken op het laatste nummer, zoals "
+"TIDAL dat doet"
+
+# machine-translated
+#: data/ui/preferences.blp:53
+msgid "Sample Rate"
+msgstr "Samplefrequentie"
+
+# machine-translated
+#: data/ui/preferences.blp:54
+msgid ""
+"Your computer normally plays everything at one rate, usually 48 kHz, and "
+"converts each song to it. Hi-res songs only reach your sound card at their "
+"own rate through the ALSA output above, which mutes everything else while "
+"playing, or if your system is set up to switch rates. Some sound cards then "
+"pop when the next song has a different rate."
+msgstr ""
+"Je computer speelt normaal alles af op één frequentie, meestal 48 kHz, en "
+"zet elk nummer daarnaar om. Hi-res-nummers bereiken je geluidskaart alleen "
+"op hun eigen frequentie via de ALSA-uitvoer hierboven, die al het andere "
+"geluid dempt tijdens het afspelen, of als je systeem is ingesteld om van "
+"frequentie te wisselen. Sommige geluidskaarten geven dan een plop als het "
+"volgende nummer een andere frequentie heeft."
+
+# machine-translated
+#: data/ui/preferences.blp:57
+msgid "Play Songs at Their Own Rate"
+msgstr "Nummers op hun eigen frequentie afspelen"
+
+# machine-translated
+#: data/ui/preferences.blp:67
+msgid "Convert Songs To"
+msgstr "Nummers omzetten naar"
+
+# machine-translated
+#: data/ui/preferences.blp:68
+msgid "Pick a rate to stop the pop"
+msgstr "Kies een frequentie om de plop te voorkomen"
+
+# machine-translated
+#: data/ui/preferences.blp:71
+msgid "Don't Convert"
+msgstr "Niet omzetten"
+
+# machine-translated
+#: data/ui/preferences.blp:84
+msgid "Content"
+msgstr "Inhoud"
+
+# machine-translated
+#: data/ui/preferences.blp:86
+msgid "Hide AI-generated music"
+msgstr "Door AI gegenereerde muziek verbergen"
+
+# machine-translated
+#: data/ui/preferences.blp:87
+msgid ""
+"Leave AI-generated tracks out of lists and skip them during playback. TIDAL "
+"does not expose its AI content preference through the API, so this setting "
+"is stored locally."
+msgstr ""
+"Laat door AI gegenereerde nummers weg uit lijsten en sla ze over tijdens het "
+"afspelen. TIDAL stelt zijn voorkeur voor AI-inhoud niet beschikbaar via de "
+"API, dus deze instelling wordt lokaal opgeslagen."
+
+#: data/ui/preferences.blp:92
 msgid "App"
 msgstr "Toepassing"
 
-#: data/ui/preferences.blp:47
+#: data/ui/preferences.blp:94
 msgid "Run in the background"
 msgstr "Uitvoeren op achtergrond"
 
-#: data/ui/preferences.blp:50
+#: data/ui/preferences.blp:97
 msgid "Use quadratic volume control"
 msgstr "Kwadratische volumeregeling gebruiken"
 
-#: data/ui/preferences.blp:53
+#: data/ui/preferences.blp:100
 msgid "Display animated covers"
 msgstr "Hoezen voorzien van animaties"
 
-#: data/ui/preferences.blp:56
+# machine-translated
+#: data/ui/preferences.blp:103
+msgid "Blur behind the window"
+msgstr "Vervaging achter het venster"
+
+# machine-translated
+#: data/ui/preferences.blp:104
+msgid ""
+"See the desktop through the window, blurred. Needs a desktop that can blur "
+"behind windows"
+msgstr ""
+"Toon het bureaublad vervaagd door het venster heen. Vereist een "
+"bureaubladomgeving die achter vensters kan vervagen"
+
+# machine-translated
+#: data/ui/preferences.blp:107
+msgid "How see-through"
+msgstr "Doorzichtigheid"
+
+#: data/ui/preferences.blp:125
 msgid "Enable Discord Rich Presence"
 msgstr "Discord-integratie inschakelen"
+
+# machine-translated
+#: data/ui/preferences.blp:128
+msgid "Prefer clean versions"
+msgstr "Voorkeur voor clean versies"
+
+# machine-translated
+#: data/ui/preferences.blp:129
+msgid ""
+"On artist pages, show the clean version of albums that also have an explicit "
+"one"
+msgstr ""
+"Toon op artiestpagina's de clean versie van albums die ook een expliciete "
+"versie hebben"
+
+# machine-translated
+#: data/ui/preferences.blp:133
+msgid "Last.fm Scrobbling"
+msgstr "Scrobbelen naar Last.fm"
+
+# machine-translated
+#: data/ui/preferences.blp:134
+msgid "Send the songs you play to your Last.fm profile."
+msgstr "Stuur de nummers die je afspeelt naar je Last.fm-profiel."
+
+# machine-translated
+#: data/ui/preferences.blp:137 src/main.py:453
+msgid "Not connected"
+msgstr "Niet verbonden"
+
+# machine-translated
+#: data/ui/preferences.blp:141 src/main.py:455
+msgid "Connect"
+msgstr "Verbinden"
+
+# machine-translated
+#: data/ui/preferences.blp:151 data/ui/preferences.blp:184
+msgid "Disconnect"
+msgstr "Verbinding verbreken"
+
+# machine-translated
+#: data/ui/preferences.blp:159
+msgid "ListenBrainz"
+msgstr "ListenBrainz"
+
+# machine-translated
+#: data/ui/preferences.blp:160
+msgid "Send the songs you play to your ListenBrainz profile."
+msgstr "Stuur de nummers die je afspeelt naar je ListenBrainz-profiel."
+
+# machine-translated
+#: data/ui/preferences.blp:163
+msgid "User Token"
+msgstr "Gebruikerstoken"
+
+# machine-translated
+#: data/ui/preferences.blp:168
+msgid "Get Your User Token"
+msgstr "Gebruikerstoken ophalen"
+
+# machine-translated
+#: data/ui/preferences.blp:179
+msgid "Connected"
+msgstr "Verbonden"
+
+# machine-translated
+#: data/ui/preferences.blp:193
+msgid "Blocked"
+msgstr "Geblokkeerd"
+
+# machine-translated
+#: data/ui/preferences.blp:197
+msgid "Blocked artists and tracks are left out of your mixes and radio."
+msgstr ""
+"Geblokkeerde artiesten en nummers worden weggelaten uit je mixen en "
+"radiostations."
+
+#: data/ui/preferences.blp:201 src/pages/collection_page.py:138
+#: src/pages/search_page.py:62
+msgid "Artists"
+msgstr "Artiesten"
+
+#: data/ui/preferences.blp:205 src/pages/collection_page.py:128
+#: src/pages/credits_page.py:170 src/pages/search_page.py:65
+msgid "Tracks"
+msgstr "Nummers"
+
+# machine-translated
+#: data/ui/preferences.blp:209
+msgid "Videos"
+msgstr "Video's"
 
 #: data/ui/search_entry.blp:4
 msgid "Search..."
 msgstr "Zoeken…"
 
+# machine-translated
 #: data/ui/window.blp:5
-msgid "We Changed App ID"
-msgstr "De toepassingsid is gewijzigd"
+msgid "Secret Portal Error"
+msgstr "Secret Portal-fout"
 
+# machine-translated
 #: data/ui/window.blp:6
 msgid ""
-"We had to change the app ID for High Tide, if you had it installed before as "
-"Flatpak make sure to remove the old version with this command:"
+"High Tide relies on a Secret Portal to manage your sensitive information and "
+"an error occurred while initializing.\n"
+"\n"
+"Make sure you have a Secret Portal Backend Provider installed, like gnome-"
+"keyring.\n"
+"\n"
+"Or if you prefer to use a Secret Service Provider instead, you need to allow "
+"High Tide to interact with it, like this:"
 msgstr ""
-"We waren genoodzaakt de toepassingsid te wijzigen. Als je de flatpakversie "
-"geïnstalleerd hebt, verwijder dan de oude versie met behulp van deze "
-"opdracht:"
+"High Tide gebruikt een Secret Portal om je gevoelige gegevens te beheren, "
+"maar er is een fout opgetreden bij het initialiseren.\n"
+"\n"
+"Zorg dat er een Secret Portal-backend is geïnstalleerd, zoals gnome-"
+"keyring.\n"
+"\n"
+"Wil je liever een Secret Service-provider gebruiken, dan moet je High Tide "
+"toestaan om ermee te communiceren, zoals hier:"
 
-#: data/ui/window.blp:18
-msgid "I understood"
-msgstr "Ik begrijp het"
+# machine-translated
+#: data/ui/window.blp:35
+msgid "Copy Command"
+msgstr "Opdracht kopiëren"
 
-#: data/ui/window.blp:158 data/ui/window.blp:394 data/ui/window.blp:639
-msgid "Play/Pause"
-msgstr "Afspelen/Pauzeren"
-
-#: data/ui/window.blp:169 data/ui/window.blp:406 data/ui/window.blp:652
-msgid "Skip Forward"
-msgstr "Vooruitspoelen"
-
-#: data/ui/window.blp:214 src/pages/page.py:73
-msgid "Loading..."
-msgstr "Bezig met laden…"
-
-#: data/ui/window.blp:240
-msgid "Home"
-msgstr "Startscherm"
-
-#: data/ui/window.blp:265 src/pages/explore_page.py:49
-msgid "Explore"
-msgstr "Verkennen"
-
-#: data/ui/window.blp:290 src/pages/collection_page.py:35
-msgid "Collection"
-msgstr "Collectie"
-
-#: data/ui/window.blp:469
-msgid "No Song"
-msgstr "Geen nummer"
-
-#: data/ui/window.blp:491
-msgid "Nobody"
-msgstr "Niemand"
-
-#: data/ui/window.blp:516
-msgid "Add/Remove from favorites"
-msgstr "Toevoegen aan/Verwijderen uit favorieten"
-
-#: data/ui/window.blp:540
-msgid "Go to album"
-msgstr "Ga naar album"
-
-#: data/ui/window.blp:552
-msgid "Copy Share Link"
-msgstr "Deellink kopiëren"
-
-#: data/ui/window.blp:614
-msgid "Toggle Shuffle"
-msgstr "Willekeurig aan/uit"
-
-#: data/ui/window.blp:627
-msgid "Skip Backward"
-msgstr "Terugspoelen"
-
-#: data/ui/window.blp:680
-msgid "Player"
-msgstr "Speler"
-
-#: data/ui/window.blp:690 data/ui/widgets/lyrics_widget.blp:22
-msgid "Lyrics"
-msgstr "Songtekst"
-
-#: data/ui/window.blp:700 data/ui/widgets/queue_widget.blp:58
+#: data/ui/window.blp:121 data/ui/window.blp:885 data/ui/window.blp:900
+#: data/ui/widgets/queue_widget.blp:87
 msgid "Queue"
 msgstr "Wachtrij"
 
-#: data/ui/pages_ui/artist_page_template.blp:182
+#: data/ui/window.blp:181 data/ui/window.blp:466 data/ui/window.blp:552
+msgid "No Song"
+msgstr "Geen nummer"
+
+# machine-translated
+#: data/ui/window.blp:213 data/ui/window.blp:583
+#: data/ui/widgets/card_widget.blp:106
+#: data/ui/widgets/generic_track_widget.blp:125
+#: data/ui/widgets/generic_track_widget.blp:181
+#: data/ui/widgets/top_hit_widget.blp:80
+msgid "AI-generated"
+msgstr "Door AI gegenereerd"
+
+#: data/ui/window.blp:237 data/ui/window.blp:477 data/ui/window.blp:818
+msgid "Play/Pause"
+msgstr "Afspelen/Pauzeren"
+
+#: data/ui/window.blp:248 data/ui/window.blp:489 data/ui/window.blp:831
+msgid "Skip Forward"
+msgstr "Vooruitspoelen"
+
+#: data/ui/window.blp:293 src/pages/page.py:77 src/pages/page.py:202
+msgid "Loading..."
+msgstr "Bezig met laden…"
+
+# machine-translated
+#: data/ui/window.blp:309
+msgid "Home (Alt+1)"
+msgstr "Startscherm (Alt+1)"
+
+#: data/ui/window.blp:320
+msgid "Home"
+msgstr "Startscherm"
+
+# machine-translated
+#: data/ui/window.blp:334
+msgid "Explore (Alt+2)"
+msgstr "Verkennen (Alt+2)"
+
+#: data/ui/window.blp:346 src/pages/explore_page.py:51
+msgid "Explore"
+msgstr "Verkennen"
+
+# machine-translated
+#: data/ui/window.blp:360
+msgid "Collection (Alt+3)"
+msgstr "Collectie (Alt+3)"
+
+#: data/ui/window.blp:372 src/pages/collection_page.py:61
+msgid "Collection"
+msgstr "Collectie"
+
+#: data/ui/window.blp:588
+msgid "Nobody"
+msgstr "Niemand"
+
+# machine-translated
+#: data/ui/window.blp:641 data/ui/window.blp:657 src/window.py:1387
+msgid "Play On"
+msgstr "Afspelen op"
+
+# machine-translated
+#: data/ui/window.blp:683
+msgid "Looking for devices…"
+msgstr "Zoeken naar apparaten…"
+
+# machine-translated
+#: data/ui/window.blp:696 data/ui/pages_ui/artist_page_template.blp:227
+#: data/ui/pages_ui/tracks_list_template.blp:322 src/lib/utils.py:1594
+msgid "Add to My Collection"
+msgstr "Toevoegen aan collectie"
+
+# machine-translated
+#: data/ui/window.blp:721
+msgid "Block"
+msgstr "Blokkeren"
+
+# machine-translated
+#: data/ui/window.blp:733 data/ui/widgets/carousel_widget.blp:76
+#: data/ui/widgets/generic_track_widget.blp:202
+#: data/ui/widgets/top_hit_widget.blp:103
+#: data/ui/widgets/tracks_list_widget.blp:24 src/widgets/card_widget.py:179
+#: src/pages/generic_page.py:164
+msgid "More"
+msgstr "Meer"
+
+#: data/ui/window.blp:793
+msgid "Toggle Shuffle"
+msgstr "Willekeurig aan/uit"
+
+#: data/ui/window.blp:806
+msgid "Skip Backward"
+msgstr "Terugspoelen"
+
+# machine-translated
+#: data/ui/window.blp:844 src/window.py:1025
+msgid "Repeat Off"
+msgstr "Herhalen uit"
+
+#: data/ui/window.blp:860
+msgid "Player"
+msgstr "Speler"
+
+#: data/ui/window.blp:870 data/ui/widgets/lyrics_widget.blp:22
+msgid "Lyrics"
+msgstr "Songtekst"
+
+#: data/ui/pages_ui/artist_page_template.blp:201
 msgid "Radio"
 msgstr "Radiostation"
 
-#: data/ui/pages_ui/artist_page_template.blp:196
-#: data/ui/pages_ui/tracks_list_template.blp:205
+#: data/ui/pages_ui/artist_page_template.blp:215
+#: data/ui/pages_ui/tracks_list_template.blp:310
 msgid "Copy Share URL"
 msgstr "Deellink kopiëren"
+
+# machine-translated
+#: data/ui/pages_ui/artist_page_template.blp:239
+#: data/ui/pages_ui/tracks_list_template.blp:334
+#: data/ui/widgets/top_hit_widget.blp:131 src/pages/from_function_page.py:81
+msgid "Shuffle"
+msgstr "Willekeurig"
+
+# machine-translated
+#: data/ui/pages_ui/artist_page_template.blp:255
+#: data/ui/pages_ui/tracks_list_template.blp:350
+#: data/ui/widgets/card_widget.blp:73 data/ui/widgets/top_hit_widget.blp:121
+#: src/pages/from_function_page.py:76
+msgid "Play"
+msgstr "Afspelen"
 
 #: data/ui/pages_ui/page_template.blp:10
 msgid "Main Menu"
 msgstr "Hoofdmenu"
 
+# machine-translated
+#: data/ui/pages_ui/page_template.blp:52
+msgid "Couldn't Load This Page"
+msgstr "Kan deze pagina niet laden"
+
+# machine-translated
+#: data/ui/pages_ui/page_template.blp:53
+msgid "Something went wrong while getting it from TIDAL."
+msgstr "Er ging iets mis bij het ophalen van TIDAL."
+
+# machine-translated
 #: data/ui/pages_ui/page_template.blp:56
+msgid "Try Again"
+msgstr "Opnieuw proberen"
+
+#: data/ui/pages_ui/page_template.blp:81
 msgid "Logout"
 msgstr "Uitloggen"
 
-#: data/ui/pages_ui/page_template.blp:63
+#: data/ui/pages_ui/page_template.blp:88
 msgid "_Preferences"
 msgstr "_Voorkeuren"
 
-#: data/ui/pages_ui/page_template.blp:68
+# machine-translated
+#: data/ui/pages_ui/page_template.blp:93
+msgid "Customize _Home"
+msgstr "_Startscherm aanpassen"
+
+#: data/ui/pages_ui/page_template.blp:98
 msgid "_Keyboard Shortcuts"
 msgstr "_Sneltoetsen"
 
-#: data/ui/pages_ui/page_template.blp:73
+#: data/ui/pages_ui/page_template.blp:103
 msgid "_About High Tide"
 msgstr "_Over High Tide"
 
-#: data/ui/pages_ui/page_template.blp:80
+#: data/ui/pages_ui/page_template.blp:110
 msgid "_Quit"
 msgstr "A_fsluiten"
 
-#: data/ui/widgets/generic_track_widget.blp:175
-msgid "Copy share url"
-msgstr "Deellink kopiëren"
+# machine-translated
+#: data/ui/pages_ui/tracks_list_template.blp:121
+#: src/pages/collection_page.py:168
+msgid "Sort by"
+msgstr "Sorteren op"
 
-#: data/ui/widgets/generic_track_widget.blp:179
-msgid "Add to a playlist"
-msgstr "Toevoegen aan afspeellijst"
+#: data/ui/pages_ui/tracks_list_template.blp:123 src/pages/artist_page.py:234
+#: src/widgets/card_widget.py:351 src/widgets/top_hit_widget.py:211
+#: src/lib/utils.py:605 src/lib/utils.py:611 src/widgets/shortcuts_widget.py:83
+msgid "Artist"
+msgstr "Artiest"
+
+# machine-translated
+#: data/ui/pages_ui/tracks_list_template.blp:125
+msgid "Duration"
+msgstr "Duur"
+
+# machine-translated
+#: data/ui/pages_ui/tracks_list_template.blp:126
+msgid "Recently added"
+msgstr "Onlangs toegevoegd"
+
+# machine-translated
+#: data/ui/pages_ui/tracks_list_template.blp:205
+#: src/pages/from_function_page.py:141
+msgid "Search in This List"
+msgstr "Zoeken in deze lijst"
+
+# machine-translated
+#: data/ui/pages_ui/tracks_list_template.blp:282 src/pages/credits_page.py:126
+msgid "Album Info"
+msgstr "Albuminformatie"
+
+# machine-translated
+#: data/ui/pages_ui/tracks_list_template.blp:297
+#: src/pages/collection_page.py:172 src/widgets/card_widget.py:268
+#: src/widgets/card_widget.py:272 src/pages/track_list_page.py:141
+msgid "Playlist Options"
+msgstr "Afspeellijstopties"
+
+# machine-translated
+#: data/ui/pages_ui/tracks_list_template.blp:361
+#: src/pages/collection_page.py:136 src/window.py:1803
+msgid "Filter by title, artist or album"
+msgstr "Filteren op titel, artiest of album"
+
+# machine-translated
+#: data/ui/widgets/carousel_widget.blp:96 src/pages/page.py:305
+msgid "Previous"
+msgstr "Vorige"
+
+# machine-translated
+#: data/ui/widgets/carousel_widget.blp:109 src/pages/page.py:298
+msgid "Next"
+msgstr "Volgende"
 
 #: data/ui/widgets/lyrics_widget.blp:11 data/ui/widgets/lyrics_widget.blp:15
 msgid "No Lyrics"
@@ -303,9 +656,29 @@ msgstr "Er is geen songtekst beschikbaar"
 msgid "Played Songs"
 msgstr "Afgespeelde nummers"
 
-#: data/ui/widgets/queue_widget.blp:80
+# machine-translated
+#: data/ui/widgets/queue_widget.blp:62
+msgid "Now Playing"
+msgstr "Nu aan het afspelen"
+
+# machine-translated
+#: data/ui/widgets/queue_widget.blp:91 data/ui/widgets/queue_widget.blp:128
+msgid "Clear"
+msgstr "Wissen"
+
+# machine-translated
+#: data/ui/widgets/queue_widget.blp:92
+msgid "Remove all songs from the queue"
+msgstr "Alle nummers uit de wachtrij verwijderen"
+
+#: data/ui/widgets/queue_widget.blp:124
 msgid "Next Songs"
 msgstr "Volgende nummers"
+
+# machine-translated
+#: data/ui/widgets/queue_widget.blp:129
+msgid "Remove all next songs"
+msgstr "Alle volgende nummers verwijderen"
 
 #: data/ui/widgets/top_hit_widget.blp:18
 msgid "Top Hit"
@@ -315,6 +688,21 @@ msgstr "Beste resultaat"
 #: data/io.github.nokse22.high-tide.appdata.xml.in:9
 msgid "High Tide"
 msgstr "High Tide"
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.desktop.in:3
+msgid "Libadwaita TIDAL client for Linux"
+msgstr "Libadwaita-client voor TIDAL op Linux"
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.desktop.in:4
+msgid "TIDAL Music Client"
+msgstr "TIDAL-muziekclient"
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.desktop.in:12
+msgid "music;audio;streaming;tidal;player;hi-fi;lossless;"
+msgstr "muziek;audio;streaming;tidal;speler;hi-fi;lossless;verliesvrij;"
 
 #: data/io.github.nokse22.high-tide.appdata.xml.in:10
 msgid "TIDAL client"
@@ -350,137 +738,1039 @@ msgstr ""
 msgid "High Tide in a small window format playing `Light My Fire` by The Doors"
 msgstr "High Tide in een klein venster, met `Light My Fire` van The Doors"
 
-#: src/pages/album_page.py:60
+# machine-translated
+#: data/io.github.nokse22.high-tide.gschema.xml:27
+msgid "Whether shuffle is on"
+msgstr "Of willekeurig afspelen aan staat"
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.gschema.xml:31
+msgid "The songs still to play, in their shuffled order"
+msgstr ""
+"De nummers die nog moeten worden afgespeeld, in hun willekeurige volgorde"
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.gschema.xml:38
+msgid ""
+"The queue, each as \"1 if it's the song playing, tab, track id, tab, type of "
+"what it was queued from, tab, its id\""
+msgstr ""
+"De wachtrij, elk item als \"1 als het het huidige nummer is, tab, nummer-id, "
+"tab, type van waaruit het in de wachtrij is gezet, tab, de id daarvan\""
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.gschema.xml:42
+msgid ""
+"The history: played songs, oldest first, each as \"track id, tab, type of "
+"what it was played from, tab, its id\""
+msgstr ""
+"De geschiedenis: afgespeelde nummers, oudste eerst, elk als \"nummer-id, "
+"tab, type van waaruit het is afgespeeld, tab, de id daarvan\""
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.gschema.xml:60
+msgid ""
+"The tab (Home, Explore or Collection) to open at start, the last one used"
+msgstr ""
+"Het tabblad (Startscherm, Verkennen of Collectie) dat bij het starten opent: "
+"het laatst gebruikte"
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.gschema.xml:137
+msgid ""
+"Sample rate songs are converted to before the output (\"Convert Songs To\"), "
+"0 for no conversion"
+msgstr ""
+"Samplefrequentie waarnaar nummers vóór de uitvoer worden omgezet (\"Nummers "
+"omzetten naar\"), 0 om niet om te zetten"
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.gschema.xml:152
+msgid "Light or dark: follow the system (default), or always light or dark"
+msgstr ""
+"Licht of donker: het systeem volgen (standaard), of altijd licht of donker"
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.gschema.xml:159
+msgid "Make the window see-through with the desktop blurred behind it"
+msgstr "Het venster doorzichtig maken, met het bureaublad vervaagd erachter"
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.gschema.xml:164
+msgid "How see-through the window is with background-blur on"
+msgstr "Hoe doorzichtig het venster is als achtergrondvervaging aan staat"
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.gschema.xml:174
+msgid "Always show a My Tracks button on Home"
+msgstr "Altijd een knop Mijn nummers tonen op het startscherm"
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.gschema.xml:178
+msgid "Home rows turned off in Customize Home"
+msgstr ""
+"Rijen op het startscherm die zijn uitgeschakeld in Startscherm aanpassen"
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.gschema.xml:179
+msgid "TIDAL's id of each hidden row, with its title when it was hidden"
+msgstr ""
+"De TIDAL-id van elke verborgen rij, met de titel die de rij had toen ze werd "
+"verborgen"
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.gschema.xml:186
+msgid "Where the JACK output connects to"
+msgstr "Waarmee de JACK-uitvoer verbinding maakt"
+
+# machine-translated
+#: data/io.github.nokse22.high-tide.gschema.xml:187
+msgid ""
+"A JACK client's name, '' for the sound card or '@nothing' to leave "
+"connecting to a patchbay"
+msgstr ""
+"De naam van een JACK-client, '' voor de geluidskaart of '@nothing' om het "
+"verbinden aan een patchbay over te laten"
+
+#: data/shortcuts-dialog.blp:7
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "Sneltoetsen tonen"
+
+#: data/shortcuts-dialog.blp:12
+msgctxt "shortcut window"
+msgid "Edit preferences"
+msgstr "Voorkeuren aanpassen"
+
+#: data/shortcuts-dialog.blp:17
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr "Afsluiten"
+
+# machine-translated
+#: src/pages/activity_page.py:65 src/pages/collection_page.py:71
+msgid "My Activity"
+msgstr "Mijn activiteit"
+
+# machine-translated
+#: src/pages/activity_page.py:71
+msgid "No Activity Yet"
+msgstr "Nog geen activiteit"
+
+# machine-translated
+#: src/pages/activity_page.py:72
+msgid "Your most played artists will show up here"
+msgstr "Je meest afgespeelde artiesten verschijnen hier"
+
+# machine-translated
+#: src/pages/activity_page.py:81
+msgid "Most Played Artists"
+msgstr "Meest afgespeelde artiesten"
+
+# machine-translated
+#: src/pages/activity_page.py:155
+#, python-brace-format
+msgid "{} play in total"
+msgid_plural "{} plays in total"
+msgstr[0] "In totaal {} keer afgespeeld"
+msgstr[1] "In totaal {} keer afgespeeld"
+
+# machine-translated
+#: src/pages/activity_page.py:160
+msgid "Nothing played yet"
+msgstr "Nog niets afgespeeld"
+
+# machine-translated
+#: src/pages/activity_page.py:171
+#, python-brace-format
+msgid "{} play"
+msgid_plural "{} plays"
+msgstr[0] "{} keer afgespeeld"
+msgstr[1] "{} keer afgespeeld"
+
+#: src/pages/album_page.py:46
 msgid "Unknown"
 msgstr "Onbekend"
 
-#: src/pages/album_page.py:64 src/pages/playlist_page.py:78
-msgid "{} tracks ({})"
-msgstr "{} nummers ({})"
+# machine-translated
+#: src/pages/album_page.py:60
+msgid "Explicit"
+msgstr "Expliciet"
 
-#: src/pages/artist_page.py:91 src/widgets/card_widget.py:151
-#: src/widgets/top_hit_widget.py:179
-msgid "Artist"
-msgstr "Artiest"
+# machine-translated
+#: src/pages/album_page.py:62
+msgid "Dolby Atmos"
+msgstr "Dolby Atmos"
 
-#: src/pages/artist_page.py:94
+# machine-translated
+#: src/pages/album_page.py:64
+msgid "Hi-Res"
+msgstr "Hi-Res"
+
+# machine-translated
+#: src/pages/album_page.py:64
+msgid "Available in Hi-Res Lossless"
+msgstr "Beschikbaar in Hi-res zonder kwaliteitsverlies"
+
+# machine-translated
+#: src/pages/album_page.py:66
+msgid "Available in Lossless"
+msgstr "Beschikbaar zonder kwaliteitsverlies"
+
+#: src/pages/artist_page.py:237
 msgid "Top Tracks"
 msgstr "Topnummers"
 
-#: src/pages/artist_page.py:97 src/pages/collection_page.py:39
-#: src/pages/search_page.py:57
+#: src/pages/artist_page.py:245 src/pages/collection_page.py:119
+#: src/pages/search_page.py:63
 msgid "Albums"
 msgstr "Albums"
 
-#: src/pages/artist_page.py:100
+#: src/pages/artist_page.py:248
 msgid "EP & Singles"
 msgstr "Ep's en singles"
 
-#: src/pages/artist_page.py:104
-msgid "Appears On"
-msgstr "Als gastmuzikant op"
-
-#: src/pages/artist_page.py:107
+#: src/pages/artist_page.py:253
 msgid "Similar Artists"
 msgstr "Vergelijkbare artiesten"
 
-#: src/pages/artist_page.py:130
+#: src/pages/artist_page.py:279
 msgid "Bio"
 msgstr "Biografie"
 
-#: src/pages/collection_page.py:37
+# machine-translated
+#: src/pages/artist_page.py:290
+msgid "Unblock Artist"
+msgstr "Artiest deblokkeren"
+
+# machine-translated
+#: src/pages/artist_page.py:293
+msgid "Block Artist"
+msgstr "Artiest blokkeren"
+
+# machine-translated
+#: src/pages/collection_page.py:72
+msgid "Your most played artists of each month"
+msgstr "Je meest afgespeelde artiesten per maand"
+
+#: src/pages/collection_page.py:95
 msgid "My Mixes and Radios"
 msgstr "Mijn mixen en radio's"
 
-#: src/pages/collection_page.py:38 src/pages/search_page.py:58
+# machine-translated
+#: src/pages/collection_page.py:103 src/pages/collection_page.py:116
+#: src/pages/collection_page.py:146 src/window.py:1755
+msgid "Filter by name"
+msgstr "Filteren op naam"
+
+#: src/pages/collection_page.py:105 src/pages/search_page.py:64
 msgid "Playlists"
 msgstr "Afspeellijsten"
 
-#: src/pages/collection_page.py:40 src/pages/search_page.py:59
-msgid "Tracks"
-msgstr "Nummers"
+# machine-translated
+#: src/pages/collection_page.py:126
+msgid "Filter by title or artist"
+msgstr "Filteren op titel of artiest"
 
-#: src/pages/collection_page.py:41 src/pages/search_page.py:56
-msgid "Artists"
-msgstr "Artiesten"
+# machine-translated
+#: src/pages/collection_page.py:166 src/lib/utils.py:936
+#: src/widgets/track_menu.py:155
+msgid "New playlist…"
+msgstr "Nieuwe afspeellijst…"
 
-#: src/pages/not_logged_in_page.py:38
+# machine-translated
+#: src/pages/collection_page.py:167
+msgid "New folder…"
+msgstr "Nieuwe map…"
+
+# machine-translated
+#: src/pages/credits_page.py:115 src/pages/credits_page.py:150
+msgid "Credits"
+msgstr "Credits"
+
+# machine-translated
+#: src/pages/credits_page.py:123
+msgid "No credits available"
+msgstr "Geen credits beschikbaar"
+
+# machine-translated
+#: src/pages/credits_page.py:135
+msgid "Review"
+msgstr "Recensie"
+
+# machine-translated
+#: src/pages/credits_page.py:139
+#, python-brace-format
+msgid "Review by {}"
+msgstr "Recensie door {}"
+
+# machine-translated
+#: src/pages/credits_page.py:166
+msgid "Released"
+msgstr "Uitgebracht"
+
+#: src/pages/credits_page.py:171 src/pages/track_list_page.py:64
+#, python-brace-format
+msgid "{} tracks ({})"
+msgstr "{} nummers ({})"
+
+# machine-translated
+#: src/pages/credits_page.py:175
+msgid "Copyright"
+msgstr "Copyright"
+
+#: src/pages/not_logged_in_page.py:37
 msgid "Login"
 msgstr "Inloggen"
 
-#: src/pages/not_logged_in_page.py:45
+#: src/pages/not_logged_in_page.py:44
 msgid "Login first"
 msgstr "Log in"
 
-#: src/pages/not_logged_in_page.py:47
+#: src/pages/not_logged_in_page.py:46
 msgid "To be able to use this app, you need to login with your TIDAL account."
 msgstr "Log in op je TIDAL-account om deze toepassing te kunnen gebruiken."
 
-#: src/pages/playlist_page.py:75
+# machine-translated
+#: src/pages/page.py:198
+msgid "Error"
+msgstr "Fout"
+
+#: src/pages/playlist_page.py:56
+#, python-brace-format
 msgid "by {}"
 msgstr "van {}"
 
-#: src/widgets/card_widget.py:108
+#: src/widgets/card_widget.py:164
+#, python-brace-format
 msgid "Track by {}"
 msgstr "Nummer van {}"
 
-#: src/widgets/card_widget.py:143 src/widgets/top_hit_widget.py:159
+# machine-translated
+#: src/widgets/card_widget.py:224 src/pages/track_list_page.py:140
+msgid "Mix Options"
+msgstr "Mixopties"
+
+# machine-translated
+#: src/widgets/card_widget.py:247 src/pages/track_list_page.py:139
+msgid "Album Options"
+msgstr "Albumopties"
+
+#: src/widgets/card_widget.py:260 src/widgets/top_hit_widget.py:187
+#: src/widgets/shortcuts_widget.py:90
+#, python-brace-format
 msgid "By {}"
 msgstr "Van {}"
 
-#: src/widgets/top_hit_widget.py:88
+# machine-translated
+#: src/widgets/card_widget.py:283
+#, python-brace-format
+msgid "{} playlist"
+msgid_plural "{} playlists"
+msgstr[0] "{} afspeellijst"
+msgstr[1] "{} afspeellijsten"
+
+# machine-translated
+#: src/widgets/card_widget.py:295 src/window.py:1766
+msgid "Folder Options"
+msgstr "Mapopties"
+
+# machine-translated
+#: src/widgets/card_widget.py:391
+msgid "Go to artist radio"
+msgstr "Ga naar radiostation van artiest"
+
+# machine-translated
+#: src/widgets/card_widget.py:393
+msgid "Remove from my collection"
+msgstr "Verwijderen uit collectie"
+
+#: src/widgets/card_widget.py:396 src/widgets/track_menu.py:151
+msgid "Copy share url"
+msgstr "Deellink kopiëren"
+
+# machine-translated
+#: src/widgets/card_widget.py:398 src/lib/utils.py:1356
+msgid "Unblock artist"
+msgstr "Artiest deblokkeren"
+
+# machine-translated
+#: src/widgets/card_widget.py:400 src/lib/utils.py:1356 src/lib/utils.py:1373
+msgid "Block artist"
+msgstr "Artiest blokkeren"
+
+# machine-translated
+#: src/widgets/card_widget.py:403
+msgid "Artist Options"
+msgstr "Artiestopties"
+
+# machine-translated
+#: src/widgets/generic_track_widget.py:198
+msgid "Add to Queue"
+msgstr "Toevoegen aan wachtrij"
+
+# machine-translated
+#: src/widgets/generic_track_widget.py:241
+msgid "Remove"
+msgstr "Verwijderen"
+
+# machine-translated
+#: src/widgets/generic_track_widget.py:256
+msgid "Drag to move"
+msgstr "Sleep om te verplaatsen"
+
+#: src/widgets/top_hit_widget.py:97
 msgid "Track"
 msgstr "Nummer"
 
-#: src/widgets/top_hit_widget.py:108
+#: src/widgets/top_hit_widget.py:129
 msgid "Mix"
 msgstr "Mix"
 
-#: src/main.py:107
-msgid "Donate with Ko-Fi"
-msgstr "Doneren via Ko-Fi"
+# machine-translated
+#: src/login.py:96 src/login.py:171
+msgid "Login was rejected by TIDAL."
+msgstr "TIDAL heeft het inloggen geweigerd."
 
-#: src/main.py:108
-msgid "Donate with Github"
-msgstr "Doneren via GitHub"
+# machine-translated
+#: src/login.py:135 src/login.py:195
+#, python-brace-format
+msgid "Login failed: {error}"
+msgstr "Inloggen mislukt: {error}"
 
-#: src/window.py:231
+# machine-translated
+#: src/login.py:190
+msgid ""
+"Couldn't save your login to the keyring, so you'll need to log in again next "
+"time"
+msgstr ""
+"Je inloggegevens konden niet in de sleutelbos worden opgeslagen, dus je moet "
+"de volgende keer opnieuw inloggen"
+
+# machine-translated
+#: src/main.py:391
+msgid "Unblock"
+msgstr "Deblokkeren"
+
+# machine-translated
+#: src/main.py:437 src/main.py:512
+msgid "Connection failed"
+msgstr "Verbinden mislukt"
+
+# machine-translated
+#: src/main.py:441 src/main.py:516
+#, python-brace-format
+msgid "Connected as {username}"
+msgstr "Verbonden als {username}"
+
+# machine-translated
+#: src/main.py:444
+msgid "Now playing and completed listens will be sent to Last.fm."
+msgstr ""
+"Wat je nu afspeelt en volledig beluisterde nummers worden naar Last.fm "
+"gestuurd."
+
+# machine-translated
+#: src/main.py:447
+msgid "Waiting for authorization"
+msgstr "Wachten op autorisatie"
+
+# machine-translated
+#: src/main.py:449
+msgid "Authorize High Tide in your browser, then click Finish."
+msgstr "Geef High Tide toestemming in je browser en klik daarna op Voltooien."
+
+# machine-translated
+#: src/main.py:451
+msgid "Finish"
+msgstr "Voltooien"
+
+# machine-translated
+#: src/main.py:519
+msgid "Songs you listen to will be sent to ListenBrainz."
+msgstr "Nummers die je beluistert worden naar ListenBrainz gestuurd."
+
+# machine-translated
+#: src/main.py:555 src/main.py:563
+msgid "Nothing (Use a Patchbay)"
+msgstr "Niets (patchbay gebruiken)"
+
+# machine-translated
+#: src/main.py:556
+msgid "Apps from Flathub can't connect themselves"
+msgstr "Toepassingen van Flathub kunnen zelf geen verbinding maken"
+
+# machine-translated
+#: src/main.py:563
+msgid "Sound Card"
+msgstr "Geluidskaart"
+
+# machine-translated
+#: src/new_playlist.py:50
+msgid "New Playlist"
+msgstr "Nieuwe afspeellijst"
+
+# machine-translated
+#: src/new_playlist.py:66
+msgid "Edit Playlist"
+msgstr "Afspeellijst bewerken"
+
+# machine-translated
+#: src/new_playlist.py:67
+msgid "Save"
+msgstr "Opslaan"
+
+#: src/window.py:391
 msgid "Playing Music"
 msgstr "Muziek aan het afspelen"
 
-#: src/lib/utils.py:102
+# machine-translated
+#: src/window.py:1002
+msgid "Playback of music is in progress"
+msgstr "Er wordt muziek afgespeeld"
+
+# machine-translated
+#: src/window.py:1019
+msgid "Repeat One"
+msgstr "Eén herhalen"
+
+# machine-translated
+#: src/window.py:1023
+msgid "Repeat All"
+msgstr "Alles herhalen"
+
+# machine-translated
+#: src/window.py:1058 src/window.py:1070
+#, python-brace-format
+msgid "Playing from: {}"
+msgstr "Afspelen vanuit: {}"
+
+# machine-translated
+#: src/window.py:1362
+msgid "This Computer"
+msgstr "Deze computer"
+
+# machine-translated
+#: src/window.py:1384
+#, python-brace-format
+msgid "Playing on {}"
+msgstr "Wordt afgespeeld op {}"
+
+# machine-translated
+#: src/window.py:1573
+msgid "Customize Home"
+msgstr "Startscherm aanpassen"
+
+# machine-translated
+#: src/window.py:1578 src/window.py:1796 src/lib/utils.py:65
+msgid "My Tracks"
+msgstr "Mijn nummers"
+
+# machine-translated
+#: src/window.py:1579
+msgid "Always show a button to your liked songs at the top"
+msgstr "Altijd bovenaan een knop naar je favoriete nummers tonen"
+
+# machine-translated
+#: src/window.py:1592
+msgid "Turn off the rows you don't want on Home"
+msgstr "Schakel de rijen uit die je niet op het startscherm wilt"
+
+# machine-translated
+#: src/window.py:1622
+msgid "Genre picks based on what you listen to"
+msgstr "Genrekeuzes op basis van waar je naar luistert"
+
+# machine-translated
+#: src/window.py:1627
+msgid "Not on Home today"
+msgstr "Vandaag niet op het startscherm"
+
+# machine-translated
+#: src/window.py:1698
+msgid "AI-generated tracks are now hidden"
+msgstr "Door AI gegenereerde nummers worden nu verborgen"
+
+# machine-translated
+#: src/window.py:1745 src/window.py:1776
+msgid "Folder"
+msgstr "Map"
+
+# machine-translated
+#: src/lib/utils.py:150
+msgid "Follow System Style"
+msgstr "Systeemstijl volgen"
+
+# machine-translated
+#: src/lib/utils.py:151
+msgid "Light Style"
+msgstr "Lichte stijl"
+
+# machine-translated
+#: src/lib/utils.py:152
+msgid "Dark Style"
+msgstr "Donkere stijl"
+
+#: src/lib/utils.py:281 src/lib/utils.py:292 src/lib/utils.py:338
 msgid "Default"
 msgstr "Standaard"
 
-#: src/lib/utils.py:300
+# machine-translated
+#: src/lib/utils.py:598
+msgid "Created date"
+msgstr "Aanmaakdatum"
+
+# machine-translated
+#: src/lib/utils.py:599
+msgid "Updated date"
+msgstr "Laatst bijgewerkt"
+
+# machine-translated
+#: src/lib/utils.py:600 src/lib/utils.py:604 src/lib/utils.py:617
+#: src/lib/utils.py:621
+msgid "Alphabetical"
+msgstr "Alfabetisch"
+
+# machine-translated
+#: src/lib/utils.py:603 src/lib/utils.py:609 src/lib/utils.py:616
+#: src/lib/utils.py:620
+msgid "Date added"
+msgstr "Datum toegevoegd"
+
+# machine-translated
+#: src/lib/utils.py:606
+msgid "Release date"
+msgstr "Verschijningsdatum"
+
+# machine-translated
+#: src/lib/utils.py:613
+msgid "Length"
+msgstr "Lengte"
+
+# machine-translated
+#: src/lib/utils.py:622
+msgid "Mix type"
+msgstr "Mixtype"
+
+# machine-translated
+#: src/lib/utils.py:747
+msgid "Reverse order"
+msgstr "Omgekeerde volgorde"
+
+# machine-translated
+#: src/lib/utils.py:758
+msgid "New Folder"
+msgstr "Nieuwe map"
+
+# machine-translated
+#: src/lib/utils.py:773
+msgid "Failed to create the folder"
+msgstr "Het aanmaken van de map is mislukt"
+
+# machine-translated
+#: src/lib/utils.py:775 src/lib/utils.py:1749
+#, python-brace-format
+msgid "Created {}"
+msgstr "{} aangemaakt"
+
+# machine-translated
+#: src/lib/utils.py:816
+#, python-brace-format
+msgid "Failed to move {}"
+msgstr "Het verplaatsen van {} is mislukt"
+
+# machine-translated
+#: src/lib/utils.py:820
+#, python-brace-format
+msgid "Moved {} out of its folder"
+msgstr "{} uit de map gehaald"
+
+# machine-translated
+#: src/lib/utils.py:822
+#, python-brace-format
+msgid "Moved {} to {}"
+msgstr "{} verplaatst naar {}"
+
+# machine-translated
+#: src/lib/utils.py:834
+msgid "Failed to rename the folder"
+msgstr "Het hernoemen van de map is mislukt"
+
+# machine-translated
+#: src/lib/utils.py:837
+#, python-brace-format
+msgid "Renamed to {}"
+msgstr "Hernoemd naar {}"
+
+# machine-translated
+#: src/lib/utils.py:854
+msgid "Failed to delete the folder"
+msgstr "Het verwijderen van de map is mislukt"
+
+# machine-translated
+#: src/lib/utils.py:858 src/lib/utils.py:1826
+#, python-brace-format
+msgid "Deleted {}"
+msgstr "{} verwijderd"
+
+# machine-translated
+#: src/lib/utils.py:866
+msgid "Name"
+msgstr "Naam"
+
+# machine-translated
+#: src/lib/utils.py:868 src/lib/utils.py:910
+#: src/widgets/playlist_options.py:136
+msgid "Cancel"
+msgstr "Annuleren"
+
+# machine-translated
+#: src/lib/utils.py:897
+msgid "Rename Folder"
+msgstr "Map hernoemen"
+
+# machine-translated
+#: src/lib/utils.py:898
+msgid "Rename"
+msgstr "Hernoemen"
+
+# machine-translated
+#: src/lib/utils.py:907 src/widgets/playlist_options.py:133
+#, python-brace-format
+msgid "Delete {}?"
+msgstr "{} verwijderen?"
+
+# machine-translated
+#: src/lib/utils.py:908
+msgid "The playlists in it move to the top level."
+msgstr "De afspeellijsten erin worden naar het hoogste niveau verplaatst."
+
+# machine-translated
+#: src/lib/utils.py:911 src/widgets/playlist_options.py:137
+msgid "Delete"
+msgstr "Verwijderen"
+
+# machine-translated
+#: src/lib/utils.py:934
+msgid "Rename folder…"
+msgstr "Map hernoemen…"
+
+# machine-translated
+#: src/lib/utils.py:935
+msgid "Delete folder…"
+msgstr "Map verwijderen…"
+
+# machine-translated
+#: src/lib/utils.py:1166
+msgid "Added to queue"
+msgstr "Toegevoegd aan wachtrij"
+
+# machine-translated
+#: src/lib/utils.py:1182 src/widgets/track_menu.py:147
+msgid "Play last"
+msgstr "Als laatste afspelen"
+
+# machine-translated
+#: src/lib/utils.py:1214
+msgid "Couldn't add the songs to the queue"
+msgstr "De nummers konden niet aan de wachtrij worden toegevoegd"
+
+# machine-translated
+#: src/lib/utils.py:1219
+#, python-brace-format
+msgid "{} song plays last"
+msgid_plural "{} songs play last"
+msgstr[0] "{} nummer wordt als laatste afgespeeld"
+msgstr[1] "{} nummers worden als laatste afgespeeld"
+
+# machine-translated
+#: src/lib/utils.py:1223
+#, python-brace-format
+msgid "{} song plays next"
+msgid_plural "{} songs play next"
+msgstr[0] "{} nummer wordt hierna afgespeeld"
+msgstr[1] "{} nummers worden hierna afgespeeld"
+
+# machine-translated
+#: src/lib/utils.py:1225
+#, python-brace-format
+msgid "{} song added to the queue"
+msgid_plural "{} songs added to the queue"
+msgstr[0] "{} nummer toegevoegd aan de wachtrij"
+msgstr[1] "{} nummers toegevoegd aan de wachtrij"
+
+# machine-translated
+#: src/lib/utils.py:1293
+msgid "Failed to block"
+msgstr "Blokkeren mislukt"
+
+# machine-translated
+#: src/lib/utils.py:1314
+msgid "Failed to unblock"
+msgstr "Deblokkeren mislukt"
+
+# machine-translated
+#: src/lib/utils.py:1326
+#, python-brace-format
+msgid "Blocked {}"
+msgstr "{} geblokkeerd"
+
+# machine-translated
+#: src/lib/utils.py:1329
+#, python-brace-format
+msgid "Unblocked {}"
+msgstr "{} gedeblokkeerd"
+
+# machine-translated
+#: src/lib/utils.py:1349
+msgid "Unblock track"
+msgstr "Nummer deblokkeren"
+
+# machine-translated
+#: src/lib/utils.py:1349
+msgid "Block track"
+msgstr "Nummer blokkeren"
+
+# machine-translated
+#: src/lib/utils.py:1367
+#, python-brace-format
+msgid "Unblock {}"
+msgstr "{} deblokkeren"
+
+# machine-translated
+#: src/lib/utils.py:1367
+#, python-brace-format
+msgid "Block {}"
+msgstr "{} blokkeren"
+
+# machine-translated
+#: src/lib/utils.py:1505
+msgid ""
+"TIDAL sent this song in lower quality than chosen. To get full quality "
+"again, log out and log back in with “Sign in another way”."
+msgstr ""
+"TIDAL heeft dit nummer in een lagere kwaliteit gestuurd dan gekozen. Log uit "
+"en log opnieuw in met “Op een andere manier inloggen” om weer de volledige "
+"kwaliteit te krijgen."
+
+# machine-translated
+#: src/lib/utils.py:1509
+msgid "TIDAL sent this song in lower quality than chosen"
+msgstr "TIDAL heeft dit nummer in een lagere kwaliteit gestuurd dan gekozen"
+
+#: src/lib/utils.py:1547
 msgid "Successfully added to my collection"
 msgstr "Toegevoegd aan collectie"
 
-#: src/lib/utils.py:303
+#: src/lib/utils.py:1550
 msgid "Failed to add item to my collection"
 msgstr "Het toevoegen is mislukt"
 
-#: src/lib/utils.py:329
+#: src/lib/utils.py:1576
 msgid "Successfully removed from my collection"
 msgstr "Verwijderd uit collectie"
 
-#: src/lib/utils.py:331
+#: src/lib/utils.py:1579
 msgid "Failed to remove item from my collection"
 msgstr "Het verwijderen is mislukt"
 
-#: src/lib/utils.py:371
+# machine-translated
+#: src/lib/utils.py:1591
+msgid "Remove from My Collection"
+msgstr "Verwijderen uit collectie"
+
+# machine-translated
+#: src/lib/utils.py:1661
+msgid "Failed to add to playlist"
+msgstr "Het toevoegen aan de afspeellijst is mislukt"
+
+# machine-translated
+#: src/lib/utils.py:1665 src/lib/utils.py:1747
+#, python-brace-format
+msgid "Added to {}"
+msgstr "Toegevoegd aan {}"
+
+# machine-translated
+#: src/lib/utils.py:1667
+#, python-brace-format
+msgid "Already in {}"
+msgstr "Staat al in {}"
+
+# machine-translated
+#: src/lib/utils.py:1695
+msgid "Failed to remove from playlist"
+msgstr "Het verwijderen uit de afspeellijst is mislukt"
+
+# machine-translated
+#: src/lib/utils.py:1698
+#, python-brace-format
+msgid "Removed from {}"
+msgstr "Verwijderd uit {}"
+
+# machine-translated
+#: src/lib/utils.py:1743
+msgid "Failed to create playlist"
+msgstr "Het aanmaken van de afspeellijst is mislukt"
+
+# machine-translated
+#: src/lib/utils.py:1773
+msgid "Failed to save the playlist"
+msgstr "Het opslaan van de afspeellijst is mislukt"
+
+# machine-translated
+#: src/lib/utils.py:1799
+msgid "Failed to change the playlist"
+msgstr "Het wijzigen van de afspeellijst is mislukt"
+
+# machine-translated
+#: src/lib/utils.py:1803
+#, python-brace-format
+msgid "{} is now public"
+msgstr "{} is nu openbaar"
+
+# machine-translated
+#: src/lib/utils.py:1805
+#, python-brace-format
+msgid "{} is now private"
+msgstr "{} is nu privé"
+
+# machine-translated
+#: src/lib/utils.py:1822
+msgid "Failed to delete the playlist"
+msgstr "Het verwijderen van de afspeellijst is mislukt"
+
+#: src/lib/utils.py:1856
 msgid "Copied share URL in the clipboard"
 msgstr "De deel-url is gekopieerd naar het klembord"
 
-#: src/lib/player_object.py:268
+#: src/lib/player_object.py:402
 msgid "ALSA Audio Device is not available"
 msgstr "Het ALSA-apparaat is niet beschikbaar"
 
-#~ msgid "More"
-#~ msgstr "Meer"
+# machine-translated
+#: src/lib/player_object.py:2089
+#, python-brace-format
+msgid "Couldn't play on {}"
+msgstr "Kan niet afspelen op {}"
 
-#~ msgid "Sail away"
-#~ msgstr "Recht zo die gaat"
+# machine-translated
+#: src/lib/player_object.py:2162
+#, python-brace-format
+msgid "{} is playing something else"
+msgstr "{} speelt iets anders af"
 
-#~ msgid "Nokse"
-#~ msgstr "Nokse"
+# machine-translated
+#: src/lib/lastfm.py:83
+#, python-brace-format
+msgid "Could not save Last.fm session: {error}"
+msgstr "Kan de Last.fm-sessie niet opslaan: {error}"
+
+# machine-translated
+#: src/lib/lastfm.py:146
+msgid "Unknown Last.fm error"
+msgstr "Onbekende Last.fm-fout"
+
+# machine-translated
+#: src/lib/lastfm.py:157
+msgid "Last.fm returned an invalid authorization token"
+msgstr "Last.fm gaf een ongeldig autorisatietoken terug"
+
+# machine-translated
+#: src/lib/lastfm.py:164
+msgid "Start Last.fm authorization first"
+msgstr "Start eerst de Last.fm-autorisatie"
+
+# machine-translated
+#: src/lib/lastfm.py:171
+msgid "Last.fm returned an invalid session"
+msgstr "Last.fm gaf een ongeldige sessie terug"
+
+# machine-translated
+#: src/lib/listenbrainz.py:78
+#, python-brace-format
+msgid "Could not save the ListenBrainz token: {error}"
+msgstr "Kan het ListenBrainz-token niet opslaan: {error}"
+
+# machine-translated
+#: src/lib/listenbrainz.py:129
+msgid "Enter your user token"
+msgstr "Voer je gebruikerstoken in"
+
+# machine-translated
+#: src/lib/listenbrainz.py:132
+msgid "ListenBrainz doesn't accept this token"
+msgstr "ListenBrainz accepteert dit token niet"
+
+# machine-translated
+#: src/pages/from_function_page.py:167
+msgid "Sort"
+msgstr "Sorteren"
+
+# machine-translated
+#: src/widgets/playlist_options.py:73
+msgid "Edit playlist"
+msgstr "Afspeellijst bewerken"
+
+# machine-translated
+#: src/widgets/playlist_options.py:75
+msgid "Make private"
+msgstr "Privé maken"
+
+# machine-translated
+#: src/widgets/playlist_options.py:75
+msgid "Make public"
+msgstr "Openbaar maken"
+
+# machine-translated
+#: src/widgets/playlist_options.py:83
+msgid "No folder"
+msgstr "Geen map"
+
+# machine-translated
+#: src/widgets/playlist_options.py:92
+msgid "Move to folder"
+msgstr "Naar map verplaatsen"
+
+# machine-translated
+#: src/widgets/playlist_options.py:94
+msgid "Delete playlist"
+msgstr "Afspeellijst verwijderen"
+
+# machine-translated
+#: src/widgets/playlist_options.py:134
+msgid "The playlist will be deleted from your TIDAL account."
+msgstr "De afspeellijst wordt verwijderd uit je TIDAL-account."
+
+# machine-translated
+#: src/widgets/shortcuts_widget.py:65
+msgid "Your liked songs"
+msgstr "Je favoriete nummers"
+
+#: src/widgets/track_menu.py:137
+msgid "Go to album"
+msgstr "Ga naar album"
+
+# machine-translated
+#: src/widgets/track_menu.py:143
+msgid "Show credits"
+msgstr "Credits tonen"
+
+#: src/widgets/track_menu.py:152
+msgid "Add to a playlist"
+msgstr "Toevoegen aan afspeellijst"
+
+# machine-translated
+#: src/widgets/track_menu.py:188
+msgid "Remove from this playlist"
+msgstr "Verwijderen uit deze afspeellijst"
+
+# machine-translated
+#. No action, so it shows dimmed
+#: src/widgets/track_menu.py:227
+msgid "No playlists found"
+msgstr "Geen afspeellijsten gevonden"
+
+# machine-translated
+#: src/widgets/track_menu.py:235
+msgid "Search playlists"
+msgstr "Afspeellijsten zoeken"
