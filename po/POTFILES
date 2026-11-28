@@ -47,5 +47,6 @@ src/pages/from_function_page.py
 src/pages/generic_page.py
 src/pages/track_list_page.py
 src/widgets/playlist_options.py
+src/widgets/search_suggestions.py
 src/widgets/shortcuts_widget.py
 src/widgets/track_menu.py
