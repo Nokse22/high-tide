@@ -132,6 +132,7 @@ class HTCollectionPage(Page):
             ),
         )
         tracks_carousel.more_source = utils.MY_TRACKS
+        self._add_tracks_menu(tracks_carousel)
         tracks_carousel.more_sort = "tracks"
         tracks_carousel.more_search = (_("Filter by title, artist or album"), 1000)
         artists_carousel = self._add_carousel(
@@ -181,6 +182,57 @@ class HTCollectionPage(Page):
         self.playlists_carousel.add_header_button(button)
         button.set_menu_model(menu)
         button.get_popover().set_flags(Gtk.PopoverMenuFlags.NESTED)
+
+    def _add_tracks_menu(self, carousel) -> None:
+        """Play all saved songs from the Tracks row without opening the list first
+        (#142): a split button, Play on its main part and Shuffle and the queue
+        options under its arrow"""
+        actions = Gio.SimpleActionGroup()
+
+        def saved_tracks():
+            return [
+                t
+                for t in utils.filter_ai_items(list(utils.favourite_tracks))
+                if not utils.is_hidden_by_block(t)
+            ]
+
+        def play(shuffle):
+            tracks = saved_tracks()
+            if not tracks:
+                return
+            if shuffle:
+                utils.player_object.shuffle_this(tracks, source=utils.MY_TRACKS)
+            else:
+                utils.player_object.play_this(tracks, 0, source=utils.MY_TRACKS)
+
+        shuffle_action = Gio.SimpleAction.new("shuffle", None)
+        self.signals.append(
+            (shuffle_action, shuffle_action.connect("activate", lambda *_: play(True)))
+        )
+        actions.add_action(shuffle_action)
+
+        menu = Gio.Menu()
+        shuffle_section = Gio.Menu()
+        shuffle_section.append(_("Shuffle"), "my-tracks.shuffle")
+        menu.append_section(None, shuffle_section)
+        queue, queue_actions = utils.queue_menu(utils.MY_TRACKS)
+        menu.append_section(None, queue)
+
+        button = Adw.SplitButton(
+            child=Adw.ButtonContent(
+                icon_name="media-playback-start-symbolic", label=_("Play")
+            ),
+            menu_model=menu,
+            tooltip_text=_("Play My Tracks"),
+            dropdown_tooltip=_("My Tracks Options"),
+            valign=Gtk.Align.CENTER,
+            margin_start=6,
+        )
+        self.signals.append((button, button.connect("clicked", lambda *_: play(False))))
+        # On the button itself, as for the Playlists row
+        button.insert_action_group("my-tracks", actions)
+        button.insert_action_group("queue", queue_actions)
+        carousel.add_header_button(button)
 
     def _add_carousel(self, title, get_items, more_function, always_shown=False):
         carousel = HTCarouselWidget(title)
