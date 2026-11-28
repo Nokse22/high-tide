@@ -24,6 +24,7 @@ from gi.repository import Gtk
 from ..lib import utils
 from .generic_page import HTGenericPage
 from .search_page import HTSearchPage
+from ..widgets.search_suggestions import SearchSuggestions
 
 import logging
 logger = logging.getLogger(__name__)
@@ -61,6 +62,10 @@ class HTExplorePage(HTGenericPage):
 
         self.append(search_entry)
         self._setup_search_shortcuts(search_entry)
+        self.suggestions = SearchSuggestions(search_entry, self.search)
+        self.signals.append(
+            (self, self.connect("hiding", lambda *_: self.suggestions.hide()))
+        )
 
         HTGenericPage._load_finish(self)
 
@@ -99,7 +104,15 @@ class HTExplorePage(HTGenericPage):
             ]
         )
 
+    def disconnect_all(self, *args) -> None:
+        if getattr(self, "suggestions", None) is not None:
+            self.suggestions.disconnect_all()
+            self.suggestions = None
+        super().disconnect_all(*args)
+
     def on_search_activated(self, entry) -> None:
-        query = entry.get_text()
+        self.search(entry.get_text())
+
+    def search(self, query: str) -> None:
         page = HTSearchPage(query).load()
         utils.navigation_view.push(page)
