@@ -19,6 +19,8 @@
 
 import threading
 
+from gettext import gettext as _
+
 from gi.repository import GLib, GObject, Gtk
 
 from ..disconnectable_iface import IDisconnectable
@@ -72,6 +74,10 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
         # Counts set_items() calls, so items still loading for the list shown
         # before are dropped
         self.generation = 0
+
+        # Returns whether to head each volume of an album with "Volume N", as
+        # TIDAL does (#213): set by album pages with more than one volume
+        self.show_volumes = None
 
     def reset(self):
         """Reset the widget so it can be reused with new data"""
@@ -217,6 +223,7 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
     def _add_tracks(self, new_items):
         if self.parent is None:
             self.parent = Gtk.ListBox(css_classes=["tracks-list-box", "playable-tracks"])
+            self.parent.set_header_func(self._volume_header)
             self.content.set_child(self.parent)
             self.signals.append(
                 (
@@ -235,6 +242,26 @@ class HTAutoLoadWidget(Gtk.Box, IDisconnectable):
                     self.playlist, lambda row=listing: self._remove_track_row(row)
                 )
             self.parent.append(listing)
+
+    def _volume_header(self, row, before) -> None:
+        """A "Volume N" heading above the first song of each volume"""
+        volume = getattr(getattr(row, "track", None), "volume_num", None)
+        previous = getattr(getattr(before, "track", None), "volume_num", None)
+        if not (self.show_volumes and self.show_volumes()) or not volume or volume == previous:
+            row.set_header(None)
+            return
+        header = row.get_header()
+        if header is None or getattr(header, "volume", None) != volume:
+            header = Gtk.Label(
+                label=_("Volume {}").format(volume),
+                xalign=0,
+                margin_start=12,
+                margin_top=6 if before is None else 18,
+                margin_bottom=6,
+                css_classes=["heading"],
+            )
+            header.volume = volume
+            row.set_header(header)
 
     def set_playlist(self, playlist) -> None:
         """Let the tracks be removed from this playlist (one of the user's own)

@@ -31,6 +31,7 @@ src/pages/not_logged_in_page.py
 src/pages/page.py
 src/pages/playlist_page.py
 src/pages/search_page.py
+src/widgets/auto_load_widget.py
 src/widgets/card_widget.py
 src/widgets/generic_track_widget.py
 src/widgets/top_hit_widget.py

@@ -46,6 +46,12 @@ class HTAlbumPage(TrackListPage):
                 else _("Unknown")
             ),
         )
+        if (self.item.num_volumes or 1) > 1:
+            # Head each volume like TIDAL, while the songs are in album order
+            # (sorted otherwise, the volumes are mixed)
+            builder.get_object("_auto_load").show_volumes = (
+                lambda: self.current_sort in (0, None)
+            )
         self._setup_ui(
             builder, title, subtitle, self.top_tracks, reload_function=self.item.tracks
         )
