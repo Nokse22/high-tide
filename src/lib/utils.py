@@ -1200,8 +1200,11 @@ def queue_whole(item, where: str) -> None:
     def fetch():
         tracks = []
         try:
-            thing = get_mix(item.id) if type(item).__name__ == "MixV2" else item
-            tracks = player_object.get_track_list(thing) or []
+            if item is MY_TRACKS:
+                tracks = list(favourite_tracks)
+            else:
+                thing = get_mix(item.id) if type(item).__name__ == "MixV2" else item
+                tracks = player_object.get_track_list(thing) or []
         except Exception:
             logger.exception(f"Couldn't get the songs of {item} to queue them")
         tracks = [
