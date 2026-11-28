@@ -233,6 +233,13 @@ class HighTideWindow(Adw.ApplicationWindow):
             # An output that isn't offered anymore
             self.settings.set_int("preferred-sink", AudioSink.AUTO)
 
+        if self.settings.get_user_value("quadratic-volume") is None:
+            # Quadratic volume became the default. For someone who never chose,
+            # keep the loudness they're used to: the same level on the new curve
+            # is the square root of the saved slider position.
+            self.settings.set_boolean("quadratic-volume", True)
+            self.settings.set_double("volume", self.settings.get_double("volume") ** 0.5)
+
         self.player_object = PlayerObject(
             self.settings.get_int("preferred-sink"),
             self.settings.get_string("alsa-device"),

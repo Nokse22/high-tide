@@ -137,7 +137,7 @@
       <summary>Sample rate songs are converted to before the output ("Convert Songs To"), 0 for no conversion</summary>
     </key>
 	  <key name="quadratic-volume" type="b">
-      <default>false</default>
+      <default>true</default>
     </key>
 	  <key name="app-id-change-understood" type="b">
       <default>false</default>
