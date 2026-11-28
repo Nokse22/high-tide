@@ -72,10 +72,10 @@ class HTTracksListWidget(Gtk.Box, IDisconnectable):
         self.source = None
 
     def set_more_function(self, function: Callable) -> None:
-        """Register the callback used to load the full list via the "More" button.
+        """Register the callback used to load the full list via the "View All" button.
 
         The visible tracks are provided separately through set_tracks_list(); this
-        method only stores the callback and reveals the "More" button, which opens
+        method only stores the callback and reveals the "View All" button, which opens
         a dedicated page with the complete, correctly ordered list. It does not
         fetch or render any tracks itself, so calling it after set_tracks_list()
         does not duplicate the initial entries.
