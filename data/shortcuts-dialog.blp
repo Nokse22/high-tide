@@ -3,6 +3,76 @@ using Adw 1;
 
 Adw.ShortcutsDialog shortcuts_dialog {
   Adw.ShortcutsSection {
+    title: C_("shortcut window", "Playback");
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Play or pause");
+      accelerator: "space";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Next song");
+      accelerator: "<Control>Right";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Previous song");
+      accelerator: "<Control>Left";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Repeat");
+      accelerator: "<Control>r";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Shuffle");
+      accelerator: "<Control>s";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Volume up");
+      accelerator: "<Control>Up";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Volume down");
+      accelerator: "<Control>Down";
+    }
+  }
+
+  Adw.ShortcutsSection {
+    title: C_("shortcut window", "Navigation");
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Home");
+      accelerator: "<Alt>1";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Explore");
+      accelerator: "<Alt>2";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Collection");
+      accelerator: "<Alt>3";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Go back");
+      accelerator: "<Alt>Left";
+    }
+
+    Adw.ShortcutsItem {
+      title: C_("shortcut window", "Search in a list");
+      accelerator: "<Control>f";
+    }
+  }
+
+  Adw.ShortcutsSection {
+    title: C_("shortcut window", "General");
+
     Adw.ShortcutsItem {
       title: C_("shortcut window", "Show Shortcuts");
       action-name: 'app.shortcuts';
