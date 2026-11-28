@@ -103,7 +103,9 @@ class HTQueueWidget(Gtk.Box):
             player = utils.player_object
             index = self._index_of(row, player.queue)
             if index is not None:
+                keyboard = self._keyboard_focus()
                 player.remove_from_queue(index)
+                self._refocus(self.queued_songs_list, index, keyboard)
             return False
 
         # Not while the clicked button is still handling the click: the list
@@ -115,11 +117,49 @@ class HTQueueWidget(Gtk.Box):
             player = utils.player_object
             index = self._index_of(row, player.tracks_to_play)
             if index is not None:
+                keyboard = self._keyboard_focus()
                 player.remove_from_next_songs(index)
                 self.update_next_songs(player)
+                self._refocus(self.next_songs_list, index, keyboard)
             return False
 
         GLib.idle_add(remove, priority=GLib.PRIORITY_HIGH_IDLE)
+
+    def _keyboard_focus(self) -> bool:
+        """Whether the focus is shown (keyboard use) and inside this panel"""
+        root = self.get_root()
+        focus = root.get_focus() if root else None
+        return bool(root and root.get_focus_visible() and focus and focus.is_ancestor(self))
+
+    def _drop_focus_inside(self) -> None:
+        """Take the focus off a row about to be rebuilt. When the focused row (or
+        its remove button) went away, GTK moved the focus to another row and the
+        list scrolled to it: the list jumped after removing a song."""
+        root = self.get_root()
+        focus = root.get_focus() if root else None
+        if focus is not None and focus.is_ancestor(self):
+            root.set_focus(None)
+
+    def _refocus(self, list_box, index, keyboard) -> None:
+        """For keyboard use, put the focus on the song now where the removed one
+        was (already in view, so the list stays put)"""
+        if not keyboard:
+            return
+        clock = self.get_frame_clock()
+        if clock is None:
+            return
+        handler = None
+
+        def after_paint(clock):
+            # Once the rebuilt rows have their place: focused before that, the
+            # list scrolled to where the new row seemed to be (the top)
+            clock.disconnect(handler)
+            row = list_box.get_row_at_index(index) or list_box.get_row_at_index(index - 1)
+            if row is not None:
+                row.grab_focus()
+
+        handler = clock.connect("after-paint", after_paint)
+        self.queue_draw()
 
     def set_drag_whole_rows(self, whole_rows: bool) -> None:
         """Drag songs by their whole row (desktop) or by a handle (phone)"""
@@ -295,6 +335,7 @@ class HTQueueWidget(Gtk.Box):
 
     def update_played_songs(self, player) -> None:
         """Updates played songs"""
+        self._drop_focus_inside()
         child = self.played_songs_list.get_row_at_index(0)
         while child:
             self.played_songs_list.remove(child)
@@ -314,6 +355,7 @@ class HTQueueWidget(Gtk.Box):
 
     def update_playing_song(self, player) -> None:
         """Updates the playing song"""
+        self._drop_focus_inside()
         child = self.playing_song_list.get_row_at_index(0)
         while child:
             child.disconnect_all()
@@ -331,6 +373,7 @@ class HTQueueWidget(Gtk.Box):
 
     def update_queue(self, player) -> None:
         """Updates the queue"""
+        self._drop_focus_inside()
         child = self.queued_songs_list.get_row_at_index(0)
         while child:
             self.queued_songs_list.remove(child)
@@ -352,6 +395,7 @@ class HTQueueWidget(Gtk.Box):
 
     def update_next_songs(self, player) -> None:
         """Updates next songs"""
+        self._drop_focus_inside()
         child = self.next_songs_list.get_row_at_index(0)
         while child:
             self.next_songs_list.remove(child)
