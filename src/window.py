@@ -19,6 +19,7 @@
 
 import html
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 from gettext import gettext as _
 from pathlib import Path
@@ -273,6 +274,7 @@ class HighTideWindow(Adw.ApplicationWindow):
         self.volume_button.get_adjustment().set_value(volume)
         self._setup_volume_button()
         self._setup_tab_shortcuts()
+        self._setup_playback_shortcuts()
         # The slider shows the volume in use: this app's, or the device's while
         # playing on one; also when it's changed from elsewhere (media keys, the device)
         self.player_object.connect("volume-changed", self.on_player_volume_changed)
@@ -1230,7 +1232,8 @@ class HighTideWindow(Adw.ApplicationWindow):
                 self.settings.set_int("window-height", height)
 
     def _setup_tab_shortcuts(self) -> None:
-        """Alt+1, Alt+2 and Alt+3 open Home, Explore and Collection (#189)"""
+        """Alt+1, Alt+2 and Alt+3 open Home, Explore and Collection (#189), and
+        Alt+Left goes back from anywhere in the window"""
         shortcuts = Gtk.ShortcutController(scope=Gtk.ShortcutScope.GLOBAL)
         for number, button in enumerate(
             (self.home_button, self.explore_button, self.collection_button), 1
@@ -1248,7 +1251,124 @@ class HighTideWindow(Adw.ApplicationWindow):
                     Gtk.CallbackAction.new(open_tab),
                 )
             )
+
+        def go_back(*_args):
+            # The page stack has Alt+Left too, but only while the focus is in it
+            return self.is_logged_in and self.navigation_view.pop()
+
+        shortcuts.add_shortcut(
+            Gtk.Shortcut.new(
+                Gtk.ShortcutTrigger.parse_string("<Alt>Left"),
+                Gtk.CallbackAction.new(go_back),
+            )
+        )
         self.add_controller(shortcuts)
+
+    def _setup_playback_shortcuts(self) -> None:
+        """TIDAL's playback keys (#204): Space plays or pauses, Ctrl+Left/Right
+        go to the previous/next song, Ctrl+R cycles repeat, Ctrl+S toggles
+        shuffle, and Ctrl+Up/Down change the volume.
+
+        Handled before the focused widget sees them, otherwise Space presses
+        whichever button was clicked last. They're left alone while typing
+        (Space, and Ctrl+arrows moving by word), and Space still presses a
+        button reached with Tab or the arrow keys, as it should.
+        """
+        keys = Gtk.EventControllerKey(propagation_phase=Gtk.PropagationPhase.CAPTURE)
+        keys.connect("key-pressed", self._on_playback_key)
+        self.add_controller(keys)
+        # Whether the focus got where it is by keyboard navigation (Tab, arrows).
+        # The focus ring can't tell: GTK shows it after any key, so a button
+        # clicked earlier looked keyboard-focused after any shortcut
+        self._nav_key_at = 0.0
+        self._focus_by_keyboard = False
+        self.connect("notify::focus-widget", self._on_focus_moved)
+        # Also while the volume slider, opened by hovering, has the keyboard
+        popup_keys = Gtk.EventControllerKey(
+            propagation_phase=Gtk.PropagationPhase.CAPTURE
+        )
+        popup_keys.connect("key-pressed", self._on_playback_key)
+        self.volume_button.get_popup().add_controller(popup_keys)
+
+    def _typing_in(self, widget) -> bool:
+        while widget is not None:
+            if isinstance(widget, (Gtk.Editable, Gtk.TextView)):
+                return True
+            widget = widget.get_parent()
+        return False
+
+    _NAV_KEYS = (
+        Gdk.KEY_Tab, Gdk.KEY_ISO_Left_Tab, Gdk.KEY_Up, Gdk.KEY_Down,
+        Gdk.KEY_Left, Gdk.KEY_Right, Gdk.KEY_Home, Gdk.KEY_End,
+        Gdk.KEY_Page_Up, Gdk.KEY_Page_Down,
+    )
+
+    def _on_focus_moved(self, *_args) -> None:
+        self._focus_by_keyboard = time.monotonic() - self._nav_key_at < 0.5
+
+    def _on_playback_key(self, _controller, keyval, _keycode, state) -> bool:
+        mods = state & Gtk.accelerator_get_default_mod_mask()
+        if keyval in self._NAV_KEYS and not mods & Gdk.ModifierType.CONTROL_MASK:
+            self._nav_key_at = time.monotonic()
+        if not self.is_logged_in:
+            return False
+        ctrl = mods == Gdk.ModifierType.CONTROL_MASK
+        focus = self.get_focus()
+        if self._typing_in(focus):
+            return False
+        player = self.player_object
+        if keyval == Gdk.KEY_space and not mods:
+            if self._focus_by_keyboard and isinstance(focus, Gtk.Widget):
+                # Reached with Tab or the arrows: Space presses it
+                if focus.get_focusable() and focus is not self:
+                    return False
+            player.play_pause()
+        elif ctrl and keyval == Gdk.KEY_Right:
+            if player.can_go_next:
+                player.play_next(skip=True)
+        elif ctrl and keyval == Gdk.KEY_Left:
+            if player.can_go_prev:
+                player.play_previous()
+        elif ctrl and keyval in (Gdk.KEY_r, Gdk.KEY_R):
+            self.on_repeat_clicked()
+        elif ctrl and keyval in (Gdk.KEY_s, Gdk.KEY_S):
+            self.shuffle_button.set_active(not self.shuffle_button.get_active())
+        elif ctrl and keyval in (Gdk.KEY_Up, Gdk.KEY_Down):
+            adjustment = self.volume_button.get_adjustment()
+            step = 0.05 if keyval == Gdk.KEY_Up else -0.05
+            adjustment.set_value(min(max(adjustment.get_value() + step, 0), 1))
+            self._show_volume_briefly()
+        else:
+            return False
+        return True
+
+    def _show_volume_briefly(self) -> None:
+        """Show the volume slider while the volume keys are pressed, and close it
+        1.5 s after the last one. It doesn't take the keyboard (no autohide), so
+        more presses and typing still reach the window."""
+        popover = self.volume_button.get_popup()
+        if not popover.get_visible():
+            popover.set_autohide(False)
+            # Otherwise its slider takes the keyboard: the next Ctrl+Up/Down goes
+            # to it (a 20 % page step) and typing stops reaching the window
+            popover.set_can_focus(False)
+            popover.popup()
+            self._volume_by_key = True
+        if getattr(self, "_volume_key_close_id", 0):
+            GLib.source_remove(self._volume_key_close_id)
+        self._volume_key_close_id = GLib.timeout_add(1500, self._hide_volume_shown_by_key)
+
+    def _hide_volume_shown_by_key(self) -> bool:
+        self._volume_key_close_id = 0
+        if getattr(self, "_volume_by_key", False):
+            self._volume_by_key = False
+            popover = self.volume_button.get_popup()
+            # Left open if the pointer went onto it meanwhile, like on hover
+            if not any(motion.contains_pointer() for motion in self._volume_motions):
+                popover.popdown()
+            popover.set_autohide(True)
+            popover.set_can_focus(True)
+        return False
 
     def _setup_volume_button(self) -> None:
         """Let the volume slider move in 1% steps (GTK rounds it to tenths), open it
@@ -1312,6 +1432,8 @@ class HighTideWindow(Adw.ApplicationWindow):
         self._volume_close_id = 0
         if not any(motion.contains_pointer() for motion in self._volume_motions):
             self.volume_button.emit("popdown")
+            # Opened by the volume keys, the button doesn't count it as its own
+            self.volume_button.get_popup().popdown()
         return False
 
     @Gtk.Template.Callback("on_output_popover_shown")
